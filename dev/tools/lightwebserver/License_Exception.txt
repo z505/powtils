@@ -1,0 +1,5 @@
+Not all files in this directory are under the license described at license.txt, the following files fall under their own licenses and are included only as convenience, they are the result of theirs authors work:
+
+libeay32.dll (Part of the openssl package)
+ssleay32.dll (Part of the openssl package)
+logo.png (Logo of PWU library)
