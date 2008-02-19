@@ -1,0 +1,28 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ PSP/PWU
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Known Bug on BSD:
+  DSO (dynpwu) will not work on BSD but works fine on Linux 
+  (date tested: Jan-Feb 2007). Reported BSD bug relating to dynamic link 
+   libraries to the FPC team, assigned to Marco V.
+
+Known Bug on Unix:
+  smartlinking will not work on FPC 2.0.2 for the PWU DSO/DLL.
+  smartlinking appears to work fine on Microsoft Windows for dynamic link
+  libraries. If compiling the DSO/DLL on unix, turn smart linking off.
+  The problem was related to finalization/initialization not occuring in the
+  DSO.
+
+Known bug: 
+
+ FPC 2.0.4 sockets Win32 was causing I/O errors through TCP/IP
+ http.pp, smtp.pp, httptest.pp,  smtptest.pp are directly unmodified from
+ the pascal server pages project and used to crash on Win32.
+ 
+ We have found the issue that is causing this! We have reported this bug
+ to the fpc team and as far as tested, is fixed in FPC 2.2.0.
+ 
+ 

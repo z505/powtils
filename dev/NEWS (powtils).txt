@@ -1,0 +1,223 @@
+------
+1.7.X (DD/FEB/2008)  -L505
+ -new plugin unit system for sessions, config, etc
+ -fixes
+
+------
+1.6.1.1 (DD/MMM/YYYY)  -L505
+ -fixes to 1.6.1 prerelease
+ -more demos
+ -found minor fpc -B build all compiler bug, restructured include files to work
+  around it
+
+------
+1.6.1 Pre Release (09/OCT/2007)  -L505 
+ -save exe size by disabling defines in pwumain. Can define no config file, 
+  no sessions, no range checking, no debugging, and more.
+ -optional terser/elegant syntax available out() outln() templateout() 
+  etc. instead of WebThisThat
+ -more robust config file syntax checking
+ -webtemplateraw
+ -lots of misc fixes  
+
+
+------
+1.6.0.2 (22/APR/2007) -L505 
+
+ -implemented webwriteA function, allows multiple arguments and types to be
+  sent to webwrite i.e. Webwrite([123, 'string', 678.9845]); 
+ -added minor debuglns missing in some functions 
+ -misc fixes
+
+------
+1.6.0.1 (29/MAR/2007) -L505 
+
+ -implemented global config file capability so each cgi program does not require
+  its own config file in its directory
+ -added more error codes for function return values
+ -misc fixes
+ -misc features added
+
+
+------
+1.6.x (30/JAN/2006) -L505 
+
+ -PSP runs as a DLL/DSO using ansistrings with a special memory manager
+  trick. Programs are now only 35-45KB in size on linux and call upon
+  the library. Compilation is faster due to this, as the computer only has
+  to create a small 35KB-45KB executable with all the PSP code external held
+  in a library. Library can be loaded from anywhere on the server therefore
+  only one copy of the library is needed to be uploaded to the server.
+  The configuration file contains the path to the library on LINE 1 similar
+  to a bash script containing the path to bash on LINE 1
+
+------
+1.5.x (17/OCT/2005) -L505 
+
+ -PWU is merged with PSP, now calling it PSP 1.5.x. The 
+  developers (Trustmaster and L505) are now working on 
+  discussing the project together, instead of splitting 
+  immediately into two separate projects.
+
+------
+0.0.0 (6/OCT/2005) -L505
+
+ - PWU 1.0a released, derived from the Pascal Server Pages 
+   project, but with different goals and aims.
+
+------  
+1.4.1 (29.09.2005) -Trustmaster
+ - fixed range checking bugs here and there;
+ - improved error reporting and made PSP more verbose, new error_reporting and error_halt
+ options in psp.conf;
+ - added GZIP output compression support, included PasZLib library, added new gzip unit and
+ gztest.pp example;
+ - updated docs, added PSP FAQ and provided some information about crosscompilation.
+
+------
+1.4.0 (10.09.2005) -Trustmaster
+ - Actually absolutely new PSP library. 95% code are new, 100% of docs are new.
+ Too many changes to list here. See the documentation for further infomation. Here
+ are just some major notes;
+ - PSP2-compliant code style (though incompatible with PSP 1.3.x);
+ - Rewritten and improved units are - urlenc (httpenc), substrings.
+ - Absolutely new units are - base64enc (Base64 encoding), hostname (addition for sockets),
+ http (HTTP client API), md5crypt (MD5 hashing), regexp (perl compatible regular
+ expressions), smtp (SMTP client API);
+ - Reborn (old names, new contents) units are - fileshare (portable shared file access),
+ sds (SDS2/SQL table manager), web (web programming unit);
+ - New docs, new logos, new license (OpenSource Artistic License);
+ - OpenSource SVN development base, SourceForge package archive.
+
+------
+1.3.3 (16.01.2005) -Trustmaster
+ - A small fix that makes possible using web unit outside of webserver's environment
+ (of course if you don't use any CGI-specific functions from it).
+
+------
+1.3.2 (27.12.2004) -Trustmaster
+ - Small bugfix in web.pp multipart/form-data handling: just one mistake didn't let
+ your programs upload files. This bug presents in PSP 1.3.1 only. 
+
+------
+1.3.1 (16.12.2004) -Trustmaster
+ - Fixed a small security bug in Sessions mechanism. Don't worry, it is not so terrible;
+ - GET is not limited with 255 chars any more. Since this version for all Win32, UNIX and
+ OS/2 platforms GET and COOKIE length is not limited.
+ - Web_GetEnv functions to get the environmental variables directly in your programs.
+
+------
+1.3.0 (12.12.2004) -Trustmaster
+ - Required FPC 1.9.X. PSP 1.3 uses some advanced features of FPC 1.9.4 (or higher)
+ so FPC 1.0.10 is no further supported. Please make sure you have latest compiler version;
+ - Extended Substrings using containing 9 most useful functions to work with AnsiStrings;
+ - FileShare unit which provides file locking/unlocking/suspending functions. It avoids
+ conflicts between several processes/copies of your program;
+ - Web_TMail class which implements SMTP mail sending standards in Pascal. With it you
+ can set message properties, attach files, use SMTP auth, etc.;
+ - Simple Data Storage (SDS) 1.3. SDS has been rewritten. Since 1.3 it is thread-safe,
+ faster, more flexible. Table structure is more unified. Row identifier is always [0]
+ element in the array, it is auto increment and plays the key role, but you should access
+ it just as other fields. No more "ByID" functions;
+ - Session table is created automatically due to config in psp.ini file;
+ - Session mechanism improvement: sessions have become more secure and bug-proof;
+ - Fixes in documentation, docs for new units. Russian documentation is no further
+ supported because documenting takes more time than programming, so it suspends the
+ project growth. But we'll pay more attention to English docs;
+ - Code/memory/performance optimizations;
+ - Fixed several bugs in multipart/form-data handling functions;
+ - New functions in web.pp: Web_RandPass (for random word generation), Web_UnsetVar
+ (to unset vars). Web_Crypt is not provided any more because it is to dangerous (may
+ hang the machine);
+ - Probably some more bugfixes not mentioned above.
+
+------
+1.2.2 (06.07.2004):
+ - This time all the changes are connected with formatted output. This update brings
+ ability to format strings/output like in PHP/Perl with $variable sequences.
+ - New functions are: Web_SetVar, Web_FormatStr, Web_Out, Web_OutLn, Web_TemplateOut.
+
+------
+1.2.1 (28.06.2004):
+ - Some tiny optimisations;
+ - New Web_ResourceOut function for outputting such files as images, stylesheets (and lots more) with PSP;
+ - Rewritten web_date unit: 1 universal Web_FormatDate function instead of old 3.
+
+------
+1.2.0 (23.06.2004):
+ - PSP have become even faster, easier to use and takes less memory!
+ - Code optimisation in each unit.
+ - Fixed some bugs.
+ - Some new options in configuration file, some old are removed.
+ - No more cgi as argument! Just use "GetVar('varname')" and so on.
+ - Fast unlimited (or limited how you wish) form based file uploads.
+ - Visual and content changes in documentation which is converted to XHTML Trasitional.
+
+------
+1.1.2 (30.05.2004):
+ - SDS 1.2f: all integers are replaced with longint to support very large tables;
+ - Web_Nl2Br function added. See the docs.
+
+------
+1.1.1 (18.05.2004):
+ - Changed unit dependances. Some units are merged.
+ - Fixed some bugs.
+ - Added configuration file "psp.ini". Since this version PSP can not work without it.
+ - Added Microsoft IIS support (but without POST method in this case).
+ - Added Sessions mechanism (read the documentation for more information).
+ - Changes in Dynamic Library version: PSP DLib now includes all SDS functions.
+ - Simple Data Storage 1.2 update: SDS row identifiers have really SQL-like
+ AUTO_INCREMENT type.
+ - Web_XORHash function returns HexString result.
+
+------
+1.1.0 (19.04.2004):
+ - First of all it has got smaller, faster and easier!
+ - Rewritten HTTPEnc unit.
+ - New variable recieving mechanism.
+ - Support of GET and Cookies: 256 charecters limit (all platforms).
+ - Recieve POST, GET variables and Cookies.
+ - Functions to Set / Delete Cookies.
+ - Some changes in Application Template.
+ - New Web_Config unit.
+ - New crypting functions: Web_XORCrypt and Web_XORHash.
+ - New Web_Mail unit.
+ - SDS has got faster and protected from errors.
+ - Added some new SDS functions.
+
+------
+1.0.5 (15.03.2004):
+ - Fixed SubstrReplace: substring replacement is now protected from recursion.
+ For example, earlier line "s:=SubstrReplace('Very ICE line','ICE','NICE')" could
+ loop forever and now it works correctly;
+ - Added GET request method support for Windows and Linux. On Windows query string
+ is limited to 256 characters. There are no limits on Linux.
+
+------
+1.0.4 (27.02.2004):
+ - Fixed bug with %2A (* char);
+ - Simplified PSP application template;
+ - Include files (cgi_var.pp and cgi_get.pp) now belong to the history.
+
+------
+1.0.3 (26.02.2004):
+ - Fixed bug in Web_DisableTags;
+ - Web_Hash renamed to Web_Crypt;
+ - HTTPEnc unit;
+ - Some changes in cgi_get.pp, cgi_var.pp, web.pp, web_filters;
+ - Included Simple Data Storage 1.0;
+ - Documentation update;
+ - Rewritten FPC_GuestBook;
+ - PSP and SDS are available as Dynamic Libraries
+
+------
+1.0.2 (6.01.2004):
+ - The bug is fixed: end of line is now supported in got CGI variables (earlier it was replaced with space).
+ - Some mistakes in documentation are fixed.
+ - Added new example ("hasher") and a few words about crypting in documentation.
+ - Since this release there will be two packages: Standard and Small.
+
+------
+1.0.1 (2.01.2004):
+ - New PSP unit has been added: Web_Date. There are some simple functions to feel
+ comfortable with dates.  
