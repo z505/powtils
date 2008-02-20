@@ -22,8 +22,11 @@ const // platform specific directory slash (Mac not supported yet)
   {$IFDEF WINDOWS}SLASH = '\';{$ENDIF}
   SLASHES = ['\', '/'];
 
-const 
-  CGI_CRLF = #13#10; // CGI uses #13#10 no matter what OS
+const
+  // CGI uses #13#10 no matter what OS
+  CGI_CRLF = #13#10; 
+  // default program extension
+  EXT={$IFDEF WINDOWS}'.exe'{$ENDIF} {$IFDEF UNIX}''{$ENDIF};
 
 implementation
 
