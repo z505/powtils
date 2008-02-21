@@ -17,21 +17,7 @@ const
   CANT_READ_CFG_FILE = '1A: can''t read cfg file';
   MISSING_INIT_CALL_OR_UNIT = 'missing Init() call or unit';
 
-const
-  // lower case string constants
-  L_OUTPUT_BUFFERING   = 'output_buffering';
-  L_OUTPUT_COMPRESSION = 'output_compression';
-  L_HEADER_CHARSET     = 'header_charset';
-  L_ERROR_REPORTING    = 'error_reporting';
-  L_ERROR_HALT         = 'error_halt';
-  L_UPLOAD_MAX_SIZE    = 'upload_max_size';
-  L_SESSION_PATH       = 'session_path';
-  L_SESSION_LIFE_TIME  = 'session_life_time';
 
-  // upper case string constants
-  U_HEADERS_SENT = 'HEADERS_SENT';
-  U_ERRORS = 'ERRORS';
-  U_FALSE = 'FALSE';
 
 function errtostr(e: errcode): astr;
 
