@@ -196,7 +196,7 @@ end;
 
 procedure CleanUnitCrap(const path: astr);
 const
-  masks{: array [1..5] of string[5]}
+  masks: array [1..5] of string[5]
     = ('*.ppu', '*.dcu','*.a', '*.res','*.o');
 var
   i: integer;
@@ -204,7 +204,7 @@ begin
   noteln('Removing files from dir: ' + path);
   for i:= low(masks) to high(masks) do begin
     if not DelFiles(path, masks[i]) then
-      HaltErr('did not delete at least 1 file in ' path);
+      HaltErr('did not delete at least 1 file in '+path);
   end;
 end;
 
