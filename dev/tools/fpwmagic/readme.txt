@@ -1,0 +1,1 @@
+see http://z505.com/powtils/idx.shtml
