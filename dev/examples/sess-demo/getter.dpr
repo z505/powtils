@@ -4,9 +4,10 @@
 program getter; {$APPTYPE CONSOLE}
 
 uses
-  init,
-  pwsdssess,
-  pwmain;
+  pwinit,
+  pwmain,
+  pwsdssess;
+
 
 begin
   out('User id: ');
