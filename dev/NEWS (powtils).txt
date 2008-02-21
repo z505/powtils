@@ -1,5 +1,10 @@
 ------
-1.7.X (DD/FEB/2008)  -L505
+1.7.1 (21/FEB/2008)  -L505
+ -delphi compat to 1.7.x-prerelease
+ -fixes
+
+------
+1.7.X-prerelease (DD/FEB/2008)  -L505
  -new plugin unit system for sessions, config, etc
  -fixes
 
