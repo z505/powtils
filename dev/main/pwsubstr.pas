@@ -48,7 +48,7 @@ function StrReverse(const str: string): string;
 function StrTrimLeft(const str: string): string;
 function StrTrimRight(const str: string): string;
 function StrTrim(const str: string): string;
-function LeftStr(const s: string; const cnt: integer): string; inline;
+function LeftStr(const s: string; const cnt: integer): string; {$IFDEF FPC}inline;{$ENDIF}
 
 
 //backwards compatibility
@@ -78,7 +78,7 @@ const
   STR_CONST_DIGITS = '1234567890';
   STR_CONST_INT = '-1234567890';
 
-function LeftStr(const s: string; const cnt: integer): string; inline;
+function LeftStr(const s: string; const cnt: integer): string; {$IFDEF FPC}inline;{$ENDIF}
 begin
   result:= copy(s, 1, cnt);
 end;

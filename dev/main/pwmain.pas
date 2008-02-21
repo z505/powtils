@@ -161,7 +161,7 @@ function FileOut(const fname: astr): errcode;
 function ResourceOut(const fname: astr): errcode;
 procedure BufferOut(Const buff; len: LongWord);
 
-function TemplateOut(const fname: astr; const HtmlFilter: boolean): errcode;
+function TemplateOut(const fname: astr; const HtmlFilter: boolean): errcode; overload;
 function TemplateOut(const fname: astr): errcode; overload;
 function TemplateOut1(const fname: astr; const HtmlFilter: boolean): errcode; overload;
 function TemplateRaw(const fname: astr): errcode;
@@ -715,7 +715,7 @@ begin
   if headers_sent then exit;
   // kill if mandatory Init() not called
   if not plugin_init_called then ErrWithHeader(MISSING_INIT_CALL_OR_UNIT);
-  if CustomSessUpdate <> nil then CustomSessUpdate;
+  if {$IFNDEF FPC}@{$ENDIF}CustomSessUpdate <> nil then CustomSessUpdate;
   // write headers to stdout
   if length(hdr) > 0 then
     for i:= 0 to length(hdr) - 1 do
@@ -1037,7 +1037,8 @@ end;
   function iCustomSessUnitSet: boolean;
   begin
     result:= false;
-    if (CustomSessUnitInit <> nil) and (CustomSessUpdate <> nil) then
+    if (assigned(CustomSessUnitInit)) and (assigned(CustomSessUpdate))
+    then
       result:= true;
   end;
 
@@ -1045,7 +1046,7 @@ end;
   function iCustomCfgUnitSet: boolean;
   begin
     result:= false;
-    if (CustomCfgUnitInit <> nil) then result:= true;
+    if assigned(CustomCfgUnitInit) then result:= true;
   end;
 
 
@@ -2369,13 +2370,13 @@ end;
 function SaveUpFile(const name, fname: astr): boolean;
 var
   i: integer;
-  fh: File of char;
+  fh: TFileOfChar;
   written : boolean;
 {$I begin_saveupfile.inc}
   result:= false;
   if length(UpFiles) = 0 then exit;
   written:= false;
-  if not OpenFile(fh, fname, 'w') then exit;
+  if not strwrap1.OpenFile(fh, fname, 'w') then exit;
   i:= 0;
   repeat
     if UpFiles[i].name = name then
