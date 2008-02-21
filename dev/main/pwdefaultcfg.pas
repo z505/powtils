@@ -1,4 +1,5 @@
-unit pwdefaultcfg; { $I defines1.inc}
+unit pwdefaultcfg;
+{$I defines1.inc}
 
 interface
 uses
@@ -10,9 +11,14 @@ function GetCfgPath: astr;
 
 implementation
 uses
- pwmain, pwenvvar, pwfileutil, strwrap1, pwsubstr, pwnative_out, pwerrors,
- {$IFDEF WINDOWS}windows{$ENDIF}
- {$IFDEF UNIX}baseunix{$ENDIF} ;
+{$IFDEF UNIX}baseunix,{$ENDIF} {$IFDEF WINDOWS}windows,{$ENDIF}
+ pwmain,
+ pwenvvar,
+ pwfileutil,
+ strwrap1,
+ pwsubstr,
+ pwnative_out,
+ pwerrors;
 
 
 const
