@@ -47,8 +47,7 @@ function UnsetSess(const name: string): boolean;
 
 implementation
 uses 
-  pwenvvar,  pwurlenc, pwsds, pwfileutil, pwbase64enc, sysutils,
-  delphisystemcompat;
+  pwenvvar,  pwurlenc, pwsds, pwfileutil, pwbase64enc, sysutils;
 
 var sess: TWebVars;   
     sess_initialized: boolean = false; 
