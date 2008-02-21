@@ -7,8 +7,8 @@
 --------------------------------------------------------------------------------
  Main Web Unit
 --------------------------------------------------------------------------------
-  Main functions for web programs. Developers: SVN logs are important. Notes are 
-  not added to the top of this source file any more. Log your changes when you 
+  Main functions for web programs. Developers: SVN logs are important. Notes are
+  not added to the top of this source file any more. Log your changes when you
   upload to SVN. Comment the source code, regardless.
 --------------------------------------------------------------------------------
   Authors/Credits:
@@ -20,25 +20,22 @@
 
 unit pwmain; {$IFDEF FPC}{$GOTO ON} {$NOTES ON} {$NOTE USING STATIC WEB UNIT}{$ENDIF}
 
-(* turning below defines off saves exe size and customizes behavior *)
+{ Defines:
+  DBUG_ON      // detailed custom debugging if you assign debugln:= @yourproc;
+  GZIP_ON      // html compression output saves bandwidth, output_compression and output_buffering must also be enabled in config settings for gzip to have any effect. Gzip is harder to debug at the command line though as you will see a bunch of crap ;) It also takes more CPU power.. but saves the bandwidth bill, so it is up to you.
+  PWUDEBUG     // text log file debugging, only use on localhost single visitor testing since it multiple visitors cannot write simutaneously to the same log file
+  EXTRA_SECURE // check overflows, range errors (recommended)
+  SYSUTILS_ON  // compactsysutils is used sometimes depending on above devines. If you have problems then resort back to using Sysutils
 
-{$DEFINE DBUG_ON}      // detailed custom debugging if you assign debugln:= @yourproc;
-{$DEFINE GZIP_ON}      // html compression output saves bandwidth, output_compression and output_buffering must also be enabled in config settings
-{$DEFINE PWUDEBUG}     // text log file debugging, only use on localhost single visitor testing since it multiple visitors cannot write simutaneously to the same log file
-{$DEFINE EXTRA_SECURE} // check overflows range errors (recommended)
-{$DEFINE SYSUTILS_ON}  // compactsysutils is used sometimes depending on above devines. If you have problems then resort back to using Sysutils
+// Above defines customize behavior, some save exe size if OFF. Read comments!
 
+// Delete all .a/.o/.ppu files in *all* directories with DELP tool, otherwise
+// defines will not have effect in many cases.
 
-{ Use the -d compiler option if you want above options on. For example:
-   -dGZIP_ON
-   
-   Delete all the .a/.o/.ppu files in *all* directories with DELP tool, otherwise 
-   defines will not have effect. }
+// Using $DEFINE in this unit is not global for all units, so instead use delphi
+// project options or fpc's -d option for global defines across units.
 
-
-{$IFDEF FPC}{$MODE OBJFPC}{$H+}
-  {$IFDEF EXTRA_SECURE}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
-{$ENDIF}
+{$I defines1.inc}
 
 {$IFNDEF FPC}{$DEFINE SYSUTILS_ON}{$ENDIF}
 
@@ -48,12 +45,12 @@ unit pwmain; {$IFDEF FPC}{$GOTO ON} {$NOTES ON} {$NOTE USING STATIC WEB UNIT}{$E
 
 interface
 
-uses                                                     
+uses
   pwerrors,
-  pwtypes;  
+  pwtypes;
 
-// for setcookie default behavior. 
-const FUTURE_COOKIE  = 'Mon, 01 Dec 2099 12:00:00 GMT'; //must be many years ahead 
+// for setcookie default behavior.
+const FUTURE_COOKIE  = 'Mon, 01 Dec 2099 12:00:00 GMT'; //must be many years ahead
       EXPIRED_COOKIE = 'Mon, 01 Jan 2001 12:00:00 GMT'; //must be many years behind
 
 
@@ -66,9 +63,8 @@ const
   CASE_SENSITIVE = false;
   CASE_IGNORE = true;
 
-
- // Supply Powtils version 
- {$i version.inc}
+  // Powtils version
+  {$i version.inc}
 
 {--- Public Functions --------------------------------------------------------}
 
@@ -79,20 +75,20 @@ procedure OffReadln;
 function Lcase(const s: astr): astr;
 function Ucase(const s: astr): astr;
 
-{ CGI Variable Functions }
-function CountCGIVars: longword;
-function GetCgiVar(const name: astr): astr;
-function GetCgiVar_S(const name: astr; Security: integer): astr;
+{ CGI Variable Functions } // note: function names changed in 1.7.X }
+function CountGetP: longword;
+function GetP(const name: astr): astr;
+function GetP_S(const name: astr; Security: integer): astr;
 
 { TODO get cgi var based on a valid set of characters such as A..Z, 1..9, a..z
   type TCharSet = set of char;
-      function GetCgiVar(const input: astr; CharSet: TCharSet): bln; 
+      function GetCgiVar(const input: astr; CharSet: TCharSet): bln;
   Use the pwstrfilter unit, with Alpha, numeric, alphanumeric sets     }
 
 
 function GetCgiVarAsFloat(const name: astr): double;
 function GetCgiVarAsInt(const name: astr): longint;
-function GetCgiVar_SafeHTML(const name: astr): astr; 
+function GetCgiVar_SafeHTML(const name: astr): astr;
 function FetchCgiVarName(idx: longword): astr;
 function FetchCgiVarVal(idx: longword): astr;
 function FetchCgiVarName_S(idx: longword; Security: integer): astr;
@@ -216,7 +212,7 @@ function FetchCfgVarName(idx: longword): astr;
 function FetchCfgVarVal(idx: longword): astr;
 function IsCfgVar(const name: astr): bln;
 function SetCfgVar(const name, value: astr): bln;
-function GetCfgVar(const name: astr): astr; 
+function GetCfgVar(const name: astr): astr;
 
 
 { Error Functions }
@@ -225,67 +221,71 @@ procedure ThrowWarn(const s: astr);
 procedure ErrWithHeader(const s: astr);
 
 const // obsolete backwards compatibility
-  ThrowWebError: procedure(const s: astr)                                = {$IFDEF FPC}@{$ENDIF}ThrowErr;
+  CountCGIVars: function: longword                                              = {$IFDEF FPC}@{$ENDIF}CountGetP;
+  GetCgiVar: function (const name: astr): astr                                  = {$IFDEF FPC}@{$ENDIF}GetP;
+  GetCgiVar_S: function (const name: astr; Security: integer): astr             = {$IFDEF FPC}@{$ENDIF}GetP_S;
+
+  ThrowWebError: procedure(const s: astr)                                       = {$IFDEF FPC}@{$ENDIF}ThrowErr;
   WebFileOut: function(const fname: astr): errcode                              = {$IFDEF FPC}@{$ENDIF}fileout;
   WebResourceOut: function(const fname: astr): errcode                          = {$IFDEF FPC}@{$ENDIF}resourceout;
   WebBufferOut: procedure(Const Buff; BuffLength : LongWord)                    = {$IFDEF FPC}@{$ENDIF}bufferout;
-  WebTemplateOut: function(const fname: astr; 
-                           const HTMLFilter: bln): errcode                  = {$IFDEF FPC}@{$ENDIF}templateout;
+  WebTemplateOut: function(const fname: astr;
+                           const HTMLFilter: bln): errcode                      = {$IFDEF FPC}@{$ENDIF}templateout;
   WebTemplateRaw: function(const fname: astr): errcode                          = {$IFDEF FPC}@{$ENDIF}templateraw;
   WebFormat: function(const s: astr): astr                                      = {$IFDEF FPC}@{$ENDIF}fmt;
   WebFormatAndFilter: function(const s: astr): astr                             = {$IFDEF FPC}@{$ENDIF}fmtfilter;
-  WebFormat_SF: function(const s: astr;                                            
-                         const HtmlFilter: bln;                                     
-                         Security, 
-                         TrimSecurity: integer): astr                           = {$IFDEF FPC}@{$ENDIF}fmt_SF;   
+  WebFormat_SF: function(const s: astr;
+                         const HtmlFilter: bln;
+                         Security,
+                         TrimSecurity: integer): astr                           = {$IFDEF FPC}@{$ENDIF}fmt_SF;
   CountWebVars: function: longword                                              = {$IFDEF FPC}@{$ENDIF}CountVars;
   FetchWebVarName: function(idx: longword): astr                                = {$IFDEF FPC}@{$ENDIF}FetchVarName;
   FetchWebVarValue: function(idx: longword): astr                               = {$IFDEF FPC}@{$ENDIF}FetchVarVal;
   GetWebVar: function(const name: astr): astr                                   = {$IFDEF FPC}@{$ENDIF}GetVar;
   GetWebVar_S: function(const name: astr; Security: integer): astr              = {$IFDEF FPC}@{$ENDIF}GetVar_S;
-  GetWebVarAsFloat: function(const name: astr): double                        = {$IFDEF FPC}@{$ENDIF}GetVarAsFloat;
-  GetWebVarAsInt: function(const name: astr): longint                         = {$IFDEF FPC}@{$ENDIF}GetVarAsInt;
-  SetWebVar: procedure(const name, value: astr)                               = {$IFDEF FPC}@{$ENDIF}SetVar;
-  SetWebVarAsFloat: procedure(const name: astr; value: double)                = {$IFDEF FPC}@{$ENDIF}SetVarAsFloat;
-  SetWebVarAsInt: procedure(const name: astr; value: longint)                 = {$IFDEF FPC}@{$ENDIF}SetVarAsInt;
-  IsWebVar: function(const name: astr): byte                                  = {$IFDEF FPC}@{$ENDIF}IsVar;
-  UnsetWebVar: procedure (const name: astr)                                   = {$IFDEF FPC}@{$ENDIF}UnsetVar;
-  Webwrite: procedure(const s: astr)                                          = {$IFDEF FPC}@{$ENDIF}out;
+  GetWebVarAsFloat: function(const name: astr): double                          = {$IFDEF FPC}@{$ENDIF}GetVarAsFloat;
+  GetWebVarAsInt: function(const name: astr): longint                           = {$IFDEF FPC}@{$ENDIF}GetVarAsInt;
+  SetWebVar: procedure(const name, value: astr)                                 = {$IFDEF FPC}@{$ENDIF}SetVar;
+  SetWebVarAsFloat: procedure(const name: astr; value: double)                  = {$IFDEF FPC}@{$ENDIF}SetVarAsFloat;
+  SetWebVarAsInt: procedure(const name: astr; value: longint)                   = {$IFDEF FPC}@{$ENDIF}SetVarAsInt;
+  IsWebVar: function(const name: astr): byte                                    = {$IFDEF FPC}@{$ENDIF}IsVar;
+  UnsetWebVar: procedure (const name: astr)                                     = {$IFDEF FPC}@{$ENDIF}UnsetVar;
+  Webwrite: procedure(const s: astr)                                            = {$IFDEF FPC}@{$ENDIF}out;
   WebwriteA: procedure(args: array of const)                                    = {$IFDEF FPC}@{$ENDIF}outa;
-  WebwriteF: procedure(const s: astr)                                         = {$IFDEF FPC}@{$ENDIF}outf;
-  WebwriteFF: procedure(const s: astr)                                        = {$IFDEF FPC}@{$ENDIF}outff;
-  WebwriteF_Fi: procedure(const s: astr; const HTMLFilter: bln)           = {$IFDEF FPC}@{$ENDIF}outf_fi;
-  WebwriteLn: procedure(const s: astr)                                        = {$IFDEF FPC}@{$ENDIF}outln;
-  WebwriteLnF: procedure(const s: astr)                                       = {$IFDEF FPC}@{$ENDIF}outlnf;
-  WebwriteLnFF: procedure(const s: astr)                                      = {$IFDEF FPC}@{$ENDIF}outlnff;
-  WebwriteLnF_Fi: procedure(const s: astr; const HTMLFilter: bln )        = {$IFDEF FPC}@{$ENDIF}outlnf_fi;
+  WebwriteF: procedure(const s: astr)                                           = {$IFDEF FPC}@{$ENDIF}outf;
+  WebwriteFF: procedure(const s: astr)                                          = {$IFDEF FPC}@{$ENDIF}outff;
+  WebwriteF_Fi: procedure(const s: astr; const HTMLFilter: bln)                 = {$IFDEF FPC}@{$ENDIF}outf_fi;
+  WebwriteLn: procedure(const s: astr)                                          = {$IFDEF FPC}@{$ENDIF}outln;
+  WebwriteLnF: procedure(const s: astr)                                         = {$IFDEF FPC}@{$ENDIF}outlnf;
+  WebwriteLnFF: procedure(const s: astr)                                        = {$IFDEF FPC}@{$ENDIF}outlnff;
+  WebwriteLnF_Fi: procedure(const s: astr; const HTMLFilter: bln )              = {$IFDEF FPC}@{$ENDIF}outlnf_fi;
   CountWebHeaders: function: longword                                           = {$IFDEF FPC}@{$ENDIF}CountHeaders;
-  FetchWebHeaderName: function(idx: longword): astr                           = {$IFDEF FPC}@{$ENDIF}FetchHeaderName;
-  FetchWebHeaderVal: function(idx: longword): astr                            = {$IFDEF FPC}@{$ENDIF}FetchHeaderVal;
-  GetWebHeader: function(const name: astr): astr                            = {$IFDEF FPC}@{$ENDIF}GetHeader;
-  IsWebHeader: function(const name: astr): bln                            = {$IFDEF FPC}@{$ENDIF}IsHeader;
-  SetWebHeader: function(const name, value: astr): bln                    = {$IFDEF FPC}@{$ENDIF}SetHeader;
-  UnsetWebHeader: function(const name: astr): bln                         = {$IFDEF FPC}@{$ENDIF}UnsetHeader;
-  PutWebHeader: function(const header: astr): bln                         = {$IFDEF FPC}@{$ENDIF}PutHeader;
-  TrimBadChars_file:  function (const input: astr): astr                    = {$IFDEF FPC}@{$ENDIF}TrimBadFile;
-  TrimBadChars_dir:  function (const input: astr): astr                     = {$IFDEF FPC}@{$ENDIF}TrimBadDir;
+  FetchWebHeaderName: function(idx: longword): astr                             = {$IFDEF FPC}@{$ENDIF}FetchHeaderName;
+  FetchWebHeaderVal: function(idx: longword): astr                              = {$IFDEF FPC}@{$ENDIF}FetchHeaderVal;
+  GetWebHeader: function(const name: astr): astr                                = {$IFDEF FPC}@{$ENDIF}GetHeader;
+  IsWebHeader: function(const name: astr): bln                                  = {$IFDEF FPC}@{$ENDIF}IsHeader;
+  SetWebHeader: function(const name, value: astr): bln                          = {$IFDEF FPC}@{$ENDIF}SetHeader;
+  UnsetWebHeader: function(const name: astr): bln                               = {$IFDEF FPC}@{$ENDIF}UnsetHeader;
+  PutWebHeader: function(const header: astr): bln                               = {$IFDEF FPC}@{$ENDIF}PutHeader;
+  TrimBadChars_file:  function (const input: astr): astr                        = {$IFDEF FPC}@{$ENDIF}TrimBadFile;
+  TrimBadChars_dir:  function (const input: astr): astr                         = {$IFDEF FPC}@{$ENDIF}TrimBadDir;
 
-  CountWebConfigVars: function: longword                                       = {$IFDEF FPC}@{$ENDIF}CountCfgVars;
-  FetchWebConfigVarName: function(idx: longword): astr                         = {$IFDEF FPC}@{$ENDIF}FetchCfgVarName;
-  FetchWebConfigVarValue: function(idx: longword): astr                        = {$IFDEF FPC}@{$ENDIF}FetchCfgVarVal;
-  IsWebConfigVar: function(const name: astr): bln                          = {$IFDEF FPC}@{$ENDIF}IsCfgVar;
-  SetWebConfigVar: function(const name, value: astr): bln                  = {$IFDEF FPC}@{$ENDIF}SetCfgVar;
-  GetWebConfigVar: function(const name: astr): astr                            = {$IFDEF FPC}@{$ENDIF}GetCfgVar;
+  CountWebConfigVars: function: longword                                        = {$IFDEF FPC}@{$ENDIF}CountCfgVars;
+  FetchWebConfigVarName: function(idx: longword): astr                          = {$IFDEF FPC}@{$ENDIF}FetchCfgVarName;
+  FetchWebConfigVarValue: function(idx: longword): astr                         = {$IFDEF FPC}@{$ENDIF}FetchCfgVarVal;
+  IsWebConfigVar: function(const name: astr): bln                               = {$IFDEF FPC}@{$ENDIF}IsCfgVar;
+  SetWebConfigVar: function(const name, value: astr): bln                       = {$IFDEF FPC}@{$ENDIF}SetCfgVar;
+  GetWebConfigVar: function(const name: astr): astr                             = {$IFDEF FPC}@{$ENDIF}GetCfgVar;
 
 
 {$IFDEF DBUG_ON}
-  procedure dummydebug(s: astr); 
+  procedure dummydebug(s: astr);
   var debugln: procedure(s: astr) = {$IFDEF FPC}@{$ENDIF}dummydebug;
   // DEVELOPERS: ASSIGN DEBUGLN() PROC IN YOUR CGI PROGRAM FOR CUSTOM LOGGING
 {$ENDIF}
 
 // flags
-var headers_sent: bln = false; 
+var headers_sent: bln = false;
 
 // END OF PUBLIC FUNCTION DECLARATIONS
 {-----------------------------------------------------------------------------}
@@ -306,7 +306,7 @@ type
 
   TSessUpdate = function: bln;
 
-var 
+var
   // set this when using session plugin unit
   CustomSessUnitInit: procedure = nil;
   CustomSessUpdate: TSessUpdate = nil;
@@ -315,9 +315,9 @@ var
 
 { functions prefixed with "i" are internal but publically available for addons}
 function iUpdateWebVar(var webv: TWebVars; const name, value: astr; upcased: bln): bln;
-function iAddWebCfgVar(const name, value: astr): bln;  
+function iAddWebCfgVar(const name, value: astr): bln;
 procedure iAddWebVar(var webv: TWebVars; const name, value: astr);
-procedure iSetRTI(const name, value: astr); 
+procedure iSetRTI(const name, value: astr);
 function iCustomSessUnitSet: bln;
 function iCustomCfgUnitSet: bln;
 
@@ -331,7 +331,8 @@ function iCustomCfgUnitSet: bln;
 uses
   {$IFDEF WINDOWS}windows,{$ENDIF}
   {$IFDEF UNIX}baseunix,{$ENDIF}
-  {$IFDEF SYSUTILS_ON}sysutils{$ELSE}compactsysutils{$ENDIF},
+  {$IFDEF SYSUTILS_ON}sysutils{$ENDIF},
+  pwstrutil,
   {$IFDEF GZIP_ON}pwobjbuff,{$ENDIF} // output buffer w/built in gzip
   pwnative_out, // simple writeln
   pwenvvar, pwfileutil, pwsubstr, pwurlenc, pwmimetypes, strwrap1;
@@ -341,7 +342,7 @@ uses
 
 var
   // flags
-  plugin_init_called: bln = false; 
+  plugin_init_called: bln = false;
 
 type
   // file structure
@@ -355,7 +356,7 @@ type
 
   // Line type for Multipart/Form-Data handling functions
   TMp_Line = array[1..6] of astr;
-  
+
   // Multipart/Form-Data storage
   TMp_Form = array of astr;
   PMp_Form = ^TMp_Form;
@@ -371,20 +372,20 @@ var
   hdr,  // headers
   rti,  // run time information
   vars  // all web data
-  : TWebVars;   
-       
+  : TWebVars;
+
   conf: TWebCfgVars;    // configuration data
 
   upfiles: TWebUpFiles; // file uploads storage
 
   // config flags
-  error_reporting, error_halt: bln; 
+  error_reporting, error_halt: bln;
  {$IFDEF GZIP_ON}
   output_buffering, output_compression : bln; // Output flags
  {$ENDIF}
 
   // init flags
-  cook_initialized: bln = false; 
+  cook_initialized: bln = false;
 
  {$IFDEF GZIP_ON}
   outbuff: PSmartBuffer = nil;
@@ -409,6 +410,9 @@ function unsetenv(const name: pchar): longint; cdecl; external 'c' name 'unseten
 {--- PRIVATE FUNCTIONS/PROCEDURES ---------------------------------------------}
 {------------------------------------------------------------------------------}
 
+// delphi issues
+{$I delphisystemcompat.inc}
+
 
 {$IFDEF DBUG_ON}
   // USER MUST ASSIGN HIS OWN DEBUG PROC UNLESS PWUDEBUG DEFINED
@@ -432,9 +436,6 @@ procedure OffReadln;
 begin
   if SERV.DocRoot() = '' then readln;
 end;
-
-// delphi issues
-{$I delphisystemcompat.inc}
 
 
 procedure ThrowNoFileErr(const fname: astr);
@@ -613,8 +614,8 @@ procedure InitCook;
   procedure PutCookies;
 
     { Dump into cook[] var }
-    function PutCookieVars(const data: astr): bln;
-    var 
+    procedure PutCookieVars(const data: astr);
+    var
       i, len: longword;
       lex, name, value: astr;
 
@@ -628,7 +629,6 @@ procedure InitCook;
     begin
       {$IFDEF DBUG_ON} debugln('PutCookieVars begin');{$ENDIF}
       // Init
-      result:= false;
       i:= 1;
       len:= length(data);
       if data[1] = '\' then inc(i);
@@ -650,7 +650,6 @@ procedure InitCook;
         while (i <= len) and (data[i] = ' ') do inc(i);
       end;
 
-      result:= true;
       {$IFDEF DBUG_ON} debugln('PutCookieVars end');{$ENDIF}
     end;
 
@@ -848,7 +847,6 @@ begin {$IFDEF DBUG_ON} debugln('MP_SplitLine begin...');{$ENDIF}
   elem:= 1;
   len:= length(line);
   quoted:= false;
-  cnt:= 1;
 
   for cnt:= 1 to len do
   begin
@@ -922,7 +920,7 @@ begin {$IFDEF DBUG_ON} debugln('MP_PutCGIVars begin');{$ENDIF}
        // ** Tonys Code     
        // *** Move is Much faster then copy especially for large strings.
       if UpFiles[UpIdx].size > 0 then
-        move(form^[cnt][dpos], UpFiles[UpIdx].Data[1], UpFiles[UpIdx].size); 
+        move(form^[cnt][dpos], UpFiles[UpIdx].Data[1], UpFiles[UpIdx].size);
     end else // It is a variable
     begin
       // Getting value till the end
@@ -1035,7 +1033,7 @@ end;
 function Lcase(const s: astr): astr;
 begin
  {$IFDEF FPC} result:= system.lowercase(s);
- {$ELSE}      result:= sysutils.lowercase(s); 
+ {$ELSE}      result:= lowercase(s);
  {$ENDIF}
 end;
 
@@ -1043,7 +1041,7 @@ end;
 function Ucase(const s: astr): astr;
 begin
  {$IFDEF FPC}result:= system.upcase(s);
- {$ELSE}     result:= sysutils.uppercase(s); 
+ {$ELSE}     result:= uppercase(s); 
  {$ENDIF}
 end;
 
@@ -1191,7 +1189,7 @@ end;
 
 
 { Returns number of elements in the cgi var list }
-function CountCGIVars: longword;
+function CountGetP: longword;
 begin
   result:= length(cgi);
 end;
@@ -1568,7 +1566,7 @@ end;
 
   Default Security level is 2. Use the _S suffix function if you do not need
   high filtering security, or you wish to implment your own filters }
-function GetCgiVar(const name: astr): astr;
+function GetP(const name: astr): astr;
 begin
   result:= GetCgiVar_S(name, SECURE_ON);
 end;
@@ -1619,7 +1617,7 @@ begin
 end;
 
 
-function GetCgiVar_S(const name: astr; security: integer): astr;
+function GetP_S(const name: astr; security: integer): astr;
 begin
   result:= GetCgiVar_Unsafe(name);
   case security of
@@ -2033,7 +2031,7 @@ begin
     for i:=0 to high(Args) do  
     begin  
       case Args[i].vtype of  
-        vtinteger   : out(inttostr(args[i].vinteger));  
+        vtinteger   : out(pwstrutil.inttostr(args[i].vinteger));  
         vtboolean   : out(booltostr(args[i].vboolean));
         vtchar      : out(astr(args[i].vchar));  
         vtextended  : out(FormatFloat('', args[i].VExtended^));  // i.e float value
@@ -2136,21 +2134,20 @@ begin
     NativeWriteLn(s);
 end;
 
-{ Plain file output - returns error if file not found (see pwuErrors)  }
+{ Plain file output - returns FILE_READ_ERR if problem, OK otherwise  }
 function FileOut(const fname: astr): errcode;
 var
   fh: text;
   s: astr;
 begin
-  result:= GENERAL_ERR; 
+  result:= FILE_READ_ERR;
   if not FileExists_read(fname) then
   begin
     ThrowNoFileErr(fname);
-    result:= FILE_READ_ERR;
     exit;
   end;
   if NoHeadSentNorBuffering then SendHeaders;
-                
+
   assign(fh, fname);
   reset(fh);
 
@@ -2160,7 +2157,7 @@ begin
     SimpleOutLn(s);
   end;
   close(fh);
-  result:= OK; 
+  result:= OK;
 end;
 
 { private }
@@ -2193,13 +2190,12 @@ var
   buff: pchar;
   len: longword;
 begin
-  result:= GENERAL_ERR;
+  result:= FILE_READ_ERR;
   len:= 0;
   InitMimeDb; // prepare Tony's mime db unit
   if not FileExists_read(fname) then
   begin
     ThrowNoFileErr(fname);
-    result:= FILE_READ_ERR;    
     exit;
   end;
   GetMem(buff, BUFFSIZE);
@@ -2233,12 +2229,10 @@ var
   fh: text;
   s: astr;
 begin
-  result:= GENERAL_ERR;
+  result:= FILE_READ_ERR;
   if not FileExists_read(fname) then
   begin
      ThrowNoFileErr(fname);
-     // user can also handle errors
-     result:= FILE_READ_ERR;
      exit;
   end;
   if NoHeadSentNorBuffering then SendHeaders;
@@ -2278,12 +2272,10 @@ var
   fh: text;
   s: astr;
 begin
-  result:= GENERAL_ERR;
+  result:= FILE_READ_ERR;
   if not FileExists_read(fname) then
   begin
     ThrowNoFileErr(fname);
-    // developer can also handle errors
-    result:= FILE_READ_ERR;
     exit;
   end;
   if NoHeadSentNorBuffering then SendHeaders;
@@ -2306,6 +2298,7 @@ var i: longword;
     nv: TStrArray;
 begin
   result:= false;
+  setlength(nv, 0);
   // Check headers
   if headers_sent then
   begin
@@ -2327,6 +2320,7 @@ begin
   // Add new header
   AddWebVar(hdr, nv[0], nv[1]);
   result:= true;
+  
 end;
 
 

@@ -1,72 +1,81 @@
 {
 --------------------------------------------------------------------------------
 
- WARNING:
+ This is part of the CompactUtils project
 
-  BEFORE MAKING CHANGES TO THIS UNIT REMEMBER TO NOTE WHERE YOU GOT THE FUNCTION
-  FROM IN THE FPC SOURCES. FOR EXAMPLE USE THE FOLLOWING NOTATION TO ENCLOSE
-  YOUR CHANGES:
+ Instead of using this unit.. please use pwstrutil and pwfileutil wherever
+ possible (and friends).
 
+ Functions from freepascal sources, so license is RTL modified GPL.
 
- Win32 specific:
+ The goal is to pull everything from the FPC sources which can exist on it's
+ own as a stand alone function with no need for initilization/finalization.
  
-  -- copy pasted from somefile.pp  /win32 -------------------------------------
+ This is not "compact" source code, it is a large unit. It is called "compact"
+ because binary footprint of your programs that use this unit are tiny.
 
-    CONTENT HERE
-   
-  -----------------------------------------------------------------------------
+ Sysutils adds about 60K-90K to your program even if you use one function,
+ while CompactSysUtils adds 0K and the function you use. It's smartlinking.
 
- Unix specific:
+ This is not mainly for executable size savings like the size flamewars imply,
+ but rather the point is to modularize the huge sysutils unit into maintainable
+ modules - while reaping the benefit of size savings at no cost. We are not
+ using Standard Pascal any more, and some people need to learn to stop creating
+ unmaintainable large bloated include file *effed up* units that look
+ like utter crap (fpc sources). This unit itself is huge, *only* since it is
+ here to be a wrapper and is being modularized around the sub modules like
+ pwstrutil, pwfileutil. It also is large ONLY for borland compatibility with
+ sysutils (a sysutils emulator).
 
-  -- copy pasted from somefile.pp  /unix -------------------------------------
+ See the CompactUtils units too for interesting KOL algorithms ported to
+ Linux/BSD/Etc for web and console programming.
 
-    CONTENT HERE
-
-  -----------------------------------------------------------------------------
-
-
- Not unix specific or win32 specific:
-  
-  -- copy pasted from somefile.pp  --------------------------------------------
-
-    CONTENT HERE
-
-  -----------------------------------------------------------------------------
-
-
-  This way we can reorganize the file and find the original place that the
-  source came from. It will also help for future consideration for more platform
-  support: we can separate it into include files and make a platform independent
-  sysutils if you make note of every change you make to this file with the above
-  enclosing style.
- 
+ If you think this unit is effed up, which it is, look into the fpc sources
+ and you will see sysutils is effed up even more. i.e. what sucks doesn't suck,
+ if it sucks less than something else that sucks even more ;-)
 
 --------------------------------------------------------------------------------
 
- This is part of the CompactUtils project
+ WARNING:
 
- Functions are pulled from the freepascal sources, so the license on this
- file is the same as freepascal sources.  The goal is to pull everything from
- the FPC sources which can exist on it's own as a stand alone function with
- no need for initilization/finalization.
- 
- This is not "compact" source code. This is a large unit. The reason it is
- called "compact" is because the binary output of your programs is more compact
- when you use CompactSysutils. Sysutils adds about 60K-90K to your program even
- if you use no functions, while CompactSysUtils adds nothing unless a function is
- used. It's smartlinking.
+  BEFORE MAKING CHANGES TO THIS UNIT, NOTE WHERE YOU GOT THE FUNCTION FROM IN
+  THE FPC SOURCES. FOR EXAMPLE USE THE FOLLOWING NOTATION TO ENCLOSE CHANGES:
 
- See the CompactUtils unit too.
+
+ Win32 specific:
+  -- copy pasted from somefile.pp  /win32 -------------------------------------
+     CONTENT HERE
+  -----------------------------------------------------------------------------
+
+ Unix specific:
+  -- copy pasted from somefile.pp  /unix -------------------------------------
+     CONTENT HERE
+  -----------------------------------------------------------------------------
+
+ Not unix specific or win32 specific:
+  -- copy pasted from somefile.pp  --------------------------------------------
+     CONTENT HERE
+  -----------------------------------------------------------------------------
+
+  This way we can reorganize the file and find the original place that the
+  source came from. 
 
 
  TODO:
-  -64 bit support and/or other platform support is welcome! Patches accepted.
-  SVN access available on request! This unit has been made to work with 
-  i386/ARM so far. only because I've only spent the time on it so far. 
-  Bascially the unit should be laid out just like how the freepascal units are 
-  laid out, with include files or ifdefs for each platform. 
+  -64 bit support and/or other platform support is welcome. SVN access available
+   on request! This unit has been made to work with i386/ARM so far, ,however
+   general algorithms like in pwstrutil and pwfileutil may work on all platforms.
 
+ THANKS:
   -thanks to Bernd M. for ARM patches
+  -thanks to Trustmaster for thinking modularizing/unbloating the sysutils
+   was not a bad idea
+
+ NO THANKS:
+  -no thanks goes out to the discouraging FPC team who hates this unit and
+   anything  that attempts to reduce bloat and encourage proper software design,
+
+  -RTFH: read the effing header (of this file)
 
  Regards,
    Lars (L505)
@@ -104,7 +113,7 @@ type
    end;
 
    WordRec = packed record
-     Lo,Hi : Byte;
+     Lo,Hi : Byte;                          
    end;
 
    Int64Rec = packed record
@@ -128,7 +137,7 @@ Var
    OnCreateGUID : TCreateGUIDFunc = Nil;
 
 
-
+                    
 type
   TTerminateProc = Function: Boolean;
 
@@ -288,53 +297,50 @@ const
   DefaultTextLineBreakStyle: TTextLineBreakStyle =
     {$ifdef unix} tlbsLF {$else} {$ifdef macos} tlbsCR {$else} tlbsCRLF {$endif} {$endif} ;
 
-
-
 function AdjustLineBreaks(const S: string; Style: TTextLineBreakStyle): string;
 
 {-- copy/pasted DIRECTLY from freepascal sources ------------------------------}
 
-  function IntToStr(Value: integer): string;
-  function IntToStr(Value: Int64): string;
-  function IntToStr(Value: QWord): string;
+function IntToStr(Value: integer): string;
+function IntToStr(Value: Int64): string;
+function IntToStr(Value: QWord): string;
 
-   function strcopy(dest,source : pchar) : pchar;
-   function strecopy(dest,source : pchar) : pchar;
-   function strlcopy(dest,source : pchar;maxlen : sizeint) : pchar;
-   function strend(p : pchar) : pchar;
-   function strcomp(str1,str2 : pchar) : longint;
-   function strlcomp(str1,str2 : pchar;l : sizeint) : sizeint;
-   function stricomp(str1,str2 : pchar) : sizeint;
-   function strlicomp(str1,str2 : pchar;l : sizeint) : sizeint;
-   function strscan(p : pchar;c : char) : pchar;
-   function strrscan(p : pchar;c : char) : pchar;
-   function strupper(p : pchar) : pchar;
-   function strlower(p : pchar) : pchar;
+function strcopy(dest,source : pchar) : pchar;
+function strecopy(dest,source : pchar) : pchar;
+function strlcopy(dest,source : pchar;maxlen : sizeint) : pchar;
+function strend(p : pchar) : pchar;
+function strcomp(str1,str2 : pchar) : longint;
+function strlcomp(str1,str2 : pchar;l : sizeint) : sizeint;
+function stricomp(str1,str2 : pchar) : sizeint;
+function strlicomp(str1,str2 : pchar;l : sizeint) : sizeint;
+function strscan(p : pchar;c : char) : pchar;
+function strrscan(p : pchar;c : char) : pchar;
+function strupper(p : pchar) : pchar;
+function strlower(p : pchar) : pchar;
 
-  { ansistring functions }
-  function StrPas(Str: PChar): string;
-  function StrAlloc(Size: cardinal): PChar;
-  function strnew(p : pchar) : pchar;
-  function StrPCopy(Dest: PChar; Source: string): PChar;
-  function StrPLCopy(Dest: PChar; Source: string; MaxLen: SizeUInt): PChar;
-  procedure StrDispose(Str: PChar);
-  function StrBufSize(Str: PChar): SizeUInt;
+{ ansistring functions }
+function StrPas(Str: PChar): string;
+function StrAlloc(Size: cardinal): PChar;
+function strnew(p : pchar) : pchar;
+function StrPCopy(Dest: PChar; Source: string): PChar;
+function StrPLCopy(Dest: PChar; Source: string; MaxLen: SizeUInt): PChar;
+procedure StrDispose(Str: PChar);
+function StrBufSize(Str: PChar): SizeUInt;
 
-  function strcat(dest,source : pchar) : pchar;
-  function strlcat(dest,source : pchar;l : SizeInt) : pchar;
-  function strmove(dest,source : pchar;l : SizeInt) : pchar;
-  function strpos(str1,str2 : pchar) : pchar;
+function strcat(dest,source : pchar) : pchar;
+function strlcat(dest,source : pchar;l : SizeInt) : pchar;
+function strmove(dest,source : pchar;l : SizeInt) : pchar;
+function strpos(str1,str2 : pchar) : pchar;
 
-
-  function ExtractRelativepath (Const BaseName,DestNAme : String): String;
-  function IncludeTrailingPathDelimiter(Const Path : String) : String;
-  function IncludeTrailingBackslash(Const Path : String) : String;
-  function ExcludeTrailingBackslash(Const Path: string): string;
-  function ExcludeTrailingPathDelimiter(Const Path: string): string;
-  function IsPathDelimiter(Const Path: string; Index: Integer): Boolean;
-  Procedure DoDirSeparators (Var FileName : String);
-  Function SetDirSeparators (Const FileName : String) : String;
-  Function GetDirs (Var DirName : String; Var Dirs : Array of pchar) : Longint;
+function ExtractRelativepath (Const BaseName,DestNAme : String): String;
+function IncludeTrailingPathDelimiter(Const Path : String) : String;
+function IncludeTrailingBackslash(Const Path : String) : String;
+function ExcludeTrailingBackslash(Const Path: string): string;
+function ExcludeTrailingPathDelimiter(Const Path: string): string;
+function IsPathDelimiter(Const Path: string; Index: Integer): Boolean;
+Procedure DoDirSeparators (Var FileName : String);
+Function SetDirSeparators (Const FileName : String) : String;
+Function GetDirs (Var DirName : String; Var Dirs : Array of pchar) : Longint;
 
 {------------------------------------------------------------------------------}
 
@@ -352,9 +358,6 @@ function AdjustLineBreaks(const S: string; Style: TTextLineBreakStyle): string;
 
 {--COPY/PASTED FROM FPC SOURCES: finah.inc ------------------------------------}
 
-
-
-
 function ChangeFileExt(const FileName, Extension: string): string;
 function ExtractFilePath(const FileName: string): string;
 function ExtractFileDrive(const FileName: string): string;
@@ -366,7 +369,6 @@ function ExtractFileDir(Const FileName : string): string;
 function ExpandFileName (Const FileName : string): String;
 function ExpandUNCFileName (Const FileName : string): String;
 }
-
 
 {Function SameFileName(const S1, S2: string): Boolean;}
 
@@ -557,9 +559,9 @@ uses {$ifdef UNIX}unixutil,{$endif UNIX}
 {BEGIN: WRAPPERS FOR SMARTLINKING }
 // by placing below standalone functions in separate units without 
 // initialization and finalization, and making wrappers for them here.. the 
-// sysutils unit can remain compatible with delphi but the separate units 
-// mean smaller execcutable sizes when the person chooses to use those units
-// alone without full sysutils unit being pulled in
+// sysutils unit (currently called compactsysutils) can remain compatible with
+// delphi but the separate units mean more maintainable code, and as a bonus
+// smaller executable sizes when the person chooses to use those units alone
 
 
 function Trim(const S: string): string;
@@ -606,7 +608,6 @@ function IsValidIdent(const Ident: string): boolean;
 begin
   result:= pwstrutil.isvalidident(ident);
 end;
-
 
 function WrapText(const Line, BreakStr: string; const BreakChars: TSysCharSet;  MaxCol: Integer): string;
 begin
@@ -858,6 +859,10 @@ begin
   pwstrutil.rightstr(s, count);
 end;
 
+function ChangeFileExt(const FileName, Extension: string): string;
+begin
+  result:= pwfileutil.changefileext(filename, extension);
+end;
 
 {END: WRAPPERS FOR SMARTLINKING }
 
@@ -883,122 +888,13 @@ Type
 {$endif WIN32}
 
 
-{--COPY/PASTED FROM FPC SOURCES: fina.inc -------------------------------------}
-
-function ChangeFileExt(const FileName, Extension: string): string;
-begin
-  result:= pwfileutil.changefileext(filename, extension);
-end;
-
-(*
-//L505: relies on oldlinux/dos which have initialization finalization.
-function ExpandFileName (Const FileName : string): String;
-Var
-  S : String;
-Begin
- S:=FileName;
- DoDirSeparators(S);
-{$ifdef HasUnix}
-  Result:=fexpand(S);
-{$else}
-  Result:=Dos.Fexpand(S);
-{$endif}
-end;
-
-function ExpandUNCFileName (Const FileName : string): String;
-begin
-  Result:=ExpandFileName (FileName);
-  //!! Here should follow code to replace the drive: part with UNC...
-end;
-{$endif}
-*)
-
-
-
-(* TODO: get working
-Function GetFileHandle(var f : File):Longint;
-begin
-  result:=filerec(f).handle;
-end;
-
-Function GetFileHandle(var f : Text):Longint;
-begin
-  result:=textrec(f).handle;
-end;
-*)
-
-{------------------------------------------------------------------------------}
-
-
 
 {$IFNDEF CPUARM}
   {$ASMMODE ATT}
 {$ENDIF}
 
 
-
-{$IFNDEF CPUARM}
-(*
-{ NOTE: obsolete function, replace with FPC sources }
-function StrLen(const Str: PChar): Cardinal; assembler;
-asm
-        XCHG    EAX, EDI
-        XCHG    EDX, EAX
-        OR      ECX, -1
-        XOR     EAX, EAX
-        CMP     EAX, EDI
-        JE      @@exit0
-        REPNE   SCASB
-        DEC     EAX
-        DEC     EAX
-        SUB     EAX,ECX
-@@exit0:
-        MOV     EDI,EDX
-end;
-*)
-{$ENDIF}
-
-(*
-
-{ NOTE: obsolete function, replace with FPC sources }
-function StrScan(Str: PChar; Chr: Char): PChar; assembler;
-asm
-        PUSH    EDI
-        PUSH    EAX
-        MOV     EDI,Str
-        OR      ECX, -1
-        XOR     AL,AL
-        REPNE   SCASB
-        NOT     ECX
-        POP     EDI
-        XCHG    EAX, EDX
-        REPNE   SCASB
-
-        XCHG    EAX, EDI
-        POP     EDI
-
-        JE      @@1
-        XOR     EAX, EAX
-        RET
-
-@@1:    DEC     EAX
-end;
-*)
-
-
-
-
 {-- copy/pasted from sysstr.inc -----------------------------------------------}
-
-
-
-
-{   CompareMemRange returns the result of comparison of Length bytes at P1 and P2
-    case       result
-    P1 < P2    < 0
-    P1 > P2    > 0
-    P1 = P2    = 0    }
-
 
 
 function CompareMem(P1, P2: Pointer; Length: cardinal): Boolean;
@@ -1399,9 +1295,8 @@ begin
   TryStrToInt64:=Error=0
 end;
 
-{   StrToIntDef converts the string S to an integer value,
-    Default is returned in case S does not represent a valid integer value  }
-
+{ StrToIntDef converts the string S to an integer value,
+  Default is returned in case S does not represent a valid integer value  }
 function StrToIntDef(const S: string; Default: integer): integer;
 var
   Error: word;
@@ -1410,8 +1305,8 @@ begin
   if Error <> 0 then result := Default;
 end ;
 
-{   StrToIntDef converts the string S to an integer value,
-    Default is returned in case S does not represent a valid integer value  }
+{ StrToIntDef converts the string S to an integer value,
+  Default is returned in case S does not represent a valid integer value  }
 function StrToInt64Def(const S: string; Default: int64): int64;
 var
   Error: word;
@@ -1421,13 +1316,13 @@ begin
 end ;
 
 
-{   LoadStr returns the string resource Ident.   }
+{ LoadStr returns the string resource Ident.   }
 function LoadStr(Ident: integer): string;
 begin
   result:='';
 end ;
 
-{   FmtLoadStr returns the string resource Ident and formats it accordingly   }
+{ FmtLoadStr returns the string resource Ident and formats it accordingly   }
 function FmtLoadStr(Ident: integer; const Args: array of const): string;
 begin
   result:='';
@@ -1438,82 +1333,6 @@ Const
   feMissingArgument = 2;
   feInvalidArgIndex = 3;
 
-
-(*// L505: COMMENTED OUT
-
-{$ifdef fmtdebug}
-Procedure Log (Const S: String);
-begin
- Writeln (S);
-end;
-{$endif}
-
-Procedure DoFormatError (ErrCode : Longint);
-Var
-  S : String;
-begin
-  //!! must be changed to contain format string...
-  S:='';
-  Case ErrCode of
-   feInvalidFormat : raise EConvertError.Createfmt(SInvalidFormat,[s]);
-   feMissingArgument : raise EConvertError.Createfmt(SArgumentMissing,[s]);
-   feInvalidArgIndex : raise EConvertError.Createfmt(SInvalidArgIndex,[s]);
- end;
-end;
-*)
-
-{ we've no templates, but with includes we can simulate this :) }
-
-(*
-{$macro on}
-{$define INFORMAT}
-{$define TFormatString:=ansistring}
-{$define TFormatChar:=char}
-
-Function Format (Const Fmt : AnsiString; const Args : Array of const) : AnsiString;
-
-
-{$undef TFormatString}
-{$undef TFormatChar}
-{$undef INFORMAT}
-{$macro off}
-
-
-
-Function FormatBuf (Var Buffer; BufLen : Cardinal;
-                     Const Fmt; fmtLen : Cardinal;
-                     Const Args : Array of const) : Cardinal;
-Var S,F : String;
-begin
-  Setlength(F,fmtlen);
-  if fmtlen > 0 then
-    Move(fmt,F[1],fmtlen);
-  S:=Format (F,Args);
-  If Cardinal(Length(S))<Buflen then
-    Result:=Length(S)
-  else
-    Result:=Buflen;
-  Move(S[1],Buffer,Result);
-end;
-
-
-Procedure FmtStr(Var Res: String; Const Fmt : String; Const args: Array of const);
-begin
-  Res:=Format(fmt,Args);
-end;
-
-Function StrFmt(Buffer,Fmt : PChar; Const args: Array of const) : Pchar;
-begin
-  Buffer[FormatBuf(Buffer^,Maxint,Fmt^,strlen(fmt),args)]:=#0;
-  Result:=Buffer;
-end;
-
-Function StrLFmt(Buffer : PCHar; Maxlen : Cardinal;Fmt : PChar; Const args: Array of const) : Pchar;
-begin
-  Buffer[FormatBuf(Buffer^,MaxLen,Fmt^,strlen(fmt),args)]:=#0;
-  Result:=Buffer;
-end;
-*)
 
 
 function StrToFloat(Const S: String): Extended;
@@ -1754,33 +1573,6 @@ Begin
   End;
 End;
 
-(*
- // L505: COMMENTED OUT
-Function FloatToDateTime (Const Value : Extended) : TDateTime;
-begin
-  If (Value<MinDateTime) or (Value>MaxDateTime) then
-    Raise EConvertError.CreateFmt (SInvalidDateTime,[Value]);
-  Result:=Value;
-
-end;
-
-
-function TryFloatToCurr(const Value: Extended; var AResult: Currency): Boolean;
-begin
-  Result:=(Value>=MinCurrency) and (Value<=MaxCurrency);
-  if Result then
-    AResult := Value;
-end;
-
-
-function FloatToCurr(const Value: Extended): Currency;
-
-begin
-// L505: COMMENTED OUT
-  {if not} TryFloatToCurr(Value, Result) {then}
-//    Raise EConvertError.CreateFmt(SInvalidCurrency, [FloatToStr(Value)]);
-end;
-*)
 
 Function CurrToStr(Value: Currency): string;
 begin
@@ -1808,24 +1600,20 @@ begin
 end;
 
 function StrToBool(const S: string): Boolean;
-
 Var
   Temp : String;
   D : Double;
   Code: word;
 
 begin
+  result:= false;
   Temp:=upcase(S);
   Val(temp,D,code);
   If Code=0 then
     Result:=(D<>0.0)
   else If Temp='TRUE' then
-    result:=true
-  else if Temp='FALSE' then
-    result:=false
-//  else
-//    Raise EConvertError.CreateFmt(SInvalidBoolean,[S]);
-// L505: COMMENTED OUT
+    result:=true;
+//  All string values which are not TRUE, return false
 end;
 
 function BoolToStr(B: Boolean): string;
@@ -2718,6 +2506,151 @@ end;
 
 {------------------------------------------------------------------------------}
 
+
+
+{--COPY/PASTED FROM FPC SOURCES: fina.inc -------------------------------------}
+
+
+(*
+//L505: relies on oldlinux/dos which have initialization finalization.
+function ExpandFileName (Const FileName : string): String;
+Var
+  S : String;
+Begin
+ S:=FileName;
+ DoDirSeparators(S);
+{$ifdef HasUnix}
+  Result:=fexpand(S);
+{$else}
+  Result:=Dos.Fexpand(S);
+{$endif}
+end;
+
+function ExpandUNCFileName (Const FileName : string): String;
+begin
+  Result:=ExpandFileName (FileName);
+  //!! Here should follow code to replace the drive: part with UNC...
+end;
+{$endif}
+*)
+
+
+
+(* TODO: get working
+Function GetFileHandle(var f : File):Longint;
+begin
+  result:=filerec(f).handle;
+end;
+
+Function GetFileHandle(var f : Text):Longint;
+begin
+  result:=textrec(f).handle;
+end;
+*)
+
+{------------------------------------------------------------------------------}
+
+(*// L505: COMMENTED OUT
+
+{$ifdef fmtdebug}
+Procedure Log (Const S: String);
+begin
+ Writeln (S);
+end;
+{$endif}
+
+Procedure DoFormatError (ErrCode : Longint);
+Var
+  S : String;
+begin
+  //!! must be changed to contain format string...
+  S:='';
+  Case ErrCode of
+   feInvalidFormat : raise EConvertError.Createfmt(SInvalidFormat,[s]);
+   feMissingArgument : raise EConvertError.Createfmt(SArgumentMissing,[s]);
+   feInvalidArgIndex : raise EConvertError.Createfmt(SInvalidArgIndex,[s]);
+ end;
+end;
+*)
+
+(*
+ // L505: COMMENTED OUT
+Function FloatToDateTime (Const Value : Extended) : TDateTime;
+begin
+  If (Value<MinDateTime) or (Value>MaxDateTime) then
+    Raise EConvertError.CreateFmt (SInvalidDateTime,[Value]);
+  Result:=Value;
+
+end;
+
+
+function TryFloatToCurr(const Value: Extended; var AResult: Currency): Boolean;
+begin
+  Result:=(Value>=MinCurrency) and (Value<=MaxCurrency);
+  if Result then
+    AResult := Value;
+end;
+
+
+function FloatToCurr(const Value: Extended): Currency;
+
+begin
+// L505: COMMENTED OUT
+  {if not} TryFloatToCurr(Value, Result) {then}
+//    Raise EConvertError.CreateFmt(SInvalidCurrency, [FloatToStr(Value)]);
+end;
+*)
+
+(*
+{$macro on}
+{$define INFORMAT}
+{$define TFormatString:=ansistring}
+{$define TFormatChar:=char}
+
+Function Format (Const Fmt : AnsiString; const Args : Array of const) : AnsiString;
+
+
+{$undef TFormatString}
+{$undef TFormatChar}
+{$undef INFORMAT}
+{$macro off}
+
+
+
+Function FormatBuf (Var Buffer; BufLen : Cardinal;
+                     Const Fmt; fmtLen : Cardinal;
+                     Const Args : Array of const) : Cardinal;
+Var S,F : String;
+begin
+  Setlength(F,fmtlen);
+  if fmtlen > 0 then
+    Move(fmt,F[1],fmtlen);
+  S:=Format (F,Args);
+  If Cardinal(Length(S))<Buflen then
+    Result:=Length(S)
+  else
+    Result:=Buflen;
+  Move(S[1],Buffer,Result);
+end;
+
+
+Procedure FmtStr(Var Res: String; Const Fmt : String; Const args: Array of const);
+begin
+  Res:=Format(fmt,Args);
+end;
+
+Function StrFmt(Buffer,Fmt : PChar; Const args: Array of const) : Pchar;
+begin
+  Buffer[FormatBuf(Buffer^,Maxint,Fmt^,strlen(fmt),args)]:=#0;
+  Result:=Buffer;
+end;
+
+Function StrLFmt(Buffer : PCHar; Maxlen : Cardinal;Fmt : PChar; Const args: Array of const) : Pchar;
+begin
+  Buffer[FormatBuf(Buffer^,MaxLen,Fmt^,strlen(fmt),args)]:=#0;
+  Result:=Buffer;
+end;
+*)
 
 end.
 
