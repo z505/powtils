@@ -41,8 +41,8 @@ uses
 procedure NativeWrite(s : astr); overload;
 procedure NativeWrite(PString : PChar); overload;
 procedure NativeWrite(Buffer: PChar;  NumChars: Cardinal); overload;
-procedure NativeWriteLn(s: astr);
-procedure NativeWriteLn;
+procedure NativeWriteLn(s: astr); overload;
+procedure NativeWriteLn; overload;
 
 
 // function strlen is defined in system unit.

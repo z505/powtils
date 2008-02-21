@@ -8,6 +8,9 @@ unit StrWrap1;
   {$H+} //force ansi strings on
 {$endif}
 
+{$IFNDEF FPC}
+  {$DEFINE windows} // todo: kylix ugly ifdef checks, sigh
+{$ENDIF}
 
 interface
 
@@ -56,11 +59,15 @@ const
 
 
 {--- public functions ---------------------------------------------------------}
+type
+ TFileOfChar = file of char;
+
   function OpenFileRead(var F:file; const fname: string; recsize: integer): boolean;
   function OpenFileReWrite(var F:file; const fname:string; recsize:integer): boolean;
   function OpenFile(var F: text; const fname: string; mode: char): boolean; overload;
   function OpenFile(var F: file; const fname: string; recsize:integer; mode: byte): boolean; overload;
   function OpenFile(var F: file; const fname: string; mode: char): boolean; overload;
+  function OpenFile(var F: TFileOfChar; const fname: string; mode: char): boolean; overload;  
 
   function MakeDir(s: string): boolean;
 
@@ -112,7 +119,8 @@ implementation
 
 
 uses
-  {$IFDEF WINDOWS}windows{$ELSE}baseunix{$ENDIF};
+  {$IFDEF UNIX}baseunix{$ENDIF}
+  {$IFDEF WINDOWS}windows{$ENDIF};
 
 
 function MakeDir(s: string): boolean;
@@ -203,7 +211,7 @@ end;
 
 
 { Try to open a file (doesn't have to be text) return false if unsuccessful }
-function OpenFile(var F: file; const fname: string; mode: char): boolean; 
+function OpenFile(var F: file; const fname: string; mode: char): boolean;
 var
   oldFM: byte;
 begin
@@ -227,7 +235,10 @@ begin
     Result:= FALSE; // invalid MODE argument
 end;
 
-
+function OpenFile(var F: TFileOfChar; const fname: string; mode: char): boolean;
+begin
+  result:= OpenFile(f, fname, mode);
+end;
 
 { Get the size of any file, doesn't matter whether it's a text or binary file.
   JEFF: return -1 if the file can't be found. }

@@ -11,6 +11,9 @@ unit pwstrutil;
 
 interface
 
+uses
+  pwtypes;
+
 type 
   TReplaceFlags = set of (rfReplaceAll, rfIgnoreCase);
 
@@ -48,8 +51,8 @@ Type
   TSysCharSet = Set of char;
 
 
-function WrapText(const Line, BreakStr: string; const BreakChars: TSysCharSet;  MaxCol: Integer): string;
-function WrapText(const Line: string; MaxCol: Integer): string;
+function WrapText(const Line, BreakStr: string; const BreakChars: TSysCharSet;  MaxCol: Integer): string; overload;
+function WrapText(const Line: string; MaxCol: Integer): string; overload;
 
 
 function strcat(dest,source : pchar) : pchar;
@@ -70,13 +73,20 @@ function TrimRight(const S: string): string;
 function QuotedStr(const S: string): string;
 function AnsiQuotedStr(const S: string; Quote: char): string;
 function AnsiExtractQuotedStr(var  Src: PChar; Quote: Char): string;
-function AdjustLineBreaks(const S: string): string;
-function AdjustLineBreaks(const S: string; Style: TTextLineBreakStyle): string;
+function AdjustLineBreaks(const S: string): string; overload;
+function AdjustLineBreaks(const S: string; Style: TTextLineBreakStyle): string; overload;
 function IsValidIdent(const Ident: string): boolean;
 
 
 implementation
 
+{$IFNDEF FPC}
+function strlen(p: pchar): longint;
+var i : longint;
+begin
+  i:= 0; while p[i]<>#0 do inc(i); result:= i; exit;
+end;
+{$ENDIF}
 
 {   Trim returns a copy of S with blanks characters on the left and right stripped off   }
 
