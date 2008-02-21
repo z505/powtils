@@ -29,29 +29,29 @@ begin
   all:= checkdoall();
 
   if (all) or (paramstr(1) = '') then begin
-    opts.ProgBinFile:= 'bin/';
+    opts.ProgBinDir:= 'bin/';
     CompileMany(Paths,  opts);
   end;
 
   if (all) or (paramstr(1) = 'gzipon') then begin
-    ResetDefines;
+    ResetDefines(opts);
     AddDefine(opts, 'GZIP_ON');
-    opts.ProgBinFile:= 'bin-gzip_on/';
+    opts.ProgBinDir:= 'bin-gzip_on/';
     CompileMany(Paths,  opts);
   end;
 
   if (all) or (paramstr(1) = 'gzipsysutilson') then begin
-    ResetDefines;
+    ResetDefines(opts);
     AddDefine(opts, 'SYSUTILS_ON');
     AddDefine(opts, 'GZIP_ON');
-    opts.ProgBinFile:= 'bin-sysutils_on-gzip_on/';
+    opts.ProgBinDir:= 'bin-sysutils_on-gzip_on/';
     CompileMany(Paths,  opts);
   end;
 
   if (all) or (paramstr(1) = 'sysutilson') then begin
-    ResetDefines;
+    ResetDefines(opts);
     AddDefine(opts, 'SYSUTILS_ON');
-    opts.ProgBinFile:= 'bin-sysutils_on/';
+    opts.ProgBinDir:= 'bin-sysutils_on/';
     CompileMany(Paths,  opts);
   end;
 
