@@ -65,6 +65,7 @@ function GetCurDir: astr;
 procedure Clear(var a: PathArray);
 procedure Add(var a: PathArray; path, fname: astr);
 
+function DelFiles(Dir: astr; const wildcard: astr): boolean;
 
 procedure RunTests;
 
@@ -90,22 +91,27 @@ begin
   writeln(GetTrailDir('/pass'));
 end;
 
-procedure GetTrailDir_TEST4;
-begin
+procedure GetTrailDir_TEST4;                               
+begin                                             
   writeln(GetTrailDir('pass/'));
   writeln(GetTrailDir('pass\'));
 end;
 
 { verify it finds the trailing path in all situations }
 procedure RunTests;
+const
+  deldir = 'delete12345\delete';
+  delmask = '*.delete';
 begin
   writeln('-------------------');
   GetTrailDir_TEST1;
   GetTrailDir_TEST2;
   GetTrailDir_TEST3;
   GetTrailDir_TEST4;
+  writeln('Note: ', delmask, ' must exist in ', deldir);
+  writeln('DelFiles result: ',  DelFiles(deldir, delmask));
   writeln('-------------------');
-end;
+end;                     
 
 { forces to create a directory }
 function ForceDir(const path: astr): boolean;
@@ -159,15 +165,13 @@ end;
 procedure Add(var a: PathArray; path, fname: astr);
 var len: integer;
 begin
-  if path = '' then exit;
-  if fname = '' then exit;
-  len:= length(a);
+  if path = '' then exit; if fname = '' then exit; len:= length(a);
   setlength(a, len + 1);
   a[len].path:= path;
   a[len].fname:= fname;
 end;
 
-procedure Clear(var a: PathArray);
+procedure Clear(var a: PathArray);           
 begin
   setlength(a, 0);  
 end;
@@ -207,8 +211,7 @@ var i: integer;
     slashpos: integer = 0;
     trailingslash: boolean = false;
 begin
-  result:= '';
-  slen:= length(s);
+  result:= ''; slen:= length(s);
   if slen < 1 then exit;
   for i:= slen downto 1 do begin
     if s[i] in SLASHES then begin
@@ -230,8 +233,7 @@ end;
 
 procedure ClearFileNames(var fn: TFileNames);
 begin
-  setlength(fn.files, 0);
-  fn.count:= 0;
+  setlength(fn.files, 0); fn.count:= 0;
 end;
 
 { find all files in a given directory, with wildcard match
@@ -269,6 +271,22 @@ begin
   GetFiles(dir, '*', res);
 end;
 
+{ delete files in given dir, return false if at least 1 delete didn't occur }
+function DelFiles(Dir: astr; const wildcard: astr): boolean;
+var fn: TFileNames;
+    i, problem: integer;
+    removed: boolean; 
+begin
+  removed:= false; problem:= 0;
+  dir:= includetrailingpathdelimiter(dir);
+  GetFiles(Dir, wildcard, fn);
+  if fn.count < 1 then exit;
+  for i:= 0 to fn.count-1 do begin
+    removed:= DeleteFile(dir + fn.files[i]);
+    if not removed then inc(problem);
+  end;
+  if problem > 0 then result:= false else result:= true;
+end;
 
 { find all subdirectory names in a given directory, with wildcard
   Appends if VAR result has existing contents
@@ -288,7 +306,7 @@ begin
   begin
     repeat
       // keep track of directory names
-      if (info.Attr and faDirectory) = faDirectory then
+      if (info.Attr and faDirectory) = faDirectory then                            
       begin
         // we want only subdirectories, not dots like ../ and ./
         if (info.name = '.') or (info.name = '..') then continue;
@@ -359,7 +377,7 @@ end;
   READ ONLY FILES are skipped }
 procedure GetDirContent(Dir: astr; const wildcard: astr; var res: TDirContents);
 var
-  Info : TSearchRec;
+  Info : TSearchRec;                              
 begin
   // must have trailing slash
   if dir[length(dir)] <> SLASH then dir:= dir + SLASH;

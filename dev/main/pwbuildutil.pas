@@ -27,7 +27,9 @@ type astr = ansistring;
     ProgBinFile,      // program file name
     ProgBinDir: astr; // program bin    
     SmartStrip,       // -XX -CX -Xs
-    Build,
+    Compile,
+    Rebuild,
+    CleanBeforeRebuild,
     IgnoreErr: bln;   // ignore compiler errors
     Extra: astr;
     FpcVersion: astr;
@@ -79,10 +81,15 @@ implementation
 uses
   strutils, sysutils, pwfileutil, pwfputil, pwtypes;
 
+procedure noteln(const s: string);
+begin
+  writeln('Note: ', s);
+end;
+
 { halt program with polite message }
 procedure HaltErr(s: astr);
 begin
-  writeln('Quit early: ' + s);
+  noteln('quit early: ' + s);
   halt;
 end;
 
@@ -90,7 +97,7 @@ procedure HaltErr(s: astr; i: num);
 var tmp: astr = '';
 begin
   str(i, tmp);
-  writeln('Quit early: ' + s + tmp);
+  noteln('quit early: ' + s + tmp);
   halt;
 end;
 
@@ -102,7 +109,7 @@ end;
 
 procedure AstrArrayAdd(var a: AstrArray; s: string);
 var len: num;
-begin
+begin      
   if s = '' then exit;
   len:= length(a);
   setlength(a, len + 1);
@@ -125,12 +132,21 @@ end;
 procedure Init(out opts: TFpcOptions);
 begin
   with opts do begin
-    SmartStrip:= false; Build:= false; IgnoreErr:= false;
+    SmartStrip:= false; Rebuild:= false; IgnoreErr:= false;
     Extra:= ''; CrapDir:= '.crap';  ProgBinFile:= ''; ProgBinDir:= ''; Dir:= '';
     // default version is current compiler of this unit
     FpcVersion:= pwfputil.FpcVersion();
-    // signal to other functions we are initialized
-    intern.Inited:= true;
+    CleanBeforeRebuild:= false;
+    Compile:= true;
+    with intern do begin
+      // signal to other functions we are initialized
+      intern.Inited:= true;
+      setlength(defines, 0);
+      setlength(incpaths, 0);
+      setlength(unitpaths, 0);
+      craptargetdir:= '';
+      progbintargetdir:= '';
+    end;
   end;
 end;
 
@@ -178,7 +194,19 @@ begin
   AstrArrayReset(opts.intern.defines);
 end;
 
-
+procedure CleanUnitCrap(const path: astr);
+const
+  masks{: array [1..5] of string[5]}
+    = ('*.ppu', '*.dcu','*.a', '*.res','*.o');
+var
+  i: integer;
+begin
+  noteln('Removing files from dir: ' + path);
+  for i:= low(masks) to high(masks) do begin
+    if not DelFiles(path, masks[i]) then
+      HaltErr('did not delete at least 1 file in ' path);
+  end;
+end;
 
 { makes options Record into a string like '-Fu/path -oProg' }
 function MakeOpts(var opts: TFpcOptions): string;
@@ -238,13 +266,16 @@ begin
   AddTrailSlashes;
   AddStrArrayOpts;                            
   if opts.smartstrip then AddSimpleOpts('-XX -CX -Xs');
-  if opts.build then AddSimpleOpts('-B');
+  if opts.rebuild then AddSimpleOpts('-B');
 
   if opts.crapdir <> '' then begin
     targetdir:= opts.dir + opts.crapdir + FpcTargetDir();
-    ForceDir(targetdir); 
-    opts.intern.craptargetdir:= targetdir;    
-  end;       
+    if opts.CleanBeforeRebuild then begin
+      CleanUnitCrap(targetdir);
+    end;
+    opts.intern.craptargetdir:= targetdir;
+    ForceDir(targetdir);
+  end;
 
   if opts.progbindir <> '' then begin
     targetdir:= opts.dir + opts.progbindir + FpcTargetDir();
@@ -305,7 +336,7 @@ begin
     if (found <> '') then fpcpath:= found;
   end;
 end; 
-
+                     
 function GetFpcFullPath: astr;
 begin
   {$IFDEF WINDOWS}
@@ -340,8 +371,11 @@ end;
 
 { compile program with options in a record }
 function Compile(const srcunit: astr; var opts: TFpcOptions): num;
+var madeopts: astr;
 begin
-  result:= Compile(opts.dir+srcunit, makeopts(opts), opts.FpcVersion, opts.IgnoreErr);
+  madeopts:= makeopts(opts);
+  if not opts.Compile then exit; // just clean or do other tasks
+  result:= Compile(opts.dir+srcunit, madeopts, opts.FpcVersion, opts.IgnoreErr);
 end;
 
 procedure CompileMany(paths: PathArray; var opts: TFpcOptions; ShowSeparator: bln);
