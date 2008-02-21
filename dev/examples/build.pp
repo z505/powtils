@@ -6,29 +6,54 @@ uses
   dirutils in '../main/pwdirutil',
   pwbuildutil in '../main/pwbuildutil';
 
-procedure CompileExamples(const Paths: PathArray);
-var Opts: TFpcOptions; 
+function checkdorebuild: boolean;
 begin
-  Init(Opts);
-  // o.Build:= true;
-  AddUnitPath(Opts, '../main/');
-  CompileMany(Paths,  Opts);
+  result:= false;
+  if paramstr(2) = 'rebuild' then result:= true;
+end;
 
-  Init(Opts);
-  AddUnitPath(Opts, '../main/');
-  AddDefine(Opts, 'GZIP_ON');
-  CompileMany(Paths,  Opts);
+function checkdoall: boolean;
+begin
+  result:= false;
+  if paramstr(1) = 'all' then result:= true;
+end;
 
-  Init(Opts);
-  AddUnitPath(Opts, '../main/');
-  AddDefine(Opts, 'GZIP_ON');
-  AddDefine(Opts, 'SYSUTILS_ON');
-  CompileMany(Paths,  Opts);
+procedure CompileExamples(const Paths: PathArray);
+var opts: TFpcOptions;
+    all: boolean;
+begin
+  Init(opts);
+  opts.Build:= checkdorebuild();
+  AddUnitPath(opts, '../main/');
 
-  Init(Opts);
-  AddUnitPath(Opts, '../main/');
-  AddDefine(Opts, 'SYSUTILS_ON');
-  CompileMany(Paths,  Opts);
+  all:= checkdoall();
+
+  if (all) or (paramstr(1) = '') then begin
+    opts.ProgBinFile:= 'bin/';
+    CompileMany(Paths,  opts);
+  end;
+
+  if (all) or (paramstr(1) = 'gzipon') then begin
+    ResetDefines;
+    AddDefine(opts, 'GZIP_ON');
+    opts.ProgBinFile:= 'bin-gzip_on/';
+    CompileMany(Paths,  opts);
+  end;
+
+  if (all) or (paramstr(1) = 'gzipsysutilson') then begin
+    ResetDefines;
+    AddDefine(opts, 'SYSUTILS_ON');
+    AddDefine(opts, 'GZIP_ON');
+    opts.ProgBinFile:= 'bin-sysutils_on-gzip_on/';
+    CompileMany(Paths,  opts);
+  end;
+
+  if (all) or (paramstr(1) = 'sysutilson') then begin
+    ResetDefines;
+    AddDefine(opts, 'SYSUTILS_ON');
+    opts.ProgBinFile:= 'bin-sysutils_on/';
+    CompileMany(Paths,  opts);
+  end;
 
 end;
 
