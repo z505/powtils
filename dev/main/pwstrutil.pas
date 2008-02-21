@@ -1,21 +1,90 @@
 {
   Reason for unit: smartlinking better, standalone functions in separate units
-  Authors/Credits: taken from FPC RTL. 
+  Authors/Credits: taken from FPC RTL.
   License: Freepascal RTL Modified GPL
 }
-unit pwstrutil;
-
-{$IFDEF FPC}{$MODE OBJFPC}{$H+}
-  {$IFDEF EXTRA_SECURE}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
-{$ENDIF}
+unit pwstrutil; {$I defines1.inc}
 
 interface
 
 uses
   pwtypes;
 
-type 
+type
   TReplaceFlags = set of (rfReplaceAll, rfIgnoreCase);
+
+  PString = ^String;
+
+   { For FloatToText }
+   TFloatFormat = (ffGeneral, ffExponent, ffFixed, ffNumber, ffCurrency);
+   TFloatValue = (fvExtended, fvCurrency, fvSingle, fvReal, fvDouble, fvComp);
+
+
+  TFloatRec = Record
+     Exponent: Integer;
+     Negative: Boolean;
+     Digits: Array[0..18] Of Char;
+  End;
+
+const
+  { Character that comes between integer and fractional part of a number }
+  DecimalSeparator : Char = '.';
+
+  { Character that is put every 3 numbers in a currency }
+  ThousandSeparator : Char = ',';
+
+  { Number of decimals to use when formatting a currency.  }
+  CurrencyDecimals : Byte = 2;
+
+  { Format to use when formatting currency :
+    0 = $1
+    1 = 1$
+    2 = $ 1
+    3 = 1 $
+    4 = Currency string replaces decimal indicator. e.g. 1$50
+   }
+  CurrencyFormat : Byte = 1;
+
+  { Same as above, only for negative currencies:
+    0 = ($1)
+    1 = -$1
+    2 = $-1
+    3 = $1-
+    4 = (1$)
+    5 = -1$
+    6 = 1-$
+    7 = 1$-
+    8 = -1 $
+    9 = -$ 1
+    10 = $ 1-
+   }
+  NegCurrFormat : Byte = 5;
+
+  { Currency notation. Default is $ for dollars. }
+  CurrencyString : String[7] = '$';
+
+type
+  TSysLocale = record
+    case byte of
+      { win32 names }
+      1 : (FarEast: boolean; MiddleEast: Boolean);
+      { real meaning }
+      2 : (MBCS : boolean; RightToLeft: Boolean);
+  end;
+
+var
+  SysLocale : TSysLocale;
+  
+
+
+function BoolToStr(B: Boolean): string;
+
+function CurrToStr(Value: Currency): string;
+
+procedure FloatToDecimal(var Result: TFloatRec; Value: Extended; Precision, Decimals : integer);
+
+function CompareText(const S1, S2: string): integer;
+function SameText(const s1,s2:String):Boolean;
 
 function StrCopy(Dest, Source:PChar): PChar;
 function StrECopy(Dest, Source: PChar): PChar;
@@ -78,7 +147,15 @@ function AdjustLineBreaks(const S: string; Style: TTextLineBreakStyle): string; 
 function IsValidIdent(const Ident: string): boolean;
 
 
+function IntToStr(Value: integer): string; overload;
+function IntToStr(Value: int64): string; overload;
+{$IFDEF FPC}
+  function IntToStr(Value: QWord): string; overload;
+{$ENDIF}
+
+
 implementation
+
 
 {$IFNDEF FPC}
 function strlen(p: pchar): longint;
@@ -88,9 +165,306 @@ begin
 end;
 {$ENDIF}
 
-{   Trim returns a copy of S with blanks characters on the left and right stripped off   }
+Function FloatToStrF(Value: Extended; format: TFloatFormat; Precision, Digits: Integer): String;
+Var
+  P: Integer;
+  Negative, TooSmall, TooLarge: Boolean;
+Begin
+  p:= 0;
+  TooLarge:= false;
+  Case format Of
 
-Const WhiteSpace = [' ',#10,#13,#9];
+    ffGeneral:
+
+      Begin
+        If (Precision = -1) Or (Precision > 15) Then Precision := 15;
+        TooSmall := (Abs(Value) < 0.00001) and (Value>0.0);
+        If Not TooSmall Then
+        Begin
+          Str(Value:digits:precision, Result);
+          P := Pos('.', Result);
+          if P<>0 then
+            Result[P] := DecimalSeparator;
+          TooLarge := P > Precision + 1;
+        End;
+
+        If TooSmall Or TooLarge Then
+          begin
+          Result := FloatToStrF(Value, ffExponent, Precision, Digits);
+          // Strip unneeded zeroes.
+          P:=Pos('E',result)-1;
+          If P<>-1 then
+             While (P>1) and (Result[P]='0') do
+               begin
+               system.Delete(Result,P,1);
+               Dec(P);
+               end;
+          end
+        else if (P<>0) then // we have a decimalseparator
+          begin
+          P := Length(Result);
+          While (P>0) and (Result[P] = '0') Do
+            Dec(P);
+          If (P>0) and (Result[P]=DecimalSeparator) Then
+            Dec(P);
+          SetLength(Result, P);
+          end;
+      End;
+
+    ffExponent:
+
+      Begin
+        If (Precision = -1) Or (Precision > 15) Then Precision := 15;
+        Str(Value:Precision + 8, Result);
+        Result[3] := DecimalSeparator;
+        P:=4;
+        While (P>0) and (Digits < P) And (Result[Precision + 5] = '0') do
+          Begin
+          If P<>1 then
+            system.Delete(Result, Precision + 5, 1)
+          else
+            system.Delete(Result, Precision + 3, 3);
+          Dec(P);
+          end;
+        If Result[1] = ' ' Then
+          System.Delete(Result, 1, 1);
+      End;
+
+    ffFixed:
+
+      Begin
+        If Digits = -1 Then Digits := 2
+        Else If Digits > 18 Then Digits := 18;
+        Str(Value:0:Digits, Result);
+        If Result[1] = ' ' Then
+          System.Delete(Result, 1, 1);
+        P := Pos('.', Result);
+        If P <> 0 Then Result[P] := DecimalSeparator;
+      End;
+
+    ffNumber:
+
+      Begin
+        If Digits = -1 Then Digits := 2
+        Else If Digits > 15 Then Digits := 15;
+        Str(Value:0:Digits, Result);
+        If Result[1] = ' ' Then System.Delete(Result, 1, 1);
+        P := Pos('.', Result);
+        If P <> 0 Then
+          Result[P] := DecimalSeparator
+        else
+          P := Length(Result)+1;
+        Dec(P, 3);
+        While (P > 1) Do
+        Begin
+          If Result[P - 1] <> '-' Then Insert(ThousandSeparator, Result, P);
+          Dec(P, 3);
+        End;
+      End;
+
+    ffCurrency:
+
+      Begin
+        If Value < 0 Then
+        Begin
+          Negative := True;
+          Value := -Value;
+        End
+        Else Negative := False;
+
+        If Digits = -1 Then Digits := CurrencyDecimals
+        Else If Digits > 18 Then Digits := 18;
+        Str(Value:0:Digits, Result);
+        If Result[1] = ' ' Then System.Delete(Result, 1, 1);
+        P := Pos('.', Result);
+        If P <> 0 Then Result[P] := DecimalSeparator;
+        Dec(P, 3);
+        While (P > 1) Do
+        Begin
+          Insert(ThousandSeparator, Result, P);
+          Dec(P, 3);
+        End;
+
+        If Not Negative Then
+        Begin
+          Case CurrencyFormat Of
+            0: Result := CurrencyString + Result;
+            1: Result := Result + CurrencyString;
+            2: Result := CurrencyString + ' ' + Result;
+            3: Result := Result + ' ' + CurrencyString;
+          End
+        End
+        Else
+        Begin
+          Case NegCurrFormat Of
+            0: Result := '(' + CurrencyString + Result + ')';
+            1: Result := '-' + CurrencyString + Result;
+            2: Result := CurrencyString + '-' + Result;
+            3: Result := CurrencyString + Result + '-';
+            4: Result := '(' + Result + CurrencyString + ')';
+            5: Result := '-' + Result + CurrencyString;
+            6: Result := Result + '-' + CurrencyString;
+            7: Result := Result + CurrencyString + '-';
+            8: Result := '-' + Result + ' ' + CurrencyString;
+            9: Result := '-' + CurrencyString + ' ' + Result;
+            10: Result := CurrencyString + ' ' + Result + '-';
+          End;
+        End;
+      End;
+  End;
+End;
+
+
+Function CurrToStr(Value: Currency): string;
+begin
+  Result:=FloatToStrF(Value,ffNumber,15,2);
+end;
+
+Function TextToFloat(Buffer: PChar; Var Value: Extended): Boolean; overload;
+Var
+  E,P : Integer;
+  S : String;
+Begin
+  S:=StrPas(Buffer);
+  P:=Pos(DecimalSeparator,S);
+  If (P<>0) Then
+    S[P] := '.';
+  Val(trim(S),Value,E);
+  Result:=(E=0);
+End;
+
+
+
+Procedure FloatToDecimal(Var Result: TFloatRec; Value: Extended; Precision, Decimals : integer);
+Var
+  Buffer: String[24];
+  Error, N: Integer;
+Begin
+  Str(Value:23, Buffer);
+  Result.Negative := (Buffer[1] = '-');
+  Val(Copy(Buffer, 19, 5), Result.Exponent, Error);
+  Inc(Result. Exponent);
+  Result.Digits[0] := Buffer[2];
+  Move(Buffer[4], Result.Digits[1], 14);
+  If Decimals + Result.Exponent < Precision Then
+    N := Decimals + Result.Exponent
+  Else
+    N := Precision;
+  If N > 15 Then
+    N := 15;
+  If N = 0 Then
+    Begin
+    If Result.Digits[0] >= '5' Then
+      Begin
+      Result.Digits[0] := '1';
+      Result.Digits[1] := #0;
+      Inc(Result.Exponent);
+      End
+    Else
+      Result.Digits[0] := #0;
+    End
+  Else If N > 0 Then
+    Begin
+    If Result.Digits[N] >= '5' Then
+      Begin
+      Repeat
+        Result.Digits[N] := #0;
+        Dec(N);
+        Inc(Result.Digits[N]);
+      Until (N = 0) Or (Result.Digits[N] < ':');
+      If Result.Digits[0] = ':' Then
+        Begin
+        Result.Digits[0] := '1';
+        Inc(Result.Exponent);
+        End;
+      End
+    Else
+      Begin
+      Result.Digits[N] := '0';
+      While (Result.Digits[N] = '0') And (N > -1) Do
+        Begin
+        Result.Digits[N] := #0;
+        Dec(N);
+        End;
+      End;
+    End
+  Else
+    Result.Digits[0] := #0;
+  If Result.Digits[0] = #0 Then
+    Begin
+    Result.Exponent := 0;
+    Result.Negative := False;
+    End;
+End;
+
+
+function CompareText(const S1, S2: string): integer;
+var i, cnt, cnt1, cnt2: integer; Chr1, Chr2: byte;
+begin
+  result:= 0;
+  cnt1:= Length(S1);
+  cnt2:= Length(S2);
+  if (cnt1 > cnt2) then cnt:= cnt2 else cnt:= cnt1;
+  i:= 0;
+  while (result = 0) and (i < cnt) do
+  begin
+    inc(i);
+    Chr1:= byte(s1[i]);
+    Chr2:= byte(s2[i]);
+    if Chr1 in [97..122] then dec(Chr1,32);
+    if Chr2 in [97..122] then dec(Chr2,32);
+    result:= Chr1 - Chr2;
+  end;
+  if (result = 0) then result:= cnt1 - cnt2;
+end;
+
+function SameText(const s1,s2:String):Boolean;
+begin
+  Result:=CompareText(S1,S2)=0;
+end;
+
+{ IntToStr returns a string representing Value    }
+function IntToStr(value: integer): string;
+begin
+  System.Str(value, result);
+end ;
+
+function IntToStr(value: int64): string;
+begin
+  System.Str(value, result);
+end ;
+
+{ wrapper for fpc/delphi lowercase function }
+function Lcase(const s: astr): astr;
+begin
+ {$IFDEF FPC} result:= system.lowercase(s);
+ {$ELSE}      result:= lowercase(s);
+ {$ENDIF}
+end;
+
+{ wrapper for fpc/delphi uppercase function }
+function Ucase(const s: astr): astr;
+begin
+ {$IFDEF FPC}result:= system.upcase(s);
+ {$ELSE}     result:= uppercase(s);
+ {$ENDIF}
+end;
+
+
+function BoolToStr(b: boolean): string;
+begin
+  if b then result:='TRUE' else result:='FALSE';
+end;
+
+{$IFDEF FPC}
+ function IntToStr(value: QWord): string;
+ begin
+   System.Str(value, result);
+ end ;
+{$ENDIF}
+
+{   Trim returns a copy of S with blanks characters on the left and right stripped off   }
+const WhiteSpace = [' ',#10,#13,#9];
 
 function Trim(const S: string): string;
 var Ofs, Len: integer;
@@ -103,7 +477,6 @@ begin
 end ;
 
 {   TrimLeft returns a copy of S with all blank characters on the left stripped off  }
-
 function TrimLeft(const S: string): string;
 var i,l:integer;
 begin
@@ -114,7 +487,6 @@ begin
 end ;
 
 {   TrimRight returns a copy of S with all blank characters on the right stripped off  }
-
 function TrimRight(const S: string): string;
 var l:integer;
 begin
@@ -125,7 +497,6 @@ end ;
 
 {   QuotedStr returns S quoted left and right and every single quote in S
     replaced by two quotes   }
-
 function QuotedStr(const S: string): string;
 begin
   result := AnsiQuotedStr(s, '''');
@@ -133,7 +504,6 @@ end ;
 
 {   AnsiQuotedStr returns S quoted left and right by Quote,
     and every single occurance of Quote replaced by two   }
-
 function AnsiQuotedStr(const S: string; Quote: char): string;
 var i, j, count: integer;
 begin
@@ -156,8 +526,6 @@ end ;
 {   AnsiExtractQuotedStr returns a copy of Src with quote characters
     deleted to the left and right and double occurances
     of Quote replaced by a single Quote   }
-
-
 function AnsiExtractQuotedStr(var  Src: PChar; Quote: Char): string;
 var
   P,Q,R: PChar;
@@ -425,7 +793,6 @@ Var
   C,LQ,BC : Char;
   P,BLen,Len : Integer;
   HB,IBC : Boolean;
-
 begin
   Result:='';
   L:=Line;
@@ -476,7 +843,6 @@ function WrapText(const Line: string; MaxCol: Integer): string;
 begin
   Result:=WrapText(Line,sLineBreak, [' ', '-', #9], MaxCol);
 end;
-
 
 Function StringReplace(const S, OldPattern, NewPattern: string;  Flags: TReplaceFlags): string;
 var
@@ -539,7 +905,6 @@ end;
 
 {   NewStr creates a new PString and assigns S to it
     if length(s) = 0 NewStr returns Nil   }
-
 function NewStr(const S: string): PString;
 begin
   if (S='') then
@@ -553,7 +918,6 @@ begin
 end;
 
 {   DisposeStr frees the memory occupied by S   }
-
 procedure DisposeStr(S: PString);
 begin
   if S <> Nil then
@@ -564,14 +928,12 @@ begin
 end;
 
 {   AssignStr assigns S to P^   }
-
 procedure AssignStr(var P: PString; const S: string);
 begin
   P^ := s;
 end ;
 
 {   AppendStr appends S to Dest   }
-
 procedure AppendStr(var Dest: String; const S: string);
 begin
   Dest := Dest + S;
@@ -579,8 +941,6 @@ end ;
 
 {   UpperCase returns a copy of S where all lowercase characters ( from a to z )
     have been converted to uppercase   }
-
-
 Function UpperCase(Const S : String) : String;
 Var
   i : Integer;
@@ -598,7 +958,6 @@ end;
 
 {   LowerCase returns a copy of S where all uppercase characters ( from A to Z )
     have been converted to lowercase  }
-
 Function Lowercase(Const S : String) : String;
 Var
   i : Integer;
@@ -635,7 +994,6 @@ end ;
     S1 < S2  < 0
     S1 > S2  > 0
     S1 = S2  = 0     }
-
 function CompareStr(const S1, S2: string): Integer;
 var count, count1, count2: integer;
 begin
@@ -665,7 +1023,7 @@ Begin
  { terminate the string }
  Dest[counter] := #0;
  StrCopy := Dest;
-end; 
+end;
 
 function StrECopy(Dest, Source: PChar): PChar;
 { Equivalent to the following:                                          }
@@ -683,7 +1041,7 @@ Begin
  { terminate the string }
  Dest[counter] := #0;
  StrECopy:=@(Dest[counter]);
-end; 
+end;
 
 function StrLCopy(Dest,Source: PChar; MaxLen: SizeInt): PChar;
 var
@@ -704,7 +1062,7 @@ Begin
  { terminate the string }
  Dest[counter] := #0;
  StrLCopy := Dest;
-end; 
+end;
 
 Function StrEnd(P: PChar): PChar;
 var
@@ -714,7 +1072,7 @@ begin
  while P[counter] <> #0 do
     Inc(counter);
  StrEnd := @(P[Counter]);
-end; 
+end;
 
 function StrComp(Str1, Str2 : PChar): SizeInt;
 var
@@ -728,7 +1086,7 @@ Begin
    Inc(counter);
  end;
  StrComp := ord(str1[counter]) - ord(str2[counter]);
-end; 
+end;
 
 function StrLComp(Str1, Str2 : PChar; L: SizeInt): SizeInt;
 var
