@@ -187,7 +187,6 @@ procedure GetDirFiles(const dir, mask: astr; var res: PathArray);
 var dn: TDirNames;
     fn: TFileNames;
     i, i2: integer;
-    paths: AstrArray;
 begin
   // get sub dirs first
   GetSubDirs(dir, dn);
