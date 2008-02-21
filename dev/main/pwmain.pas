@@ -26,14 +26,14 @@ unit pwmain; {$IFDEF FPC}{$GOTO ON} {$NOTES ON} {$NOTE USING STATIC WEB UNIT}{$E
   PWUDEBUG     // text log file debugging, only use on localhost single visitor testing since it multiple visitors cannot write simutaneously to the same log file
   EXTRA_SECURE // check overflows, range errors (recommended)
   SYSUTILS_ON  // compactsysutils is used sometimes depending on above devines. If you have problems then resort back to using Sysutils
-
+}
 // Above defines customize behavior, some save exe size if OFF. Read comments!
 
 // Delete all .a/.o/.ppu files in *all* directories with DELP tool, otherwise
 // defines will not have effect in many cases.
 
 // Using $DEFINE in this unit is not global for all units, so instead use delphi
-// project options or fpc's -d option for global defines across units.
+// project options or fpc -d option for global define across units.
 
 {$I defines1.inc}
 
@@ -331,7 +331,7 @@ function iCustomCfgUnitSet: bln;
 uses
   {$IFDEF WINDOWS}windows,{$ENDIF}
   {$IFDEF UNIX}baseunix,{$ENDIF}
-  {$IFDEF SYSUTILS_ON}sysutils{$ENDIF},
+  {$IFDEF SYSUTILS_ON}sysutils{$ELSE}compactsysutils{$ENDIF},
   pwstrutil,
   {$IFDEF GZIP_ON}pwobjbuff,{$ENDIF} // output buffer w/built in gzip
   pwnative_out, // simple writeln
