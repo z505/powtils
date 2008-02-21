@@ -47,11 +47,13 @@ function UnsetSess(const name: string): boolean;
 
 implementation
 uses 
-  pwenvvar,  pwurlenc, pwsds, pwfileutil, pwbase64enc, sysutils;
+  pwenvvar,  pwurlenc, pwsds, pwfileutil, pwbase64enc, sysutils,
+  delphisystemcompat;
 
 var sess: TWebVars;   
     sess_initialized: boolean = false; 
 
+{&I delphisystemcompat.inc }
 
 function IsSessionFlag(s: string): boolean;
 begin
