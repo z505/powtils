@@ -18,18 +18,15 @@
 ********************************************************************************}
 
 
-unit pwsdssess; 
+unit pwsdssess;
 
 {$DEFINE EXTRA_SECURE}
 
-{$IFDEF FPC}{$MODE OBJFPC}{$H+}
-  {$IFDEF EXTRA_SECURE}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
-{$ENDIF}
-
+{$I defines1.inc}
 
 interface
-uses 
-  pwmain;
+uses
+  pwmain, pwtypes;
 
 const PWU_SESS_FILE = 'pwusess.sds'; // default session filename
       DEFAULT_SESS_TIME = '25';
@@ -115,13 +112,20 @@ end;
 
 // Session garbage collector
 function SessGC: boolean;
+  function tmpdir: astr;
+  begin
+   {$IFDEF WINDOWS}
+    result:= GetEnvVar('WINDIR') + '\' + PWU_SESS_FILE;
+   {$ENDIF}
+   {$IFDEF UNIX}
+    result:= '/tmp/';
+   {$ENDIF}
+  end;
 var
- SessTblPath,
- sess_lim: string;
+ SessTblPath, tmppath, sess_lim: astr;
  res: SDS_Result;
  sess_time: longword;
  limdate: TDateTime;
- tmpstr: string;
 begin
  result:= false;
  SessTblPath:= GetCfgVar('session_path');
@@ -130,10 +134,9 @@ begin
  if not FileExists(SessTblPath) then
  begin
    // Searching in system temp
-   tmpstr:= {$IFDEF WINDOWS}GetEnvVar('WINDIR') + '\'{$ENDIF}
-            {$IFDEF UNIX}'/tmp/'{$ENDIF}+ PWU_SESS_FILE;
-   if FileExists(tmpstr) then
-     SessTblPath:= tmpstr
+   tmppath:= TmpDir();
+   if FileExists(tmppath) then
+     SessTblPath:= tmppath
    else
      exit; // false
  end;
@@ -159,8 +162,8 @@ function SessStart: string;
 var SessTblPath: string;
     res: SDS_Result;
     row: SDS_Array;
-    key, sid: string;           
-  
+    key, sid: string;
+
  function SysSessPath: string;
  begin
    result:= {$IFDEF WINDOWS}GetEnvVar('WINDIR') + '\'{$ENDIF}

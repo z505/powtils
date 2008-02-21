@@ -1,7 +1,8 @@
-unit pwdefaultcfg; {$ifdef fpc} {$mode objfpc}{$H+} {$endif}
+unit pwdefaultcfg; { $I defines1.inc}
 
 interface
-uses pwtypes;
+uses
+  pwtypes;
 
 
 function GetCfgPath: astr;

@@ -68,13 +68,6 @@ uses
   pwsubstr, pwstrutil;
 
 
-const
-// commenting is VP fix. These idents are in a different unit there.
-  PathDelim={System.}DirectorySeparator;
-  DriveDelim={System.}DriveSeparator;
-  PathSep={System.}PathSeparator;
-  MAX_PATH={System.}MaxPathLen;
-
 
 const
   { File open modes }

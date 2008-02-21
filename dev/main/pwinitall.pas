@@ -17,13 +17,9 @@ implementation
 uses 
   pwmain;
 
-
-
 initialization
-  //writeln('INIT pwinitaddons');
-
-  // initializes sessions, config, based on plugin units above, and also 
-  // initializes whatever pwmain must initialize such as headers, buffer, etc
+  // initializes sessions, config, based on plugin units above, and also
+  // whatever pwmain must initialize such as headers, buffer, etc
   Init;
 end.
 
