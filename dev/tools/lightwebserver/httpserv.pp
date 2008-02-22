@@ -22,9 +22,13 @@ Uses
   StreamIO,
   MIMETable,
   Process,
-  Syncobjs;
+  Syncobjs,
+  ThreadPool;
 
 Type
+  // All errors reported
+  ESockError = Class(Exception);
+
   // Request handlers must follow this format
   TRequestHandler = Procedure(Headers: TStringList;
   Var ICGIText, OCGIText : Text; ICGIStream, OCGIStream : TStream) Of Object;
@@ -57,6 +61,10 @@ Type
                                          // exit after processing the last
                                          // pending transaction
     fCritical        : TCriticalSection; // Critical section handler
+    fThreadPool      : TThreadPool;      // Request threads pool
+    fNextThreadID    : LongWord;         // Next Thread ID
+    fThreadTimeout   : Int64;            // Thread max time in milliseconds
+    fMaxThreads      : LongWord;         // Maximium number of concurrent threads
 
     // Calls a specific request handler named Name
     Procedure CallReqHnd(Name : AnsiString; Headers: TStringList;
@@ -74,8 +82,10 @@ Type
 
   Public
     // Public properties
-    Property DocRootDir : String Read fDocRoot;
-    Property Timeout : LongInt Read fTimeout;
+    Property DocRootDir    : String Read fDocRoot;
+    Property Timeout       : LongInt Read fTimeout;
+    Property ThreadPool    : TThreadPool Read fThreadPool;
+    Property ThreadTimeout : Int64 Read fThreadTimeout;
 
     // Registers a handler. It must follow TRequestHandler format
     // Name is the unqualified filename, do not append directory
@@ -86,7 +96,8 @@ Type
 
     // Setups a server at IP and Port, DocRoot is where documents/cgi apps
     // are stored. Password is used to allow remote server shutdown.
-    Constructor Create(DocRoot, IP, Port: String; TOut : LongInt);
+    Constructor Create(DocRoot, IP, Port: String; TOut : LongInt;
+    TTOut : Int64; MaxThreads : LongWord);
 
     // The real server loop and destroyer
     Procedure Execute; Override;
@@ -135,10 +146,16 @@ Type
 
   THTTPRequestThread = Class(TThread)
   Private
-    fSock  : TTCPBlockSocket;
-    fOwner : THTTPServerThread;
+    fSock    : TTCPBlockSocket;
+    fOwner   : THTTPServerThread;
+    Headers  : TStringList;
+    IIStream : TMemoryStream;
+    OOStream : TMemoryStream;
+    IIText   : Text;
+    OOText   : Text;
+    fSelfID  : LongWord;
   Public
-    Constructor Create(AOwner : THTTPServerThread; hSock: tSocket);
+    Constructor Create(AOwner : THTTPServerThread; hSock: tSocket; SelfID : LongWord);
     Destructor Destroy; Override;
     Procedure Execute; Override;
   End;
@@ -157,9 +174,9 @@ Var
   Ctrl : LongInt;
 Begin
   Ctrl := IndexOf(Name);
-  If Ctrl >= 0 Then Begin
-    GetHandler := fBuffer[Ctrl].Handler;
-  End Else
+  If Ctrl >= 0 Then
+    GetHandler := fBuffer[Ctrl].Handler
+  Else
     GetHandler := Nil;
 End;
 
@@ -232,7 +249,6 @@ Var
 Const
    READ_BYTES = 1024;
 Begin
-
   // Debug WriteLn('Calling CGI Process : ', ExpandFileName(fDocRoot + UnQuote(Headers.Values['x-PWU-FileName'])));
   If FileExists(ExpandFileName(fDocRoot + UnQuote(Headers.Values['x-PWU-FileName']))) Then
   Begin
@@ -251,10 +267,8 @@ Begin
     SP.Environment.Add('PATH=' + fDocRoot);
     SP.CurrentDirectory := fDocRoot;
     SP.Options          := SP.Options + [poUsePipes];
-
     SP.Execute;
     SP.Input.CopyFrom(ICGIStream, ICGIStream.Size);
-
     While SP.Running Do
     Begin
       // make room
@@ -291,7 +305,6 @@ Begin
     M.Free;
     SP.Free;
   End;
-  
 End;
 { End of internal request handlers, dont use then ! }
 
@@ -302,7 +315,7 @@ Var
 Begin
   If fRequestHandlers.IndexOf(Name) < 0 Then
   Begin
-     //Debug WriteLn('Handler not found, calling the default handler (error404)...');
+     // Debug WriteLn('Handler not found, calling the default handler (error404)...');
     if fRequestHandlers.IndexOf('default') < 0 Then
       Callee := DefaultReqHnd
     Else
@@ -310,14 +323,15 @@ Begin
   End
   Else
   Begin
-     //Debug 
+     // Debug WriteLn('Handler found, calling it...');
     Callee := fRequestHandlers.GetHandler(Name);
   End;
   Try
-    if assigned(Callee) then Callee(Headers, ICGIText, OCGIText, ICGIStream, OCGIStream);
+    If Assigned(Callee) Then
+      Callee(Headers, ICGIText, OCGIText, ICGIStream, OCGIStream);
   Except
     On E: Exception Do
-              WriteLn(E.Message);
+      WriteLn(E.Message);
   End;
 End;
 
@@ -327,8 +341,9 @@ Begin
 End;
 
 Constructor THTTPServerThread.Create(DocRoot, IP, Port: String;
-  TOut : LongInt);
+  TOut : LongInt; TTOut : Int64; MaxThreads : LongWord);
 Begin
+  // Debug WriteLn('Creating server thread.');
   Inherited Create(True);
   fRequestHandlers := TRequestHandlerList.Create;
   fCritical        := TCriticalSection.Create;
@@ -339,6 +354,10 @@ Begin
   fRunningThreads  := 0;
   fAcceptClients   := True;
   fGlobalFinished  := False;
+  fThreadPool      := TThreadPool.Create;
+  fThreadTimeout   := TTOut;
+  fNextThreadID    := 0;
+  fMaxThreads      := MaxThreads;
   FreeOnTerminate  := False;
   Priority         := tpNormal;
 End;
@@ -348,6 +367,7 @@ Var
   ClientSock    : TSocket;
   Sock          : TTCPBlockSocket;
 Begin
+  // Debug WriteLn('Server thread started.');
   Sock := TTCPBlockSocket.Create;
   With Sock Do
   Begin
@@ -367,23 +387,40 @@ Begin
       WriteLn(SSL.LastErrorDesc);
       Exit;
     End;
+    // Debug WriteLn('Listening.');
     Repeat
-      If CanRead(1000) And Self.Active Then
+      // Debug  If CanRead(0) Then WriteLn('Incomming request, free slot ? ', (RunningChilds < fMaxThreads));
+      If (CanRead(0) And Self.Active) And (RunningChilds < fMaxThreads) Then
       Begin
         ClientSock := Accept;
         If LastError = 0 Then
-          THTTPRequestThread.Create(Self, ClientSock);
-      End;
+        Begin
+          // Debug WriteLn;
+          // Debug WriteLn('Creating the thread number ', fNextThreadID, ' now.');
+          fThreadPool.AddThread(fNextThreadID, 
+          THTTPRequestThread.Create(Self, ClientSock, fNextThreadID),
+          fThreadTimeout);
+          Inc(fNextThreadID);
+        End;
+      End
+      Else
+        Purge;
+      fThreadPool.CheckTimeout;
     Until Finish;
-    While RunningChilds > 0 Do ; // Wait for pending threads
+    While RunningChilds > 0 Do
+      fThreadPool.CheckTimeout; // Wait for pending threads
+    Purge;
   End;
   Sock.Free;
+  // Debug WriteLn('Server loop exited.');
 End;
 
 Destructor THTTPServerThread.Destroy;
 Begin
+  // Debug WriteLn('Freeing server.');
   fRequestHandlers.Free;
   fCritical.Free;
+  fThreadPool.Free;
   Inherited Destroy;
 End;    
 
@@ -482,36 +519,52 @@ Begin
   Finish := fGlobalFinished;
   fCritical.Leave;
 End;
-
     
-Constructor THTTPRequestThread.Create(AOwner : THTTPServerThread; hSock: tSocket);
+Constructor THTTPRequestThread.Create(AOwner : THTTPServerThread; hSock: tSocket; SelfID : LongWord);
 Begin
-  Inherited Create(False);
-  fSock            := TTCPBlockSocket.Create;
-  fSock.Socket     := hSock;
-  fOwner           := AOwner;
-  FreeOnTerminate  := True;
-  Priority         := tpNormal;
+  Inherited Create(True);
+  // Debug WriteLn('Thread starting, setting up buffers...');
+  fSock              := TTCPBlockSocket.Create;
+  fSock.Socket       := hSock;
+  fOwner             := AOwner;
   fOwner.IncreaseThreads;
+  Headers            := TStringList.Create;
+  Headers.Duplicates := dupIgnore;
+  Headers.Sorted     := False;
+  Headers.QuoteChar  := #00;
+  Headers.Delimiter  := ' ';
+  IIStream           := TMemoryStream.Create;
+  OOStream           := TMemoryStream.Create;
+  // Debug WriteLn('Assigning CGI streams.');
+  AssignStream(IIText, IIStream);
+  AssignStream(OOText, OOStream);
+  Reset(IIText);
+  Rewrite(OOText);
+  FreeOnTerminate    := True;
+  Priority           := tpNormal;
+  fSelfID            := SelfID;
 End;
 
 Destructor THTTPRequestThread.Destroy;
 Begin
+  // Debug WriteLn('Freeing resources.');
+  IIStream.Free;
+  OOStream.Free;
+  Close(IIText);
+  Close(OOText);
+  Headers.Free;
   fOwner.DecreaseThreads;
+  fOwner.ThreadPool.DelThread(fSelfID);
   fSock.Free;
   Inherited Destroy;
 End;
 
 Procedure THTTPRequestThread.Execute;
 Var
-  Buffer    : AnsiString;
-  Tokens    : TTokenList;
-  Headers   : TStringList;
-  IIStream  : TMemoryStream;
-  OOStream  : TMemoryStream;
-  IIText    : Text;
-  OOText    : Text;
-  Tmp: AnsiString;
+  Buffer : AnsiString;
+  Tokens : TTokenList;
+  DecURI : TDecodedURI;
+  Ctrl   : LongWord;
 
   Function CreateHeaderLine(Name, Value : String): String;
   Begin
@@ -549,151 +602,106 @@ Var
       );
   End;
 
-  Procedure Init;
-  Begin
-    // Debug WriteLn('Setup buffers...');
-    Headers            := TStringList.Create;
-    Headers.Duplicates := dupIgnore;
-    Headers.Sorted     := False;
-    Headers.QuoteChar  := #00;
-    Headers.Delimiter  := ' ';
-    IIStream           := TMemoryStream.Create;
-    OOStream           := TMemoryStream.Create;
-
-    // Debug WriteLn('Assigning CGI streams.');
-    AssignStream(IIText, IIStream);
-    AssignStream(OOText, OOStream);
-    Reset(IIText);
-    Rewrite(OOText);
-  End;
-
-  Procedure CleanUp;
-  Begin
-    // Debug WriteLn('Freeing resources.');
-    IIStream.Free;
-    OOStream.Free;
-    Close(IIText);
-    Close(OOText);
-    Headers.Free;
-  End;
-
 Begin
+  Try
+    // Debug WriteLn('Checking for the possibility of HTTPS connection...');
+    If FileExists(fOwner.DocRootDir + 'certificate.pem') And FileExists(fOwner.DocRootDir + 'privatekey.pem') Then
+    Begin
+      // Debug WriteLn('Certificate files found, enabling HTTPS.');
+      fSock.SSL.CertificateFile := fOwner.DocRootDir + 'certificate.pem';
+      fSock.SSL.PrivateKeyFile := fOwner.DocRootDir + 'privatekey.pem';
+      fSock.SSLAcceptConnection;
+      If fSock.LastError <> 0 Then
+        Raise ESockError.Create('Low level socket error.');
+    End;
 
-  Init;
-
-  // Debug WriteLn('Checking for the possibility of HTTPS connection...');
-  If FileExists(fOwner.DocRootDir + 'certificate.pem') And FileExists(fOwner.DocRootDir + 'privatekey.pem') Then
-  Begin
-    // Debug WriteLn('Certificate files found, enabling HTTPS.');
-    fSock.SSL.CertificateFile := fOwner.DocRootDir + 'certificate.pem';
-    fSock.SSL.PrivateKeyFile := fOwner.DocRootDir + 'privatekey.pem';
-    fSock.SSLAcceptConnection;
+    // Debug WriteLn('Receiving request.');
+    Buffer  := fSock.RecvString(fOwner.Timeout);
+    // Debug WriteLn(Buffer, ' from ', fSock.GetRemoteSinIP);
     If fSock.LastError <> 0 Then
+      Raise ESockError.Create('Low level socket error.');
+    If Buffer = '' Then
+      Raise ESockError.Create('Empty request.');
+    Tokens := BreakApart(Buffer);
+    DecURI := DecodeURI(Tokens[1]);
+
+    // Debug WriteLn('Receiving and preparing headers.');
+    While Buffer <> '' Do
     Begin
-      WriteLn(fSock.LastErrorDesc);
-      WriteLn(fSock.SSL.LastErrorDesc);
-      CleanUp; Exit;
+      If fSock.LastError <> 0 Then
+        Raise ESockError.Create('Low level socket error.');
+      Buffer := fSock.RecvString(fOwner.Timeout);
+      If Buffer <> '' Then
+        SafeAddHeader(DecodeHeader_Label(Buffer), DecodeHeader_Value(Buffer));
     End;
-  End;
 
-  // Debug WriteLn('Receiving request.');
-  Buffer  := fSock.RecvString(fOwner.Timeout);
-  // Debug WriteLn(Buffer, ' from ', fSock.GetRemoteSinIP);
-  If fSock.LastError <> 0 Then
-  Begin
-    WriteLn(fSock.LastErrorDesc);
-    WriteLn(fSock.SSL.LastErrorDesc);
-    CleanUp; Exit;
-  End;
-  If Buffer = '' Then
-  Begin
-    WriteLn('Empty request error.');
-    CleanUp; Exit;
-  End;
+    // Debug WriteLn('Building internal headers...');
+    SafeAddHeader('x-PWU-Method',     Tokens[0]);
+    SafeAddHeader('x-PWU-URI',        Tokens[1]);
+    SafeAddHeader('x-PWU-Protocol',   Tokens[2]);
+    SafeAddHeader('x-PWU-Document',   DecURI.Document);
+    SafeAddHeader('x-PWU-Parameters', DecURI.Parameters);
+    SafeAddHeader('x-PWU-Remote',     fSock.GetRemoteSinIP);
+    SafeAddHeader('x-PWU-FileName',   ExtractFileName(UnQuote(Headers.Values['x-PWU-Document'])));
+    SafeAddHeader('x-PWU-FilePath',   CorrectPath);
+    SafeAddHeader('x-PWU-FileExt',    RemoveDot(ExtractFileExt(UnQuote(Headers.Values['x-PWU-FileName']))));
+    SafeAddHeader('x-PWU-MIMEType',   FindMIMEOf(UnQuote(Headers.Values['x-PWU-FileExt'])));
 
-  Tokens := BreakApart(Buffer);
+    // Debug WriteLn('Checking for incomming (POST) data.');
+    If Tokens[0] = 'POST' Then
+    Begin
+      // Debug WriteLn('Receiving post data.');
+      fSock.RecvStreamSize(IIStream, fOwner.Timeout, StrToInt(UnQuote(Headers.Values['Content-length'])));
+      IIStream.Seek(0, soFromBeginning);
+      If fSock.LastError <> 0 Then
+        Raise ESockError.Create('Low level socket error.');
+    End;
 
-  // Debug WriteLn('Receiving and preparing headers.');
-  While Buffer <> '' Do
-  Begin
+    // Debug WriteLn('Calling the apropriate request handler.');
+    fOwner.CallReqHnd(UnQuote(Headers.Values['x-PWU-FileName']), Headers, IIText, OOText, IIStream, OOStream);
+
+    If Headers.IndexOf('x-PWU-NPH') < 0 Then
+    Begin
+      // Debug WriteLn('Sending response, no user non-parsed-headers.');
+      fSock.SendString('HTTP/1.0 200 OK' + CR + LF);
+      fSock.SendString('Content-length: ' + IntToStr(OOStream.Size) + CR + LF);
+      fSock.SendString('Connection: close' + CR + LF);
+      fSock.SendString('Date: ' + RFC822DateTime(Now) + CR + LF);
+      fSock.SendString('Server: PWU LightWebServer' + CR + LF);
+      If fSock.LastError <> 0 Then
+        Raise ESockError.Create('Low level socket error.');
+    End
+    Else
+    Begin
+      // Debug WriteLn('Sending response, user non-parsed-headers present.');
+      fSock.SendString('HTTP/1.0 200 OK' + CR + LF);
+      For Ctrl := 0 To Headers.Count - 1 Do
+        If Headers[Ctrl] <> 'x-PWU-NPH' Then
+          fSock.SendString(Headers[Ctrl] + CR + LF);
+      fSock.SendString('Content-length: ' + IntToStr(OOStream.Size) + CR + LF);
+      fSock.SendString('Connection: close' + CR + LF);
+      fSock.SendString('Date: ' + RFC822DateTime(Now) + CR + LF);
+      fSock.SendString('Server: PWU LightWebServer' + CR + LF);
+      If fSock.LastError <> 0 Then
+        Raise ESockError.Create('Low level socket error.');
+    End;
+
+    // Debug WriteLn('Sending document.');
+    fSock.SendBuffer(OOStream.Memory, OOStream.Size);
+    // Debug WriteLn('Size: ', OOStream.Size);
     If fSock.LastError <> 0 Then
+      Raise ESockError.Create('Low level socket error.');
+    // Debug WriteLn('Thread finished.');
+  Except
+    On E: Exception Do
     Begin
-      WriteLn(fSock.LastErrorDesc);
-      WriteLn(fSock.SSL.LastErrorDesc);
-      CleanUp; Exit;
-    End;
-    Buffer := fSock.RecvString(fOwner.Timeout);
-    If Buffer <> '' Then
-    Begin
-      SafeAddHeader(Copy(Buffer, 1, Pos(':', Buffer) - 1),
-      Copy(Buffer, Pos(':', Buffer) + 2, Length(Buffer) - Pos(':', Buffer)));
-    End;
-  End;
-
-  // Debug WriteLn('Building internal headers...');
-  SafeAddHeader('x-PWU-Method', Tokens[0]);
-  SafeAddHeader('x-PWU-URI', Tokens[1]);
-  SafeAddHeader('x-PWU-Protocol', Tokens[2]);
-  If Pos('?', Tokens[1]) >= 1 Then
-  Begin
-    Buffer := Copy(Tokens[1], 1, Pos('?', Tokens[1]) - 1);
-    SafeAddHeader('x-PWU-Document', Buffer);
-    Buffer := Copy(Tokens[1], Pos('?', Tokens[1]) + 1, Length(Tokens[1]) - Pos('?', Tokens[1]));
-    SafeAddHeader('x-PWU-Parameters', Buffer);
-  End
-  Else
-  Begin
-    SafeAddHeader('x-PWU-Document', Tokens[1]);
-    SafeAddHeader('x-PWU-Parameters', '');
-  End;
-  SafeAddHeader('x-PWU-Remote', fSock.GetRemoteSinIP);
-  SafeAddHeader('x-PWU-FileName', ExtractFileName(UnQuote(Headers.Values['x-PWU-Document'])));
-  SafeAddHeader('x-PWU-FilePath', CorrectPath);
-  SafeAddHeader('x-PWU-FileExt', RemoveDot(ExtractFileExt(UnQuote(Headers.Values['x-PWU-FileName']))) );
-  SafeAddHeader('x-PWU-MIMEType', FindMIMEOf(UnQuote(Headers.Values['x-PWU-FileExt'])));
-
-  // Debug WriteLn('Checking for incomming (POST) data.');
-  If Tokens[0] = 'POST' Then
-  Begin
-    // Debug WriteLn('Receiving post data.');
-    fSock.RecvStreamSize(IIStream, fOwner.Timeout, StrToInt(UnQuote(Headers.Values['Content-length'])));
-    IIStream.Seek(0, soFromBeginning);
-    If fSock.LastError <> 0 Then
-    Begin
-      WriteLn(fSock.LastErrorDesc);
-      WriteLn(fSock.SSL.LastErrorDesc);
-      CleanUp; Exit;
+      // Debug WriteLn('fSock     : ', fSock.LastErrorDesc);
+      // Debug WriteLn('fSock.SSL : ', fSock.SSL.LastErrorDesc);
+      // Debug WriteLn('Exception : ', E.Message);
+      // Debug WriteLn('Thread finished due to error.');
+      Exit;
     End;
   End;
-
-  // Debug WriteLn('Calling the apropriate request handler.');
-  fOwner.CallReqHnd(UnQuote(Headers.Values['x-PWU-FileName']), Headers, IIText, OOText, IIStream, OOStream);
-
-  // Debug WriteLn('Sending response.');
-  fSock.SendString('HTTP/1.0 200 OK' + CR + LF);
-  fSock.SendString('Content-length: ' + IntToStr(OOStream.Size) + CR + LF);
-  fSock.SendString('Connection: close' + CR + LF);
-  fSock.SendString('Date: ' + RFC822DateTime(Now) + CR + LF);
-  fSock.SendString('Server: PWU LightWebServer' + CR + LF);
-  If fSock.LastError <> 0 Then
-  Begin
-    WriteLn(fSock.LastErrorDesc);
-    WriteLn(fSock.SSL.LastErrorDesc);
-    CleanUp; Exit;
-  End;
-
-  // Debug WriteLn('Sending document.');
-  fSock.SendBuffer(OOStream.Memory, OOStream.Size);
-  // Debug WriteLn('Size: ', OOStream.Size);
-  If fSock.LastError <> 0 Then
-  Begin
-    WriteLn(fSock.LastErrorDesc);
-    WriteLn(fSock.SSL.LastErrorDesc);
-    CleanUp; Exit;
-  End;
-
-  CleanUp;
-  // Debug WriteLn('Thread finished.');
 End;
 
 End.
