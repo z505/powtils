@@ -3,57 +3,57 @@
 program build; {$mode objfpc} {$H+} 
 
 uses 
-  dirutils in '../main/pwdirutil',
-  pwbuildutil in '../main/pwbuildutil';
+  pwtypes in '../main/pwtypes.pas',
+  pwdirutil in '../main/pwdirutil.pas',
+  pwbuildutil in '../main/pwbuildutil.pas';
 
-function checkdorebuild: boolean;
-begin
-  result:= false;
-  if paramstr(2) = 'rebuild' then result:= true;
-end;
 
-function checkdoall: boolean;
-begin
-  result:= false;
-  if paramstr(1) = 'all' then result:= true;
-end;
+type
+  eNames = (tGzipOn, tGzipSysutilsOn, tSysutilsOn);
+const
+  names: array [eNames] of string20 =
+    ('gzipon', 'gzipsysutilson', 'systutilson');
 
-procedure CompileExamples(const Paths: PathArray);
-var opts: TFpcOptions;
+
+procedure BuildExamples(const Paths: PathArray);
+var o: TFpcOptions;
     all: boolean;
 begin
-  Init(opts);
-  opts.Build:= checkdorebuild();
-  AddUnitPath(opts, '../main/');
+  Init(o);
+  o.smartstrip:= true;
+  AddUnitPath(o, '../main/');
 
-  all:= checkdoall();
+  all:= doingall();
 
-  if (all) or (paramstr(1) = '') then begin
-    opts.ProgBinDir:= 'bin/';
-    CompileMany(Paths,  opts);
+  if (all) or (doingdefault) then begin
+    o.ProgBinDir:= 'bin';
+    o.Name:= 'default';
+    NewGroup(paths, o);
   end;
 
-  if (all) or (paramstr(1) = 'gzipon') then begin
-    ResetDefines(opts);
-    AddDefine(opts, 'GZIP_ON');
-    opts.ProgBinDir:= 'bin-gzip_on/';
-    CompileMany(Paths,  opts);
+  if (all) or (group = names[tGzipOn]) then begin
+    AddDefine(o, 'GZIP_ON'); 
+    o.Name:= group;
+    o.ProgBinDir:= 'bin-'+group; 
+    NewGroup(Paths,  o);
   end;
 
-  if (all) or (paramstr(1) = 'gzipsysutilson') then begin
-    ResetDefines(opts);
-    AddDefine(opts, 'SYSUTILS_ON');
-    AddDefine(opts, 'GZIP_ON');
-    opts.ProgBinDir:= 'bin-sysutils_on-gzip_on/';
-    CompileMany(Paths,  opts);
+  if (all) or (group = names[tGzipSysutilsOn]) then begin
+    AddDefine(o, 'SYSUTILS_ON');
+    o.Name:= group;
+    o.ProgBinDir:= 'bin-'+group; 
+    NewGroup(Paths,  o);
   end;
 
-  if (all) or (paramstr(1) = 'sysutilson') then begin
-    ResetDefines(opts);
-    AddDefine(opts, 'SYSUTILS_ON');
-    opts.ProgBinDir:= 'bin-sysutils_on/';
-    CompileMany(Paths,  opts);
+  if (all) or (group = names[tSysutilsOn]) then begin
+    ResetDefines(o);
+    AddDefine(o, 'SYSUTILS_ON');
+    o.ProgBinDir:= 'bin-'+group; 
+    o.Name:= group;
+    NewGroup(Paths,  o);
   end;
+
+  Run();
 
 end;
 
@@ -61,7 +61,7 @@ var Paths: PathArray;
 
 begin
   GetDirFiles('./', '*.dpr', Paths);
-  CompileExamples(Paths);
+  BuildExamples(Paths);
 end.
 
 

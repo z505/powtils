@@ -15,13 +15,17 @@ interface
 uses
   pwdirutil;
 
-type astr = ansistring;
-     AstrArray = array of astr;
-     bln = boolean;
-     num  = integer;                                                   
+type 
+  astr = ansistring;
+  AstrArray = array of astr;
+  bln = boolean;
+  num  = integer;                                                   
 //type TMoreEnum =  (DEFINES, UNITPATHS, INCPATHS);
 
+  string20 = string[20];
+
   TFpcOptions = record
+    Name: string20;   // group name
     Dir,              // working directory
     Crapdir,          // subdir for .o/.a/.ppu files (relative to working dir)
     ProgBinFile,      // program file name
@@ -31,7 +35,7 @@ type astr = ansistring;
     Rebuild,
     CleanBeforeRebuild,
     IgnoreErr: bln;   // ignore compiler errors
-    Extra: astr;
+    Extra: astr;                 
     FpcVersion: astr;
     intern: record    // private, not for interface user to worry about
       defines,                                                         
@@ -44,6 +48,7 @@ type astr = ansistring;
   end;
 
 procedure Init(out opts: TFpcOptions);
+
 
 function Compile(const srcunit, opts, fpversion: astr; IgnoreErr: bln): num;
 function Compile(const srcunit: astr; var opts: TFpcOptions): num;
@@ -69,6 +74,17 @@ procedure ResetIncPaths(var opts: TFpcOptions);
 procedure ResetDefines(var opts: TFpcOptions);
 
 procedure WriteSeparator;
+procedure WriteSeparator1;
+
+
+function group: string20;
+function rebuilding: boolean;
+function doingall: boolean;
+function cleaning: boolean;
+function doingdefault: boolean;
+
+procedure Run;
+
 
 (* Todo: 
     -zip (tar, winzip, etc) functions
@@ -80,6 +96,7 @@ implementation
 
 uses
   strutils, sysutils, pwfileutil, pwfputil, pwtypes;
+
 
 procedure noteln(const s: string);
 begin
@@ -107,6 +124,162 @@ begin
   writeln('-------------------------------------------------------------------------------');
 end;
 
+procedure WriteSeparator1;
+begin                                                          
+  writeln('-------------------------------------------------------------------------------');
+end;                               
+
+{ returns build group }
+function group: string20;
+begin
+  result:= paramstr(1);
+end;
+
+// default groups to compile such as: all, default (df)
+type eDefgroups =
+  (dtDefault,  dtDf,  dtAll);
+
+// flags such as clean, rebuild, 
+type eDefFlags =
+  (dtRebuild,  dtClean);
+
+const defgroups: array [eDefgroups] of shortstring =
+  ('default', 'df', 'all');
+
+const defflags: array [eDefFlags] of shortstring =
+  ('rebuild', 'clean');
+
+
+{ checks if we are running a full "rebuild" }
+function rebuilding: boolean;
+begin
+  result:= false;                          
+  if paramstr(2) = defflags[dtRebuild] then result:= true;
+end;
+
+{ checks if we are running an "all" build }
+function doingall: boolean;
+begin
+  result:= false;
+  if group = 'all' then result:= true;   
+end;
+
+{ checks if we are running "clean" process }
+function cleaning: boolean;
+begin
+  result:= false;
+  if paramstr(2) = defgroups[dtClean] then result:= true;
+end;
+
+{ checks if we are running "default" build }
+function doingdefault: boolean;
+begin
+  result:= false;
+  if group = defgroups[dtDefault] then result:= true;
+  if group = defgroups[dtDf] then result:= true;
+end;
+
+{ console help }      
+procedure ShowHelp(GroupNames: array of string20);
+
+  procedure Ln(s: string);
+  begin
+    writeln('    ', s);
+  end;
+
+  procedure ShowLns(a: array of string20);
+  var i: integer;
+  begin
+    for i:= low(a) to high(a) do Ln(a[i]);
+  end;
+
+begin
+  // only show help if no groups
+  if paramcount > 0 then exit;
+  WriteSeparator1;
+  writeln('HELP: build <group> <flag>');
+  writeln('  Targets:');
+  ShowLns(GroupNames);
+  writeln('  Groups:');
+  ShowLns(Defgroups);
+  writeln('  Flags:');
+  ShowLns(DefFlags);
+  WriteSeparator1;
+  Halt;
+end;
+
+procedure ShowHelp2;
+begin
+  WriteSeparator1;
+  writeln('HELP: target you specified was not found in this build system');
+  WriteSeparator1;
+  Halt;
+end;
+
+function AllGroupNames: array of string20;
+begin
+  if length(groups) < 1 then exit;
+  setlength(result, length(groups));
+  for i:= low(groups) to high(groups) do begin
+    if result[i]:= groups[i].opts^.name;
+  end;  
+end;
+
+{ ensures targets are setup right }
+procedure CheckGroups;
+  
+  procedure FindGroups;
+  var i: integer;
+      found: integer;
+  begin
+    found:= 0;
+    // find default (df), all
+    for i:= low(defgroups) to high(defgroups) do begin
+      if targ() = defgroups[i]  then inc(found);
+    end;
+    for i:= low(groups) to high(groups) do begin
+      if groups[i].opts^.name = group() then inc(found);
+    end;
+    if found < 1 then ShowHelp2;
+  end;
+
+begin
+   // only find groups in array if there are any specified at commandline
+  if paramcount > 0 then FindGroups;
+  if paramcount < 1 then ShowHelp(AllGroupNames);
+end;
+
+type
+  TGroup = record
+    paths: ^PathArray;
+    opts: ^TFpcOptions;
+  end;
+
+  TGroups = array of TGroup;
+var
+  Groups = TGroups;
+
+procedure Run;
+begin
+  if length(groups) < 1 then HaltErr('No groups to compile');
+  Checkgroups;
+  for i:= low(groups) to high (groups) do begin
+    CompileMany(groups[i].paths, groups[i].Opts);
+  end;
+end;
+
+{ add a group of files to be compiled with options }
+procedure AddGroup(const paths: PathArray; opts: TFpcOptions);
+var oldlen: integer;
+begin
+  if opts.Name = '' then HaltErr('Must specify a name for each group.');
+  oldlen:= length(groups);
+  setlength(groups, oldlen+1);
+  groups[oldlen].paths:= @paths;
+  groups[oldlen].opts:= @opts;
+end;
+
+
 procedure AstrArrayAdd(var a: AstrArray; s: string);
 var len: num;
 begin      
@@ -128,16 +301,25 @@ begin
 end;
 
 
+
 { must call this to ensure Record is initialized }
 procedure Init(out opts: TFpcOptions);
 begin
   with opts do begin
     SmartStrip:= false; Rebuild:= false; IgnoreErr:= false;
-    Extra:= ''; CrapDir:= '.crap';  ProgBinFile:= ''; ProgBinDir:= ''; Dir:= '';
+    Extra:= ''; CrapDir:= '.crap';  ProgBinFile:= ''; ProgBinDir:= ''; 
+    Name:= ''; Dir:= '';
     // default version is current compiler of this unit
     FpcVersion:= pwfputil.FpcVersion();
-    CleanBeforeRebuild:= false;
-    Compile:= true;
+    Rebuild:= rebuilding();
+    // if rebuilding or cleaning then CleanBeforeRebuild
+    if (rebuilding) or (cleaning) then
+      CleanBeforeRebuild = true
+    else
+      CleanBeforeRebuild:= false;
+    // only compile if we are not cleaning
+    Compile:= not cleaning;
+
     with intern do begin
       // signal to other functions we are initialized
       intern.Inited:= true;
@@ -238,25 +420,17 @@ var allopts: astr = '';
      Add('-Fu', opts.intern.unitpaths);
   end;
 
-  procedure AddTrailSlashes;
-  var len: num;
+  procedure AddTrailSlash(var path: string);
   begin
-    len:= length(opts.dir);
-    if len > 0 then
-      case opts.dir[len] of
-        '\',  '/': ;
-      else // add trailing slash if none
-        opts.dir:= opts.dir + SLASH;
-      end;
+    path:= IncludeTrailingPathDelimiter(path);
+  end;
 
-    len:= length(opts.crapdir);
-    if len > 0 then
-      case opts.crapdir[len] of
-        '\',  '/': ;
-      else // add trailing slash if none
-        opts.crapdir:= opts.crapdir + SLASH;
-      end;
-  end;                          
+  procedure AddTrailSlashes;
+  begin
+    AddTrailSlash(opts.Dir);
+    AddTrailSlash(opts.CrapDir);
+    AddTrailSlash(opts.ProgBinDir);
+  end;
 
 var targetdir: string;
 
@@ -276,7 +450,7 @@ begin
     opts.intern.craptargetdir:= targetdir;
     ForceDir(targetdir);
   end;
-
+                                   
   if opts.progbindir <> '' then begin
     targetdir:= opts.dir + opts.progbindir + FpcTargetDir();
     ForceDir(targetdir); 
