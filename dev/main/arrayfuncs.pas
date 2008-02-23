@@ -1,14 +1,14 @@
 { Functions to assist array work.
   by Lars (L505) }
-unit ArrayFuncs; {$IFDEF FPC}{$MODE OBJFPC}{$H+}{$ENDIF}
+unit ArrayFuncs; {$IFDEF FPC}{$MODE OBJFPC}{$H+}{$ENDIF} {$R+}
 
 interface
 uses
   pwtypes;
 
 function AssignArray(src: array of string): AStrArray;
-function AssignArray(src: array of str15): str15array;
-function AssignArray(src: array of str31): str31array;
+function AssignArray(src: str15array): str15array;
+function AssignArray(src: str31array): str31array;
 
 procedure StrArrayAdd1(var a: AStrArray; s: string);
 function AssignArray(src: array of shortstring): ShortStrArray;
@@ -31,18 +31,14 @@ begin
   for i:= Low(src) to High(src) do result[i]:= src[i];
 end;
 
-function AssignArray(src: array of str15): str15array;
-var i: integer;
+function AssignArray(src: str15array): str15array;
 begin
-  SetLength (result, Length(src));
-  for i:= Low(src) to High(src) do result[i]:= src[i];
+  result:= src;
 end;
 
-function AssignArray(src: array of str31): str31array;
-var i: integer;
+function AssignArray(src: str31array): str31array;
 begin
-  SetLength (result, Length(src));
-  for i:= Low(src) to High(src) do result[i]:= src[i];
+  result:= src;
 end;
 
 procedure StrArrayAdd1(var a: AstrArray; s: string);
