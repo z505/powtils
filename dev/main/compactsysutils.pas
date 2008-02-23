@@ -149,11 +149,10 @@ const
    HexDisplayPrefix : string = '$';
 
 const
-// commenting is VP fix. These idents are in a different unit there.
-  PathDelim= pwtypes.DirectorySeparator;
-  DriveDelim= pwtypes.DriveSeparator;
-  PathSep= pwtypes.PathSeparator;
-  MAX_PATH= pwtypes.MaxPathLen;
+  PathDelim= DirectorySeparator;
+  DriveDelim= DriveSeparator;
+  PathSep= PathSeparator;
+  MAX_PATH= MaxPathLen;
 
 
 {------------------------------------------------------------------------------}
