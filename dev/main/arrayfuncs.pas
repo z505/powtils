@@ -7,8 +7,8 @@ uses
   pwtypes;
 
 function AssignArray(src: array of string): AStrArray;
-function AssignArray(src: array of str15): ShortStrArray;
-function AssignArray(src: array of str31): ShortStrArray;
+function AssignArray(src: array of str15): str15array;
+function AssignArray(src: array of str31): str31array;
 
 procedure StrArrayAdd1(var a: AStrArray; s: string);
 function AssignArray(src: array of shortstring): ShortStrArray;
@@ -31,14 +31,14 @@ begin
   for i:= Low(src) to High(src) do result[i]:= src[i];
 end;
 
-function AssignArray(src: array of str15): ShortstrArray;
+function AssignArray(src: array of str15): str15array;
 var i: integer;
 begin
   SetLength (result, Length(src));
   for i:= Low(src) to High(src) do result[i]:= src[i];
 end;
 
-function AssignArray(src: array of str31): ShortstrArray;
+function AssignArray(src: array of str31): str31array;
 var i: integer;
 begin
   SetLength (result, Length(src));
