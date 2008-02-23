@@ -20,12 +20,11 @@ type
   AstrArray = array of astr;
   bln = boolean;
   num  = integer;                                                   
-//type TMoreEnum =  (DEFINES, UNITPATHS, INCPATHS);
 
-  string20 = string[20];
+  str20 = string[20];
 
   TFpcOptions = record
-    Name: string20;   // group name
+    Name: str20;   // group name
     Dir,              // working directory
     Crapdir,          // subdir for .o/.a/.ppu files (relative to working dir)
     ProgBinFile,      // program file name
@@ -77,12 +76,13 @@ procedure WriteSeparator;
 procedure WriteSeparator1;
 
 
-function group: string20;
+function group: str20;
 function rebuilding: boolean;
 function doingall: boolean;
 function cleaning: boolean;
 function doingdefault: boolean;
 
+procedure CreateGroup(const paths: PathArray; opts: TFpcOptions);
 procedure Run;
 
 
@@ -95,8 +95,28 @@ procedure Run;
 implementation
 
 uses
-  strutils, sysutils, pwfileutil, pwfputil, pwtypes;
+  strutils, sysutils, pwfileutil, pwfputil, pwtypes, arrayfuncs;
 
+
+type
+  TGroup = record
+    paths: ^PathArray;
+    opts: ^TFpcOptions;
+  end;
+
+  TGroups = array of TGroup;
+
+type str20arr = array of str20;
+
+var // all build groups 
+  Groups: TGroups;
+  VisibleGroups: str20arr = nil;
+
+
+procedure SetVisibleGroups(const names: str20arr);
+begin
+  if length(names) > 0 then VisibleGroups:= AssignArray(names);
+end;
 
 procedure noteln(const s: string);
 begin
@@ -130,7 +150,7 @@ begin
 end;                               
 
 { returns build group }
-function group: string20;
+function group: str20;
 begin
   result:= paramstr(1);
 end;
@@ -143,10 +163,10 @@ type eDefgroups =
 type eDefFlags =
   (dtRebuild,  dtClean);
 
-const defgroups: array [eDefgroups] of shortstring =
+const defgroups: array [eDefgroups] of str20 =
   ('default', 'df', 'all');
 
-const defflags: array [eDefFlags] of shortstring =
+const defflags: array [eDefFlags] of str20 =
   ('rebuild', 'clean');
 
 
@@ -154,7 +174,7 @@ const defflags: array [eDefFlags] of shortstring =
 function rebuilding: boolean;
 begin
   result:= false;                          
-  if paramstr(2) = defflags[dtRebuild] then result:= true;
+  if flag = defflags[dtRebuild] then result:= true;
 end;
 
 { checks if we are running an "all" build }
@@ -164,11 +184,16 @@ begin
   if group = 'all' then result:= true;   
 end;
 
+function flag: boolean;
+begin
+  result:= paramstr(2);
+end;
+
 { checks if we are running "clean" process }
 function cleaning: boolean;
 begin
   result:= false;
-  if paramstr(2) = defgroups[dtClean] then result:= true;
+  if flag = defflags[dtClean] then result:= true;
 end;
 
 { checks if we are running "default" build }
@@ -180,14 +205,14 @@ begin
 end;
 
 { console help }      
-procedure ShowHelp(GroupNames: array of string20);
+procedure ShowHelp;
 
   procedure Ln(s: string);
   begin
     writeln('    ', s);
   end;
 
-  procedure ShowLns(a: array of string20);
+  procedure ShowLns(a: array of str20);
   var i: integer;
   begin
     for i:= low(a) to high(a) do Ln(a[i]);
@@ -198,9 +223,11 @@ begin
   if paramcount > 0 then exit;
   WriteSeparator1;
   writeln('HELP: build <group> <flag>');
-  writeln('  Targets:');
-  ShowLns(GroupNames);
+  writeln;
   writeln('  Groups:');
+  if VisibleGroups = nil then HaltErr('Build author must set visible bulid groups.');
+  ShowLns(VisibleGroups);
+  writeln('  General Groups:');
   ShowLns(Defgroups);
   writeln('  Flags:');
   ShowLns(DefFlags);
@@ -216,12 +243,14 @@ begin
   Halt;
 end;
 
-function AllGroupNames: array of string20;
+
+function AllGroupNames: str20arr;
+var i: integer;
 begin
   if length(groups) < 1 then exit;
   setlength(result, length(groups));
   for i:= low(groups) to high(groups) do begin
-    if result[i]:= groups[i].opts^.name;
+    result[i]:= groups[i].opts^.name;
   end;  
 end;
 
@@ -229,47 +258,39 @@ end;
 procedure CheckGroups;
   
   procedure FindGroups;
-  var i: integer;
+  var i1: eDefgroups;
+      i2: integer;
       found: integer;
   begin
     found:= 0;
     // find default (df), all
-    for i:= low(defgroups) to high(defgroups) do begin
-      if targ() = defgroups[i]  then inc(found);
+    for i1:= low(defgroups) to high(defgroups) do begin
+      if group() = defgroups[i1] then inc(found);
     end;
-    for i:= low(groups) to high(groups) do begin
-      if groups[i].opts^.name = group() then inc(found);
+    for i2:= low(groups) to high(groups) do begin
+      if groups[i2].opts^.name = group() then inc(found);
     end;
     if found < 1 then ShowHelp2;
   end;
 
 begin
+  if paramcount < 1 then ShowHelp;
    // only find groups in array if there are any specified at commandline
   if paramcount > 0 then FindGroups;
-  if paramcount < 1 then ShowHelp(AllGroupNames);
 end;
 
-type
-  TGroup = record
-    paths: ^PathArray;
-    opts: ^TFpcOptions;
-  end;
-
-  TGroups = array of TGroup;
-var
-  Groups = TGroups;
 
 procedure Run;
+var i: integer;
 begin
-  if length(groups) < 1 then HaltErr('No groups to compile');
   Checkgroups;
   for i:= low(groups) to high (groups) do begin
-    CompileMany(groups[i].paths, groups[i].Opts);
+    CompileMany(groups[i].paths^, groups[i].Opts^);
   end;
 end;
 
 { add a group of files to be compiled with options }
-procedure AddGroup(const paths: PathArray; opts: TFpcOptions);
+procedure CreateGroup(const paths: PathArray; opts: TFpcOptions);
 var oldlen: integer;
 begin
   if opts.Name = '' then HaltErr('Must specify a name for each group.');
@@ -314,7 +335,7 @@ begin
     Rebuild:= rebuilding();
     // if rebuilding or cleaning then CleanBeforeRebuild
     if (rebuilding) or (cleaning) then
-      CleanBeforeRebuild = true
+      CleanBeforeRebuild:= true
     else
       CleanBeforeRebuild:= false;
     // only compile if we are not cleaning

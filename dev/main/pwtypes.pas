@@ -4,18 +4,26 @@ unit pwtypes;
 {$IFDEF WIN32}{$DEFINE WINDOWS}{$ENDIF}
 interface
 
-type
-  // obsolete
-  TStrArray = array of string;
 
+type
   // Below aliases reduce verbose line noise in long procedure declarations.
   // This goes against pascal's verbosity heritage, but extremely long 
   // declarations, (esp. ones with CONST and VAR in them) span far too wide
   // to remain redable. AStr is also safer than abstract "string" type with 
   // regards to {$H+} not being on due to a bug or programmer mistake
   astr = ansistring;
+  // fast strings, power of 2 (premature optimization ;-( )
+  str15 = string[15]; // 16-1 (16 based)
+  str31 = string[31]; // 32-1 (32 based)
+  TStrArray = array of string; // obsolete -> AstrArray is better
   AstrArray = array of astr;
+  str15array = array of str15;
+  str31array = array of str31;
+  ShortstrArray = array of shortstring;
+
   bln = boolean;
+
+
 
 const // platform specific directory slash (Mac not supported yet)
   {$IFDEF UNIX}SLASH = '/';{$ENDIF}
