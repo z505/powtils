@@ -8,7 +8,7 @@
            See LICENSE.TXT (NRCOL public domain)
 *******************************************************************************)
 
-unit htmout; {$mode objfpc} {$H+}
+unit htmout; {$ifdef FPC}{$mode objfpc}{$H+}{$endif}
 
 interface
 

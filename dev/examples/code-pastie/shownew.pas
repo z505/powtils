@@ -7,7 +7,7 @@
            http://z505.com   
 *******************************************************************************)
 
-unit shownew; {$mode objfpc} {$H+}
+unit shownew; {$ifdef fpc}{$mode objfpc}{$H+}{$endif}
 
 interface
 
@@ -16,13 +16,14 @@ procedure ShowNewPasties;
 implementation
 
 uses
-  pwmain, pwdirutil, pwsubstr, pwenvvar;
+  pwmain, pwdirutil, pwsubstr, pwenvvar, pwtypes;
+
 
 type
   TStrArray = array of string;
   PPastes = ^TPastes;
   TPastes = record
-    items: TStrArray;
+    items: AStrArray;
     add: procedure(ASelf: PPastes; const s: string);
   end;
 
@@ -82,8 +83,8 @@ procedure ShowNewPasties;
     result:= '<a href="' + CgiEnvVars.ScriptName + '?p=' + id +'">Id #' + id + '</a>';
   end;
 
-var 
-  Pastes: TPastes = (items: nil; add: @AddPasteId);
+var
+  Pastes: TPastes {= (items: nil; add: @AddPasteId)};
 
   procedure GetAllPastieIds;
     procedure TrimHtmExtension;
@@ -92,10 +93,10 @@ var
       for i:= low(Pastes.items) to high(Pastes.items) do
         setlength(Pastes.items[i], length(Pastes.items[i]) - 4); // deletes .htm extension
     end;
-  var 
+  var
     fnames: TFileNames;
   begin
-    GetFiles('pastes' + DirectorySeparator, Fnames); 
+    GetFiles('pastes' + DirectorySeparator, Fnames);
     Pastes.items:= fnames.files;
     TrimHtmExtension;
   end;
@@ -103,19 +104,20 @@ var
 var
   i: integer;
 begin
-  webwrite('<br>May take a while...');
-  webwrite('<br>Showing all pastie ID''s...');
+  pastes.items:= nil; pastes.add:= {$ifdef fpc}@{$endif}AddPasteId;
+  out('<br>May take a while...');
+  out('<br>Showing all pastie ID''s...');
   // hopefully trigger web browser flush
   FlushWebBrowser;
-  webwrite('<br>.......................................................');
+  out('<br>.......................................................');
   // now find all pasties in sub directory
   GetAllPastieIds;
   // display pasties
   for i:= low(pastes.items) to high(pastes.items) do
   begin
-    webwrite('<p />');
+    out('<p />');
     if pastes.items[i] <> 'main' then // we don't want main shown since it is main page, not a pastie
-      webwrite(MakePastieLink(pastes.items[i]));
+      out(MakePastieLink(pastes.items[i]));
   end;
 end;
 

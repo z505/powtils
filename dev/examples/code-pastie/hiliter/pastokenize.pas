@@ -15,9 +15,11 @@ unit pastokenize;  {$IFDEF FPC}{$mode objfpc} {$H+}{$ENDIF}
 // {$DEFINE DEBUG} // turn this on for debugging
 interface
 
+{$ifndef FPC}{$DEFINE SYSUTILS_ON}{$endif}
+
 uses
   compactutils,
-  compactsysutils,
+  {$ifndef SYSUTILS_ON}compactsysutils{$else}sysutils{$endif},
   ChrStream,
   tokentypes;
 

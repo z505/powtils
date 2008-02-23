@@ -5,9 +5,12 @@
 
 unit PasHiliter;  {$IFDEF FPC}{$mode objfpc} {$H+}{$ENDIF}
 
+{$ifndef FPC}{$DEFINE SYSUTILS_ON}{$endif}
+
 interface
 uses
-  ChrStream, PasTokenize, compactsysutils, multitype, pcharutils, tokentypes;
+  {$ifndef SYSUTILS_ON}compactsysutils{$else}sysutils{$endif},
+  ChrStream, PasTokenize, multitype, pcharutils, tokentypes;
 
 type
   PByteArray = ^TByteArray;

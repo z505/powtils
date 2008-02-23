@@ -14,7 +14,7 @@
 *******************************************************************************)
 
 
-program pastie; {$MODE OBJFPC}{$H+}
+program pastie; {$ifdef fpc}{$MODE OBJFPC}{$H+}{$endif} {$apptype console}
 
 uses
   pwinit, pwmain, pwenvvar, htmout;       
