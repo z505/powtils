@@ -70,11 +70,12 @@
   -thanks to Bernd M. for ARM patches
   -thanks to Trustmaster for thinking modularizing/unbloating the sysutils
    was not a bad idea
+  -thanks to Vladimir Kladov for teaching KOL and smartlinking through KOL.PAS
+  -thanks to all embedded programmers who helped improve this unit
 
  NO THANKS:
-  -no thanks goes out to the discouraging FPC team who hates this unit and
-   anything  that attempts to reduce bloat and encourage proper software design,
-
+  -no thanks goes out to those who have always hated my non bloatware and 
+   minimalism efforts 
   -RTFH: read the effing header (of this file)
 
  Regards,
@@ -96,6 +97,9 @@ uses {$IFDEF WINDOWS}windows,{$ENDIF}
 {-- copy pasted from SYSUTILH.INC ---------------------------------------------}
 
 type
+
+   TReplaceFlags = set of (rfReplaceAll, rfIgnoreCase);
+  
    { some helpful data types }
 
    THandle = System.THandle;
@@ -130,22 +134,18 @@ type
    TWordArray = array[0..16383] of Word;
 
 
-Type
+type
    TCreateGUIDFunc = Function(Out GUID : TGUID) : Integer;
-
-Var
+var
    OnCreateGUID : TCreateGUIDFunc = Nil;
-
-
-                    
+                   
 type
   TTerminateProc = Function: Boolean;
-
 
 Var
    OnShowException : Procedure (Msg : ShortString);
 
-Const
+const
    HexDisplayPrefix : string = '$';
 
 const
@@ -619,9 +619,10 @@ begin
   result:= pwstrutil.wraptext(line, maxcol);
 end;
 
-function StringReplace(const S, OldPattern, NewPattern: string;  Flags: TReplaceFlags): string;
+function StringReplace(const S, OldPattern, NewPattern: string;  
+  Flags: TReplaceFlags): string;
 begin
-  result:= pwstrutil.stringreplace(s, oldpattern, newpattern, flags);
+  result:= pwstrutil.stringreplace(s, oldpattern, newpattern, pwstrutil.TReplaceFlags(flags));
 end;
 
 function ExtractFilePath(const FileName: string): string;
@@ -856,7 +857,7 @@ end ;
 
 function RightStr(const S: string; Count: integer): string;
 begin
-  pwstrutil.rightstr(s, count);
+  result:= pwstrutil.rightstr(s, count);
 end;
 
 function ChangeFileExt(const FileName, Extension: string): string;
@@ -1277,6 +1278,7 @@ function StrToInt(const S: string): integer;
 var Error: word;
 begin
   Val(S, result, Error);
+  if error <> 0 then result:= 0;
 end;
 
 
@@ -1284,6 +1286,7 @@ function StrToInt64(const S: string): int64;
 var Error: word;
 begin
   Val(S, result, Error);
+  if error <> 0 then result:= 0;
 end;
 
 
