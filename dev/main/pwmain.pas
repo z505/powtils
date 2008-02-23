@@ -114,8 +114,8 @@ function IsAny(const name: astr): byte;
 { Cookie Functions }
 function CountCookies: longword;
 function FetchCookieName(idx: longword): astr;
-function FetchCookieVal(idx: longword): astr;
-function FetchCookieVal(idx: longword; filter: TFilterFunc): astr;
+function FetchCookieVal(idx: longword): astr; overload;
+function FetchCookieVal(idx: longword; filter: TFilterFunc): astr; overload;
 function GetCookie(const name: astr): astr; overload;
 function GetCookie(const name: astr; filter: TFilterFunc): astr; overload;
 function GetCookieAsFloat(const name: astr): double;
@@ -179,8 +179,8 @@ function TemplateOut1(const fname: astr; HtmlFilter: bln): errcode; overload;
 function TemplateRaw(const fname: astr): errcode;
 
 { fmt stands for format, to not conflict with sysutils Format() function }
-function Fmt(const s: astr): astr;
-function Fmt(const s: astr; filter: TFilterFunc): astr;
+function Fmt(const s: astr): astr; overload;
+function Fmt(const s: astr; filter: TFilterFunc): astr; overload;
 function FmtFilter(const s: astr): astr;
 
 function Fmt_SF(const s: astr; HTMLFilter: bln; filter: TFilterFunc;
@@ -211,10 +211,10 @@ function SaveUpfile(const name, fname: astr): bln;
 { Web Variable Functions }
 function CountVars: longword;
 function FetchVarName(idx: longword): astr;
-function FetchVarVal(idx: longword): astr;
-function FetchVarVal(idx: longword; filter: TFilterFunc): astr;
-function GetVar(const name: astr): astr;
-function GetVar(const name: astr; filter: TFilterFunc): astr;
+function FetchVarVal(idx: longword): astr; overload;
+function FetchVarVal(idx: longword; filter: TFilterFunc): astr; overload;
+function GetVar(const name: astr): astr; overload;
+function GetVar(const name: astr; filter: TFilterFunc): astr; overload;
 function GetVar_S(const name: astr; security: integer): astr;
 function GetVarAsFloat(const name: astr): double;
 function GetVarAsInt(const name: astr): longint;
@@ -1385,12 +1385,6 @@ begin
   // security off because cookies could characters developers don't want 
   // trimmed, and they may get confused if security was trimming their cookies
   result:= FetchTWebvarName_S(cook, idx, SECURE_OFF);
-end;
-
-function FetchCookieName(idx: longword; filter: TFilterFunc): astr;
-begin
-  result:= FetchCookieName(idx);
-  if assigned(filter) then result:= filter(result);
 end;
 
 { Indexed access to cookie variable }

@@ -7,7 +7,7 @@ procedure PcharCopy(const source: pchar; dest: pchar; count: integer); overload;
 procedure PcharCat(const source: pchar; dest: pchar);
 
 function NewPchar(const s: string; out rslt: pchar): boolean;
-procedure RidPChar(rslt: pchar);
+procedure RidPChar(var rslt: pchar);
 
 implementation
 
