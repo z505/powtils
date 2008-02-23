@@ -70,10 +70,18 @@ begin
   s:= stringreplace(s, '>', '&gt;', [rfReplaceAll]);
 end;
 
-procedure StripLineFeed(var s: astr);
+procedure StripLastLineFeed(var s: astr);
+var len: integer;
 begin
-  s:= stringreplace(s, #13, '', [rfReplaceAll]);  
-  s:= stringreplace(s, #10, '', [rfReplaceAll]);  
+  len:= length(s);
+  if len < 1 then exit;
+  case s[len] of
+    #13, #10: 
+     begin 
+       s[len]:= ' ';
+       case s[len-1] of #13: s[len-1]:= ' '; end;
+     end;
+  end;
 end;
 
 const 
@@ -144,7 +152,7 @@ begin
       ptComment:
       begin
         EscapeHTML(s);
-        StripLineFeed(s);
+        StripLastLineFeed(s);
         addtext('<span class="Comment">' + s + '</span>', result);
       end;
       ptDirective: addtext(('<span class="Directive">' + s + '</span>'), result);
