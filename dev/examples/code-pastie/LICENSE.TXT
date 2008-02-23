@@ -1,0 +1,7 @@
+License for Code Pastie Demo
+
+NRCOL Public domain (see NRCOL.TXT).
+
+However, please link back to Z505.com if you use this program.
+Just include a link in the navbar, or at the bottom of the page, even in small 
+tiny text somewhere that isn't obvious. 
