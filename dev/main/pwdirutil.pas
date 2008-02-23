@@ -20,6 +20,7 @@ interface
 
 uses
   pwtypes,
+  pwstrutil,
   sysutils; // future: compactsysutils
 
 
@@ -208,10 +209,10 @@ end;
 function GetTrailDir(const s: astr): astr;
 var i: integer;
     slen: integer;
-    slashpos: integer = 0;
-    trailingslash: boolean = false;
+    slashpos: integer;
+    trailingslash: boolean;
 begin
-  result:= ''; slen:= length(s);
+  result:= ''; slen:= length(s); slashpos:= 0; trailingslash:= false;
   if slen < 1 then exit;
   for i:= slen downto 1 do begin
     if s[i] in SLASHES then begin

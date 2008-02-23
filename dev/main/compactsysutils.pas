@@ -91,7 +91,7 @@ interface
 {$IFDEF WIN32}{$DEFINE WINDOWS}{$ENDIF}
 
 uses {$IFDEF WINDOWS}windows,{$ENDIF}
-  pwstrutil;
+  pwtypes, pwfileutil, pwstrutil;
 
 
 {-- copy pasted from SYSUTILH.INC ---------------------------------------------}
@@ -150,10 +150,10 @@ const
 
 const
 // commenting is VP fix. These idents are in a different unit there.
-  PathDelim={System.}DirectorySeparator;
-  DriveDelim={System.}DriveSeparator;
-  PathSep={System.}PathSeparator;
-  MAX_PATH={System.}MaxPathLen;
+  PathDelim= pwtypes.DirectorySeparator;
+  DriveDelim= pwtypes.DriveSeparator;
+  PathSep= pwtypes.PathSeparator;
+  MAX_PATH= pwtypes.MaxPathLen;
 
 
 {------------------------------------------------------------------------------}
@@ -551,8 +551,8 @@ function BCDToInt(Value: integer): integer;
 {------------------------------------------------------------------------------}
 
 implementation
-uses {$ifdef UNIX}unixutil,{$endif UNIX}
-  pwfileutil;
+{$ifdef UNIX}uses unixutil;{$endif UNIX}
+
 
 
 
