@@ -1,0 +1,147 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+              Pascal Web Unit (PWU) Security
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+----------------------------------------------------------------------
+ [ Security Introduction ]                                                
+----------------------------------------------------------------------
+
+ See also: 
+  http://z505.com/cgi-bin/qkcont/qkcont.cgi?p=Pascal-Web-Unit-Security
+
+ At this point, Security is not handled in the configuration file, but rather
+ in the actual programming.  This is to discourage users from being able to 
+ easily set security to 0 and program away, like many do with "magic" settings
+ in PHP INI files - then their website gets hacked, and they wonder why.
+
+ Basic XSS injection protection is handled in the pwmain.pas unit automatically
+ by default, and html injection through forms or cgi variables is also handled
+ automatically.
+ 
+ However, because PWU is more secure, it means some characters may get chopped
+ out without warning. Characters such as . / @#$^% will get chopped and replaced
+ with zeros (so you know), unless you bypass the security system. It is easy to
+ bypass the security system by choosing the custom  functions that allow you
+ to specify no security, specify filtering, etc.
+
+ Level 2 Security is used by default. The way it works behind the scenes, is 
+ that the wrapper functions pass number 2 to the _S and _SF suffix functions. 
+ You don't actually use the _S and _SF functions directly when doing regular web 
+ programming. But if you ever need custom security, you can stop using 
+ the wrapper functions like WebFormat, and start using  WebFormat_S. Likewise, 
+ use GetCGIVar_S instead of GetCGIVar if you want custom security levels. 
+ 
+ To bypass level 2 security, use functions with the _S and_SF prefix directly 
+ (i.e. WebFormat_S), where you can specify level 0 to turn off all security per
+ function that allows it.
+
+ In other words, automatic security is on, and manual security controlled
+ by the programmer's choice of functions, not by setting a global variable.
+ Many times, the programmer will want security partially on for certain 
+ functions, and completely on for other ones, due to different filtering 
+ requirements. It is good to get into the habit of programming web applications 
+ with default security on all the time, to protect yourself automatically. 
+
+ In the worse case scenario, all that could happen is that your web forum, web
+ site, article posting, (or whatever web application you are building) will not 
+ output some back slashes, pipe characters, or other funny characters. When this 
+ happens you see zeros on the screen in place of those bad characters.. and it
+ therefore notifies you right there and then that your application needs
+ filtering such as HtmlFilter function and friends. Change the code to allow
+ those special symbols in on certain functions only - just bypass the security
+ for your special case. But most of the time you do not want these symbols
+ coming in and being output, since they can be dangerous.
+ 
+ It is far better to be automatically protected than it is to be not protected 
+ at all.  In web scripting languages (asp, php, perl) and websnap, where 
+ very little protection (used to) exist, sites got/get hacked every day.
+
+ You do not want to be programming hours and hours of security implementations
+ over and over again on each web program, plus it will bloat up your code with 
+ noise. So Powtils security allows you to focus on your web application
+ development instead of you always implementing, coding, bloating source files,
+ and worryingabout every incoming variable's security! The downside is that
+ sometimes you may see some characters chopped out that you wanted in - all you
+ need to do is choose the correct function and bypass security, if this happens.
+
+ Example:
+  Security in web programming is not fixed and does not stay the same throughout 
+  a program. One may want to allow html symbols as input for a
+  web forum's "post message" edit box,  but not allow html symbols 
+  in the web forum's "user name" input box. 
+  
+  For this reason, you use functions with _S and _SF suffixes only when you need
+  to bypass the default security level of 2.
+  
+  A common example of where Powtils protects you is if you have a URL such as:
+  http://yoursite/cgi-bin/article?page=1
+  
+  If you display PAGE 1 on your webpage, your website is vulnerable to attacks
+  in other programming environments. But Powtils protects the PAGE variable from
+  being injected with javascript and other malicious input. It lets the "1" in
+  and alphabit characters in by default.. and not characters like slashes, dots,
+  null characters, etc. If you want slashes, dots, and other special characters
+  coming in, then use GetCgiVar_S('page', 0)
+
+----------------------------------------------------------------------
+ [ Levels of Security ]                                                 
+----------------------------------------------------------------------
+
+Level 2
+  The highest level of security for a function, protecting from 
+  cross site scripting (XSS) and malicioius input
+  DEFAULT LEVEL
+
+Level 0
+  No security, your own custom security. Use this when you are 
+  implementing your own filtering methods, or when you are using 
+  the FilterHTML function. 
+  
+  
+Example of why you would need Level 0 security:
+
+  You may have a special website that lets administrators insert dollar symbols 
+  into your store database for dollar pricing, or something similar.
+
+  Usually a dollar symbol as input is a malicious attempt, and is insecure. So 
+  it is trimmed (deleted) or replaced with an HTML equivilent symbol by default. 
+  But in a special case like a shopping cart database, where administrators may 
+  be updating pricing with dollar signs at a website not open to the public 
+  (secure intranet) you would want to allow the dollar symbol in as a true 
+  dollar symbol character. You can therefore use Level 0, and implement your own 
+  filtering and checking, such as letting dollar signs in but no other special 
+  characters.
+  
+  Again these are rare cases, so usually default security is what you will be 
+  using. In the above example, you would be better off just designing your 
+  database so that it doesn't need actual dollar symbol input.. but if it DOES, 
+  that is okay. You will only be bypassing default security in those special 
+  situations with level 0, using the _SF and _S suffix functions in pwu.pp. 
+  (pass 0 as one of the Security parameters)
+
+Future consideration:
+  The default security level could be defined as a global variable. 
+
+For example  
+
+
+   begin
+     PWU_SECURITY:= OFF; // temporarily disable security
+     x:= GetCgiVar('forumpost'); // allow some malicious characters in,
+     CustomFilter(x);         // because they will be custom filtered here
+
+     //now we need to set the security back on again for normal everyday stuff
+     PWU_SECURITY:= ON 
+     GetCgiVar('page');      // automatically protect from malicious characters
+     GetCgiVar('category');  // ...
+     GetCgiVar('productid'); // ...
+   end;  
+  
+  The only issue with having a global variable is if people set it to low 
+  security all the time and get into bad habits. The other option is to have a 
+  global pwu config file variable - but this may encourage folks to set
+  the security off all the time, and program in low security settings.
+
