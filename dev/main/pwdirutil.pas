@@ -13,7 +13,7 @@
 
 unit pwdirutil;
 
-{$ifdef fpc}{$mode objfpc}{$H+}{$endif}
+{$ifdef fpc}{$mode objfpc}{$H+}{$endif} {$R+}
 {$IFDEF WIN32}{$DEFINE WINDOWS}{$ENDIF}
 
 interface
@@ -47,7 +47,10 @@ type
     fname: astr;
   end;
 
-  PathArray = array of TPath;
+  TPaths = record
+    items: array of TPath;
+    count: integer;
+  end;
 
 function ForceDir(const path: astr): boolean;
 function GetTrailDir(const s: astr): astr;
@@ -60,11 +63,11 @@ procedure GetSubDirs(Dir: astr; const wildcard: astr; var res: TDirNames); overl
 procedure GetSubDirs(Dir: astr; var res: TDirNames); overload;
 procedure GetFiles(Dir: astr; const wildcard: astr; var res: TFileNames); overload;
 procedure GetFiles(Dir: astr; var res: TFileNames); overload;
-procedure GetDirFiles(const dir, mask: astr; var res: PathArray);
+procedure GetDirFiles(const dir, mask: astr; var res: TPaths);
 function GetCurDir: astr;
 
-procedure Clear(var a: PathArray);
-procedure Add(var a: PathArray; path, fname: astr);
+procedure Clear(var a: TPaths);
+procedure Add(var a: TPaths; path, fname: astr);
 
 function DelFiles(Dir: astr; const wildcard: astr): boolean;
 
@@ -163,18 +166,22 @@ begin
   getdir(0,  result);
 end;
 
-procedure Add(var a: PathArray; path, fname: astr);
-var len: integer;
+procedure Add(var a: TPaths; path, fname: astr);
+var oldlen: integer;
+    newlen: integer;
 begin
-  if path = '' then exit; if fname = '' then exit; len:= length(a);
-  setlength(a, len + 1);
-  a[len].path:= path;
-  a[len].fname:= fname;
+  if path = '' then exit; if fname = '' then exit; oldlen:= a.count;
+  newlen:= oldlen + 1;
+  setlength(a.items, newlen);
+  a.items[oldlen].path:= path;
+  a.items[oldlen].fname:= fname;
+  a.count:= newlen;
 end;
 
-procedure Clear(var a: PathArray);           
+procedure Clear(var a: TPaths);           
 begin
-  setlength(a, 0);  
+  setlength(a.items, 0);  
+  a.count:= 0;
 end;
 
 { Get all files in sub directories one level deep 
@@ -188,7 +195,7 @@ end;
   This would get all *.txt files from "dir/", "other/", and "place/"
  
   Note: result var is not cleared first, it is persistent    }
-procedure GetDirFiles(const dir, mask: astr; var res: PathArray);
+procedure GetDirFiles(const dir, mask: astr; var res: TPaths);
 var dn: TDirNames;
     fn: TFileNames;
     i, i2: integer;

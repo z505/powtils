@@ -9,7 +9,7 @@
 
 }
 
-unit pwbuildutil; {$mode objfpc} {$h+}
+unit pwbuildutil; {$mode objfpc} {$H+} {$R+}
 
 interface
 uses
@@ -55,8 +55,8 @@ function Compile(const srcunit: astr; var opts: TFpcOptions): num;
 function Compile(const srcunit, opts, fpversion: astr): num;
 function Compile(const srcunit, opts: astr): num;
 
-procedure CompileMany(paths: PathArray; var opts: TFpcOptions; ShowSeparator: bln);
-procedure CompileMany(paths: PathArray; var opts: TFpcOptions);
+procedure CompileMany(const paths: TPaths; var opts: TFpcOptions; ShowSeparator: bln);
+procedure CompileMany(const paths: TPaths; var opts: TFpcOptions);
 
 procedure ShowOpts(var opts: TFpcOptions);
 
@@ -83,7 +83,7 @@ function doingall: boolean;
 function cleaning: boolean;
 function doingdefault: boolean;
 
-procedure CreateGroup(const paths: PathArray; opts: TFpcOptions);
+procedure CreateGroup(var paths: TPaths; var opts: TFpcOptions);
 procedure Run;
 
 procedure SetVisibleGroups(const names: str15array);
@@ -102,14 +102,14 @@ uses
 
 type
   TGroup = record
-    paths: ^PathArray;
+    paths: ^TPaths;
     opts: ^TFpcOptions;
   end;
 
   TGroups = array of TGroup;
 
 var // all build groups 
-  Groups: TGroups;
+  Groups: TGroups = nil;
   VisibleGroups: str15array = nil;
 
 
@@ -283,13 +283,14 @@ procedure Run;
 var i: integer;
 begin
   Checkgroups;
+  if length(groups) < 1 then HaltErr('groups array has zero registered');
   for i:= low(groups) to high (groups) do begin
     CompileMany(groups[i].paths^, groups[i].Opts^);
   end;
 end;
 
 { add a group of files to be compiled with options }
-procedure CreateGroup(const paths: PathArray; opts: TFpcOptions);
+procedure CreateGroup(var paths: TPaths; var opts: TFpcOptions);
 var oldlen: integer;
 begin
   if opts.Name = '' then HaltErr('Must specify a name for each group.');
@@ -572,18 +573,18 @@ begin
   result:= Compile(opts.dir+srcunit, madeopts, opts.FpcVersion, opts.IgnoreErr);
 end;
 
-procedure CompileMany(paths: PathArray; var opts: TFpcOptions; ShowSeparator: bln);
+procedure CompileMany(const paths: TPaths; var opts: TFpcOptions; ShowSeparator: bln);
 var i: integer;
 begin
-  if length(paths) < 1 then exit;
-  for i:= low(paths) to high(paths) do begin
-    opts.dir:= paths[i].path;
-    Compile(paths[i].fname, opts);
+  if paths.count < 1 then exit;
+  for i:= low(paths.items) to high(paths.items) do begin
+    opts.dir:= paths.items[i].path;
+    Compile(paths.items[i].fname, opts);
     if ShowSeparator then WriteSeparator; // shows ----------- lines
   end;
 end;
 
-procedure CompileMany(paths: PathArray; var opts: TFpcOptions);
+procedure CompileMany(const paths: TPaths; var opts: TFpcOptions);
 begin
   CompileMany(paths, opts, true);
 end;
