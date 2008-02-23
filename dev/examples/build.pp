@@ -15,13 +15,14 @@ const
     ('gzipon', 'gzipsysutilson', 'systutilson');
 
 
-procedure BuildExamples(const Paths: PathArray);
+procedure BuildExamples(var Paths: TPaths);
 var o: TFpcOptions;
     all: boolean;
 begin
   Init(o);
   o.smartstrip:= true;
   AddUnitPath(o, '../main/');
+  AddUnitPath(o, 'code-pastie/hiliter/');
 
   all:= doingall();
 
@@ -57,12 +58,17 @@ begin
 
 end;
 
-var Paths: PathArray;
+var Paths: TPaths;
 
 begin
-  // for HELP command
+  // visible for HELP command
   SetVisibleGroups(names);
   GetDirFiles('./', '*.dpr', Paths);
+  if Paths.count < 0 then 
+  begin
+    writeln('problem FUCK');
+    halt;
+  end;
   BuildExamples(Paths);
 end.
 
