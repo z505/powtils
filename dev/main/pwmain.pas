@@ -182,8 +182,12 @@ function TemplateRaw(const fname: astr): errcode;
 function Fmt(const s: astr): astr;
 function Fmt(const s: astr; filter: TFilterFunc): astr;
 function FmtFilter(const s: astr): astr;
-function Fmt_SF(const s: astr; HtmlFilter: bln;
-                FilterSecurity, TrimSecurity: integer): astr;
+
+function Fmt_SF(const s: astr; HTMLFilter: bln; filter: TFilterFunc;
+                FilterSecurity, TrimSecurity: integer): astr; overload;
+function Fmt_SF(const s: astr; HTMLFilter: bln; 
+                FilterSecurity, TrimSecurity: integer): astr; overload;
+
 
 { RTI Functions }
 function CountRtiVars: longword;
