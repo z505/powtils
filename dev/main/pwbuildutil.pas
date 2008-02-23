@@ -13,7 +13,9 @@ unit pwbuildutil; {$mode objfpc} {$h+}
 
 interface
 uses
-  pwdirutil;
+  pwtypes,
+  pwdirutil,
+  arrayfuncs;
 
 type 
   astr = ansistring;
@@ -21,10 +23,9 @@ type
   bln = boolean;
   num  = integer;                                                   
 
-  str20 = string[20];
 
   TFpcOptions = record
-    Name: str20;   // group name
+    Name: str15;   // group name
     Dir,              // working directory
     Crapdir,          // subdir for .o/.a/.ppu files (relative to working dir)
     ProgBinFile,      // program file name
@@ -76,7 +77,7 @@ procedure WriteSeparator;
 procedure WriteSeparator1;
 
 
-function group: str20;
+function group: str15;
 function rebuilding: boolean;
 function doingall: boolean;
 function cleaning: boolean;
@@ -85,6 +86,7 @@ function doingdefault: boolean;
 procedure CreateGroup(const paths: PathArray; opts: TFpcOptions);
 procedure Run;
 
+procedure SetVisibleGroups(const names: str15array);
 
 (* Todo: 
     -zip (tar, winzip, etc) functions
@@ -95,7 +97,7 @@ procedure Run;
 implementation
 
 uses
-  strutils, sysutils, pwfileutil, pwfputil, pwtypes, arrayfuncs;
+  strutils, sysutils, pwfileutil, pwfputil;
 
 
 type
@@ -106,14 +108,12 @@ type
 
   TGroups = array of TGroup;
 
-type str20arr = array of str20;
-
 var // all build groups 
   Groups: TGroups;
-  VisibleGroups: str20arr = nil;
+  VisibleGroups: str15array = nil;
 
 
-procedure SetVisibleGroups(const names: str20arr);
+procedure SetVisibleGroups(const names: str15array);
 begin
   if length(names) > 0 then VisibleGroups:= AssignArray(names);
 end;
@@ -150,7 +150,7 @@ begin
 end;                               
 
 { returns build group }
-function group: str20;
+function group: str15;
 begin
   result:= paramstr(1);
 end;
@@ -163,12 +163,16 @@ type eDefgroups =
 type eDefFlags =
   (dtRebuild,  dtClean);
 
-const defgroups: array [eDefgroups] of str20 =
+const defgroups: array [eDefgroups] of str15 =
   ('default', 'df', 'all');
 
-const defflags: array [eDefFlags] of str20 =
+const defflags: array [eDefFlags] of str15 =
   ('rebuild', 'clean');
 
+function flag: astr;
+begin
+  result:= paramstr(2);
+end;
 
 { checks if we are running a full "rebuild" }
 function rebuilding: boolean;
@@ -182,11 +186,6 @@ function doingall: boolean;
 begin
   result:= false;
   if group = 'all' then result:= true;   
-end;
-
-function flag: boolean;
-begin
-  result:= paramstr(2);
 end;
 
 { checks if we are running "clean" process }
@@ -212,7 +211,7 @@ procedure ShowHelp;
     writeln('    ', s);
   end;
 
-  procedure ShowLns(a: array of str20);
+  procedure ShowLns(a: array of str15);
   var i: integer;
   begin
     for i:= low(a) to high(a) do Ln(a[i]);
@@ -244,7 +243,7 @@ begin
 end;
 
 
-function AllGroupNames: str20arr;
+function AllGroupNames: str15array;
 var i: integer;
 begin
   if length(groups) < 1 then exit;
