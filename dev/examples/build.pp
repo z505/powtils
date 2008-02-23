@@ -11,7 +11,7 @@ uses
 type
   eNames = (tGzipOn, tGzipSysutilsOn, tSysutilsOn);
 const
-  names: array [eNames] of string20 =
+  names: array [eNames] of str15 =
     ('gzipon', 'gzipsysutilson', 'systutilson');
 
 
@@ -28,21 +28,21 @@ begin
   if (all) or (doingdefault) then begin
     o.ProgBinDir:= 'bin';
     o.Name:= 'default';
-    NewGroup(paths, o);
+    CreateGroup(paths, o);
   end;
 
   if (all) or (group = names[tGzipOn]) then begin
     AddDefine(o, 'GZIP_ON'); 
     o.Name:= group;
     o.ProgBinDir:= 'bin-'+group; 
-    NewGroup(Paths,  o);
+    CreateGroup(Paths,  o);
   end;
 
   if (all) or (group = names[tGzipSysutilsOn]) then begin
     AddDefine(o, 'SYSUTILS_ON');
     o.Name:= group;
     o.ProgBinDir:= 'bin-'+group; 
-    NewGroup(Paths,  o);
+    CreateGroup(Paths,  o);
   end;
 
   if (all) or (group = names[tSysutilsOn]) then begin
@@ -50,7 +50,7 @@ begin
     AddDefine(o, 'SYSUTILS_ON');
     o.ProgBinDir:= 'bin-'+group; 
     o.Name:= group;
-    NewGroup(Paths,  o);
+    CreateGroup(Paths,  o);
   end;
 
   Run();
@@ -60,6 +60,8 @@ end;
 var Paths: PathArray;
 
 begin
+  // for HELP command
+  SetVisibleGroups(names);
   GetDirFiles('./', '*.dpr', Paths);
   BuildExamples(Paths);
 end.
