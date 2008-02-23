@@ -76,7 +76,6 @@ procedure ResetDefines(var opts: TFpcOptions);
 procedure WriteSeparator;
 procedure WriteSeparator1;
 
-
 function group: str15;
 function rebuilding: boolean;
 function doingall: boolean;
@@ -87,6 +86,8 @@ procedure CreateGroup(var paths: TPaths; var opts: TFpcOptions);
 procedure Run;
 
 procedure SetVisibleGroups(const names: str15array);
+
+procedure HaltErr(s: astr);
 
 (* Todo: 
     -zip (tar, winzip, etc) functions
