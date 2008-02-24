@@ -20,8 +20,7 @@ uses
   pwinit, pwmain, pwenvvar, htmout;       
 
 begin
-  // get all CGI special environment variables into global record var (we don't care that globals are evil, this is a simple CGI program)
-  CGIEnvVars:= GetCGIEnvVars;
+
   WriteTopHeader;
   // must be a p var to continue
   if IsPostVar('p') then 
