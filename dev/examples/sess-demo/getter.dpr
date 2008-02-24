@@ -12,7 +12,7 @@ uses
 begin
   out('User id: ');
   outln(GetSess('USERID'));
-  offreadln; // hack to keep console open OFFLINE only
+  offreadln; // hack to keep console open, OFFLINE only
 end.
 
 
