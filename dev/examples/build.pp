@@ -12,12 +12,13 @@ type
   eNames = (tGzipOn, tGzipSysutilsOn, tSysutilsOn);
 const
   names: array [eNames] of str15 =
-    ('gzipon', 'gzipsysutilson', 'systutilson');
+    ('gzipon', 'gzipsysutilson', 'sysutilson');
 
 
 procedure BuildExamples(var Paths: TPaths);
 var o: TFpcOptions;
     all: boolean;
+    curgroup: astr;
 begin
   Init(o);
   o.smartstrip:= true;
@@ -27,30 +28,39 @@ begin
   all:= doingall();
 
   if (all) or (doingdefault) then begin
+    writeln('debug DEAFULT');
     o.ProgBinDir:= 'bin';
     o.Name:= 'default';
     CreateGroup(paths, o);
   end;
 
-  if (all) or (group = names[tGzipOn]) then begin
+  curgroup:= names[tGzipOn];
+  if (all) or (group = curgroup) then begin
+    writeln('debug GZIP_ON');
     AddDefine(o, 'GZIP_ON'); 
-    o.Name:= group;
-    o.ProgBinDir:= 'bin-'+names[tGzipOn]; 
+    o.Name:= curgroup;
+    o.ProgBinDir:= 'bin-'+curgroup; 
     CreateGroup(Paths,  o);
   end;
 
-  if (all) or (group = names[tGzipSysutilsOn]) then begin
+  curgroup:= names[tGzipSysutilsOn];
+  if (all) or (group = curgroup) then begin
+    writeln('debug GZIP_ON SYSUTILS_ON');
+    ResetDefines(o);
+    AddDefine(o, 'GZIP_ON'); 
     AddDefine(o, 'SYSUTILS_ON');
-    o.Name:= group;
-    o.ProgBinDir:= 'bin-'+names[tGzipSysutilsOn]; 
+    o.Name:= curgroup;
+    o.ProgBinDir:= 'bin-'+curgroup; 
     CreateGroup(Paths,  o);
   end;
 
-  if (all) or (group = names[tSysutilsOn]) then begin
+  curgroup:= names[tSysutilsOn];
+  if (all) or (group = curgroup) then begin
+    writeln('debug SYUSTILS_ON');
     ResetDefines(o);
     AddDefine(o, 'SYSUTILS_ON');
-    o.ProgBinDir:= 'bin-'+names[tSysutilsOn]; 
-    o.Name:= group;
+    o.ProgBinDir:= 'bin-'+curgroup; 
+    o.Name:= curgroup;
     CreateGroup(Paths,  o);
   end;
 
