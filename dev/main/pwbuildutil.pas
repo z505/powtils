@@ -55,8 +55,8 @@ function Compile(const srcunit: astr; var opts: TFpcOptions): num;
 function Compile(const srcunit, opts, fpversion: astr): num;
 function Compile(const srcunit, opts: astr): num;
 
-procedure CompileMany(const paths: TPaths; var opts: TFpcOptions; ShowSeparator: bln);
-procedure CompileMany(const paths: TPaths; var opts: TFpcOptions);
+procedure CompileMany(var paths: TPaths; var opts: TFpcOptions; ShowSeparator: bln);
+procedure CompileMany(var paths: TPaths; var opts: TFpcOptions);
 
 procedure ShowOpts(var opts: TFpcOptions);
 
@@ -82,7 +82,7 @@ function doingall: boolean;
 function cleaning: boolean;
 function doingdefault: boolean;
 
-procedure CreateGroup(var paths: TPaths; var opts: TFpcOptions);
+procedure CreateGroup(paths: TPaths; opts: TFpcOptions);
 procedure Run;
 
 procedure SetVisibleGroups(const names: str15array);
@@ -103,8 +103,8 @@ uses
 
 type
   TGroup = record
-    paths: ^TPaths;
-    opts: ^TFpcOptions;
+    paths: TPaths;
+    opts: TFpcOptions;
   end;
 
   TGroups = array of TGroup;
@@ -250,7 +250,7 @@ begin
   if length(groups) < 1 then exit;
   setlength(result, length(groups));
   for i:= low(groups) to high(groups) do begin
-    result[i]:= groups[i].opts^.name;
+    result[i]:= groups[i].opts.name;
   end;  
 end;
 
@@ -268,7 +268,7 @@ procedure CheckGroups;
       if group() = defgroups[i1] then inc(found);
     end;
     for i2:= low(groups) to high(groups) do begin
-      if groups[i2].opts^.name = group() then inc(found);
+      if groups[i2].opts.name = group() then inc(found);
     end;
     if found < 1 then ShowHelp2;
   end;
@@ -286,19 +286,19 @@ begin
   Checkgroups;
   if length(groups) < 1 then HaltErr('groups array has zero registered');
   for i:= low(groups) to high (groups) do begin
-    CompileMany(groups[i].paths^, groups[i].Opts^);
+    CompileMany(groups[i].paths, groups[i].Opts);
   end;
 end;
 
 { add a group of files to be compiled with options }
-procedure CreateGroup(var paths: TPaths; var opts: TFpcOptions);
+procedure CreateGroup(paths: TPaths; opts: TFpcOptions);
 var oldlen: integer;
 begin
   if opts.Name = '' then HaltErr('Must specify a name for each group.');
   oldlen:= length(groups);
   setlength(groups, oldlen+1);
-  groups[oldlen].paths:= @paths;
-  groups[oldlen].opts:= @opts;
+  groups[oldlen].paths:= paths;
+  groups[oldlen].opts:= opts;
 end;
 
 
@@ -457,6 +457,7 @@ var allopts: astr = '';
 var targetdir: string;
 
 begin
+  targetdir:= '';
   // must be initialized first 
   CheckIfOptsInited(opts);
   AddTrailSlashes;
@@ -472,11 +473,15 @@ begin
     opts.intern.craptargetdir:= targetdir;
     ForceDir(targetdir);
   end;
-                                   
+
+  targetdir:= '';                                 
   if opts.progbindir <> '' then begin
     targetdir:= opts.dir + opts.progbindir + FpcTargetDir();
-    ForceDir(targetdir); 
+    writeln('debug targetdir:', targetdir );
+    writeln('debug optsname: ', opts.Name );
     opts.intern.progbintargetdir:= targetdir;
+    if not ForceDir(targetdir) then 
+      HaltErr('error creating directory: '+targetdir); 
   end;
 
   AddOpts('-FU', opts.intern.craptargetdir);
@@ -574,7 +579,7 @@ begin
   result:= Compile(opts.dir+srcunit, madeopts, opts.FpcVersion, opts.IgnoreErr);
 end;
 
-procedure CompileMany(const paths: TPaths; var opts: TFpcOptions; ShowSeparator: bln);
+procedure CompileMany(var paths: TPaths; var opts: TFpcOptions; ShowSeparator: bln);
 var i: integer;
 begin
   if paths.count < 1 then exit;
@@ -585,7 +590,7 @@ begin
   end;
 end;
 
-procedure CompileMany(const paths: TPaths; var opts: TFpcOptions);
+procedure CompileMany(var paths: TPaths; var opts: TFpcOptions);
 begin
   CompileMany(paths, opts, true);
 end;
