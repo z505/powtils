@@ -64,7 +64,7 @@ procedure SrcOut(fname: astr);
 var k: word; // file sharing unique key
 begin
   FileMarkRead(fname, k);
-  out(PasFileToHtmStr(fname));
+  if FileExists_read(fname) then out(PasFileToHtmStr(fname));
   FileUnMarkRead(fname, k);
 end;
 
@@ -111,7 +111,6 @@ begin
 
   if (lowercase(GotPg)) = 'new' then // can't edit main page
     NoEditAllowed;
-
 end;
 
 function IsShowNew: boolean;
@@ -295,8 +294,24 @@ begin
   result:= PASTIE_DIR + result + PASTIE_EXT; xpath(result);
 end;
 
+function LowerViewCssPg: string;
+begin
+  result:= lowercase(GetPostVar('viewcss'));
+end;
+
+function IsPastieCssId: boolean;
+begin
+  result:= false;
+  if (LowerViewCssPg <> 'new') and (LowerViewCssPg <> 'main') then
+  begin
+    result:= true;
+  end;
+end;
+
 
 procedure ShowPastieCssHtm;
+const MSG = 'This is for viewing the content of a pastie, you came from the '  +
+            '*see new Pasties* or *main* page. Try viewing the CSS/HTML of a pastie';
 begin
   out('<html>');
   out(BLACK_BODY);
@@ -314,12 +329,13 @@ begin
   out('<br />');
   out('<textarea ROWS=25 style="width:95%">');
   outln( '<pre>');
-  srcout(   curpastiefile);
+  if IsPastieCssId then srcout(curpastiefile) else outln(MSG);
   outln( '</pre>');
   out('</textarea>');
   out('</body>');
   out('</html>');
 end;
+
 
 procedure ShowPastie;
 
@@ -381,6 +397,7 @@ begin
   out('</head>');
 
   SetVar('_GotPg', GotPg);
+
   TemplateOut('htminc/header1.htm', true);
   CheckPass;  
   CheckPageNames;
