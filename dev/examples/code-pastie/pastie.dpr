@@ -1,7 +1,7 @@
 (****************************************************************************** 
    Code Pastie
  ******************************************************************************
-  Compiled against Powtils/PSP v1.6.0.2
+  Compiled against Powtils 1.6.x and 1.7.x +
   Allows one to create pastebin like pages. 
    
   PROGRAM WAS CREATED IN A RUSH, YEARS AGO. NOT SUPER GOOD CODE.
