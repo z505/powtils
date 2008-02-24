@@ -15,10 +15,10 @@
             <font color="#D8D8D8"><b>What to do:</b><p></font>
             <div style="padding:0.5em; text-align:center; ">
               <small>
-                <a style="text-decoration:none;" href="pastie.cgi?p=$_GotPg&ed=yes">hack this Pastie</a><p>
-                <a style="text-decoration:none;" href="pastie.cgi?p=new">see new Pasties</a><p>
-                <a style="text-decoration:none;" href="pastie.cgi?viewcss=$_GotPg">view CSS/HTML</a><p>
-                <a style="text-decoration:none;" href="pastie.cgi?p=main">see instructions</a><p>
+                <a style="text-decoration:none;" href="?p=$_GotPg&ed=yes">hack this Pastie</a><p>
+                <a style="text-decoration:none;" href="?p=new">see new Pasties</a><p>
+                <a style="text-decoration:none;" href="?viewcss=$_GotPg">view CSS/HTML</a><p>
+                <a style="text-decoration:none;" href="?p=main">see instructions</a><p>
               </small>
             </div>
           </div>
@@ -44,7 +44,17 @@
         <td valign=top style="">
           <table cellpadding=6 >
               <tr>
-                <td style="padding:1.5em;" nowrap><FONT COLOR="#D8D8D8" SIZE="4" ><b>Code Pastie ID: $_GotPg</b></font> <small>(<a style="text-decoration:underline; color: #0066FF;" href="pastie.cgi?p=$_GotPg&ed=yes">Edit</a>)</small></td>
+                <td style="padding:1.5em;" nowrap>
+                    <font COLOR="#D8D8D8" SIZE="4" ><b>Code Pastie ID: $_GotPg</b>
+                    </font> 
+                    <small>(<a style="text-decoration:underline; color: #0099FF;" 
+                               href="?p=$_GotPg&ed=yes">Edit</a> or 
+                            <a style="text-decoration:underline; color: #0099FF;" 
+                               href="?viewcss=$_GotPg">View CSS/HTML</a>)
+                    </small>
+                </td>
+
+
               </tr>
 
             <tr>
