@@ -581,7 +581,7 @@ procedure CompileMany(var paths: TPaths; var opts: TFpcOptions; ShowSeparator: b
 var i: integer;
 begin
   if paths.count < 1 then exit;
-  writeln('>>>>>> PROCESSING GROUP', opts.Name, ' >>>>>>');
+  writeln('>>>>>> PROCESSING GROUP ', opts.Name, ' >>>>>>');
   for i:= low(paths.items) to high(paths.items) do begin
     opts.dir:= paths.items[i].path;
     Compile(paths.items[i].fname, opts);
