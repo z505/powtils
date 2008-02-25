@@ -1,0 +1,17 @@
+#
+
+header_charset = iso-8859-1
+
+error_reporting = on
+
+error_halt = off
+
+output_buffering = off
+
+output_compression = off
+
+session_path = "sess.sds"
+
+session_life_time = 25
+
+upload_max_size = 20
