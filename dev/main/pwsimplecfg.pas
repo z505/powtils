@@ -93,6 +93,7 @@ begin
     value:= copy(buff, i + 1, length(buff) - i);
     name:= strtrim(name);
     value:= substrstrip(strtrim(value), '"');
+    value:= substrstrip(strtrim(value), '''');
     if (name = '') or (value = '') then continue;
     Add(name, value);
   end;
