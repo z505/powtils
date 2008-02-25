@@ -10,8 +10,9 @@ There are several groups you can build:
   ./build default 
 	builds the default examples with no special defines
 
-  ./build clean
+  ./build <group> clean
 	cleans the .crap/ folders of their PPU/.A/.O files
+	i.e. "build default clean", "build all clean", "build gzipon clean", etc.
 
   ./build all 
 	builds all combos (takes a while), i.e. default, plus GZIP_ON, SYSUTILS_ON
