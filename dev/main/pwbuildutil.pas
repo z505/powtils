@@ -474,8 +474,6 @@ begin
   targetdir:= '';                                 
   if opts.progbindir <> '' then begin
     targetdir:= opts.dir + opts.progbindir + FpcTargetDir();
-    writeln('debug targetdir:', targetdir );
-    writeln('debug optsname: ', opts.Name );
     opts.intern.progbintargetdir:= targetdir;
     if not ForceDir(targetdir) then 
       HaltErr('error creating directory: '+targetdir); 
