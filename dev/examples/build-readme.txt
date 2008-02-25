@@ -1,8 +1,7 @@
-Build.exe or build.elf etc. is a system built by Lars (L505) that builds
+Build.exe or build.linux etc. is a system built by Lars (L505) that builds
 the powtils examples.
 
-This is a command line or console program, but in the future a GUI wrapper 
-could of course be made.
+This is a command line program, but in the future a GUI wrapper can be made!
 
 It is powered by the pwbuildutil.pas unit.
 

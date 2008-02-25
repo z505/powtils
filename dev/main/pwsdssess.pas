@@ -127,6 +127,7 @@ var
  res: SDS_Result;
  sess_time: longword;
  limdate: TDateTime;
+ err: integer;
 begin
  result:= false;
  SessTblPath:= GetCfgVar('session_path');
@@ -142,8 +143,8 @@ begin
      exit; // false
  end;
  // Checking lifetime in minutes
- val(GetCfgVar('session_life_time'), sess_time);
- if sess_time = 0 then
+ val(GetCfgVar('session_life_time'), sess_time, err);
+ if (sess_time = 0) or (err <> 0) then
  begin
    result:= true;
    exit;
@@ -376,12 +377,14 @@ end;
  todo: research if security levels can be implemented }
 function GetSessAsFloat(const name: string): double;
 var i: longword;
+    err: integer;
 begin
   result:= 0.0;
   if length(sess) = 0 then exit;
   for i:= 0 to length(sess) - 1 do if sess[i].name = name then
   begin
-    val(sess[i].value, result);
+    val(sess[i].value, result, err);
+    if err <> 0 then result:= 0.0;
     break;
  end;
 end;
@@ -390,12 +393,14 @@ end;
  todo: research if security levels can be implemented }
 function GetSessAsInt(const name: string): longint;
 var i: longword;
+    err: integer;
 begin
  result:= 0;
  if length(sess) = 0 then exit;
  for i:= 0 to length(sess) - 1 do if sess[i].name = name then
  begin
-   val(sess[i].value, result);
+   val(sess[i].value, result, err);
+   if err <> 0 then result:= 0;
    break;
  end;
 end;
