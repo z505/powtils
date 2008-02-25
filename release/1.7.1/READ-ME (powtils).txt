@@ -1,0 +1,172 @@
+********************************************************************************
+
+            Powtils
+
+********************************************************************************
+
+Version 1.7.X of Powtils
+(previously known as Pascal Server Pages)
+
+**Documentation may not be available yet for 1.7.X but is similar to 1.6.X**
+
+
+-------------------------------------------------------------------------------
+Introduction:
+-------------------------------------------------------------------------------
+
+Powtils is web utilities devel package for FPC/Delphi and possibly other
+compilers in the future. The utilities focus on web programming and HTTP 
+related routines, data structures, and algorithms.
+
+See the documentation and intro at:
+ http://z505.com/powtils/idx.shtml
+ http://z505.com/powtils/docs.shtml
+ http://z505.com/cgi-bin/powtils/docs/1.6/idx.cgi?file=generalindex
+ http://z505.com/cgi-bin/powtils/docs/1.6/idx.cgi?file=index
+
+All standard servers such as cpanel/plesk/apache/other are supported.
+
+
+--------------------------------------------------------------------------------
+Warning
+--------------------------------------------------------------------------------
+FPC 2.0.4 contains buggy sockets unit on MS Windows!
+Use FPC 2.2.0 if using http.pas/smtp.pas or anything sockets.pp related!
+
+--------------------------------------------------------------------------------
+Delphi Tips
+--------------------------------------------------------------------------------
+ -Use the SYSUTILS_ON define because CompactSysutils will not work. It has been
+  enabled in units,  but just incase you have a unit using compactsysutils, you
+  should know this.
+ -Delphi has slightly different syntax and APPTYPE CONSOLE requirements, some
+  units may need fixing, but compatibility has been added lately!
+
+--------------------------------------------------------------------------------
+Setup Instructions:
+--------------------------------------------------------------------------------
+
+COMPILER - FPC version 2.0.4 and 2.2.0 is what we tested on.
+           Delphi 6 also briefly tested
+
+Inside pwmain you will see some comments about DEFINES which you can set with
+your IDE or with fpc -d option. Gzip, verbose debugging, etc.
+
+In 1.7.X is a new way of using sessions and config files. No more CFG_ON defines
+or SESS_ON defines. Instead you use an Init unit in your uses clause.
+See pwinit.pas, pwinitall, and examples/hello-world/ for details.
+
+
+  -------------------------------------------------------------------------------
+   IF USING PWMAIN.PAS
+  -------------------------------------------------------------------------------
+   Just place pwinit and pwmain in your uses clause.
+    1. Compile program
+    2. Upload program to server in cgi bin directory
+    3. Change permissions to 755 on unix (or check your hosting company!)
+    4. if using config file (pwu_unix.conf or pwu_win.conf), upload.
+       config file is optional, see pwinitall.pas
+
+    Example program 
+    //................................................................//
+    program mycgi;  {$apptype console}
+
+    uses
+      pwinit, // required !!
+      pwmain; // main web functions
+
+    begin
+      webwrite('Hello!'); // old syntax
+      out('Hello!');      // new syntax available
+    end.
+    //................................................................//
+
+
+  --------------------------------------------------------------------------------
+   IF USING DYNPWU.PAS
+  --------------------------------------------------------------------------------
+    DYNPW.pas was not prepared for 1.7.X yet (DLL/DSO)
+
+
+----------------------
+Config file or not?
+----------------------
+You can choose.. If using a config file then enable it in your pwinit.pas unit.
+Then place pwu_unix.conf or pwu_win.conf in your program directory, for example:
+
+On UNIX like OS:
+  /public_html/cgi-bin/test/pwu_unix.conf
+  /www_root/cgi-bin/test/pwu_unix.conf
+
+On Windows OS:
+  c:\apache\www\cgi-bin\test\pwu_win.conf
+  c:\program files\apache\www\cgi-bin\test\pwu_win.conf
+
+   CGI-BIN Tips
+   -------------
+  It is recommended you work in a subdirectory from cgi-bin instead of directly
+  in /cgi-bin/yourprog.cgi, in order to keep yourself better organized. Cgi
+  programs work anywhere from cgi-bin/ including subdirectories.
+
+
+
+---------------------------------------------------------------------------
+About the /CGI-BIN/ directory and why it is your friend:
+---------------------------------------------------------------------------
+
+Even if you have a server that allows cgi programs to be executed outside of 
+/CGI-BIN/, it is recommended you stay in /CGI-BIN/. If you ever move to a new 
+server you will be very disappointed in the work it can take to restructure your 
+directories. If one server does not have the same set up as your old one, which 
+allowed access outside cgi-bin, you will be spending a lot of time restructuring
+the directories and files. Server portability is an issue with any web language, 
+for example php.ini can cause php programmers trouble when moving to a server. 
+
+As long as you use CGI-BIN directory you are actually more scalable and more 
+portable with Powtils than if you had used PHP. Why - because with Powtils you 
+make your own config files - you do not rely on some hidden php.ini. You also
+do not have php version conflicts (php 4 vs php 5) since your executable is
+shipped in one nice deployable program.
+
+
+--------------------------------------------------------------------------------
+Shortening cgi-bin urls with HTACCESS
+--------------------------------------------------------------------------------
+If you would like to make it convenient for your web vistors to type in URL's, 
+and you don't like /cgi-bin/ in the URL, consider using htaccess if you are on 
+Apache, and doing some mod_rewrite rules for your URL's. 
+
+However, as all websites grow with time, it is usually not worth the effort to 
+try and make ALL your URL's short and sweet except in special circumstances:
+Using too many htaccess tricks will slow very large sites down, too.
+
+--------------------------------------------------------------------------------
+Unit Source File Header Notes, Legal, and License Terms
+--------------------------------------------------------------------------------
+
+Most of the Powtils source code is released under the Artistic License or the
+NRCOL License (no ridiculous constraints or limits, public domain). Some of 
+the Mime Types related text files are from Apache.
+
+Longwinded comments that usually occur at the top of the source files are 
+sometimes moved into a /notes/ directory. 
+Each unit may have a corresponding unit.note.txt file. We're sick of sifting 
+through source files with licenses and developer comments crammed into the top
+of the file. We also use SVN logs for developer changes to sources.
+
+--------------------------------------------------------------------------------
+Getting HELP from the community
+--------------------------------------------------------------------------------
+
+The Powtils mailing lists and PasForum is the best place to get help. 
+  http://z505.com/powtils/mail.shtml
+  http://z505.com/powtils/forums.shtml
+
+--------------------------------------------------------------------------------
+This readme file is not as good as documentation
+--------------------------------------------------------------------------------
+
+We recommend you read the documentation as it is much more thorough than this
+readme file.
+
+ http://z505.com/powtils/docs.shtml
