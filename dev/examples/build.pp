@@ -1,4 +1,9 @@
-{ makes (builds) all Powtils examples, By L505 }
+{ makes (builds) all Powtils examples, currently for building with FPC only 
+  (dcc32 build system is possible in the future)
+
+  By L505 (Lars)
+  http://z505.com
+}
 
 program build; {$mode objfpc} {$H+} 
 
@@ -28,39 +33,39 @@ begin
   all:= doingall();
 
   if (all) or (doingdefault) then begin
-    writeln('debug DEAFULT');
     o.ProgBinDir:= 'bin';
     o.Name:= 'default';
     CreateGroup(paths, o);
   end;
 
+  // now build other copies of the program with custom DEFINES
   curgroup:= names[tGzipOn];
   if (all) or (group = curgroup) then begin
-    writeln('debug GZIP_ON');
     AddDefine(o, 'GZIP_ON'); 
     o.Name:= curgroup;
     o.ProgBinDir:= 'bin-'+curgroup; 
+    o.Rebuild:= true;
     CreateGroup(Paths,  o);
   end;
 
   curgroup:= names[tGzipSysutilsOn];
   if (all) or (group = curgroup) then begin
-    writeln('debug GZIP_ON SYSUTILS_ON');
     ResetDefines(o);
     AddDefine(o, 'GZIP_ON'); 
     AddDefine(o, 'SYSUTILS_ON');
     o.Name:= curgroup;
     o.ProgBinDir:= 'bin-'+curgroup; 
+    o.Rebuild:= true;
     CreateGroup(Paths,  o);
   end;
 
   curgroup:= names[tSysutilsOn];
   if (all) or (group = curgroup) then begin
-    writeln('debug SYUSTILS_ON');
     ResetDefines(o);
     AddDefine(o, 'SYSUTILS_ON');
     o.ProgBinDir:= 'bin-'+curgroup; 
     o.Name:= curgroup;
+    o.Rebuild:= true;
     CreateGroup(Paths,  o);
   end;
 
@@ -73,9 +78,9 @@ var Paths: TPaths;
 begin
   // visible for HELP command
   SetVisibleGroups(names);
-  // suck em up
+  // get all .DPR files to compile
   GetDirFiles('./', '*.dpr', Paths);
-  if Paths.count < 0 then HaltErr('Path problem getting example dpr files');
+  if Paths.count < 0 then HaltErr('Path problem getting example *.DPR files');
   BuildExamples(Paths);
 end.
 

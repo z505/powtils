@@ -328,17 +328,14 @@ end;
 procedure Init(out opts: TFpcOptions);
 begin
   with opts do begin
-    SmartStrip:= false; Rebuild:= false; IgnoreErr:= false;
-    Extra:= ''; CrapDir:= '.crap';  ProgBinFile:= ''; ProgBinDir:= ''; 
-    Name:= ''; Dir:= '';
+    SmartStrip:= false; IgnoreErr:= false;  Extra:= ''; CrapDir:= '.crap';  
+    ProgBinFile:= ''; ProgBinDir:= ''; Name:= ''; Dir:= '';
     // default version is current compiler of this unit
     FpcVersion:= pwfputil.FpcVersion();
     Rebuild:= rebuilding();
     // if rebuilding or cleaning then CleanBeforeRebuild
-    if (rebuilding) or (cleaning) then
-      CleanBeforeRebuild:= true
-    else
-      CleanBeforeRebuild:= false;
+    if (Rebuild) or (cleaning) then CleanBeforeRebuild:= true 
+      else CleanBeforeRebuild:= false;
     // only compile if we are not cleaning
     Compile:= not cleaning;
 
@@ -573,16 +570,20 @@ end;
 { compile program with options in a record }
 function Compile(const srcunit: astr; var opts: TFpcOptions): num;
 var madeopts: astr;
+    path: astr;
 begin
   madeopts:= makeopts(opts);
   if not opts.Compile then exit; // just clean or do other tasks
-  result:= Compile(opts.dir+srcunit, madeopts, opts.FpcVersion, opts.IgnoreErr);
+  path:= opts.dir+srcunit;
+  writeln('>>> COMPILING ', path, ' >>>');
+  result:= Compile(path, madeopts, opts.FpcVersion, opts.IgnoreErr);
 end;
 
 procedure CompileMany(var paths: TPaths; var opts: TFpcOptions; ShowSeparator: bln);
 var i: integer;
 begin
   if paths.count < 1 then exit;
+  writeln('>>>>>> PROCESSING GROUP', opts.Name, ' >>>>>>');
   for i:= low(paths.items) to high(paths.items) do begin
     opts.dir:= paths.items[i].path;
     Compile(paths.items[i].fname, opts);
