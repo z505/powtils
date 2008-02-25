@@ -5,6 +5,9 @@ This is a command line program, but in the future a GUI wrapper can be made!
 
 It is powered by the pwbuildutil.pas unit.
 
+--------
+ Groups
+--------
 There are several groups you can build:
 
   ./build default 
@@ -32,13 +35,29 @@ In powtils, some example defined groups are:
 These groups are just samples.. any project can contain more "groups"
 We call these "groups" because "targets" is too overloaded of a term.
 
-You can find out what GROUPS are available by typing in:
+-------
+ Flags
+-------
+  clean 
+    cleans .ppu/.a/.o files 
+
+  rebuild 
+    cleans then builds from scratch
+
+
+------
+ Help
+------
+You can find out what GROUPS and FLAGS are available by typing in:
 ./build
 
 The command line "help" will tell you what groups are available.
 
 Note: On Windows, no need for the ./ as this is a unix thing ;-)
 
+-------------------
+ Building Build.pp
+-------------------
 You can 
   fpc build
 
