@@ -4,7 +4,7 @@
 program getter; {$APPTYPE CONSOLE}
 
 uses
-  pwinit,
+  pwinitall,
   pwmain,
   pwsdssess;
 
