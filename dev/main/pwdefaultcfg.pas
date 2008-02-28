@@ -122,7 +122,8 @@ begin
    name:= copy(buff, 1, i - 1);
    value:= copy(buff, i + 1, length(buff) - i);
    name:= strtrim(name);
-   value:= substrstrip(strtrim(value), '"');
+   value:= substrstrip(strtrim(value), '"');  // strip double quote
+   value:= substrstrip(strtrim(value), ''''); // strip single quote
    if (name = '') or (value = '') then continue;
    iAddWebCfgVar(name, value);
  end;
