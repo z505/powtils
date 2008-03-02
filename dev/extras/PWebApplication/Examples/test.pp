@@ -9,13 +9,13 @@ Uses
   Sysutils;
 
 Var
-  MyWebGrid : TWebArrayGrid;
+  MyWebGrid : TWebArrayGrid; 
   MyArray   : TArrayGrid;
 
 Begin
   WebWrite('');
   WebAppInit('test');
-  MyWebGrid := TWebArrayGrid.Create('testgrid', Nil);
+  MyWebGrid  := TWebArrayGrid.Create('testgrid1', 'testgrid', Nil);
   SetLength(MyArray, 2);
   SetLength(MyArray[0], 2);
   SetLength(MyArray[1], 2);
@@ -23,7 +23,7 @@ Begin
   MyArray[0][1] := '20';
   MyArray[1][0] := '0';
   MyArray[1][1] := '10';
-  MyWebGrid.Matrix := MyArray;
+  MyWebGrid.Matrix  := MyArray;
   Run;
   MyWebGrid.Free;
   WebAppDone;

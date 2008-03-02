@@ -75,6 +75,11 @@ Type
 
 Implementation
 
+Function UnQuote(Line : String): String;
+Begin
+  UnQuote := Copy(Line, 2, Length(Line) - 2);
+End;
+
 Function TXMLTagCollection.GetChild(I: LongWord): TXMLRootTag;
 Begin
   If (I <= Low(fChilds)) And (I >= High(fChilds)) Then
@@ -115,7 +120,7 @@ Begin
   fNodeController := NodeCtrl;
   fAttributes := TStringList.Create;
   fAttributes.Delimiter := ' ';
-  fAttributes.QuoteChar := '"';
+  fAttributes.QuoteChar := #0;
   fAttributes.CaseSensitive := False;
   fAttributes.Duplicates := dupIgnore;
   fAttributes.Sorted := False;

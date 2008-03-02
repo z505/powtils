@@ -51,6 +51,8 @@ Type
 		Property Templates[Name : String]: TWebTemplate Read GetTemplate Write SetTemplate; Default;
 	End;
 
+Function UnQuote(Line : String): String;
+
 Implementation
 
 Function UnQuote(Line : String): String;

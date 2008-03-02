@@ -22,7 +22,13 @@ Type
     Procedure GridRows(Caller : TXMLTag);
     Procedure GridCols(Caller : TXMLTag);
     Procedure GridElement(Caller : TXMLTag);
-    Procedure GridEdit;
+    Procedure GridHiddenColVar(Caller : TXMLTag);
+    Procedure GridHiddenRowVar(Caller : TXMLTag);
+    Procedure GridHiddenActionVar(Caller : TXMLTag);
+    Procedure GridSubmitAsButton(Caller : TXMLTag);
+    Procedure GridSubmitAsImage(Caller : TXMLTag);
+    Procedure GridEditForm(Caller : TXMLTag);
+    Procedure GridSubmit;
   Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
     Property Matrix : TArrayGrid Read fMatrix Write fMatrix;
@@ -33,7 +39,7 @@ Implementation
 Function TWebArrayGrid.GridConditionals(Name : String): Boolean;
 Begin
   If Name = 'editmode' Then
-    GridConditionals := GetCGIVar('action') = 'edit'
+    GridConditionals := GetCGIVar('action') = InstanceName + '_edit'
   Else
     GridConditionals := False;
 End;
@@ -67,12 +73,58 @@ Begin
   WebWrite('</a>');
 End;
 
+Procedure TWebArrayGrid.GridHiddenColVar(Caller : TXMLTag);
+Begin
+  WebWrite('<input name="col" value="' + GetCGIVar('col') + '" type="hidden"/>');
+End;
+
+Procedure TWebArrayGrid.GridHiddenRowVar(Caller : TXMLTag);
+Begin
+  WebWrite('<input name="row" value="' + GetCGIVar('row') + '" type="hidden"/>');
+End;
+
+Procedure TWebArrayGrid.GridHiddenActionVar(Caller : TXMLTag);
+Begin
+  WebWrite('<input name="action" value="' + InstanceName + '_submit" type="hidden"/>');
+End;
+
+Procedure TWebArrayGrid.GridSubmitAsButton(Caller : TXMLTag);
+Begin
+  WebWrite('<input name="submit" value=' + Caller.Attributes.Values['name'] + ' type="submit"/>');
+End;
+
+Procedure TWebArrayGrid.GridSubmitAsImage(Caller : TXMLTag);
+Begin
+  WebWrite('<img src=' + UnQuote(Caller.Attributes.Values['name']) +
+  'onclick="javascript: ' + InstanceName + '_form.submit()"/>');
+End;
+
+Procedure TWebArrayGrid.GridEditForm(Caller : TXMLTag);
+Begin
+  WebWrite('<form name="' + InstanceName + '_form" action="' + SelfReference + '">');
+  Caller.EmitChilds;
+  WebWrite('</form>');
+End;
+
+Procedure TWebArrayGrid.GridSubmit;
+Begin
+  fMatrix[StrToInt(GetCGIVar('row'))][StrToInt(GetCGIVar('col'))] := GetCGIVar('value');
+End;
+
 Constructor TWebArrayGrid.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Tmpl, Owner);
   Template.Tag['grid'] := Self.GridRows;
   Template.Tag['gridrow'] := Self.GridCols;
   Template.Tag['gridelement'] := Self.GridElement;
+  Template.Tag['gridcolvar'] := Self.GridHiddenColVar;
+  Template.Tag['gridrowvar'] := Self.GridHiddenRowVar;
+  Template.Tag['gridactionvar'] := Self.GridHiddenActionVar;
+  Template.Tag['gridbutton'] := Self.GridSubmitAsButton;
+  Template.Tag['gridimage'] := Self.GridSubmitAsImage;
+  Template.Tag['grideditform'] := Self.GridEditForm;
+  RegisterAction(InstanceName + '_submit', Self.GridSubmit);
+  Template.Conditional := Self.GridConditionals;
 End;
 
 End.
