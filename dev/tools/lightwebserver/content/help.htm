@@ -1,0 +1,38 @@
+SimpleWiki SYNTAX for editing pages is as follows:
+<pre>
+  horizontal rule:  ---
+
+  heading:    ==heading2==
+             ===heading3===
+            ====heading4====
+          
+
+  bold:    b[some text]b
+  
+  italic:  i[some text]i
+
+  link:    http://url.com
+           ftp://url.com
+           https://url.com
+           [[http://url.com anchor text]]
+
+  code:    - - c o d e
+           for i:= 1 to 5 do
+             writeln;
+           c o d e - -
+  
+  HTML:    you can also add HTML anywhere! No requirements, just insert the html as 
+           normal. This way if the wiki syntax limits you, then you can still use 
+           HTML. On public servers you may wish to add a feature to disable java 
+           tags for security, and also html/head/body tags.  
+
+ FUTURE CONSIDERATION
+
+  custom:   custom[some tag of yours]custom
+            anything[something inside]anything
+              
+            These could act like macros which end up calling real html specified
+            in some INI file (and the INI file could be edited in this web program 
+            too, so that changes could be made to the macros online instantly).        
+             
+</pre>
