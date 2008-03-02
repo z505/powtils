@@ -24,10 +24,10 @@ Type
     fNameSpace: TXMLNodeList;
     fRootTag:   TXMLTagCollection;
     fLoaded:    Boolean;
-		fConditional: TWebTemplateConditional;
-		fSubTemplates : TWebTemplateList;
-		Procedure ConditionalTag(Caller : TXMLTag);
-		Procedure SubTemplateCall(Caller : TXMLTag);
+    fConditional: TWebTemplateConditional;
+    fSubTemplates : TWebTemplateList;
+    Procedure ConditionalTag(Caller : TXMLTag);
+    Procedure SubTmplCall(Caller : TXMLTag);
   Public
     Constructor Create(Arq: String);
     Destructor Destroy; Override;
@@ -53,15 +53,21 @@ Type
 
 Implementation
 
+Function UnQuote(Line : String): String;
+Begin
+  UnQuote := Copy(Line, 2, Length(Line) - 2);
+End;
+
 Procedure TWebTemplate.ConditionalTag(Caller : TXMLTag);
 Begin
-	If Assigned(fConditional) And fConditional(Caller.Attributes.Values['when']) Then
+	If Assigned(fConditional) And fConditional(UnQuote(Caller.Attributes.Values['when'])) Then
 		Caller.EmitChilds;
 End;
 
-Procedure TWebTemplate.SubTemplateCall(Caller : TXMLTag);
+Procedure TWebTemplate.SubTmplCall(Caller : TXMLTag);
 Begin
-  fSubTemplates[Caller.Attributes.Values['name']].LoadAndEmit;
+  fSubTemplates[UnQuote(Caller.Attributes.Values['name'])].Load;
+  fSubTemplates[UnQuote(Caller.Attributes.Values['name'])].Emit;
 End;
 
 Constructor TWebTemplate.Create(Arq: String);
@@ -70,12 +76,14 @@ Begin
   fFileName  := Arq;
   fLoaded    := False;
   fNameSpace := TXMLNodeList.Create;
-	fNameSpace['if'] := @ConditionalTag;
-	fNameSpace['subtemplate'] := @SubTemplateCall;
+  fNameSpace['if'] := ConditionalTag;
+  fNameSpace['subtemplate'] := SubTmplCall;
+  fSubTemplates := TWebTemplateList.Create;
 End;
 
 Destructor TWebTemplate.Destroy;
 Begin
+  fSubTemplates.Free;
   fNameSpace.Free;
   Inherited Destroy;
 End;
@@ -86,11 +94,16 @@ Var
   fSourceStream:  TFileStream;
   fTokenIterator: TTokenIterator;
 Begin
-  fSourceStream := TFileStream.Create(fFileName, fmOpenRead);
-  fSourceTokens := ParseXML(fSourceStream);
-  fTokenIterator := TTokenIterator.Create(fSourceTokens);
-  fRootTag := XMLLoad(fTokenIterator, fNameSpace);
-  fLoaded  := True;
+  Try
+    fSourceStream := TFileStream.Create(fFileName, fmOpenRead);
+    fSourceTokens := ParseXML(fSourceStream);
+    fTokenIterator := TTokenIterator.Create(fSourceTokens);
+    fRootTag := XMLLoad(fTokenIterator, fNameSpace);
+    fLoaded  := True;
+  Except
+  On E: Exception Do
+    WriteLn(fFileName, ': ', E.Message);
+  End;
   fSourceStream.Free;
   fTokenIterator.Free;
 End;
@@ -150,11 +163,7 @@ Destructor TWebTemplateList.Destroy;
 Var
 	Ctrl : LongWord;
 Begin
-	If fTemplates.Count > 0 Then
-		For Ctrl := 0 To fTemplates.Count - 1 Do
-			If Assigned(fTemplates.Objects[Ctrl]) Then
-				TWebTemplate(fTemplates.Objects[Ctrl]).Free;
-	fTemplates.Free;
+  fTemplates.Free;
 	Inherited Destroy;
 End;
 

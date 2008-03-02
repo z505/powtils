@@ -114,12 +114,13 @@ Procedure TWebActionList.CheckAction(Name : String);
 Var
 	Ctrl : Cardinal;
 Begin
-	For Ctrl := Low(fActions) To High(fActions) Do
-		If fActions[Ctrl].Name = Name Then
-		Begin
-      fActions[Ctrl].Handler();
-			Exit;
-		End;
+  If Length(fActions) > 0 Then
+    For Ctrl := Low(fActions) To High(fActions) Do
+		  If fActions[Ctrl].Name = Name Then
+		  Begin
+        fActions[Ctrl].Handler();
+			  Exit;
+		  End;
 End;
 
 Constructor TWebComponent.Create(Name : String; Owner : TWebComponent);
@@ -173,6 +174,8 @@ Begin
     GlobalActions.CheckAction(GetCGIVar('Action'))
   Else
     GlobalActions.CheckAction('default');
+  RootTemplate.Load;
+  RootTemplate.Emit;
   If Assigned(OnAfterRun) Then
     OnAfterRun();
 End;

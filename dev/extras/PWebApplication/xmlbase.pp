@@ -146,7 +146,7 @@ End;
 
 Procedure TXMLTag.Emit;
 Begin
-  If fNodeController = Nil Then
+  If Not(Assigned(fNodeController)) Then
   Begin
     StartEmit;
     EmitChilds;
@@ -198,11 +198,12 @@ End;
 
 Procedure TXMLNodeList.SetNode(Name : String; Controller : TXMLNode);
 Var
-	Ctrl  : Cardinal;
+	Ctrl  : LongWord;
 	Found : Boolean;
 Begin
-	Found := False;
-	For Ctrl := Low(fNodes) To High(fNodes) Do
+        Found := False;
+        If Length(fNodes) > 0 Then
+          For Ctrl := Low(fNodes) To High(fNodes) Do
 		If fNodes[Ctrl].Name = Name Then
 		Begin
 			fNodes[Ctrl].Controller := Controller;
