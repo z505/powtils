@@ -3,6 +3,6 @@
 <title>WebApplication Framework - Test1</title>
 </head>
 <body>
-  <subtemplate name='testgrid'/>
+  <subtemplate name="testgrid"/>
 </body>
 </html>

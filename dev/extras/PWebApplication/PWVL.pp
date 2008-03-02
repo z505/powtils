@@ -62,9 +62,9 @@ End;
 Constructor TWebArrayGrid.Create(Name : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Owner);
-  Template.Tag['grid'] := @Self.GridRows;
-  Template.Tag['gridrow'] := @Self.GridCols;
-  Template.Tag['gridelement'] := @Self.GridElement;
+  Template.Tag['grid'] := Self.GridRows;
+  Template.Tag['gridrow'] := Self.GridCols;
+  Template.Tag['gridelement'] := Self.GridElement;
 End;
 
 End.

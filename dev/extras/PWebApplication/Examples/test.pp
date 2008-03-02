@@ -1,5 +1,6 @@
 // ~NRCOL
 Uses
+  PWInit,
   PWMain,
   WebApplication,
   WebTemplate,
@@ -12,16 +13,18 @@ Var
   MyArray   : TArrayGrid;
 
 Begin
+  WebWrite('');
   WebAppInit('test');
   MyWebGrid := TWebArrayGrid.Create('testgrid', Nil);
   SetLength(MyArray, 2);
   SetLength(MyArray[0], 2);
   SetLength(MyArray[1], 2);
-  MyArray[0][0] := 'X Value';
-  MyArray[0][1] := 'Y Value';
+  MyArray[0][0] := '1';
+  MyArray[0][1] := '20';
   MyArray[1][0] := '0';
   MyArray[1][1] := '10';
   MyWebGrid.Matrix := MyArray;
   Run;
+  MyWebGrid.Free;
   WebAppDone;
 End.
