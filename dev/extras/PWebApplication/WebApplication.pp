@@ -83,13 +83,14 @@ Var
 	Found : Boolean;
 Begin
 	Found := False;
-	For Ctrl := Low(fActions) To High(fActions) Do
-		If fActions[Ctrl].Name = Name Then
-		Begin
-			fActions[Ctrl].Handler := Action;
-			Found := True;
-			Exit;
-		End;
+  If Length(fActions) > 0 Then
+    For Ctrl := Low(fActions) To High(fActions) Do
+      If fActions[Ctrl].Name = Name Then
+      Begin
+        fActions[Ctrl].Handler := Action;
+        Found := True;
+        Exit;
+      End;
 	If Not(Found) Then
 	Begin
 		SetLength(fActions, Length(fActions) + 1);
@@ -103,12 +104,13 @@ Var
 	Ctrl : Cardinal;
 Begin
   Find := False;
-	For Ctrl := Low(fActions) To High(fActions) Do
-		If fActions[Ctrl].Name = Name Then
-		Begin
-			Find := True;
-			Exit;
-		End;
+  If Length(fActions) > 0 Then
+    For Ctrl := Low(fActions) To High(fActions) Do
+      If fActions[Ctrl].Name = Name Then
+      Begin
+        Find := True;
+        Exit;
+      End;
 End;
 
 Procedure TWebActionList.CheckAction(Name : String);
@@ -154,7 +156,7 @@ Procedure WebAppInit(AppName : String);
 Begin
   GlobalActions := TWebActionList.Create;
   RootTemplate  := TWebTemplate.Create(AppName + '.tpl');
-  SelfReference := AppName;
+  SelfReference := AppName {$IFDEF WINDOWS} + '.exe'{$ENDIF};
 End;
 
 Procedure WebAppDone;
@@ -172,8 +174,8 @@ Procedure Run;
 Begin
   If Assigned(OnBeforeRun) Then
     OnBeforeRun();
-  If IsCGIVar('Action') Then
-    GlobalActions.CheckAction(GetCGIVar('Action'))
+  If IsCGIVar('action') Then
+    GlobalActions.CheckAction(GetCGIVar('action'))
   Else
     GlobalActions.CheckAction('default');
   RootTemplate.Load;
