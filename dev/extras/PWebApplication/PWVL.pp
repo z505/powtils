@@ -22,8 +22,9 @@ Type
     Procedure GridRows(Caller : TXMLTag);
     Procedure GridCols(Caller : TXMLTag);
     Procedure GridElement(Caller : TXMLTag);
+    Procedure GridEdit;
   Public
-    Constructor Create(Name : String; Owner : TWebComponent);
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
     Property Matrix : TArrayGrid Read fMatrix Write fMatrix;
   End;
 
@@ -31,7 +32,10 @@ Implementation
 
 Function TWebArrayGrid.GridConditionals(Name : String): Boolean;
 Begin
-  GridConditionals := False;
+  If Name = 'editmode' Then
+    GridConditionals := GetCGIVar('action') = 'edit'
+  Else
+    GridConditionals := False;
 End;
 
 Procedure TWebArrayGrid.GridRows(Caller : TXMLTag);
@@ -56,12 +60,16 @@ End;
 
 Procedure TWebArrayGrid.GridElement(Caller : TXMLTag);
 Begin
+  WebWrite(
+  '<a href="' + SelfReference + '?action=' + InstanceName + '_edit&' +
+  'row=' + IntToStr(fCurRow) + '&col=' + IntToStr(fCurCol) + '">');
   WebWrite(fMatrix[fCurRow][fCurCol]);
+  WebWrite('</a>');
 End;
 
-Constructor TWebArrayGrid.Create(Name : String; Owner : TWebComponent);
+Constructor TWebArrayGrid.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
-  Inherited Create(Name, Owner);
+  Inherited Create(Name, Tmpl, Owner);
   Template.Tag['grid'] := Self.GridRows;
   Template.Tag['gridrow'] := Self.GridCols;
   Template.Tag['gridelement'] := Self.GridElement;

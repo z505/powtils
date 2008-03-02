@@ -37,7 +37,7 @@ Type
 		fTemplate     : TWebTemplate;
     fOnDestroy    : TWebActionHandler;
 	Public
-		Constructor Create(Name : String; Owner : TWebComponent);
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
 		Destructor Destroy; Override;
     Function UniqueName(SubName : String): String;
 		Property InstanceName : String Read fInstanceName Write fInstanceName;
@@ -46,6 +46,7 @@ Type
 	End;
 
 ThreadVar
+  SelfReference : String;
   GlobalActions : TWebActionList;
   RootTemplate  : TWebTemplate;
   OnBeforeRun   : TWebActionHandler;
@@ -123,12 +124,12 @@ Begin
 		  End;
 End;
 
-Constructor TWebComponent.Create(Name : String; Owner : TWebComponent);
+Constructor TWebComponent.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
 	Inherited Create;
 	fOwner        := Owner;
 	fInstanceName := Name;
-  fTemplate     := TWebTemplate.Create(fInstanceName + '.tpl');
+  fTemplate     := TWebTemplate.Create(Tmpl + '.tpl');
   If Assigned(fOwner) Then
     fOwner.Template.AddSubTemplate(fInstanceName, fTemplate)
   Else
@@ -153,6 +154,7 @@ Procedure WebAppInit(AppName : String);
 Begin
   GlobalActions := TWebActionList.Create;
   RootTemplate  := TWebTemplate.Create(AppName + '.tpl');
+  SelfReference := AppName;
 End;
 
 Procedure WebAppDone;
