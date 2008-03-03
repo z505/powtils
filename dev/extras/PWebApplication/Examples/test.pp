@@ -11,19 +11,21 @@ Uses
 Var
   MyWebGrid : TWebArrayGrid; 
   MyArray   : TArrayGrid;
+  R, C      : Word;
 
 Begin
-  WebWrite('');
+  Randomize;
+  SetLength(MyArray, 10);
+  For R := Low(MyArray) To High(MyArray) Do
+  Begin
+    SetLength(MyArray[R], 10);
+    For C := Low(MyArray[R]) To High(MyArray[R]) Do
+      MyArray[R][C] := IntToStr(Round(Random * 100));
+  End;
   WebAppInit('test');
   MyWebGrid  := TWebArrayGrid.Create('testgrid1', 'testgrid', Nil);
-  SetLength(MyArray, 2);
-  SetLength(MyArray[0], 2);
-  SetLength(MyArray[1], 2);
-  MyArray[0][0] := '1';
-  MyArray[0][1] := '20';
-  MyArray[1][0] := '0';
-  MyArray[1][1] := '10';
   MyWebGrid.Matrix  := MyArray;
+  MyWebGrid.Editable := True;
   Run;
   MyWebGrid.Free;
   WebAppDone;
