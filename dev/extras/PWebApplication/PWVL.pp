@@ -18,6 +18,7 @@ Type
     fMatrix   : TArrayGrid;
     fCurRow,
     fCurCol   : LongInt;
+    fEditable : Boolean;
     Function GridConditionals(Name : String): Boolean;
     Procedure GridRows(Caller : TXMLTag);
     Procedure GridCols(Caller : TXMLTag);
@@ -31,8 +32,24 @@ Type
     Procedure GridSubmit;
   Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
-    Property Matrix : TArrayGrid Read fMatrix Write fMatrix;
+    Property Matrix   : TArrayGrid Read fMatrix Write fMatrix;
+    Property Editable : Boolean Read fEditable Write fEditable;
   End;
+
+  TWebMemo = Class(TWebComponent)
+  Private
+    fLines    : TStringList;
+    fCurLine  : LongWord;
+    fEditable : Boolean;
+    Function MemoConditionals(Name : String): Boolean;
+    Procedure MemoShow(Caller : TXMLTag);
+    Procedure MemoLine(Caller : TXMLTag);
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+    Property Lines    : TStringList Read fLines Write fLines;
+    Property Editable : Boolean Read fEditable Write fEditable;
+  End;
+
 
 Implementation
 
@@ -108,7 +125,8 @@ End;
 
 Procedure TWebArrayGrid.GridSubmit;
 Begin
-  fMatrix[StrToInt(GetCGIVar('row'))][StrToInt(GetCGIVar('col'))] := GetCGIVar('value');
+  If fEditable Then
+    fMatrix[StrToInt(GetCGIVar('row'))][StrToInt(GetCGIVar('col'))] := GetCGIVar('value');
 End;
 
 Constructor TWebArrayGrid.Create(Name, Tmpl : String; Owner : TWebComponent);
@@ -125,6 +143,36 @@ Begin
   Template.Tag['grideditform'] := Self.GridEditForm;
   RegisterAction(InstanceName + '_submit', Self.GridSubmit);
   Template.Conditional := Self.GridConditionals;
+End;
+
+Function TWebMemo.MemoConditionals(Name : String): Boolean;
+Begin
+  MemoConditionals := False;
+End;
+
+Procedure TWebMemo.MemoShow(Caller : TXMLTag);
+Begin
+  fCurLine := 0;
+  While fCurLine < fLines.Count Do
+    Caller.EmitChilds;
+End;
+
+Procedure TWebMemo.MemoLine(Caller : TXMLTag);
+Begin
+  If Caller.Attributes.IndexOfName('class') <> -1 Then
+    WebWrite('<span class=' + Caller.Attributes.Values['class'] + '>' +
+    fLines[fCurLine] + '</span>')
+  Else
+    WebWrite(fLines[fCurLine]);
+  Inc(fCurLine);
+End;
+
+Constructor TWebMemo.Create(Name, Tmpl : String; Owner : TWebComponent);
+Begin
+  Inherited Create(Name, Tmpl, Owner);
+  Template.Tag['memo'] := Self.MemoShow;
+  Template.Tag['memoline'] := Self.MemoLine;
+  Template.Conditional := Self.MemoConditionals;
 End;
 
 End.
