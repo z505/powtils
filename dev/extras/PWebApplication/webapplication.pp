@@ -16,8 +16,6 @@ Type
 	TWebComponent = Class;
   TWebActionList = Class;
 
-  TWebEvent = Procedure Of Object;
-
   TWebActionHandler = Procedure(Actions : TTokenList; Depth : LongWord) Of Object;
 
 	TWebActionEntry = Record
@@ -43,6 +41,7 @@ Type
 		fOwner        : TWebComponent;
 		fTemplate     : TWebTemplate;
     fActions      : TWebActionList;
+    Procedure MakeActionLink(Caller : TXMLTag);
 	Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
 		Destructor Destroy; Override;
@@ -157,12 +156,21 @@ Begin
 		  End;
 End;
 
+Procedure TWebComponent.MakeActionLink(Caller : TXMLTag);
+Begin
+  WebWrite('<a href="' + SelfReference + '?' +
+  ActionName(UnQuote(Caller.Attributes.Values['action'])) +
+  '">');
+  Caller.EmitChilds;
+  WebWrite('</a>');
+End;
+
 Constructor TWebComponent.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
 	Inherited Create;
 	fOwner        := Owner;
 	fInstanceName := Name;
-  fTemplate     := TWebTemplate.Create(Tmpl + '.tpl');
+  fTemplate     := TWebTemplate.Create(Tmpl + '.template.html');
   fActions      := TWebActionList.Create;
   If Assigned(fOwner) Then
   Begin
@@ -201,7 +209,8 @@ End;
 Procedure WebAppInit(AppName : String);
 Begin
   GlobalActions := TWebActionList.Create;
-  RootTemplate  := TWebTemplate.Create(AppName + '.tpl');
+  RootTemplate  := TWebTemplate.Create(AppName + '.template.html');
+  RootTemplate.Condition['visible'] := True;
   SelfReference := AppName {$IFDEF WINDOWS} + '.exe'{$ENDIF};
 End;
 
