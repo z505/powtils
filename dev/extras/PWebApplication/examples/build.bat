@@ -1,5 +1,5 @@
 @Echo off
-Copy %1 ..
+Copy %1.pp ..
 CD ..
 Copy .\dependency\*.o
 Copy .\dependency\*.ppu
