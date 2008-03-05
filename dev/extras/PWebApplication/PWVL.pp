@@ -13,12 +13,21 @@ Uses
 Type
   TArrayGrid = Array Of Array Of String;
 
+  // This class groups any number of 
+  TWebDialog = Class(TWebComponent)
+  Private
+    Function DialogConditionals(Name : String): Boolean;
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+  End;
+
   TWebArrayGrid = Class(TWebComponent)
   Private
     fMatrix   : TArrayGrid;
     fCurRow,
     fCurCol   : LongInt;
     fEditable : Boolean;
+    fEditMode : Boolean;
     Function GridConditionals(Name : String): Boolean;
     Procedure GridRows(Caller : TXMLTag);
     Procedure GridCols(Caller : TXMLTag);
@@ -29,7 +38,8 @@ Type
     Procedure GridSubmitAsButton(Caller : TXMLTag);
     Procedure GridSubmitAsImage(Caller : TXMLTag);
     Procedure GridEditForm(Caller : TXMLTag);
-    Procedure GridSubmit;
+    Procedure GridSubmit(Actions : TTokenList; Depth : LongWord);
+    Procedure GridEdit(Actions : TTokenList; Depth : LongWord);
   Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
     Property Matrix   : TArrayGrid Read fMatrix Write fMatrix;
@@ -56,7 +66,7 @@ Implementation
 Function TWebArrayGrid.GridConditionals(Name : String): Boolean;
 Begin
   If Name = 'editmode' Then
-    GridConditionals := GetCGIVar('action') = InstanceName + '_edit'
+    GridConditionals := fEditMode
   Else
     GridConditionals := False;
 End;
@@ -84,8 +94,9 @@ End;
 Procedure TWebArrayGrid.GridElement(Caller : TXMLTag);
 Begin
   WebWrite(
-  '<a href="' + SelfReference + '?action=' + InstanceName + '_edit&' +
-  'row=' + IntToStr(fCurRow) + '&col=' + IntToStr(fCurCol) + '">');
+  '<a href="' + SelfReference + '?action=' +
+  ActionName('edit') + 
+  '&row=' + IntToStr(fCurRow) + '&col=' + IntToStr(fCurCol) + '">');
   WebWrite(fMatrix[fCurRow][fCurCol]);
   WebWrite('</a>');
 End;
@@ -102,7 +113,8 @@ End;
 
 Procedure TWebArrayGrid.GridHiddenActionVar(Caller : TXMLTag);
 Begin
-  WebWrite('<input name="action" value="' + InstanceName + '_submit" type="hidden"/>');
+  WebWrite('<input name="action" value="' + ActionName('submit')
+  + '" type="hidden"/>');
 End;
 
 Procedure TWebArrayGrid.GridSubmitAsButton(Caller : TXMLTag);
@@ -123,10 +135,17 @@ Begin
   WebWrite('</form>');
 End;
 
-Procedure TWebArrayGrid.GridSubmit;
+Procedure TWebArrayGrid.GridSubmit(Actions : TTokenList; Depth : LongWord);
 Begin
   If fEditable Then
     fMatrix[StrToInt(GetCGIVar('row'))][StrToInt(GetCGIVar('col'))] := GetCGIVar('value');
+  fEditMode := False;
+End;
+
+Procedure TWebArrayGrid.GridEdit(Actions : TTokenList; Depth : LongWord);
+Begin
+  If fEditable Then
+    fEditMode := True;
 End;
 
 Constructor TWebArrayGrid.Create(Name, Tmpl : String; Owner : TWebComponent);
@@ -141,8 +160,11 @@ Begin
   Template.Tag['gridbutton'] := Self.GridSubmitAsButton;
   Template.Tag['gridimage'] := Self.GridSubmitAsImage;
   Template.Tag['grideditform'] := Self.GridEditForm;
-  RegisterAction(InstanceName + '_submit', Self.GridSubmit);
   Template.Conditional := Self.GridConditionals;
+  Actions['submit'] := Self.GridSubmit;
+  Actions['edit'] := Self.GridEdit;
+  fEditMode := False;
+  fEditable := True;
 End;
 
 Function TWebMemo.MemoConditionals(Name : String): Boolean;

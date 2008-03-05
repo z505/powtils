@@ -5,28 +5,35 @@ Interface
 Uses
   PWMain,
 	WebTemplate,
-	Sysutils;
+  Sysutils,
+  XMLBase;
 
 Type
 	EWebActionList = Class(Exception);
 
-	TWebComponent = Class;
+  TTokenList = Array Of AnsiString;
 
-  TWebActionHandler = Procedure Of Object;
+	TWebComponent = Class;
+  TWebActionList = Class;
+
+  TWebEvent = Procedure Of Object;
+
+  TWebActionHandler = Procedure(Actions : TTokenList; Depth : LongWord) Of Object;
 
 	TWebActionEntry = Record
 		Name    : String;
-		Handler : TWebActionHandler;
+    Handler : TWebActionHandler;
 	End;
 
-	TWebActionList = Class
+  TWebActionList = Class
 	Private
 		fActions : Array Of TWebActionEntry;
 		Function GetAction(Name : String): TWebActionHandler;
 		Procedure SetAction(Name : String; Action : TWebActionHandler);
 	Public
+    ALName : String;
 		Function Find(Name : String): Boolean;
-    Procedure CheckAction(Name : String);
+    Procedure CheckAction(Actions : TTokenList; Depth : LongWord);
 		Property Actions[Name : String]: TWebActionHandler Read GetAction Write SetAction; Default;
 	End;
 
@@ -35,29 +42,53 @@ Type
 		fInstanceName : String;
 		fOwner        : TWebComponent;
 		fTemplate     : TWebTemplate;
-    fOnDestroy    : TWebActionHandler;
+    fActions      : TWebActionList;
 	Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
 		Destructor Destroy; Override;
-    Function UniqueName(SubName : String): String;
+    Function CompleteActionName: String;
+    Function ActionName(Name : String): String;
 		Property InstanceName : String Read fInstanceName Write fInstanceName;
     Property Template     : TWebTemplate Read fTemplate Write fTemplate;
-    Property OnDestroy    : TWebActionHandler Read fOnDestroy Write fOnDestroy;
+    Property Actions      : TWebActionList Read fActions Write fActions;
 	End;
 
 ThreadVar
   SelfReference : String;
   GlobalActions : TWebActionList;
   RootTemplate  : TWebTemplate;
-  OnBeforeRun   : TWebActionHandler;
-  OnAfterRun    : TWebActionHandler;
 
 Procedure WebAppInit(AppName : String);
 Procedure WebAppDone;
-Procedure RegisterAction(Name : String; Handler : TWebActionHandler);
 Procedure Run;
 
 Implementation
+
+Function BreakApart(LineText : AnsiString): TTokenList;
+Var
+    Ctrl1      : Word;
+    Ctrl2      : Word;
+    LineTokens : TTokenList;
+Begin
+    Ctrl1 := 1;
+    Ctrl2 := 0;
+    If LineText <> '' Then
+    Begin
+        SetLength(LineTokens, 1);
+        While Ctrl1 <= Length(LineText) Do
+        Begin
+            If LineText[Ctrl1] = '.' Then
+            Begin
+                SetLength(LineTokens, Length(LineTokens) + 1);
+                Inc(Ctrl1);
+                Inc(Ctrl2);
+            End;
+            LineTokens[Ctrl2] := LineTokens[Ctrl2] + LineText[Ctrl1];
+            Inc(Ctrl1);
+        End;
+    End;
+    BreakApart := LineTokens;
+End;
 
 Function TWebActionList.GetAction(Name : String): TWebActionHandler;
 Var
@@ -113,15 +144,15 @@ Begin
       End;
 End;
 
-Procedure TWebActionList.CheckAction(Name : String);
+Procedure TWebActionList.CheckAction(Actions : TTokenList; Depth : LongWord);
 Var
 	Ctrl : Cardinal;
 Begin
   If Length(fActions) > 0 Then
     For Ctrl := Low(fActions) To High(fActions) Do
-		  If fActions[Ctrl].Name = Name Then
+      If fActions[Ctrl].Name = Actions[Depth] Then
 		  Begin
-        fActions[Ctrl].Handler();
+        fActions[Ctrl].Handler(Actions, Depth + 1);
 			  Exit;
 		  End;
 End;
@@ -132,24 +163,39 @@ Begin
 	fOwner        := Owner;
 	fInstanceName := Name;
   fTemplate     := TWebTemplate.Create(Tmpl + '.tpl');
+  fActions      := TWebActionList.Create;
   If Assigned(fOwner) Then
-    fOwner.Template.AddSubTemplate(fInstanceName, fTemplate)
+  Begin
+    fOwner.Template.AddSubTemplate(fInstanceName, fTemplate);
+    fOwner.Actions[fInstanceName] := Self.Actions.CheckAction;
+  End
   Else
+  Begin
     RootTemplate.AddSubTemplate(fInstanceName, fTemplate);
+    GlobalActions.Actions[fInstanceName] := Self.Actions.CheckAction;
+  End;
 End;
 
 Destructor TWebComponent.Destroy;
 Begin
 	If Assigned(fTemplate) Then
 		fTemplate.Free;
-	If Assigned(fOnDestroy) Then
-    fOnDestroy();
+  If Assigned(fActions) Then
+    fActions.Free;
 	Inherited Destroy;
 End;
 
-Function TWebComponent.UniqueName(SubName : String): String;
+Function TWebComponent.CompleteActionName: String;
 Begin
-  UniqueName := Self.fInstanceName + '_' + SubName;
+  If Assigned(fOwner) Then
+    CompleteActionName := fOwner.CompleteActionName + fInstanceName
+  Else
+    CompleteActionName := fInstanceName;
+End;
+
+Function TWebComponent.ActionName(Name : String): String;
+Begin
+  ActionName := CompleteActionName + '.' + Name;
 End;
 
 Procedure WebAppInit(AppName : String);
@@ -165,23 +211,23 @@ Begin
   RootTemplate.Free;
 End;
 
-Procedure RegisterAction(Name : String; Handler : TWebActionHandler);
-Begin
-  GlobalActions[Name] := Handler;
-End;
-
 Procedure Run;
+Var
+  TheActions : TTokenList;
 Begin
-  If Assigned(OnBeforeRun) Then
-    OnBeforeRun();
   If IsCGIVar('action') Then
-    GlobalActions.CheckAction(GetCGIVar('action'))
+  Begin
+    TheActions := BreakApart(GetCGIVar('action'));
+    GlobalActions.CheckAction(TheActions, 0);
+  End
   Else
-    GlobalActions.CheckAction('default');
+  Begin
+    SetLength(TheActions, 1);
+    TheActions[0] := 'default';
+    GlobalActions.CheckAction(TheActions, 0);
+  End;
   RootTemplate.Load;
   RootTemplate.Emit;
-  If Assigned(OnAfterRun) Then
-    OnAfterRun();
 End;
 
 End.
