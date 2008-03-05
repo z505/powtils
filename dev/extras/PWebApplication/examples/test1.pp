@@ -13,5 +13,6 @@ Begin
   MyDialog := TWebEditDialog.Create('dialog1', 'dialog', Nil);
   MyDialog.Template.Condition['visible'] := True;
   Run;
+  MyDialog.Free;
   WebAppDone;
 End.
