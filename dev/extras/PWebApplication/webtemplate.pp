@@ -14,7 +14,7 @@ Uses
 Type
   EWebTemplate = Class(Exception);
 
-	TWebTemplateConditional = Function(Name : String): Boolean Of Object;
+  TWebEvent = Procedure Of Object;
 
 	TWebTemplateList = Class;
 
@@ -24,10 +24,12 @@ Type
     fNameSpace: TXMLNodeList;
     fRootTag:   TXMLTagCollection;
     fLoaded:    Boolean;
-    fConditional: TWebTemplateConditional;
+    fConditional: TStringList;
     fSubTemplates : TWebTemplateList;
     Procedure ConditionalTag(Caller : TXMLTag);
     Procedure SubTmplCall(Caller : TXMLTag);
+    Function GetCondition(Name : String): Boolean;
+    Procedure SetCondition(Name : String; State : Boolean);
   Public
     Constructor Create(Arq: String);
     Destructor Destroy; Override;
@@ -35,9 +37,10 @@ Type
     Procedure Load;
     Procedure LoadAndEmit;
 		Procedure AddSubTemplate(Name : String; Template : TWebTemplate);
+    Procedure ToggleCondition(Name : String);
     Property NameSpace: TXMLNodeList Read fNameSpace;
     Property Tag: TXMLNodeList Read fNameSpace;
-		Property Conditional : TWebTemplateConditional Read fConditional Write fConditional;
+    Property Condition[Name : String]: Boolean Read GetCondition Write SetCondition;
   End;
 
 	TWebTemplateList = Class
@@ -62,14 +65,36 @@ End;
 
 Procedure TWebTemplate.ConditionalTag(Caller : TXMLTag);
 Begin
-	If Assigned(fConditional) And fConditional(UnQuote(Caller.Attributes.Values['when'])) Then
-		Caller.EmitChilds;
+  If ((Caller.Attributes.IndexOfName('when') > -1) And
+  (fConditional.IndexOf(UnQuote(Caller.Attributes.Values['when'])) > -1)) Or
+  ((Caller.Attributes.IndexOfName('notwhen') > -1) And
+  (fConditional.IndexOf(UnQuote(Caller.Attributes.Values['notwhen'])) = -1)) Then
+    Caller.EmitChilds;
 End;
 
 Procedure TWebTemplate.SubTmplCall(Caller : TXMLTag);
 Begin
   fSubTemplates[UnQuote(Caller.Attributes.Values['name'])].Load;
   fSubTemplates[UnQuote(Caller.Attributes.Values['name'])].Emit;
+End;
+
+Function TWebTemplate.GetCondition(Name : String): Boolean;
+Begin
+  GetCondition := fConditional.IndexOf(Name) > - 1;
+End;
+
+Procedure TWebTemplate.SetCondition(Name : String; State : Boolean);
+Var
+  Idx : LongInt;
+Begin
+  Idx := fConditional.IndexOf(Name);
+  If State Then
+    If Idx = -1 Then
+      fConditional.Add(Name)
+    Else
+  Else
+    If Idx > -1 Then
+      fConditional.Delete(Idx);
 End;
 
 Constructor TWebTemplate.Create(Arq: String);
@@ -81,10 +106,12 @@ Begin
   fNameSpace['if'] := ConditionalTag;
   fNameSpace['subtemplate'] := SubTmplCall;
   fSubTemplates := TWebTemplateList.Create;
+  fConditional := TStringList.Create;
 End;
 
 Destructor TWebTemplate.Destroy;
 Begin
+  fConditional.Free;
   fSubTemplates.Free;
   fNameSpace.Free;
   Inherited Destroy;
@@ -127,6 +154,17 @@ End;
 Procedure TWebTemplate.AddSubTemplate(Name : String; Template : TWebTemplate);
 Begin
 	fSubTemplates[Name] := Template;
+End;
+
+Procedure TWebTemplate.ToggleCondition(Name : String);
+Var
+  Idx : LongInt;
+Begin
+  Idx := fConditional.IndexOf(Name);
+  If Idx = -1 Then
+    fConditional.Add(Name)
+  Else
+    fConditional.Delete(Idx);
 End;
 
 Function TWebTemplateList.GetTemplate(Name : String): TWebTemplate;

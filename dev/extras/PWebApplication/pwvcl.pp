@@ -1,5 +1,5 @@
 // ~NRCOL
-Unit PWVL;
+Unit PWVCL;
 
 Interface
 Uses
@@ -11,17 +11,14 @@ Uses
   Classes;
 
 Type
-  TArrayGrid = Array Of Array Of String;
-
   // This class groups any number of input elements
-  TWebDialog = Class(TWebComponent)
+  TWebEditDialog = Class(TWebComponent)
   Private
     fOnSubmit : TWebEvent;
     fOnCancel : TWebEvent;
-    fVisible  : Boolean;
-    Function DialogConditionals(Name : String): Boolean;
     Procedure DialogSubmitAsButton(Caller : TXMLTag);
     Procedure DialogCancelAsButton(Caller : TXMLTag);
+    Procedure DialogCarryOnVar(Caller : TXMLTag);
     Procedure DialogForm(Caller : TXMLTag);
     Procedure DialogSubmitAct(Actions : TTokenList; Depth : LongWord);
     Procedure DialogCancelAct(Actions : TTokenList; Depth : LongWord);
@@ -29,33 +26,33 @@ Type
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
     Property OnSubmit : TWebEvent Read fOnSubmit Write fOnSubmit;
     Property OnCancel : TWebEvent Read fOnCancel Write fOnCancel;
-    Property Visible  : Boolean Read fVisible Write fVisible;
   End;
 
 Implementation
 
-Function TWebDialog.DialogConditionals(Name : String): Boolean;
-Begin
-  DialogConditionals := False;
-  If Name = 'visible' Then
-    DialogConditionals := fVisible;
-End;
-
-Procedure TWebDialog.DialogSubmitAsButton(Caller : TXMLTag);
+Procedure TWebEditDialog.DialogSubmitAsButton(Caller : TXMLTag);
 Begin
   WebWrite('<button type="submit" name="action" value="' + ActionName('submit') + '">');
   Caller.EmitChilds;
   WebWrite('</button>');
 End;
 
-Procedure TWebDialog.DialogCancelAsButton(Caller : TXMLTag);
+Procedure TWebEditDialog.DialogCancelAsButton(Caller : TXMLTag);
 Begin
   WebWrite('<button type="submit" name="action" value="' + ActionName('cancel') + '">');
   Caller.EmitChilds;
   WebWrite('</button>');
 End;
 
-Procedure TWebDialog.DialogForm(Caller : TXMLTag);
+Procedure TWebEditDialog.DialogCarryOnVar(Caller : TXMLTag);
+Begin
+  WebWrite('<input type="hidden" ' + Caller.Attributes.DelimitedText +
+    ' value="' + GetCGIVar(
+    UnQuote(Caller.Attributes.Values['name'])
+    ) + '"/>');
+End;
+
+Procedure TWebEditDialog.DialogForm(Caller : TXMLTag);
 Var
   ActAttrib : LongInt;
 Begin
@@ -63,33 +60,32 @@ Begin
   If ActAttrib > -1 Then
     Caller.Attributes.Delete(ActAttrib);
   Caller.Attributes.Add('action="' + SelfReference + '"');
-  Caller.StartEmit;
+  WebWrite('<form ' + Caller.Attributes.DelimitedText + '>');
   Caller.EmitChilds;
-  Caller.EndEmit;
+  WebWrite('</form>');
 End;
 
-Procedure TWebDialog.DialogSubmitAct(Actions : TTokenList; Depth : LongWord);
+Procedure TWebEditDialog.DialogSubmitAct(Actions : TTokenList; Depth : LongWord);
 Begin
   If Assigned(fOnSubmit) Then
     fOnSubmit();
 End;
 
-Procedure TWebDialog.DialogCancelAct(Actions : TTokenList; Depth : LongWord);
+Procedure TWebEditDialog.DialogCancelAct(Actions : TTokenList; Depth : LongWord);
 Begin
   If Assigned(fOnCancel) Then
     fOnCancel();
 End;
 
-Constructor TWebDialog.Create(Name, Tmpl : String; Owner : TWebComponent);
+Constructor TWebEditDialog.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Tmpl, Owner);
   Template.Tag['dialog'] := Self.DialogForm;
   Template.Tag['submit'] := Self.DialogSubmitAsButton;
   Template.Tag['cancel'] := Self.DialogCancelAsButton;
-  Template.Conditional   := Self.DialogConditionals;
+  Template.Tag['carry']  := Self.DialogCarryOnVar;
   Actions['submit']      := Self.DialogSubmitAct;
   Actions['cancel']      := Self.DialogCancelAct;
-  fVisible               := False;
 End;
 
 End.
