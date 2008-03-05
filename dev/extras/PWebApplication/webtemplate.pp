@@ -41,6 +41,7 @@ Type
     Property NameSpace: TXMLNodeList Read fNameSpace;
     Property Tag: TXMLNodeList Read fNameSpace;
     Property Condition[Name : String]: Boolean Read GetCondition Write SetCondition;
+    Property SubTemplates: TWebTemplateList Read fSubTemplates;
   End;
 
 	TWebTemplateList = Class
@@ -48,10 +49,14 @@ Type
 		fTemplates : TStringList;
 		Function GetTemplate(Name : String): TWebTemplate;
 		Procedure SetTemplate(Name : String; Template : TWebTemplate);
+    Function GetTemplateByNumber(Idx: Longint): TWebTemplate;
+    Function GetCount: Longint;
 	Public
 		Constructor Create;
 		Destructor Destroy; Override;
 		Property Templates[Name : String]: TWebTemplate Read GetTemplate Write SetTemplate; Default;
+    Property TemplateByNumber[Idx : LongInt]: TWebTemplate Read GetTemplateByNumber;
+    Property Count: LongInt Read GetCount;
 	End;
 
 Function UnQuote(Line : String): String;
@@ -173,7 +178,7 @@ Var
 Begin
 	Ctrl := fTemplates.IndexOf(Name);
 	If Ctrl >= 0 Then
-		GetTemplate := TWebTemplate(fTemplates.Objects[Ctrl])
+    GetTemplate := (fTemplates.Objects[Ctrl] As TWebTemplate)
 	Else
 	Begin
 		GetTemplate := Nil;
@@ -188,7 +193,17 @@ Begin
 	Ctrl := fTemplates.IndexOf(Name);
 	If Ctrl < 0 Then
 		Ctrl := fTemplates.Add(Name);
-	fTemplates.Objects[Ctrl] := TObject(Template);
+  fTemplates.Objects[Ctrl] := (Template As TObject);
+End;
+
+Function TWebTemplateList.GetTemplateByNumber(Idx: Longint): TWebTemplate;
+Begin
+  GetTemplateByNumber := (fTemplates.Objects[Idx] As TWebTemplate);
+End;
+
+Function TWebTemplateList.GetCount: Longint;
+Begin
+  GetCount := fTemplates.Count;
 End;
 
 Constructor TWebTemplateList.Create;
@@ -196,7 +211,6 @@ Begin
 	Inherited Create;
 	fTemplates            := TStringList.Create;
 	fTemplates.Duplicates := dupIgnore;
-	fTemplates.Sorted     := True;
 End;
 
 Destructor TWebTemplateList.Destroy;

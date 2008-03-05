@@ -28,6 +28,29 @@ Type
     Property OnCancel : TWebEvent Read fOnCancel Write fOnCancel;
   End;
 
+  // This component is able to iterate thru its subcomponents showing the
+  // ones wich have the condition 'visible' set
+  TWebComponentList = Class(TWebComponent)
+  Private
+    fCurComponent : LongInt;
+    Procedure ComponentList(Caller : TXMLTag);
+    Procedure ComponentCurrent(Caller : TXMLTag);
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+  End;
+
+  // This class shows the contents of a TStringList
+  TWebMemoShow = Class(TWebComponent)
+  Private
+    fMemoSource : TStringList;
+    fCurLine : LongInt;
+    Procedure MemoShow(Caller : TXMLTag);
+    Procedure MemoLine(Caller : TXMLTag);
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+    Property Memo : TStringList Read fMemoSource Write fMemoSource;
+  End;
+
 Implementation
 
 Procedure TWebEditDialog.DialogSubmitAsButton(Caller : TXMLTag);
@@ -86,6 +109,50 @@ Begin
   Template.Tag['carry']  := Self.DialogCarryOnVar;
   Actions['submit']      := Self.DialogSubmitAct;
   Actions['cancel']      := Self.DialogCancelAct;
+End;
+
+Procedure TWebComponentList.ComponentList(Caller : TXMLTag);
+Begin
+  fCurComponent := 0;
+  While fCurComponent < Template.SubTemplates.Count Do
+    Caller.EmitChilds;
+End;
+
+Procedure TWebComponentList.ComponentCurrent(Caller : TXMLTag);
+Begin
+  If fCurComponent < Template.SubTemplates.Count Then
+    If Template.SubTemplates.TemplateByNumber[fCurComponent].Condition['visible'] Then
+       Template.SubTemplates.TemplateByNumber[fCurComponent].LoadAndEmit;
+  Inc(fCurComponent);
+End;
+
+Constructor TWebComponentList.Create(Name, Tmpl : String; Owner : TWebComponent);
+Begin
+  Inherited Create(Name, Tmpl, Owner);
+  Template.Tag['componentlist'] := Self.ComponentList;
+  Template.Tag['componentcurrent'] := Self.ComponentCurrent;
+  fCurComponent := 0;
+End;
+
+Procedure TWebMemoShow.MemoShow(Caller : TXMLTag);
+Begin
+  fCurLine := 0;
+  While fCurLine <= fMemoSource.Count Do
+    Caller.EmitChilds;
+End;
+
+Procedure TWebMemoShow.MemoLine(Caller : TXMLTag);
+Begin
+  If fCurLine <= fMemoSource.Count Then
+    WebWrite(fMemoSource[fCurLine]);
+  Inc(fCurLine);
+End;
+
+Constructor TWebMemoShow.Create(Name, Tmpl : String; Owner : TWebComponent);
+Begin
+  Inherited Create(Name, Tmpl, Owner);
+  Template.Tag['memo'] := Self.MemoShow;
+  Template.Tag['line'] := Self.MemoLine;
 End;
 
 End.

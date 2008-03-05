@@ -171,6 +171,7 @@ Begin
 	fOwner        := Owner;
 	fInstanceName := Name;
   fTemplate     := TWebTemplate.Create(Tmpl + '.template.html');
+  fTemplate.Tag['actionlink'] := Self.MakeActionLink;
   fActions      := TWebActionList.Create;
   If Assigned(fOwner) Then
   Begin
@@ -196,7 +197,7 @@ End;
 Function TWebComponent.CompleteActionName: String;
 Begin
   If Assigned(fOwner) Then
-    CompleteActionName := fOwner.CompleteActionName + fInstanceName
+    CompleteActionName := fOwner.CompleteActionName + '.' + fInstanceName
   Else
     CompleteActionName := fInstanceName;
 End;
