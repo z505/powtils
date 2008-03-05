@@ -10,8 +10,8 @@ Var
 
 Begin
   WebAppInit('test1');
-  MyDialog := TWebEditDialog('dialog1', 'dialog', Nil);
-  MyDialog.Visible := True;
+  MyDialog := TWebEditDialog.Create('dialog1', 'dialog', Nil);
+  MyDialog.Template.Condition['visible'] := True;
   Run;
   WebAppDone;
 End.
