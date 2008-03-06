@@ -55,7 +55,7 @@ Type
   // to select wich one of the unique child components will be shown
   TWebPageFlipper = Class(TWebComponentList)
   Private
-    fChilds : TStringList;
+    fChilds   : TStringList;
     fSelected : LongInt;
     fCurLabel : LongInt;
     fGarbage  : Boolean;
@@ -72,7 +72,26 @@ Type
     Procedure FreeChilds;
     Property Selected : LongInt Read fSelected Write SetSelected;
     Property GarbageCollect : Boolean Read fGarbage Write fGarbage;
-    Property OnSelect : Boolean Read fOnSelect Write fOnSelect;
+    Property OnSelect : TWebEvent Read fOnSelect Write fOnSelect;
+  End;
+
+  TWebPageDrawer = Class(TWebComponentList)
+  Private
+    fChilds   : TStringList;
+    fCurLabel : LongInt;
+    fGarbage  : Boolean;
+    fOnChange : TWebEvent;
+    Procedure DrawerCurLabelCaption(Caller : TXMLTag);
+    Procedure DrawerCurLabel(Caller : TXMLTag);
+    Procedure DrawerLabels(Caller : TXMLTag);
+    Procedure DrawerToggleChild(Actions : TTokenList; Depth : LongWord);
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+    Destructor Destroy; Override;
+    Procedure AddChild(Caption : String; Child : TWebComponent);
+    Procedure FreeChilds;
+    Property GarbageCollect : Boolean Read fGarbage Write fGarbage;
+    Property OnChange : TWebEvent Read fOnChange Write fOnChange;
   End;
 
 Implementation
@@ -144,7 +163,7 @@ End;
 
 Procedure TWebComponentList.ComponentCurrent(Caller : TXMLTag);
 Begin
-  If fCurComponent < Template.SubTemplates.Count Then
+  If fCurComponent <= Template.SubTemplates.Count Then
     If Template.SubTemplates.TemplateByNumber[fCurComponent].Condition['visible'] Then
        Template.SubTemplates.TemplateByNumber[fCurComponent].LoadAndEmit;
   Inc(fCurComponent);
@@ -262,6 +281,78 @@ Begin
 End;
 
 Procedure TWebPageFlipper.FreeChilds;
+Var
+  Ctrl : LongInt;
+Begin
+  For Ctrl := 0 To fChilds.Count - 1 Do
+    (fChilds.Objects[Ctrl] As TWebComponent).Free;
+End;
+
+Procedure TWebPageDrawer.DrawerCurLabelCaption(Caller : TXMLTag);
+Begin
+  If fCurLabel < fChilds.Count Then
+    WebWrite(fChilds[fCurLabel]);
+End;
+
+Procedure TWebPageDrawer.DrawerCurLabel(Caller : TXMLTag);
+Begin
+  If (fCurLabel > -1) And (fCurLabel < fChilds.Count) Then
+  Begin
+    Template.Condition['selected'] := False;
+    WebWrite('<a href="' + SelfReference + '?action=' +
+    ActionName('toggle.' + IntToStr(fCurLabel)) +
+    '">');
+    Caller.EmitChilds;
+    WebWrite('</a>');
+  End;
+  Inc(fCurLabel);
+End;
+
+Procedure TWebPageDrawer.DrawerLabels(Caller : TXMLTag);
+Begin
+  fCurLabel := 0;
+  While fCurLabel < fChilds.Count Do
+    Caller.EmitChilds;
+End;
+
+Procedure TWebPageDrawer.DrawerToggleChild(Actions : TTokenList; Depth : LongWord);
+Var
+  Idx : LongInt;
+Begin
+  Idx := StrToInt(Actions[Depth]);
+  If (Idx > -1) And (Idx < fChilds.Count) Then
+    (fChilds.Objects[Idx] As TWebComponent).Template.Condition['visible'] := Not(
+     (fChilds.Objects[Idx] As TWebComponent).Template.Condition['visible']);
+  If Assigned(fOnChange) Then
+    fOnChange();
+End;
+
+Constructor TWebPageDrawer.Create(Name, Tmpl : String; Owner : TWebComponent);
+Begin
+  Inherited Create(Name, Tmpl, Owner);
+  fChilds := TStringList.Create;
+  Template.Tag['curlabel'] := Self.DrawerCurLabel;
+  Template.Tag['curlabelcaption'] := Self.DrawerCurLabelCaption;
+  Template.Tag['labels'] := Self.DrawerLabels;
+  Actions['toggle'] := Self.DrawerToggleChild;
+  fCurLabel := -1;
+  fGarbage  := False;
+End;
+
+Destructor TWebPageDrawer.Destroy;
+Begin
+  If fGarbage Then
+    FreeChilds;
+  fChilds.Free;
+  Inherited Destroy;
+End;
+
+Procedure TWebPageDrawer.AddChild(Caption : String; Child : TWebComponent);
+Begin
+  fChilds.Objects[fChilds.Add(Caption)] := (Child As TObject);
+End;
+
+Procedure TWebPageDrawer.FreeChilds;
 Var
   Ctrl : LongInt;
 Begin
