@@ -51,12 +51,15 @@ Type
     Property Memo : TStringList Read fMemoSource Write fMemoSource;
   End;
 
+  // This component is a TWebComponentList that allows the user
+  // to select wich one of the unique child components will be shown
   TWebPageFlipper = Class(TWebComponentList)
   Private
     fChilds : TStringList;
     fSelected : LongInt;
     fCurLabel : LongInt;
-    fGarbage : Boolean;
+    fGarbage  : Boolean;
+    fOnSelect : TWebEvent;
     Procedure FlipperCurLabelCaption(Caller : TXMLTag);
     Procedure FlipperCurLabel(Caller : TXMLTag);
     Procedure FlipperLabels(Caller : TXMLTag);
@@ -69,6 +72,7 @@ Type
     Procedure FreeChilds;
     Property Selected : LongInt Read fSelected Write SetSelected;
     Property GarbageCollect : Boolean Read fGarbage Write fGarbage;
+    Property OnSelect : Boolean Read fOnSelect Write fOnSelect;
   End;
 
 Implementation
@@ -216,6 +220,8 @@ Var
 Begin
   Idx := StrToInt(Actions[Depth]);
   SetSelected(Idx);
+  If Assigned(fOnSelect) Then
+    fOnSelect();
 End;
 
 Procedure TWebPageFlipper.SetSelected(S : LongInt);
@@ -239,6 +245,7 @@ Begin
   Actions['select'] := Self.FlipperSelectChild;
   fCurLabel := -1;
   fSelected := -1;
+  fGarbage  := False;
 End;
 
 Destructor TWebPageFlipper.Destroy;
