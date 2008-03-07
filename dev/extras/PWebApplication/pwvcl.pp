@@ -159,7 +159,7 @@ Begin
       SetVar('self', SelfReference);
       SetVar('component', CompleteName);
       SetVar('caption', Caption);
-      Template.LoadAndEmit;
+      ComponentByIndex[fCurComponent].Template.LoadAndEmit;
       If Assigned(fOnShowComponent) Then
         fOnShowComponent();
       SetVar('self', SelfReference);
@@ -197,7 +197,6 @@ Procedure TWebPageDrawer.DrawerClick(Actions : TTokenList; Depth : LongWord);
 Var
   Clicked : LongInt;
 Begin
-  WebWrite(Actions[Depth]);
   Clicked := StrToInt(Actions[Depth]);
   If (Clicked > -1) And (Clicked < Count) Then
     ComponentByIndex[Clicked].Condition['visible'] := Not(
@@ -231,7 +230,6 @@ Var
   Clicked : LongInt;
 Begin
   Clicked := StrToInt(Actions[Depth]);
-  WebWrite(Actions[Depth]);
   If (Clicked > -1) And (Clicked < Count) Then
   Begin
     If (fSelected > -1) And (fSelected < Count) Then

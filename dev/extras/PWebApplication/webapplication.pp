@@ -12,8 +12,9 @@ Unit WebApplication;
 Interface
 Uses
   Classes,
-  PWMain,
   PWSDSSess,
+  PWInitAll,
+  PWMain,
 	WebTemplate,
   WebAction,
   Sysutils,
