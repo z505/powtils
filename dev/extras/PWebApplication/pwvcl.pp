@@ -1,0 +1,235 @@
+// ~NRCOL
+
+{****************************************************
+ See Licence.txt for details
+ Copyright(C) 2007 2008 - Jorge Aldo G. de F. Junior
+ Colaborators:
+ <put your name here if you improve this software>
+*****************************************************}
+
+Unit PWVCL;
+
+Interface
+Uses
+  WebApplication,
+  WebTemplate,
+  WebAction,
+  XMLBase,
+  PWMain,
+  Sysutils,
+  Classes;
+
+Type
+  // This class shows the contents of a TStringList
+  TWebMemoShow = Class(TWebComponent)
+  Private
+    fMemoSource : TStringList;
+    fCurLine : LongInt;
+    fOnShowLine : TWebEvent;
+  Protected
+    Procedure MemoShow(Caller : TXMLTag);
+    Procedure MemoLine(Caller : TXMLTag);
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+  Published
+    Property Memo : TStringList Read fMemoSource Write fMemoSource;
+    Property OnShowLine : TWebEvent Read fOnShowLine Write fOnShowLine;
+  End;
+
+  // This component is able to iterate thru its subcomponents showing the
+  // ones wich have the condition 'visible' set
+  TWebComponentList = Class(TWebComponent)
+  Private
+    fCurComponent : LongInt;
+    fCurCaption : LongInt;
+    fOnShowComponent : TWebEvent;
+  Protected
+    Procedure ComponentCaptionList(Caller : TXMLTag);
+    Procedure ComponentCaptionCurrent(Caller : TXMLTag);
+    Procedure ComponentList(Caller : TXMLTag);
+    Procedure ComponentCurrent(Caller : TXMLTag);
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+  Published
+    Property OnShowComponent : TWebEvent Read fOnShowComponent Write fOnShowComponent;
+    Property CurComponent : LongInt Read fCurComponent;
+    Property CurCaption : LongInt Read fCurCaption;
+  End;
+
+  // This component inherits TWebComponentList to allow the user
+  // to change the visible state of each subcomponent
+  TWebPageDrawer = Class(TWebComponentList)
+  Private
+    fOnChange : TWebEvent;
+  Protected
+    Procedure Drawer(Caller : TXMLTag);
+    Procedure DrawerClick(Actions : TTokenList; Depth : LongWord);
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+    Property OnChange : TWebEvent Read fOnChange Write fOnChange;
+  End;
+
+  // This component inherits TWebComponentList to allows the user
+  // to select only one of the child components that be shown
+  TWebPageFliper = Class(TWebComponentList)
+  Private
+    fSelected : LongInt;
+    fOnSelect : TWebEvent;
+  Protected
+    Procedure Fliper(Caller : TXMLTag);
+    Procedure FliperSelect(Actions : TTokenList; Depth : LongWord);
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+  Published
+    Property OnSelect : TWebEvent Read fOnSelect Write fOnSelect;
+    Property Selected : LongInt Read fSelected;
+  End;
+
+Implementation
+
+Procedure TWebMemoShow.MemoShow(Caller : TXMLTag);
+Begin
+  fCurLine := 0;
+  While fCurLine <= fMemoSource.Count Do
+    Caller.EmitChilds;
+End;
+
+Procedure TWebMemoShow.MemoLine(Caller : TXMLTag);
+Begin
+  If Assigned(fOnShowLine) Then
+    fOnShowLine();
+  If fCurLine <= fMemoSource.Count Then
+    WebWrite(fMemoSource[fCurLine]);
+  Inc(fCurLine);
+End;
+
+Constructor TWebMemoShow.Create(Name, Tmpl : String; Owner : TWebComponent);
+Begin
+  Inherited Create(Name, Tmpl, Owner);
+  Template.Tag['memo'] := Self.MemoShow;
+  Template.Tag['line'] := Self.MemoLine;
+End;
+
+// TWebComponentList
+
+Procedure TWebComponentList.ComponentCaptionList(Caller : TXMLTag);
+Begin
+  fCurCaption := 0;
+  While fCurCaption < Count Do
+    Caller.EmitChilds;
+End;
+
+Procedure TWebComponentList.ComponentCaptionCurrent(Caller : TXMLTag);
+Begin
+  If fCurCaption < Count Then
+    WebWrite(ComponentByIndex[fCurCaption].Caption);
+  Inc(fCurCaption);
+End;
+
+Procedure TWebComponentList.ComponentList(Caller : TXMLTag);
+Begin
+  fCurComponent := 0;
+  While fCurComponent < Count Do
+    Caller.EmitChilds;
+End;
+
+Procedure TWebComponentList.ComponentCurrent(Caller : TXMLTag);
+Begin
+  If fCurComponent < Count Then
+    With ComponentByIndex[fCurComponent] Do
+      If Condition['visible'] Then
+      Begin
+        SetVar('self', SelfReference);
+        SetVar('component', CompleteName);
+        SetVar('caption', Caption);
+        Template.LoadAndEmit;
+        If Assigned(fOnShowComponent) Then
+          fOnShowComponent();
+        SetVar('self', SelfReference);
+        SetVar('component', CompleteName);
+        SetVar('caption', Caption);
+      End;
+  Inc(fCurComponent);
+End;
+
+Constructor TWebComponentList.Create(Name, Tmpl : String; Owner : TWebComponent);
+Begin
+  Inherited Create(Name, Tmpl, Owner);
+  Template.Tag['components.list'] := Self.ComponentList;
+  Template.Tag['components.current'] := Self.ComponentCurrent;
+  Template.Tag['components.captionlist'] := Self.ComponentCaptionList;
+  Template.Tag['components.caption'] := Self.ComponentCaptionCurrent;
+  fCurComponent := 0;
+  fCurCaption := 0;
+End;
+
+// TWebPageDrawer
+
+Procedure TWebPageDrawer.Drawer(Caller : TXMLTag);
+Begin
+  If (CurComponent > -1) And (CurComponent < Count) Then
+  Begin
+    SetVar('component', CompleteName);
+    OutF('<a href="{$self}?action={$component}.toggle.' + IntToStr(CurComponent) + '">');
+    Caller.EmitChilds;
+    WebWrite('</a>');
+  End;
+End;
+
+Procedure TWebPageDrawer.DrawerClick(Actions : TTokenList; Depth : LongWord);
+Var
+  Clicked : LongInt;
+Begin
+  WebWrite(Actions[Depth]);
+  Clicked := StrToInt(Actions[Depth]);
+  If (Clicked > -1) And (Clicked < Count) Then
+    ComponentByIndex[Clicked].Condition['visible'] := Not(
+      ComponentByIndex[Clicked].Condition['visible']);
+  If Assigned(fOnChange) Then
+    fOnChange();
+End;
+
+Constructor TWebPageDrawer.Create(Name, Tmpl : String; Owner : TWebComponent);
+Begin
+  Inherited Create(Name, Tmpl, Owner);
+  Template.Tag['drawer'] := Self.Drawer;
+  Actions['toggle'] := Self.DrawerClick;
+End;
+
+// TWebPageFliper
+
+Procedure TWebPageFliper.Fliper(Caller : TXMLTag);
+Begin
+  If (CurComponent > -1) And (CurComponent < Count) Then
+  Begin
+    SetVar('component', CompleteName);
+    OutF('<a href="{$self}?action={$component}.select.' + IntToStr(CurComponent) + '">');
+    Caller.EmitChilds;
+    WebWrite('</a>');
+  End;
+End;
+
+Procedure TWebPageFliper.FliperSelect(Actions : TTokenList; Depth : LongWord);
+Var
+  Clicked : LongInt;
+Begin
+  Clicked := StrToInt(Actions[Depth]);
+  WebWrite(Actions[Depth]);
+  If (Clicked > -1) And (Clicked < Count) Then
+  Begin
+    If (fSelected > -1) And (fSelected < Count) Then
+      ComponentByIndex[fSelected].Condition['visible'] := False;
+    ComponentByIndex[Clicked].Condition['visible'] := True;
+  End;
+  If Assigned(fOnSelect) Then
+    fOnSelect();
+End;
+
+Constructor TWebPageFliper.Create(Name, Tmpl : String; Owner : TWebComponent);
+Begin
+  Inherited Create(Name, Tmpl, Owner);
+  Template.Tag['fliper'] := Self.Fliper;
+  Actions['select'] := Self.FliperSelect;
+End;
+
+End.
