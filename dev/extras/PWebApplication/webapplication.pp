@@ -13,6 +13,7 @@ Interface
 Uses
   Classes,
   PWMain,
+  PWSDSSess,
 	WebTemplate,
   WebAction,
   Sysutils,
@@ -32,6 +33,7 @@ Type
     fActions       : TWebActionList;
     fSubComponents : TStringList;
     fConditional   : TStringList;
+    fSession       : Boolean;
     Function GetComponent(Name : String): TWebComponent;
     Function GetComponentByIndex(Idx : LongInt): TWebComponent;
     Function GetCount : LongInt;
@@ -47,6 +49,11 @@ Type
     Function CompleteName: String;
     Function ActionName(Name : String): String;
     Procedure AddSubComponent(Component : TWebComponent);
+    Procedure SaveVarToSession(Name, Value: String);
+    Function LoadVarFromSession(Name: String): String;
+    Procedure SaveConditionToSession;
+    Procedure LoadConditionFromSession;
+    Procedure CascadeSaveCondition;
   Published
 		Property InstanceName : String Read fInstanceName Write fInstanceName;
     Property Caption : String Read fCaption Write fCaption;
@@ -56,6 +63,7 @@ Type
     Property ComponentByIndex[Idx : LongInt]: TWebComponent Read GetComponentByIndex;
     Property Count : LongInt Read GetCount;
     Property Condition[Name : String]: Boolean Read GetCondition Write SetCondition;
+    Property Session : Boolean Read fSession Write fSession;
 	End;
 
 ThreadVar
@@ -160,6 +168,7 @@ Begin
   fTemplate.Tag['inputcarry'] := Self.CarryOnVar;
   If Assigned(Owner) Then
     fOwner.Actions[fInstanceName] := Self.fActions.CheckAction;
+  LoadConditionFromSession;
 End;
 
 Destructor TWebComponent.Destroy;
@@ -212,6 +221,36 @@ Begin
   fActions[Component.InstanceName] := Component.Actions.CheckAction;
 End;
 
+Procedure TWebComponent.SaveVarToSession(Name, Value: String);
+Begin
+  SetSess(CompleteName + '.' + Name, Value);
+End;
+
+Function TWebComponent.LoadVarFromSession(Name: String): String;
+Begin
+  LoadVarFromSession := GetSess(CompleteName + '.' + Name);
+End;
+
+Procedure TWebComponent.SaveConditionToSession;
+Begin
+  SetSess(CompleteName + '.conditional', fConditional.CommaText);
+End;
+
+Procedure TWebComponent.LoadConditionFromSession;
+Begin
+  fConditional.CommaText := GetSess(CompleteName + '.conditional');
+End;
+
+Procedure TWebComponent.CascadeSaveCondition;
+Var
+  Ctrl : LongInt;
+Begin
+  If Count > 0 Then
+    For Ctrl := 0 To Count - 1 Do
+      GetComponentByIndex(Ctrl).CascadeSaveCondition;
+  SaveConditionToSession;
+End;
+
 Function UnQuote(Line : String): String;
 Begin
   UnQuote := Copy(Line, 2, Length(Line) - 2);
@@ -232,6 +271,7 @@ Begin
     TheActions[0] := 'default';
     Root.Actions.CheckAction(TheActions, 0);
   End;
+  Root.CascadeSaveCondition;
   Root.Template.Load;
   Root.Template.Emit;
 End;
