@@ -7,6 +7,9 @@
  <put your name here if you improve this software>
 *****************************************************}
 
+{$M+}
+{$H+}
+{$MODE DELPHI}
 Unit WebApplication;
 
 Interface
@@ -18,7 +21,8 @@ Uses
 	WebTemplate,
   WebAction,
   Sysutils,
-  XMLBase;
+  XMLBase,
+  Typinfo;
 
 Type
 	TWebComponent = Class;
@@ -34,7 +38,6 @@ Type
     fActions       : TWebActionList;
     fSubComponents : TStringList;
     fConditional   : TStringList;
-    fSession       : Boolean;
     Function GetComponent(Name : String): TWebComponent;
     Function GetComponentByIndex(Idx : LongInt): TWebComponent;
     Function GetCount : LongInt;
@@ -55,16 +58,17 @@ Type
     Procedure SaveConditionToSession;
     Procedure LoadConditionFromSession;
     Procedure CascadeSaveCondition;
-  Published
-		Property InstanceName : String Read fInstanceName Write fInstanceName;
-    Property Caption : String Read fCaption Write fCaption;
     Property Template : TWebTemplate Read fTemplate Write fTemplate;
     Property Actions : TWebActionList Read fActions Write fActions;
     Property Components[Name : String]: TWebComponent Read GetComponent;
     Property ComponentByIndex[Idx : LongInt]: TWebComponent Read GetComponentByIndex;
     Property Count : LongInt Read GetCount;
     Property Condition[Name : String]: Boolean Read GetCondition Write SetCondition;
-    Property Session : Boolean Read fSession Write fSession;
+  Published
+		Property InstanceName : String Read fInstanceName Write fInstanceName;
+    Property Caption : String Read fCaption Write fCaption;
+
+
 	End;
 
 ThreadVar
@@ -161,7 +165,6 @@ Begin
   fSubComponents := TStringList.Create;
   fConditional   := TStringList.Create;
   fSubComponents.Duplicates := dupIgnore;
-  fSubComponents.Sorted := True;
   fConditional.Duplicates := dupIgnore;
   fConditional.Sorted := True;
   fTemplate.Tag['if'] := Self.ConditionalTag;
@@ -245,11 +248,13 @@ End;
 Procedure TWebComponent.CascadeSaveCondition;
 Var
   Ctrl : LongInt;
+  WhoIAm : PTypeInfo;
 Begin
   If Count > 0 Then
     For Ctrl := 0 To Count - 1 Do
       GetComponentByIndex(Ctrl).CascadeSaveCondition;
   SaveConditionToSession;
+  WhoIAm := Self.ClassInfo;
 End;
 
 Function UnQuote(Line : String): String;
