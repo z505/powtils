@@ -219,9 +219,18 @@ Begin
   If (CurComponent > -1) And (CurComponent < Count) Then
   Begin
     SetVar('component', CompleteName);
-    OutF('<a href="{$self}?action={$component}.select.' + IntToStr(CurComponent) + '">');
-    Caller.EmitChilds;
-    WebWrite('</a>');
+    If fSelected <> fCurComponent Then
+    Begin
+      ComponentByIndex[fCurComponent].Condition['visible'] := False;
+      OutF('<a href="{$self}?action={$component}.select.' + IntToStr(CurComponent) + '">');
+      Caller.EmitChilds;
+      WebWrite('</a>');
+    End
+    Else
+    Begin
+      ComponentByIndex[CurComponent].Condition['visible'] := True;
+      Caller.EmitChilds;
+    End;
   End;
 End;
 
