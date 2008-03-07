@@ -69,7 +69,7 @@ Type
     Property OnChange : TWebEvent Read fOnChange Write fOnChange;
   End;
 
-  // This component inherits TWebComponentList to allows the user
+  // This component inherits TWebComponentList to allow the user
   // to select only one of the child components that be shown
   TWebPageFliper = Class(TWebComponentList)
   Private
@@ -82,6 +82,24 @@ Type
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
   Published
     Property OnSelect : TWebEvent Read fOnSelect Write fOnSelect;
+    Property Selected : LongInt Read fSelected;
+  End;
+
+  // This component inherits TWebComponentList to allow the user
+  // to scroll back and forth between child components
+  TWebPageScroller = Class(TWebComponentList)
+  Private
+    fSelected   : LongInt;
+    fOnNext,
+    fOnPrevious : TWebEvent;
+  Protected
+    Procedure ScrollerNext(Actions : TTokenList; Depth : LongWord);
+    Procedure ScrollerPrevious(Actions : TTokenList; Depth : LongWord);
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+  Published
+    Property OnNext : TWebEvent Read fOnNext Write fOnNext;
+    Property OnPrevious : TWebEvent Read fOnPrevious Write fOnPrevious;
     Property Selected : LongInt Read fSelected;
   End;
 
@@ -136,19 +154,18 @@ End;
 Procedure TWebComponentList.ComponentCurrent(Caller : TXMLTag);
 Begin
   If fCurComponent < Count Then
-    With ComponentByIndex[fCurComponent] Do
-      If Condition['visible'] Then
-      Begin
-        SetVar('self', SelfReference);
-        SetVar('component', CompleteName);
-        SetVar('caption', Caption);
-        Template.LoadAndEmit;
-        If Assigned(fOnShowComponent) Then
-          fOnShowComponent();
-        SetVar('self', SelfReference);
-        SetVar('component', CompleteName);
-        SetVar('caption', Caption);
-      End;
+    If ComponentByIndex[fCurComponent].Condition['visible'] Then
+    Begin
+      SetVar('self', SelfReference);
+      SetVar('component', CompleteName);
+      SetVar('caption', Caption);
+      Template.LoadAndEmit;
+      If Assigned(fOnShowComponent) Then
+        fOnShowComponent();
+      SetVar('self', SelfReference);
+      SetVar('component', CompleteName);
+      SetVar('caption', Caption);
+    End;
   Inc(fCurComponent);
 End;
 
@@ -230,6 +247,39 @@ Begin
   Inherited Create(Name, Tmpl, Owner);
   Template.Tag['fliper'] := Self.Fliper;
   Actions['select'] := Self.FliperSelect;
+End;
+
+// TWebPageScroller
+
+Procedure TWebPageScroller.ScrollerNext(Actions : TTokenList; Depth : LongWord);
+Begin
+  If (fSelected > -1) And (fSelected < Count) Then
+    ComponentByIndex[fSelected].Condition['visible'] := False;
+  Inc(fSelected);
+  If (fSelected < 0) Then
+    fSelected := 0;
+  If (fSelected >= Count) Then
+    fSelected := Count - 1;
+  ComponentByIndex[fSelected].Condition['visible'] := True;
+End;
+
+Procedure TWebPageScroller.ScrollerPrevious(Actions : TTokenList; Depth : LongWord);
+Begin
+  If (fSelected > -1) And (fSelected < Count) Then
+    ComponentByIndex[fSelected].Condition['visible'] := False;
+  Dec(fSelected);
+  If (fSelected < 0) Then
+    fSelected := 0;
+  If (fSelected >= Count) Then
+    fSelected := Count - 1;
+  ComponentByIndex[fSelected].Condition['visible'] := True;
+End;
+
+Constructor TWebPageScroller.Create(Name, Tmpl : String; Owner : TWebComponent);
+Begin
+  Inherited Create(Name, Tmpl, Owner);
+  Actions['next'] := Self.ScrollerNext;
+  Actions['previous'] := Self.ScrollerPrevious;
 End;
 
 End.

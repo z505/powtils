@@ -127,7 +127,6 @@ Procedure TWebActionList.CheckAction(Actions : TTokenList; Depth : LongWord);
 Var
 	Ctrl : Cardinal;
 Begin
-  WebWrite(Actions[Depth]);
   If Length(fActions) > 0 Then
     For Ctrl := Low(fActions) To High(fActions) Do
       If fActions[Ctrl].Name = Actions[Depth] Then
