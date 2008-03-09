@@ -60,7 +60,7 @@
 
 }
 
-unit HTMw;
+unit pwhtmw;
 
 
 {$H+}
@@ -69,11 +69,7 @@ interface
 
 uses
  {$IFDEF FPC}CompactSysUtils{$ELSE}Sysutils{$ENDIF},
- {$IFNDEF DYNWEB}
-  pwmain
- {$ELSE}
-  dynpwu
- {$ENDIF};
+  pwmain;
 
 const
   //  For Form Tag Output
