@@ -688,7 +688,7 @@ implementation
 { Output body structure (obsolete) }
 procedure OldBodyOut(input: THtmBodyOld);
 begin
-  webwrite(
+  out(
     '<body' +
        'bgcolor="'+ input.bgcolor+'";' +  // background color
        'text="'+ input.text+'";' +        // text color
@@ -702,7 +702,7 @@ end;
 { Output body structure via CSS}
 procedure BodyOut(input: THtmBody);
 begin
-  webwrite(
+  out(
     '<body style="'+
        'background:'+input.bgcolor+';' +  // background color
        'color:'+input.font.color+';' +    // font color
@@ -744,12 +744,12 @@ end;
 { start form }
 procedure FormBegin(input: THtmForm); overload;
 begin
-  webwrite(
+  out(
   '<FORM ' +
      'ACTION="'+ input.action + '" ' +
      'METHOD="'+ HTM_FORM_METHOD[input.method] + '" ' +
      'ENCTYPE="'+ HTM_FORM_ENCODING[input.EncodeType] + '" ');
-  webwrite('>');
+  out('>');
 end;
 
 
@@ -758,20 +758,20 @@ end;
 { Output button }
 procedure ButtonOut(input: THtmButtonCustom); overload;
 begin
-  webwrite(
+  out(
   '<INPUT STYLE="' +
      'background-color:'+ input.bgcolor + ';' +
      '" ' +
      'NAME="'+ input.name + '" ' +
      'TYPE="button" ' +
      'VALUE="'+input.caption+'" ' );
-  webwrite('>');
+  out('>');
 end;
 
 { Output button }
 procedure ButtonOut(input: THtmButtonCustom2); overload;
 begin
-  webwrite(
+  out(
   '<INPUT STYLE="position: absolute;' +
      'left:'+ inttostr(input.Left)+'%;' +
      'top:'+ inttostr(input.top) +'%;' +
@@ -781,38 +781,38 @@ begin
      'NAME="'+ input.name + '" ' +
      'TYPE="button" ' +
      'VALUE="'+input.caption+'" ' );
-  webwrite('>');
+  out('>');
 end;
 
 
 { Output standard button }
 procedure ButtonOut(input: THtmButton); overload;
 begin
-  webwrite(
+  out(
   '<INPUT ' +
      'NAME="'+ input.name + '" ' +
      'TYPE="button" ' +
      'VALUE="'+input.caption+'" ' );
-  webwrite(
+  out(
    '>');
 end;
 
 { Output standard submit button }
 procedure ButtonOut(input: THtmSubmitButton); overload;
 begin
-  webwrite(
+  out(
   '<INPUT ' +
      'NAME="'+ input.name + '" ' +
      'TYPE="submit" ' +
      'VALUE="'+input.caption+'" ' );
-  webwrite(
+  out(
    '>');
 end;
 
 { Output custom submit button }
 procedure ButtonOut(input: THtmSubmitButtonCustom); overload;
 begin
-  webwrite(
+  out(
   '<INPUT STYLE="' +
      'background-color:'+ input.bgcolor + ';' +
      'color:'+ input.textcolor + ';' +
@@ -820,14 +820,14 @@ begin
      'NAME="'+ input.name + '" ' +
      'TYPE="submit" ' +
      'VALUE="'+input.caption+'" ' );
-  webwrite(
+  out(
    '>');
 end;
 
 { Output custom submit button }
 procedure ButtonOut(input: THtmSubmitButtonCustom2); overload;
 begin
-  webwrite(
+  out(
   '<INPUT STYLE="position: absolute;' +
      'left:'+ inttostr(input.Left)+'%;' +
      'top:'+ inttostr(input.top) +'%;' +
@@ -838,7 +838,7 @@ begin
      'NAME="'+ input.name + '" ' +
      'TYPE="submit" ' +
      'VALUE="'+input.caption+'" ' );
-  webwrite(
+  out(
    '>');
 end;
 
@@ -846,7 +846,7 @@ end;
 { Output edit box }
 procedure EditOut(input: THtmEditCustom); overload;
 begin
-  webwrite(
+  out(
   '<INPUT STYLE="' +
      'background-color:'+ input.bgcolor + ';' +
      '" ' +
@@ -855,15 +855,15 @@ begin
      'SIZE="'+inttostr(input.size)+'" ' +
      'VALUE="'+input.text+'" ' +
      'MAXLENGTH="'+inttostr(input.maxlength)+'" ');
-  if input.readonly then webwrite('READONLY ');
-  webwrite(
+  if input.readonly then out('READONLY ');
+  out(
    '>');
 end;
 
 { Output edit box }
 procedure EditOut(input: THtmEditCustom2); overload;
 begin
-  webwrite(
+  out(
   '<INPUT STYLE="position: absolute;' +
      'left:'+ inttostr(input.Left)+'%;' +
      'top:'+ inttostr(input.top) +'%;' +
@@ -875,8 +875,8 @@ begin
      'SIZE="'+inttostr(input.size)+'" ' +
      'VALUE="'+input.text+'" ' +
      'MAXLENGTH="'+inttostr(input.maxlength)+'" ');
-  if input.readonly then webwrite('READONLY ');
-  webwrite(
+  if input.readonly then out('READONLY ');
+  out(
    '>');
 end;
 
@@ -884,28 +884,28 @@ end;
 { Output edit box }
 procedure EditOut(input: THtmEdit); overload;
 begin
-  webwrite(
+  out(
   '<INPUT ' +
      'NAME="'+ input.name + '" ' +
      'TYPE="text" ' +
      'SIZE="'+inttostr(input.size)+'" ' +
      'VALUE="'+input.text+'" ' +
      'MAXLENGTH="'+inttostr(input.maxlength)+'" ');
-  if input.readonly then webwrite('READONLY ');
-  webwrite(
+  if input.readonly then out('READONLY ');
+  out(
    '>');
 end;
 
 { Output a box/panel via varying percentage widths }
 procedure MemoOut(input: THtmMemo); overload;
 begin
-  webwrite(
+  out(
   '<TEXTAREA ' +
      'NAME="'+ input.name + '" ' +
      'ROWS="'+ inttostr(Input.rows) + '" ' +
      'COLS="'+ inttostr(Input.cols) + '" ');
-  if input.readonly then webwrite('READONLY ');
-  webwrite(
+  if input.readonly then out('READONLY ');
+  out(
    '>' + input.text +
   '</TEXTAREA>');
 end;
@@ -913,7 +913,7 @@ end;
 { Output a box/panel }
 procedure MemoOut(input: THtmMemoCustom); overload;
 begin
-  webwrite(
+  out(
   '<TEXTAREA STYLE="' +
      'background-color:'+ input.bgcolor + ';' +
      'color:'+ input.textcolor + ';' +
@@ -921,8 +921,8 @@ begin
      'NAME="'+ input.name + '" ' +
      'ROWS="'+ inttostr(Input.rows) + '" ' +
      'COLS="'+ inttostr(Input.cols) + '" ' );
-  if input.readonly then webwrite('READONLY ');
-  webwrite(
+  if input.readonly then out('READONLY ');
+  out(
    '>' + input.text +
   '</TEXTAREA>');
 end;
@@ -930,7 +930,7 @@ end;
 { Output a box/panel via varying percentage widths }
 procedure MemoOut(input: THtmMemoCustom2); overload;
 begin
-  webwrite(
+  out(
   '<TEXTAREA STYLE="position:absolute;' +
      'left:'+ inttostr(input.Left)+'%;' +
      'top:'+ inttostr(input.top) +'%;' +
@@ -940,8 +940,8 @@ begin
      'NAME="'+ input.name + '" ' +
      'ROWS="'+ inttostr(Input.rows) + '" ' +
      'COLS="'+ inttostr(Input.cols) + '" ' );
-  if input.readonly then webwrite('READONLY ');
-  webwrite(
+  if input.readonly then out('READONLY ');
+  out(
    '>' + input.text +
   '</TEXTAREA>');
 end;
@@ -983,12 +983,12 @@ var
  CurProperty : PStyleProperty;
 begin
   If Self.Properties = NIL then Exit;
-  WebWrite(#13#10);
-  WebWrite(Self.ElementName+ ' {');
+  out(#13#10);
+  out(Self.ElementName+ ' {');
   CurProperty := Self.Properties;
   while CurProperty <> NIL do
   begin
-      WebWrite(CurProperty^.Prop_Name + ': ' + CurProperty^.Prop_Val + ';');
+      out(CurProperty^.Prop_Name + ': ' + CurProperty^.Prop_Val + ';');
       CurProperty := CurProperty^.NextProperty;
   end;
   Write('}');
@@ -1090,9 +1090,9 @@ end;
 
 procedure CSS_ExternalOut(URL, Name : AnsiString);
 begin
-  WebWrite('<LINK rel="stylesheet" type="text/css" ');
-  If Name <> '' then WebWrite('name="' + Name + '" ');
-  WebWrite('href="' + URL + '">');
+  out('<LINK rel="stylesheet" type="text/css" ');
+  If Name <> '' then out('name="' + Name + '" ');
+  out('href="' + URL + '">');
 end;
 
 procedure CSS_ExternalOut(URL : AnsiString);
@@ -1107,15 +1107,15 @@ var
    If Self.IsExternal THEN
       CSS_ExternalOut(Self.URL,'');
    If Self.FirstTag = NIL then Exit;
-   WebWrite('<STYLE TYPE="text/css">' +#13 + #10);
+   out('<STYLE TYPE="text/css">' +#13 + #10);
    CurElement := Self.FirstTag;
    While CurElement <> NIL do
     begin
       CurElement^.Write_Out;
       CurElement := CurElement^.NextElement;
     end;
-    WebWrite(#13 + #10);
-    WebWrite('</STYLE>');
+    out(#13 + #10);
+    out('</STYLE>');
  end;
 
 procedure Img(Src,Width,Height,Extra : string);
@@ -1130,7 +1130,7 @@ begin
    If Extra <> '' THEN
       tmp := tmp + #32 + Extra;
    tmp := tmp + '>';
-   WebWrite(tmp);
+   out(tmp);
 end;
 
 procedure ImgOut(Src, Width, Height, Extra: string); overload;
@@ -1152,66 +1152,66 @@ end;
 procedure TableBegin(Extra : string); overload;
 begin
   If Extra <> '' then Extra := #32 + Extra;
-  WebWrite('<TABLE' + Extra + '>');
+  out('<TABLE' + Extra + '>');
 end;
 
 procedure TableBegin; overload;
 begin
-  WebWrite('<TABLE>');
+  out('<TABLE>');
 end;
 
 procedure RowBegin(Extra : string);
 begin
   If Extra <> '' then Extra := #32 + Extra;
-  WebWrite('<TR' + Extra + '>');
+  out('<TR' + Extra + '>');
 end;
 
 procedure RowBegin;
 begin
- WebWrite('<TR>');
+ out('<TR>');
 end;
 
 procedure RowEnd;
 begin
-  WebWrite('</TR>');
+  out('</TR>');
 end;
 
 procedure CellBegin(Extra : string);
 begin
   If Extra <> '' then Extra := #32 + Extra;
-  WebWrite('<TD' + Extra + '>');
+  out('<TD' + Extra + '>');
 end;
 
 procedure CellBegin;
 begin
-  WebWrite('<TD>');
+  out('<TD>');
 end;
 
 procedure CellEnd;
 begin
- WebWrite('</TD>');
+ out('</TD>');
 end;
 
 procedure CellHBegin(Extra : string);
 begin
  If Extra <> '' then Extra := #32 + Extra;
- WebWrite('<TH'+ Extra + '>');
+ out('<TH'+ Extra + '>');
 end;
 
 procedure CellHBegin;
 begin
-  WebWrite('<TH>');
+  out('<TH>');
 end;
 
 procedure CellHEnd;
 begin
- WebWrite('</TH>');
+ out('</TH>');
 end;
 
 procedure CellOut(Contents, Extra: string);
 begin
  If Extra <> '' then Extra := #32 + Extra;
- WebWrite('<TD' + Extra + '>' + Contents + '</TD>');
+ out('<TD' + Extra + '>' + Contents + '</TD>');
 end;
 
 procedure CellOut(Contents: string);
@@ -1222,7 +1222,7 @@ end;
 procedure CellHOut(Contents, Extra: string);
 begin
  If Extra <> '' then Extra := #32 + Extra;
- WebWrite('<TH' + Extra + '>' + Contents + '</TH>');
+ out('<TH' + Extra + '>' + Contents + '</TH>');
 end;
 
 procedure CellHOut(Contents: string);
@@ -1232,39 +1232,39 @@ end;
 
 procedure TableEnd;
 begin
- WebWrite('</TABLE>');
+ out('</TABLE>');
 end;
 
 procedure Span_Begin(Extra: string);
 begin
    If Extra <> '' THEN Extra := #32 + Extra;
-   WebWrite('<SPAN' + Extra + '>');
+   out('<SPAN' + Extra + '>');
 end;
 
 procedure Span_Begin;
 begin
-  WebWrite('<SPAN>');
+  out('<SPAN>');
 end;
 
 procedure Span_End;
 begin
-   WebWrite('</SPAN>');
+   out('</SPAN>');
 end;
 
 procedure DIV_Begin(Extra: string);
 begin
    If Extra <> '' THEN Extra := #32 + Extra;
-   WebWrite('<DIV' + Extra + '>');
+   out('<DIV' + Extra + '>');
 end;
 
 procedure DIV_Begin;
 begin
-  WebWrite('<DIV>');
+  out('<DIV>');
 end;
 
 procedure DIV_End;
 begin
-   WebWrite('</DIV>');
+   out('</DIV>');
 end;
 
 procedure FormOut(FormName, Action: string;  Method: Integer);
@@ -1297,7 +1297,7 @@ begin
    If encoding <> '' THEN 
       thtml := thtml + ' enctype=' + encoding;
 
-   WebWrite(thtml + '>');
+   out(thtml + '>');
 
    Finalize(THtml);
    Finalize(tmp);
@@ -1317,7 +1317,7 @@ begin
     { null }
   else
      THtml := THtml + ' ' + Extra;
-  WebWrite(THtml + '>');
+  out(THtml + '>');
   Finalize(THtml);
 end;
 
@@ -1417,7 +1417,7 @@ end;
 procedure Form_SelectOut(Name, Extra: string);
 begin
   If Extra <> '' then Extra := #32 + Extra;
-    Webwrite('<SELECT NAME="' + Name + '"' +  Extra + '>');
+    out('<SELECT NAME="' + Name + '"' +  Extra + '>');
 end;
 
 procedure Form_SelectOut(Name: string);
@@ -1427,7 +1427,7 @@ end;
 
 procedure EndSelectOut;
 begin
-  WebWrite('</SELECT>');
+  out('</SELECT>');
 end;
 
 procedure EndSelect;
@@ -1442,7 +1442,7 @@ end;
 
 procedure EndFormOut;
 begin
-  WebWrite('</FORM>');
+  out('</FORM>');
 end;
 
 procedure FormEnd;
@@ -1452,40 +1452,40 @@ end;
  
 procedure RuleOut;
 begin
-  webwrite('<HR>');
+  out('<HR>');
 end;
 
 procedure RuleOut(Extra: string);
 begin
   if Extra <> '' then Extra := #32 + Extra;
-    WebWrite('<HR' + Extra + '>');
+    out('<HR' + Extra + '>');
 end;
 
 procedure nbsp;
 begin
-  WebWrite('&nbsp;');
+  out('&nbsp;');
 end;
 
 procedure br;
 begin
-  WebWrite('<BR>');
+  out('<BR>');
 end;
 
 // html line break
 procedure HLineBreak;
 begin
-  WebWrite('<BR />');
+  out('<BR />');
 end;
 // html paragraph break
 procedure HParaBreak;
 begin
-  WebWrite('<P />');
+  out('<P />');
 end;
 
 
 procedure NOBR;
 begin
-  WebWrite('<NOBR>');
+  out('<NOBR>');
 end;
 
 procedure NOBR_Start;
@@ -1495,7 +1495,7 @@ end;
 
 procedure RBON;
 begin
-  WebWrite('</NOBR>');
+  out('</NOBR>');
 end;
 
 procedure NOBR_End;
@@ -1505,7 +1505,7 @@ end;
 
 procedure Pre;
 begin
-  WebWrite('<PRE>');
+  out('<PRE>');
 end;
 
 procedure Pre_Start;
@@ -1515,7 +1515,7 @@ end;
 
 procedure erp;
 begin
-  WebWrite('</pre>');
+  out('</pre>');
 end;
 
 procedure Pre_End;
@@ -1525,13 +1525,13 @@ end;
 
 procedure BoxEnd;
 begin
-  webwrite('</div>');
+  out('</div>');
 end;
 
 { Output a box/panel with no specific positioning }
 procedure BoxBegin(input: THtmBox); overload;
 begin
-  webwrite(
+  out(
   '<div style="' +
      'text-align:'+CSS_HALIGN[input.halign]+';' +    // horizontal content align
      'vertical-align:'+CSS_VALIGN[input.valign]+';' +    // vertical content align
@@ -1555,7 +1555,7 @@ end;
 { Output a box/panel via fixed pixel widths }
 procedure BoxBegin(input: THtmPixelBox); overload;
 begin
-  webwrite(
+  out(
   '<div style="position:absolute;' +
      'color:'+input.font.color+';' +    // font color
      'font-size:'+input.font.size+';' +
@@ -1580,7 +1580,7 @@ end;
 { Output a box/panel via varying percentage widths }
 procedure BoxBegin(input: THtmPercentBox); overload;
 begin
-  webwrite(
+  out(
   '<div style="position: absolute;' +
     'color:'+input.font.color+';' +    // font color
     'font-size:'+input.font.size+';' +
@@ -1619,7 +1619,7 @@ begin
     ThrowWebError('<script>alert("Warning: CustomBox.width should be EVEN number if centered")</script>');
   end;
 
-  webwrite('<div style="position:' + CSSPos[input.position] + ';' +
+  out('<div style="position:' + CSSPos[input.position] + ';' +
               'color:'+input.font.color+';' +    // font color
               'font-size:'+input.font.size+';' +
               'font-family:'+input.font.family+';' +
@@ -1627,38 +1627,38 @@ begin
               'top:' + inttostr(input.top) +';');
              
   if input.heightunit = cuPixels then         // measured in pixels
-    webwrite( 'height:' + inttostr(input.height) + 'px;')
+    out( 'height:' + inttostr(input.height) + 'px;')
   else if input.heightunit = cuPercent then  // measured in percent
-    webwrite( 'height:' + inttostr(input.height) + '%;');
+    out( 'height:' + inttostr(input.height) + '%;');
 
   if input.widthunit = cuPixels then          // measured in pixels
-    webwrite( 'width:' + inttostr(input.width) + 'px;')
+    out( 'width:' + inttostr(input.width) + 'px;')
   else if input.widthunit = cuPercent then   // measured in percent
-    webwrite( 'width:' + inttostr(input.width) + '%;');
+    out( 'width:' + inttostr(input.width) + '%;');
 
   if input.PageAlign = chaCenter then
   begin
     if input.widthunit = cuPixels then
-      webwrite('margin-left:auto; margin-right: auto;')
+      out('margin-left:auto; margin-right: auto;')
     else if input.widthunit = cuPercent then
     begin
       MarginCalc:= round( (100{%} - input.width{%}) / 2); // get leftover percentage
-      webwrite('margin-left:' + inttostr(MarginCalc) + '%;margin-right:' + inttostr(MarginCalc) +'%;')
+      out('margin-left:' + inttostr(MarginCalc) + '%;margin-right:' + inttostr(MarginCalc) +'%;')
     end;
   end;
   
   if input.PageAlign = chaLeft then
   begin
     if input.widthunit = cuPixels then
-      webwrite('margin-left:0px;margin-right:auto;')
+      out('margin-left:0px;margin-right:auto;')
     else if input.widthunit = cuPercent then
     begin
       MarginCalc:= round( (100{%} - input.width{%}) / 2); // get leftover percentage
-      webwrite('margin-left:' + inttostr(MarginCalc) + '%;margin-right:' + inttostr(MarginCalc) +'%;')
+      out('margin-left:' + inttostr(MarginCalc) + '%;margin-right:' + inttostr(MarginCalc) +'%;')
     end;
   end;
 
-  webwrite('padding:' + inttostr(input.pad) + 'px;' +
+  out('padding:' + inttostr(input.pad) + 'px;' +
            'background-color:' + input.bgcolor + ';' +
            'z-index:' + inttostr(input.zindex) + ';' +
            '">' +
@@ -1678,70 +1678,70 @@ end;
   and just not use this one. This is a simple one }
 procedure HtmBegin;
 begin
-  webwrite('<html>');
-  webwrite('<body>');
+  out('<html>');
+  out('<body>');
 end;
 
 { Additional HTML BEGIN with ability to specify title }
 procedure HtmBegin(title: string); overload;
 begin
-  webwrite('<html>');
-  webwrite('<head>');
-  webwrite('<title>' + title + '</title>');
-  webwrite('</head>');
-  webwrite('<body>');
+  out('<html>');
+  out('<head>');
+  out('<title>' + title + '</title>');
+  out('</head>');
+  out('<body>');
 end;
 
 { Additional HTML BEGIN with ability to specify title and stylesheet }
 procedure HtmBegin(title: string; stylesheet: string); overload;
 begin
-  webwrite('<html>');
-  webwrite('<head>');
-  webwrite('<title>' + title + '</title>');
-  webwrite('<link href="' + stylesheet + '" type="text/css" />');
-  webwrite('</head>');
-  webwrite('<body>');
+  out('<html>');
+  out('<head>');
+  out('<title>' + title + '</title>');
+  out('<link href="' + stylesheet + '" type="text/css" />');
+  out('</head>');
+  out('<body>');
 end;
 
 { Additional HTML BEGIN with ability to specify title and body }
 procedure HtmBegin(title: string; body: THtmBodyOld); overload;
 begin
-  webwrite('<html>');
-  webwrite('<head>');
-  webwrite('<title>' + title + '</title>');
-  webwrite('</head>');
+  out('<html>');
+  out('<head>');
+  out('<title>' + title + '</title>');
+  out('</head>');
   OldBodyOut(body); //output body
 end;
 
 { Same as above but with CSS body }
 procedure HtmBegin(title: string; body: THtmBody); overload;
 begin
-  webwrite('<html>');
-  webwrite('<head>');
-  webwrite('<title>' + title + '</title>');
-  webwrite('</head>');
+  out('<html>');
+  out('<head>');
+  out('<title>' + title + '</title>');
+  out('</head>');
   BodyOut(body); //output body
 end;
 
 { Additional HTML BEGIN with ability to specify title, body, and stylesheet }
 procedure HtmBegin(title: string; body: THtmBodyOld; stylesheet: string); overload;
 begin
-  webwrite('<html>');
-  webwrite('<head>');
-  webwrite('<title>' + title + '</title>');
-  webwrite('<LINK rel="stylesheet" href="' + stylesheet + '" type="text/css" />');
-  webwrite('</head>');
+  out('<html>');
+  out('<head>');
+  out('<title>' + title + '</title>');
+  out('<LINK rel="stylesheet" href="' + stylesheet + '" type="text/css" />');
+  out('</head>');
   OldBodyOut(body); //output body
 end;
 
 { Same as above but with CSS body }
 procedure HtmBegin(title: string; body: THtmBody; stylesheet: string); overload;
 begin
-  webwrite('<html>');
-  webwrite('<head>');
-  webwrite('<title>' + title + '</title>');
-  webwrite('<LINK rel="stylesheet" href="' + stylesheet + '" type="text/css" />');
-  webwrite('</head>');
+  out('<html>');
+  out('<head>');
+  out('<title>' + title + '</title>');
+  out('<LINK rel="stylesheet" href="' + stylesheet + '" type="text/css" />');
+  out('</head>');
   BodyOut(body); //output body
 end;
 
@@ -1749,12 +1749,12 @@ end;
   to Stylesheet Object.}
 procedure HtmBegin(title: string; stylesheet: PStyleSheet); overload;
 begin
-  webwrite('<html>');
-  webwrite('<head>');
-  webwrite('<title>' + title +  '</title>');
+  out('<html>');
+  out('<head>');
+  out('<title>' + title +  '</title>');
   StyleSheet^.Write_Out;
-  webwrite('</head>');
-  webwrite('<body>');
+  out('</head>');
+  out('<body>');
 end;
 
 { htmEND (HTML END) will be the standard name the user uses in his program
@@ -1763,8 +1763,8 @@ end;
   and just not use this one. This is a simple one. }
 procedure HtmEnd;
 begin
-  webwriteln('</body>');
-  webwriteln('</html>');
+  outln('</body>');
+  outln('</html>');
 end;
 
 
@@ -1777,7 +1777,7 @@ end;
 { output bold text }
 procedure BoldOut(input: string);
 begin
-  webwrite('<b>' + input + '</b>');
+  out('<b>' + input + '</b>');
 end;
 
 { make italic text }
@@ -1789,7 +1789,7 @@ end;
 { output italic text }
 procedure ItalicOut(input: string);
 begin
-  webwrite('<i>' + input + '</i>');
+  out('<i>' + input + '</i>');
 end;
 
 { make strong text }
@@ -1801,7 +1801,7 @@ end;
 { output strong text }
 procedure StrongOut(input: string);
 begin
-  webwriteln('<strong>' + input + '</strong>');
+  outln('<strong>' + input + '</strong>');
 end;
 
 { make block quotation }
@@ -1813,7 +1813,7 @@ end;
 { output block quotation }
 procedure BlockQtOut(input: string);
 begin
-  webwriteln('<blockquote>' + input + '</blockquote>');
+  outln('<blockquote>' + input + '</blockquote>');
 end;
 
 { make text highlighted with any color}
@@ -1825,7 +1825,7 @@ end;
 { highlighted text output }
 procedure HighlightOut(input: string; HTMLColor: string);
 begin
-  webwriteln('<span style="background-color:' + HTMLColor +  '">' + input + '</span>');
+  outln('<span style="background-color:' + HTMLColor +  '">' + input + '</span>');
 end;
 
 { make preformatted }
@@ -1836,7 +1836,7 @@ end;
 
 procedure PreformatOut(input: string);
 begin
-  webwriteln('<pre>' +  input + '</pre>');
+  outln('<pre>' +  input + '</pre>');
 end;
 
 
