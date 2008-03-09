@@ -253,8 +253,11 @@ const // obsolete backwards compatibility
   GetCgiVar_SafeHTML: function(const name: astr): astr= {$ifdef FPC}@{$endif}getpostvar_safehtml;
   FetchCgiVarName: function(idx: longword): astr= {$ifdef FPC}@{$endif}fetchpostvarname;
   FetchCgiVarVal: function(idx: longword): astr= {$ifdef FPC}@{$endif}fetchpostvarval;
+  FetchCgiVarValue: function(idx: longword): astr= {$ifdef FPC}@{$endif}fetchpostvarval;
+
   FetchCgiVarName_S: function(idx: longword; Security: integer): astr= {$ifdef FPC}@{$endif}fetchpostvarname_s;
   FetchCgiVarVal_S: function(idx: longword; Security: integer): astr= {$ifdef FPC}@{$endif}fetchpostvarval_s;
+  FetchCgiVarValue_S: function(idx: longword; Security: integer): astr= {$ifdef FPC}@{$endif}fetchpostvarval_s;
   
   ThrowWebError: procedure(const s: astr)                                       = {$IFDEF FPC}@{$ENDIF}ThrowErr;
   WebFileOut: function(const fname: astr): errcode                              = {$IFDEF FPC}@{$ENDIF}fileout;
@@ -505,6 +508,47 @@ begin
 end;
 
 
+{ abstract private }
+function GetTwebvarAsFloat(const w: TWebVars; const name: astr): double;
+var i: longword;
+begin
+  result:= 0.0;
+  if length(w) = 0 then exit;
+  for i:= 0 to length(w) - 1 do if w[i].name = name then
+  begin
+    val(w[i].value, result);
+    break;
+  end;
+end;
+
+{ abstract private }
+function GetTWebvarAsInt(const w: TWebVars; const name: astr): longint;
+var i: longword;
+begin
+  result:= 0;
+  if length(w) = 0 then exit;
+  for i:= 0 to length(w) - 1 do if w[i].name = name then
+  begin
+    val(w[i].value, result);
+    break;
+  end;
+end;
+
+{ private, does not check for headers }
+procedure OutLnNoHeaders(const s: astr);
+begin
+ {$IFDEF GZIP_ON}
+  if output_buffering then
+  begin
+    // Append str to buffer
+    OutBuff^.AppendStr(S);
+    OutBuff^.AppendLineFeed;
+  end else
+ {$ENDIF}
+    NativeWriteLn(s);
+end;
+
+
 { append single new value to WebVariables array i.e. hdr[], sess[],  cook[] }
 procedure AddWebVar(var webv: TWebVars; const name, value: astr);
 var oldlen: integer;
@@ -555,7 +599,8 @@ var i, len: longword;
 begin
   result:= false;
   len:= length(webv);
-  if len > 0 then for i:= 0 to len - 1 do begin
+  if len > 0 then for i:= 0 to len - 1 do 
+  begin
     if upcased then // case Insensitive NAME
     begin
       if Ucase(webv[i].name) = Ucase(name) then begin 
@@ -686,8 +731,7 @@ procedure InitCook;
   var hcook: astr;
   begin
     hcook:= '';
-    if IsEnvVar('HTTP_COOKIE') then
-    begin
+    if IsEnvVar('HTTP_COOKIE') then begin
       hcook:= GetEnvVar('HTTP_COOKIE');
       PutCookieVars(hcook);
     end;
@@ -766,15 +810,13 @@ var
     inc(i);
   end;
 
-begin
-  {$IFDEF DBUG_ON}debugln('AppendCgiVars begin');{$ENDIF}
+begin {$IFDEF DBUG_ON}debugln('AppendCgiVars begin');{$ENDIF}
   // Init
   result:= false;
   i:= 1;
   cnt:= length(cgi);
   len:= length(data);
-  if len = 0 then 
-  begin
+  if len = 0 then begin 
     {$IFDEF DBUG_ON}debugln('AppendCgiVars Exit 1');{$ENDIF}
     exit;
   end;
@@ -819,15 +861,13 @@ begin {$IFDEF DBUG_ON} debugln('MP_FormSplit begin');{$ENDIF}
   begin
     len:= length(data^);
     ptr:= substrpos(data^, separator);
-    if ptr <> 0 then
-    begin
+    if ptr <> 0 then begin
       // Not last item
       SetLength(form^, length(form^) + 1);
       form^[length(form^) - 1]:= copy(data^, 1, ptr - 2);
       // Cut this item and next boundary
       delete(data^, 1, ptr + len2 - 1);
-    end else
-    begin
+    end else begin
       // Last item
       SetLength(form^, length(form^) + 1);
       form^[length(form^) - 1]:= copy(data^, 1, len-1);
@@ -843,9 +883,8 @@ function MP_GetLine(data: PString; var ptr: longint): astr;
 var s: astr;
 begin {$IFDEF DBUG_ON} debugln('MP_GetLine begin');{$ENDIF}
   result:= '';
-  if data = nil then 
-  begin
-    {$IFDEF DBUG_ON} debugln('MP_GetLine exit, data nil');{$ENDIF}
+  if data = nil then begin
+    {$IFDEF DBUG_ON}debugln('MP_GetLine exit, data nil');{$ENDIF}
     exit;
   end;
 
@@ -998,9 +1037,10 @@ begin
     ctype:= GetEnvVar('CONTENT_TYPE');
     if substrpos(Lcase(ctype), 'application/x-www-form-urlencoded') > 0 then
       AppendCGIVars(data)
-    else
+    else begin
       if substrpos(Lcase(ctype), 'multipart/form-data') > 0 then
         MP_PutCGIVars(@data, ctype);
+    end;
   end;
 
   if method = 'GET' then PutQueryString;
@@ -1105,12 +1145,12 @@ function IsCfgVar(const name: astr): bln;
 var i: longword;
 begin
   result:= false;
-  if length(conf) > 0 then 
-    for i:= 0 to length(conf) - 1 do if conf[i].name = name then
-    begin
+  if length(conf) > 0 then begin
+    for i:= 0 to length(conf) - 1 do if conf[i].name = name then begin
       result:= true;
       break;
     end;
+  end;
 end;
 
 
@@ -1183,7 +1223,7 @@ label error1, error2, error3, error4, error5, error6;
         output_compression:= false;
       end;
     end;
-   {$ENDIF GZIP_ON}
+   {$ENDIF} 
     ckSessionPath, ckSessionLifetime:
     begin
       if not(iCustomSessUnitSet) then goto error6;
@@ -1224,20 +1264,17 @@ begin
   result:= length(cgi);
 end;
 
-
 { Returns number of cookie variables }
 function CountCookies: longword;
 begin
   result:= length(cook);
 end;
 
-
 { Returns number of set headers }
 function CountHeaders: longword;
 begin
   result:= length(hdr);
 end;
-
 
 { Returns number of Run-Time Information variables }
 function CountRTIVars: longword;
@@ -1250,7 +1287,6 @@ function CountUpFiles: longword;
 begin
   result:= length(UpFiles);
 end;
-
 
 { Returns number of all web (macro) variables }
 function CountVars: longword;
@@ -1338,7 +1374,6 @@ begin
   result:= FetchPostVarVal2(idx, filter);
 end;
 
-
 { Indexed access to Twebvars name, security specifiable }
 function FetchTWebVarName_S(const w: TWebVars; idx: longword; security: integer): astr;
 begin
@@ -1365,7 +1400,6 @@ begin
     result:= '';
 end;
 
-
 { Indexed access to cgi variable name, security specifiable }
 function FetchPostVarName_S(idx: longword; security: integer): astr;
 begin
@@ -1377,7 +1411,6 @@ function FetchPostVarVal_S(idx: longword; security: integer): astr;
 begin
   result:= FetchTWebVarVal_S(cgi, idx, security);
 end;
-
 
 { Indexed access to cookie variable }
 function FetchCookieName(idx: longword): astr;
@@ -1407,7 +1440,6 @@ begin
   // want trimmed
   result:= FetchTWebvarName_S(hdr, idx, SECURE_OFF);
 end;
-
 
 { Indexed access to header }
 function FetchHeaderVal(idx: longword): astr;
@@ -1590,8 +1622,7 @@ begin
 end;
 
 
-function Fmt_SF(const s: astr; HTMLFilter: bln; 
-                FilterSecurity, TrimSecurity: integer): astr;
+function Fmt_SF(const s: astr; HTMLFilter: bln; FilterSecurity, TrimSecurity: integer): astr;
 begin
   result:= Fmt_SF(s, HTMLFilter, nil, FilterSecurity, TrimSecurity);
 end;
@@ -1707,36 +1738,11 @@ begin
   end;
 end;
 
-function GetTwebvarAsFloat(const w: TWebVars; const name: astr): double;
-var i: longword;
-begin
-  result:= 0.0;
-  if length(w) = 0 then exit;
-  for i:= 0 to length(w) - 1 do if w[i].name = name then
-  begin
-    val(w[i].value, result);
-    break;
-  end;
-end;
-
 
 { Returns value of CGI (GET/POST) variable as double precision float }
 function GetPostVarAsFloat(const name: astr): double;
 begin
   result:= GetTwebvarAsFloat(cgi, name);
-end;
-
-
-function GetTWebvarAsInt(const w: TWebVars; const name: astr): longint;
-var i: longword;
-begin
-  result:= 0;
-  if length(w) = 0 then exit;
-  for i:= 0 to length(w) - 1 do if w[i].name = name then
-  begin
-    val(w[i].value, result);
-    break;
-  end;
 end;
 
 { Returns value of CGI (GET/POST) variable as integer }
@@ -2238,19 +2244,6 @@ begin
     result:= true;
 end;
 
-{ private, does not check for headers }
-procedure SimpleOutLn(const s: astr);
-begin
- {$IFDEF GZIP_ON}
-  if output_buffering then
-  begin
-    // Append str to buffer
-    OutBuff^.AppendStr(S);
-    OutBuff^.AppendLineFeed;
-  end else
- {$ENDIF}
-    NativeWriteLn(s);
-end;
 
 { Plain file output - returns FILE_READ_ERR if problem, OK otherwise  }
 function FileOut(const fname: astr): errcode;
@@ -2272,7 +2265,7 @@ begin
   while not eof(fh) do
   begin
     readln(fh, s);
-    SimpleOutLn(s);
+    OutLnNoHeaders(s);
   end;
   close(fh);
   result:= OK;
@@ -2282,8 +2275,7 @@ end;
 procedure WriteBuff(p: Pointer; len: LongWord);
 begin
  {$IFDEF GZIP_ON}
-  if output_buffering then
-  begin
+  if output_buffering then begin
     OutBuff^.AppendBuffer(p, len);
   end else
  {$ENDIF}
@@ -2298,7 +2290,6 @@ begin
   if NoHeadSentNorBuffering then SendHeaders;
   WriteBuff(P, len);
 end;
-
 
 { Plain binary file output }
 function ResourceOut(const fname: astr): errcode;
@@ -2351,7 +2342,7 @@ begin
   begin
     readln(fh, s);
     s:= Fmt(s, filter); // apply custom filter to any template macro vars
-    SimpleOutLn(s);
+    OutLnNoHeaders(s);
   end;
   close(fh);
   result:= OK;

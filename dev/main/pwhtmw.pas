@@ -522,6 +522,9 @@ type
 {  PUBLIC PROCEDURES/FUNCTION DECLARATIONS                                     }
 {------------------------------------------------------------------------------}
 
+procedure outbr(const s: string);
+procedure outpara(const s: string);
+
 procedure HtmBegin;
 procedure HtmBegin(title: string); overload;
 procedure HtmBegin(title: string; stylesheet: string); overload;
@@ -722,6 +725,21 @@ end;
 {------------------------------------------------------------------------------}
 { PUBLIC PROCEDURES/FUNCTIONS                                                  }
 {------------------------------------------------------------------------------}
+
+
+procedure outbr(const s: string);
+begin
+  out(s);
+  out('<br />');
+end;
+
+procedure outpara(const s: string);
+begin
+  out('<p>');
+  out(s);
+  out('</p>');
+end;
+
 
 { start form }
 procedure FormBegin(input: THtmForm); overload;
