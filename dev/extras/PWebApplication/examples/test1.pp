@@ -17,9 +17,8 @@ Uses
 Begin
   SelfReference := 'test1' {$IFDEF WINDOWS} + '.exe'{$ENDIF};
   Root := TWebComponent.Create('root', 'test1', Nil);
-  Root.AddSubComponent(
-    TWebComponent.Create('dialog1', 'dialog', Root)
-  );
+  With TWebComponent.Create('dialog1', 'dialog', Root) Do
+    Condition['visible'] := True;
   Run;
   Root.Free;
 End.

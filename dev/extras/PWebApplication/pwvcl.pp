@@ -260,6 +260,8 @@ End;
 
 Procedure TWebPageScroller.ScrollerNext(Actions : TTokenList; Depth : LongWord);
 Begin
+  If Assigned(fOnNext) Then
+    fOnNext();
   If (fSelected > -1) And (fSelected < Count) Then
     ComponentByIndex[fSelected].Condition['visible'] := False;
   Inc(fSelected);
@@ -272,6 +274,8 @@ End;
 
 Procedure TWebPageScroller.ScrollerPrevious(Actions : TTokenList; Depth : LongWord);
 Begin
+  If Assigned(fOnPrevious) Then
+    fOnPrevious();
   If (fSelected > -1) And (fSelected < Count) Then
     ComponentByIndex[fSelected].Condition['visible'] := False;
   Dec(fSelected);
