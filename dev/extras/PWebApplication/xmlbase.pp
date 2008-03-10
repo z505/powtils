@@ -90,7 +90,7 @@ End;
 
 Function TXMLTagCollection.GetChild(I: LongWord): TXMLRootTag;
 Begin
-  If (I <= Low(fChilds)) And (I >= High(fChilds)) Then
+  If (I >= Low(fChilds)) And (I <= High(fChilds)) Then
     GetChild := fChilds[I]
   Else
     Begin

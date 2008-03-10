@@ -14,13 +14,13 @@ Unit WebApplication;
 
 Interface
 Uses
-  Classes,
-  PWSDSSess,
   PWInitAll,
   PWMain,
+  PWSDSSess,
+  Classes,
+  Sysutils,
 	WebTemplate,
   WebAction,
-  Sysutils,
   XMLBase,
   Typinfo;
 
@@ -29,7 +29,7 @@ Type
 
   TWebEvent = Procedure Of Object;
 
-	TWebComponent = Class
+  TWebComponent = Class(TPersistent)
 	Private
     fInstanceName  : String;
     fCaption       : String;
@@ -52,12 +52,9 @@ Type
 		Destructor Destroy; Override;
     Function CompleteName: String;
     Function ActionName(Name : String): String;
-    Procedure AddSubComponent(Component : TWebComponent);
-    Procedure SaveVarToSession(Name, Value: String);
-    Function LoadVarFromSession(Name: String): String;
-    Procedure SaveConditionToSession;
-    Procedure LoadConditionFromSession;
-    Procedure CascadeSaveCondition;
+    Procedure AppendComponent(Name : String; Instance : TWebComponent);
+    Procedure CascadeSave(Dest : TFileStream);
+    Procedure CascadeLoad(Src : TFileStream);
     Property Template : TWebTemplate Read fTemplate Write fTemplate;
     Property Actions : TWebActionList Read fActions Write fActions;
     Property Components[Name : String]: TWebComponent Read GetComponent;
@@ -67,8 +64,7 @@ Type
   Published
 		Property InstanceName : String Read fInstanceName Write fInstanceName;
     Property Caption : String Read fCaption Write fCaption;
-
-
+    Property Owner : TWebComponent Read fOwner;
 	End;
 
 ThreadVar
@@ -171,8 +167,10 @@ Begin
   fTemplate.Tag['component'] := Self.SubComponent;
   fTemplate.Tag['inputcarry'] := Self.CarryOnVar;
   If Assigned(Owner) Then
+  Begin
     fOwner.Actions[fInstanceName] := Self.fActions.CheckAction;
-  LoadConditionFromSession;
+    fOwner.AppendComponent(Name, Self);
+  End;
 End;
 
 Destructor TWebComponent.Destroy;
@@ -214,47 +212,27 @@ Begin
   ActionName := CompleteName + '.' + Name;
 End;
 
-Procedure TWebComponent.AddSubComponent(Component : TWebComponent);
+Procedure TWebComponent.AppendComponent(Name : String; Instance : TWebComponent);
+Begin
+  fSubComponents.Objects[fSubComponents.Add(Name)] := (Instance As TObject);
+End;
+
+Procedure TWebComponent.CascadeSave(Dest : TFileStream);
 Var
-  Ctrl : LongInt;
-Begin
-  Ctrl := fSubComponents.IndexOf(Component.InstanceName);
-  If Ctrl < 0 Then
-    Ctrl := fSubComponents.Add(Component.InstanceName);
-  fSubComponents.Objects[Ctrl] := (Component As TObject);
-  fActions[Component.InstanceName] := Component.Actions.CheckAction;
-End;
-
-Procedure TWebComponent.SaveVarToSession(Name, Value: String);
-Begin
-  SetSess(CompleteName + '.' + Name, Value);
-End;
-
-Function TWebComponent.LoadVarFromSession(Name: String): String;
-Begin
-  LoadVarFromSession := GetSess(CompleteName + '.' + Name);
-End;
-
-Procedure TWebComponent.SaveConditionToSession;
-Begin
-  SetSess(CompleteName + '.conditional', fConditional.CommaText);
-End;
-
-Procedure TWebComponent.LoadConditionFromSession;
-Begin
-  fConditional.CommaText := GetSess(CompleteName + '.conditional');
-End;
-
-Procedure TWebComponent.CascadeSaveCondition;
-Var
-  Ctrl : LongInt;
-  WhoIAm : PTypeInfo;
+  Ctrl     : LongInt;
 Begin
   If Count > 0 Then
     For Ctrl := 0 To Count - 1 Do
-      GetComponentByIndex(Ctrl).CascadeSaveCondition;
-  SaveConditionToSession;
-  WhoIAm := Self.ClassInfo;
+      GetComponentByIndex(Ctrl).CascadeSave(Dest);
+End;
+
+Procedure TWebComponent.CascadeLoad(Src : TFileStream);
+Var
+  Ctrl : LongInt;
+Begin
+  If Count > 0 Then
+    For Ctrl := 0 To Count - 1 Do
+      GetComponentByIndex(Ctrl).CascadeLoad(Src);
 End;
 
 Function UnQuote(Line : String): String;
@@ -264,7 +242,7 @@ End;
 
 Procedure Run;
 Var
-  TheActions : TTokenList;
+  TheActions  : TTokenList;
 Begin
   If IsCGIVar('action') Then
   Begin
@@ -277,7 +255,6 @@ Begin
     TheActions[0] := 'default';
     Root.Actions.CheckAction(TheActions, 0);
   End;
-  Root.CascadeSaveCondition;
   Root.Template.Load;
   Root.Template.Emit;
 End;

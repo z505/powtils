@@ -18,19 +18,14 @@ Uses
 
 Var
   Ctrl : Byte;
-  LastOne : TWebComponent;
 
 Begin
   SelfReference := 'test3' {$IFDEF WINDOWS} + '.exe'{$ENDIF};
   Root := TWebComponent.Create('root', 'test3', Nil);
-  LastOne := TWebPageFliper.Create('fliper1', 'fliper', Root);
-  Root.AddSubComponent(LastOne);
+  TWebPageFliper.Create('fliper1', 'fliper', Root);
   For Ctrl := 1 To 10 Do
-  Begin
-    LastOne.AddSubComponent(
-    TWebComponent.Create('dialog' + IntToStr(Ctrl), 'dialog', LastOne));
-    LastOne.Components['dialog' + IntToStr(Ctrl)].Caption := 'dialog' + IntToStr(Ctrl);
-  End;
+    With TWebComponent.Create('dialog1', 'dialog', Root.Components['fliper1']) Do
+      Caption := 'dialog' + IntToStr(Ctrl);
   Run;
   Root.Free;
 End.

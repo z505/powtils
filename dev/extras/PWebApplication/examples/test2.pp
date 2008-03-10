@@ -18,19 +18,14 @@ Uses
 
 Var
   Ctrl : Byte;
-  LastOne : TWebComponent;
 
 Begin
   SelfReference := 'test2' {$IFDEF WINDOWS} + '.exe'{$ENDIF};
   Root := TWebComponent.Create('root', 'test2', Nil);
-  LastOne := TWebComponentList.Create('group1', 'group', Root);
-  Root.AddSubComponent(LastOne);
+  TWebComponentList.Create('group1', 'group', Root);
   For Ctrl := 1 To 10 Do
-  Begin
-    Root.Components['group1'].AddSubComponent(
-    TWebComponent.Create('dialog' + IntToStr(Ctrl), 'dialog', LastOne));
-    Root.Components['group1'].Components['dialog' + IntToStr(Ctrl)].Condition['visible'] := True;
-  End;
+    With TWebComponent.Create('dialog1', 'dialog', Root.Components['group1']) Do
+      Condition['visible'] := True;
   Run;
   Root.Free;
 End.
