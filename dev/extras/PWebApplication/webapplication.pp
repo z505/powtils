@@ -21,8 +21,7 @@ Uses
   Sysutils,
 	WebTemplate,
   WebAction,
-  XMLBase,
-  Typinfo;
+  XMLBase;
 
 Type
 	TWebComponent = Class;
@@ -37,12 +36,10 @@ Type
     fTemplate      : TWebTemplate;
     fActions       : TWebActionList;
     fSubComponents : TStringList;
-    fConditional   : TStringList;
+    fVisible       : Boolean;
     Function GetComponent(Name : String): TWebComponent;
     Function GetComponentByIndex(Idx : LongInt): TWebComponent;
     Function GetCount : LongInt;
-    Function GetCondition(Name : String): Boolean;
-    Procedure SetCondition(Name : String; State : Boolean);
   Protected
     Procedure ConditionalTag(Caller : TXMLTag);
     Procedure SubComponent(Caller : TXMLTag);
@@ -53,18 +50,16 @@ Type
     Function CompleteName: String;
     Function ActionName(Name : String): String;
     Procedure AppendComponent(Name : String; Instance : TWebComponent);
-    Procedure CascadeSave(Dest : TFileStream);
-    Procedure CascadeLoad(Src : TFileStream);
     Property Template : TWebTemplate Read fTemplate Write fTemplate;
     Property Actions : TWebActionList Read fActions Write fActions;
     Property Components[Name : String]: TWebComponent Read GetComponent;
     Property ComponentByIndex[Idx : LongInt]: TWebComponent Read GetComponentByIndex;
     Property Count : LongInt Read GetCount;
-    Property Condition[Name : String]: Boolean Read GetCondition Write SetCondition;
   Published
 		Property InstanceName : String Read fInstanceName Write fInstanceName;
     Property Caption : String Read fCaption Write fCaption;
     Property Owner : TWebComponent Read fOwner;
+    Property Visible : Boolean Read fVisible Write fVisible;
 	End;
 
 ThreadVar
@@ -100,32 +95,9 @@ Begin
   GetCount := fSubComponents.Count;
 End;
 
-Function TWebComponent.GetCondition(Name : String): Boolean;
-Begin
-  GetCondition := fConditional.IndexOf(Name) > - 1;
-End;
-
-Procedure TWebComponent.SetCondition(Name : String; State : Boolean);
-Var
-  Idx : LongInt;
-Begin
-  Idx := fConditional.IndexOf(Name);
-  If State Then
-    If Idx = -1 Then
-      fConditional.Add(Name)
-    Else
-  Else
-    If Idx > -1 Then
-      fConditional.Delete(Idx);
-End;
-
 Procedure TWebComponent.ConditionalTag(Caller : TXMLTag);
 Begin
-  If ((Caller.Attributes.IndexOfName('when') > -1) And
-  (fConditional.IndexOf(UnQuote(Caller.Attributes.Values['when'])) > -1)) Or
-  ((Caller.Attributes.IndexOfName('notwhen') > -1) And
-  (fConditional.IndexOf(UnQuote(Caller.Attributes.Values['notwhen'])) = -1)) Then
-    Caller.EmitChilds;
+  Caller.EmitChilds;
 End;
 
 Procedure TWebComponent.SubComponent(Caller : TXMLTag);
@@ -159,10 +131,7 @@ Begin
   fTemplate      := TWebTemplate.Create(Tmpl + '.template.html');
   fActions       := TWebActionList.Create;
   fSubComponents := TStringList.Create;
-  fConditional   := TStringList.Create;
   fSubComponents.Duplicates := dupIgnore;
-  fConditional.Duplicates := dupIgnore;
-  fConditional.Sorted := True;
   fTemplate.Tag['if'] := Self.ConditionalTag;
   fTemplate.Tag['component'] := Self.SubComponent;
   fTemplate.Tag['inputcarry'] := Self.CarryOnVar;
@@ -186,8 +155,6 @@ Begin
     fActions.Free;
   If Assigned(fSubComponents) Then
     fSubComponents.Free;
-  If Assigned(fConditional) Then
-    fConditional.Free;
 	Inherited Destroy;
 End;
 
@@ -204,7 +171,7 @@ Begin
       CompleteName := fInstanceName;
   End
   Else
-    CompleteName := '';
+    CompleteName := 'root';
 End;
 
 Function TWebComponent.ActionName(Name : String): String;
@@ -217,24 +184,6 @@ Begin
   fSubComponents.Objects[fSubComponents.Add(Name)] := (Instance As TObject);
 End;
 
-Procedure TWebComponent.CascadeSave(Dest : TFileStream);
-Var
-  Ctrl     : LongInt;
-Begin
-  If Count > 0 Then
-    For Ctrl := 0 To Count - 1 Do
-      GetComponentByIndex(Ctrl).CascadeSave(Dest);
-End;
-
-Procedure TWebComponent.CascadeLoad(Src : TFileStream);
-Var
-  Ctrl : LongInt;
-Begin
-  If Count > 0 Then
-    For Ctrl := 0 To Count - 1 Do
-      GetComponentByIndex(Ctrl).CascadeLoad(Src);
-End;
-
 Function UnQuote(Line : String): String;
 Begin
   UnQuote := Copy(Line, 2, Length(Line) - 2);
@@ -242,7 +191,7 @@ End;
 
 Procedure Run;
 Var
-  TheActions  : TTokenList;
+  TheActions : TTokenList;
 Begin
   If IsCGIVar('action') Then
   Begin

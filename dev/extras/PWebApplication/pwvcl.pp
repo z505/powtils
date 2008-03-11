@@ -40,8 +40,8 @@ Type
   // ones wich have the condition 'visible' set
   TWebComponentList = Class(TWebComponent)
   Private
-    fCurComponent : LongInt;
-    fCurCaption : LongInt;
+    fCurComponent : Integer;
+    fCurCaption : Integer;
     fOnShowComponent : TWebEvent;
   Protected
     Procedure ComponentCaptionList(Caller : TXMLTag);
@@ -52,8 +52,8 @@ Type
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
   Published
     Property OnShowComponent : TWebEvent Read fOnShowComponent Write fOnShowComponent;
-    Property CurComponent : LongInt Read fCurComponent;
-    Property CurCaption : LongInt Read fCurCaption;
+    Property CurComponent : Integer Read fCurComponent;
+    Property CurCaption : Integer Read fCurCaption;
   End;
 
   // This component inherits TWebComponentList to allow the user
@@ -66,6 +66,7 @@ Type
     Procedure DrawerClick(Actions : TTokenList; Depth : LongWord);
   Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+  Published
     Property OnChange : TWebEvent Read fOnChange Write fOnChange;
   End;
 
@@ -82,14 +83,14 @@ Type
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
   Published
     Property OnSelect : TWebEvent Read fOnSelect Write fOnSelect;
-    Property Selected : LongInt Read fSelected;
+    Property Selected : Integer Read fSelected;
   End;
 
   // This component inherits TWebComponentList to allow the user
   // to scroll back and forth between child components
   TWebPageScroller = Class(TWebComponentList)
   Private
-    fSelected   : LongInt;
+    fSelected   : Integer;
     fOnNext,
     fOnPrevious : TWebEvent;
   Protected
@@ -100,7 +101,7 @@ Type
   Published
     Property OnNext : TWebEvent Read fOnNext Write fOnNext;
     Property OnPrevious : TWebEvent Read fOnPrevious Write fOnPrevious;
-    Property Selected : LongInt Read fSelected;
+    Property Selected : Integer Read fSelected;
   End;
 
 Implementation
@@ -154,7 +155,7 @@ End;
 Procedure TWebComponentList.ComponentCurrent(Caller : TXMLTag);
 Begin
   If fCurComponent < Count Then
-    If ComponentByIndex[fCurComponent].Condition['visible'] Then
+    If ComponentByIndex[fCurComponent].Visible Then
     Begin
       SetVar('self', SelfReference);
       SetVar('component', CompleteName);
@@ -199,8 +200,8 @@ Var
 Begin
   Clicked := StrToInt(Actions[Depth]);
   If (Clicked > -1) And (Clicked < Count) Then
-    ComponentByIndex[Clicked].Condition['visible'] := Not(
-      ComponentByIndex[Clicked].Condition['visible']);
+    ComponentByIndex[Clicked].Visible := Not(
+      ComponentByIndex[Clicked].Visible);
   If Assigned(fOnChange) Then
     fOnChange();
 End;
@@ -221,14 +222,14 @@ Begin
     SetVar('component', CompleteName);
     If fSelected <> fCurComponent Then
     Begin
-      ComponentByIndex[fCurComponent].Condition['visible'] := False;
+      ComponentByIndex[fCurComponent].Visible := False;
       OutF('<a href="{$self}?action={$component}.select.' + IntToStr(CurComponent) + '">');
       Caller.EmitChilds;
       WebWrite('</a>');
     End
     Else
     Begin
-      ComponentByIndex[CurComponent].Condition['visible'] := True;
+      ComponentByIndex[CurComponent].Visible := True;
       Caller.EmitChilds;
     End;
   End;
@@ -242,8 +243,8 @@ Begin
   If (Clicked > -1) And (Clicked < Count) Then
   Begin
     If (fSelected > -1) And (fSelected < Count) Then
-      ComponentByIndex[fSelected].Condition['visible'] := False;
-    ComponentByIndex[Clicked].Condition['visible'] := True;
+      ComponentByIndex[fSelected].Visible := False;
+    ComponentByIndex[Clicked].Visible := True;
   End;
   If Assigned(fOnSelect) Then
     fOnSelect();
@@ -263,13 +264,13 @@ Begin
   If Assigned(fOnNext) Then
     fOnNext();
   If (fSelected > -1) And (fSelected < Count) Then
-    ComponentByIndex[fSelected].Condition['visible'] := False;
+    ComponentByIndex[fSelected].Visible := False;
   Inc(fSelected);
   If (fSelected < 0) Then
     fSelected := 0;
   If (fSelected >= Count) Then
     fSelected := Count - 1;
-  ComponentByIndex[fSelected].Condition['visible'] := True;
+  ComponentByIndex[fSelected].Visible := True;
 End;
 
 Procedure TWebPageScroller.ScrollerPrevious(Actions : TTokenList; Depth : LongWord);
@@ -277,13 +278,13 @@ Begin
   If Assigned(fOnPrevious) Then
     fOnPrevious();
   If (fSelected > -1) And (fSelected < Count) Then
-    ComponentByIndex[fSelected].Condition['visible'] := False;
+    ComponentByIndex[fSelected].Visible := False;
   Dec(fSelected);
   If (fSelected < 0) Then
     fSelected := 0;
   If (fSelected >= Count) Then
     fSelected := Count - 1;
-  ComponentByIndex[fSelected].Condition['visible'] := True;
+  ComponentByIndex[fSelected].Visible := True;
 End;
 
 Constructor TWebPageScroller.Create(Name, Tmpl : String; Owner : TWebComponent);
