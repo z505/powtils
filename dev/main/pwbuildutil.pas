@@ -65,13 +65,16 @@ function Build(const srcunit, opts, fpversion: astr): num;
 
 function RunCmd(const path, comline: astr): num;
 function RunCmd(const path: astr; const comline: array of astr): num;
+
 procedure AddUnitPath(var opts: TFpcOptions; s: astr);
 procedure AddIncPath(var opts: TFpcOptions; s: astr);
 procedure AddDefine(var opts: TFpcOptions; s: astr);
+procedure AddExtraOpt(var opts: TFpcOptions; s: astr);
 
-procedure ResetUnitPaths(var opts: TFpcOptions; s: astr);
+procedure ResetUnitPaths(var opts: TFpcOptions);
 procedure ResetIncPaths(var opts: TFpcOptions);
 procedure ResetDefines(var opts: TFpcOptions);
+procedure ResetExtraOpts(var opts: TFpcOptions);
 
 procedure WriteSeparator;
 procedure WriteSeparator1;
@@ -351,7 +354,7 @@ begin
   end;
 end;
 
-
+{ adds an -Fu path }
 procedure AddUnitPath(var opts: TFpcOptions; s: astr);
 begin
   // must be initialized first 
@@ -360,19 +363,36 @@ begin
 end;
 
 
-procedure ResetUnitPaths(var opts: TFpcOptions; s: astr);
+procedure ResetExtraOpts(var opts: TFpcOptions);
+begin
+  // must be initialized first 
+  CheckIfOptsInited(opts);
+  opts.extra:= '';
+end;
+
+procedure ResetUnitPaths(var opts: TFpcOptions);
 begin
   // must be initialized first 
   CheckIfOptsInited(opts);
   AstrArrayReset(opts.intern.unitpaths);
 end;
 
+{ adds an -Fi path }
 procedure AddIncPath(var opts: TFpcOptions; s: astr);
 begin
   // must be initialized first 
   CheckIfOptsInited(opts);
   AstrArrayAdd(opts.intern.incpaths, s);
 end;
+
+{ adds extra compiler option,  example -Sd -Whatever -Blah }
+procedure AddExtraOpt(var opts: TFpcOptions; s: astr);
+begin
+  // must be initialized first 
+  CheckIfOptsInited(opts);
+  opts.extra:= opts.extra + ' ' + s;
+end;
+
 
 procedure ResetIncPaths(var opts: TFpcOptions);
 begin
