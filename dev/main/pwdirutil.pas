@@ -18,11 +18,10 @@ unit pwdirutil;
 
 interface
 uses
-  pwtypes,
-  pwstrutil,
+  pwtypes, pwstrutil,
   sysutils; // future: compactsysutils
 
-const DEFAULT_INIT = false;
+const DEFAULT_INIT = true;
 
 type
   TDirContents = record
@@ -59,15 +58,14 @@ procedure Init(var rec: TDirContents); overload;
 
 function ForceDir(const path: astr): bln;
 function GetTrailDir(const s: astr): astr;
-procedure ClearFileNames(var fn: TFileNames);
 procedure GetDirContent(dir: astr; const wildcard: astr; var res: TDirContents; initrec: bln); overload;
 procedure GetDirContent(dir: astr; const wildcard: astr; var res: TDirContents); overload;
 procedure GetDirContent(dir: astr; var res: TDirContents; initrec: bln); overload;
 procedure GetDirContent(dir: astr; var res: TDirContents); overload;
 procedure GetDirContent_nodots(dir: astr; const wildcard: astr; var res: TDirContents; initrec: bln);
-procedure GetDirContent_nodots(Dir: astr; const wildcard: astr; var res: TDirContents); overload;
-procedure GetDirContent_nodots(Dir: astr; var res: TDirContents; initrec: bln); overload;
-procedure GetDirContent_nodots(Dir: astr; var res: TDirContents); overload;
+procedure GetDirContent_nodots(dir: astr; const wildcard: astr; var res: TDirContents); overload;
+procedure GetDirContent_nodots(dir: astr; var res: TDirContents; initrec: bln); overload;
+procedure GetDirContent_nodots(dir: astr; var res: TDirContents); overload;
 procedure GetSubDirs(dir: astr; const wildcard: astr; var res: TDirNames; initrec: bln); overload;
 procedure GetSubDirs(dir: astr; const wildcard: astr; var res: TDirNames); overload;
 procedure GetSubDirs(dir: astr; var res: TDirNames; initrec: bln); overload;
@@ -76,20 +74,31 @@ procedure GetFiles(dir: astr; const wildcard: astr; var res: TFileNames; initrec
 procedure GetFiles(dir: astr; const wildcard: astr; var res: TFileNames); overload;
 procedure GetFiles(dir: astr; var res: TFileNames; initrec: bln); overload;
 procedure GetFiles(dir: astr; var res: TFileNames); overload;
-procedure GetDirFiles(const dir, mask: astr; var res: TPaths);
+procedure GetDirFiles(const dir, mask: astr; var res: TPaths; initrec: bln); overload;
+procedure GetDirFiles(const dir, mask: astr; var res: TPaths); overload;
 function GetCurDir: astr;
 
-procedure Clear(var a: TPaths);
+procedure Clear(var a: TPaths); overload;
+procedure Clear(var fn: TFileNames); overload;
+
 procedure Add(var a: TPaths; path, fname: astr);
 
-function DelFiles(Dir: astr; const wildcard: astr): bln;
+function DelFiles(dir: astr; const wildcard: astr): bln;
+
+// Todo:
+//   function DelFiles(paths: TPaths): bln;
+//   function CopyFiles(from, to: astr; const wildcard: astr): bln;
+//   function CopyFiles(frompaths: TPaths; todir: astr): bln;
 
 procedure RunTests;
+
+
+const // backwards compat:
+  ClearFileNames: procedure(var fn: TFileNames) = @Clear;
 
 implementation
 
 uses pwfileutil;
-
 
 procedure GetTrailDir_TEST1;
 begin
@@ -161,6 +170,16 @@ begin
   rec.filecount:= 0;
 end;
 
+procedure Clear(var a: TPaths);           
+begin
+  Init(a);
+end;
+
+procedure Clear(var fn: TFileNames);
+begin
+  Init(fn);
+end;
+
 { forces to create a directory }
 function ForceDir(const path: astr): bln;
 
@@ -203,7 +222,6 @@ begin
   result:= MakeForcedDir(newpath);
 end;
 
-
 { return working directory }
 function GetCurDir: astr;
 begin
@@ -222,11 +240,6 @@ begin
   a.count:= newlen;
 end;
 
-procedure Clear(var a: TPaths);           
-begin
-  setlength(a.items, 0);  
-  a.count:= 0;
-end;
 
 { Get all files in sub directories one level deep 
 
@@ -239,11 +252,12 @@ end;
   This would get all *.txt files from "dir/", "other/", and "place/"
  
   Note: result var is not cleared first, it is persistent    }
-procedure GetDirFiles(const dir, mask: astr; var res: TPaths);
+procedure GetDirFiles(const dir, mask: astr; var res: TPaths; initrec: bln);
 var dn: TDirNames;
     fn: TFileNames;
     i, i2: integer;
 begin
+  if initrec then Init(res);
   // get sub dirs first
   GetSubDirs(dir, dn);
   for i:= low(dn.dirs) to high(dn.dirs) do begin
@@ -251,8 +265,13 @@ begin
     for i2:= low(fn.files) to high(fn.files) do begin
       Add(res, dn.dirs[i], fn.files[i2]);
     end;
-    ClearFileNames(fn);
+    Clear(fn);
   end;
+end;
+
+procedure GetDirFiles(const dir, mask: astr; var res: TPaths);
+begin
+  GetDirFiles(dir, mask, res, DEFAULT_INIT);
 end;
 
 { gets trailing directory name from a string containing /path/to/trailing/ 
@@ -282,11 +301,6 @@ begin
   end;
 end;
 
-
-procedure ClearFileNames(var fn: TFileNames);
-begin
-  setlength(fn.files, 0); fn.count:= 0;
-end;
 
 procedure UpdateDirNameCount(var dn: TDirNames);
 begin
@@ -359,6 +373,12 @@ begin
   end;
   if problem > 0 then result:= false else result:= true;
 end;
+{
+function CopyFiles(fromdir, todir: astr; const wildcard: astr): bln;
+begin
+  
+end;
+}
 
 procedure GetSubDirs(dir: astr; const wildcard: astr; var res: TDirNames);
 begin
@@ -393,14 +413,14 @@ begin
   FindClose(Info);
 end;
 
-procedure GetSubDirs(Dir: astr; var res: TDirNames; initrec: bln);
+procedure GetSubDirs(dir: astr; var res: TDirNames; initrec: bln);
 begin
   GetSubDirs(Dir, '*', res, initrec);
 end;
 
 { find all subdirectory names in a given directory
    READ-ONLY DIRECTORIES are skipped }
-procedure GetSubDirs(Dir: astr; var res: TDirNames);
+procedure GetSubDirs(dir: astr; var res: TDirNames);
 begin
   GetSubDirs(Dir, '*', res);
 end;
