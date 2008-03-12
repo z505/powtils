@@ -47,8 +47,11 @@ type
     end;
   end;
 
-procedure Init(out opts: TFpcOptions);
 
+procedure NoteLn(const s: string);
+procedure HaltErr(const s: astr);
+
+procedure Init(out opts: TFpcOptions);
 
 function Compile(const srcunit, opts, fpversion: astr; IgnoreErr: bln): num;
 function Compile(const srcunit: astr; var opts: TFpcOptions): num;
@@ -90,8 +93,6 @@ procedure Run;
 
 procedure SetVisibleGroups(const names: str15array);
 
-procedure HaltErr(s: astr);
-
 (* Todo: 
     -zip (tar, winzip, etc) functions
     -with blacklist of files/directories not needing to be compiled?
@@ -128,7 +129,7 @@ begin
 end;
 
 { halt program with polite message }
-procedure HaltErr(s: astr);
+procedure HaltErr(const s: astr);
 begin
   noteln('quit early: ' + s);
   halt;
@@ -154,7 +155,7 @@ begin
 end;                               
 
 { returns build group }
-function group: str15;
+function Group: str15;
 begin
   result:= paramstr(1);
 end;
@@ -173,34 +174,34 @@ const defgroups: array [eDefgroups] of str15 =
 const defflags: array [eDefFlags] of str15 =
   ('rebuild', 'clean');
 
-function flag: astr;
+function Flag: astr;
 begin
   result:= paramstr(2);
 end;
 
 { checks if we are running a full "rebuild" }
-function rebuilding: boolean;
+function Rebuilding: boolean;
 begin
   result:= false;                          
   if flag = defflags[dtRebuild] then result:= true;
 end;
 
 { checks if we are running an "all" build }
-function doingall: boolean;
+function DoingAll: boolean;
 begin
   result:= false;
   if group = 'all' then result:= true;   
 end;
 
 { checks if we are running "clean" process }
-function cleaning: boolean;
+function Cleaning: boolean;
 begin
   result:= false;
   if flag = defflags[dtClean] then result:= true;
 end;
 
 { checks if we are running "default" build }
-function doingdefault: boolean;
+function DoingDefault: boolean;
 begin
   result:= false;
   if group = defgroups[dtDefault] then result:= true;
