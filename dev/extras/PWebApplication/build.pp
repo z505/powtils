@@ -27,9 +27,9 @@ begin
   Init(o);
   o.smartstrip:= true;
   AddUnitPath(o, '../../main/');
+  AddExtraOpt(o, '-Sd'); // mode delphi
 
   all:= doingall();
-
   if (all) or (doingdefault) then begin
     o.ProgBinDir:= 'bin';
     o.Name:= 'default';
@@ -37,7 +37,6 @@ begin
   end;
 
   Run();
-
 end;
 
 var Paths: TPaths;
