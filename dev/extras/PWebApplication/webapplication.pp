@@ -348,7 +348,10 @@ Begin
       tkSString, tkLString, tkAString, tkWString] Then
       SetVar(PName, GetStrProp(Self, PName));
     If PLst^[Ctrl]^.PropType^.Kind = tkFloat Then
-      SetVar(PName, FloatToStr(GetFloatProp(Self, PName)));
+      If PLst^[Ctrl]^.PropType^.Name = 'TDateTime' Then
+        SetVar(PName, DateTimeToStr(GetFloatProp(Self, PName)))
+      Else
+        SetVar(PName, FloatToStr(GetFloatProp(Self, PName)));
     If PLst^[Ctrl]^.PropType^.Kind = tkInt64 Then
       SetVar(PName, IntToStr(GetInt64Prop(Self, PName)));
     If PLst^[Ctrl]^.PropType^.Kind =  tkEnumeration Then

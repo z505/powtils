@@ -12,7 +12,8 @@ Uses
   PWMain,
   WebApplication,
   WebTemplate,
-  PWVCL;
+  PWVCL,
+  Sysutils;
 
 Type
   TMagicProps = Class(TWebComponent)
@@ -21,11 +22,13 @@ Type
     fString  : String;
     fInteger : Integer;
     fBool    : Boolean;
+    fDate    : TDateTime;
   Published
     Property Ch : Char Read fChar Write fChar;
     Property St : String Read fString Write fString;
     Property Inn : Integer Read fInteger Write fInteger;
     Property Bo : Boolean Read fBool Write fBool;
+    Property Date : TDateTime Read fDate Write fDate;
   End;
 
 Begin
@@ -38,6 +41,7 @@ Begin
     Inn := 45000;
     Bo := False;
     Visible := True;
+    Date := Now;
   End;
   Run;
   Root.Free;
