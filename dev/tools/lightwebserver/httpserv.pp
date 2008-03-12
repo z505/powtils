@@ -198,8 +198,9 @@ Procedure THTTPServerThread.DefaultReqHnd(Headers: TStringList;
   Var ICGIText, OCGIText : Text; ICGIStream, OCGIStream : TStream);
 Begin
   // Debug WriteLn('Sending default error screen.');
-  WriteLn(OCGIText, 'Content-type: text/html');
-  WriteLn(OCGIText, '');
+  Headers.Clear;
+  Headers.Add('x-PWU-NPH');
+  Headers.Add('Content-type: text/html');
   WriteLn(OCGIText, '<html>');
   WriteLn(OCGIText, '<head>');
   WriteLn(OCGIText, '<title>Error 404</title>');
@@ -225,8 +226,9 @@ Begin
   // Debug WriteLn('File effectively sent : ', ExpandFileName(fDocRoot + UnQuote(Headers.Values['x-PWU-FileName'])));
   If FileExists(ExpandFileName(fDocRoot + UnQuote(Headers.Values['x-PWU-FileName']))) Then
   Begin
-    WriteLn(OCGIText, 'Content-type: ', UnQuote(Headers.Values['x-PWU-MIMEType']));
-    WriteLn(OCGIText, '');
+    Headers.Clear;
+    Headers.Add('x-PWU-NPH');
+    Headers.Add('Content-type: ' + UnQuote(Headers.Values['x-PWU-MIMEType']));
     Assign(Source, ExpandFileName(fDocRoot + UnQuote(Headers.Values['x-PWU-FileName'])));
     Reset(Source, 1);
     GetMem(Buffer, FileSize(Source));
