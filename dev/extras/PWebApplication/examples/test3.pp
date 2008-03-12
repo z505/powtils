@@ -24,7 +24,7 @@ Begin
   Root := TWebComponent.Create('root', 'test3', Nil);
   TWebPageFliper.Create('fliper1', 'fliper', Root);
   For Ctrl := 1 To 10 Do
-    With TWebComponent.Create('dialog1', 'dialog', Root.Components['fliper1']) Do
+    With TWebComponent.Create('dialog' + IntToStr(Ctrl), 'dialog', Root.Components['fliper1']) Do
       Caption := 'dialog' + IntToStr(Ctrl);
   Run;
   Root.Free;

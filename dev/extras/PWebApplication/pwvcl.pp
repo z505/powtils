@@ -17,7 +17,8 @@ Uses
   XMLBase,
   PWMain,
   Sysutils,
-  Classes;
+  Classes,
+  Typinfo;
 
 Type
   // This class shows the contents of a TStringList
@@ -200,8 +201,7 @@ Var
 Begin
   Clicked := StrToInt(Actions[Depth]);
   If (Clicked > -1) And (Clicked < Count) Then
-    ComponentByIndex[Clicked].Visible := Not(
-      ComponentByIndex[Clicked].Visible);
+    ComponentByIndex[Clicked].Visible := Not(ComponentByIndex[Clicked].Visible);
   If Assigned(fOnChange) Then
     fOnChange();
 End;
@@ -245,6 +245,7 @@ Begin
     If (fSelected > -1) And (fSelected < Count) Then
       ComponentByIndex[fSelected].Visible := False;
     ComponentByIndex[Clicked].Visible := True;
+    fSelected := Clicked;
   End;
   If Assigned(fOnSelect) Then
     fOnSelect();
@@ -263,13 +264,17 @@ Procedure TWebPageScroller.ScrollerNext(Actions : TTokenList; Depth : LongWord);
 Begin
   If Assigned(fOnNext) Then
     fOnNext();
+  If (fSelected < 0) Then
+    fSelected := Count - 1;
+  If (fSelected >= Count) Then
+    fSelected := 0;
   If (fSelected > -1) And (fSelected < Count) Then
     ComponentByIndex[fSelected].Visible := False;
   Inc(fSelected);
   If (fSelected < 0) Then
-    fSelected := 0;
-  If (fSelected >= Count) Then
     fSelected := Count - 1;
+  If (fSelected >= Count) Then
+    fSelected := 0;
   ComponentByIndex[fSelected].Visible := True;
 End;
 
@@ -277,13 +282,17 @@ Procedure TWebPageScroller.ScrollerPrevious(Actions : TTokenList; Depth : LongWo
 Begin
   If Assigned(fOnPrevious) Then
     fOnPrevious();
+  If (fSelected < 0) Then
+    fSelected := Count - 1;
+  If (fSelected >= Count) Then
+    fSelected := 0;
   If (fSelected > -1) And (fSelected < Count) Then
     ComponentByIndex[fSelected].Visible := False;
   Dec(fSelected);
   If (fSelected < 0) Then
-    fSelected := 0;
-  If (fSelected >= Count) Then
     fSelected := Count - 1;
+  If (fSelected >= Count) Then
+    fSelected := 0;
   ComponentByIndex[fSelected].Visible := True;
 End;
 
@@ -292,6 +301,7 @@ Begin
   Inherited Create(Name, Tmpl, Owner);
   Actions['next'] := Self.ScrollerNext;
   Actions['previous'] := Self.ScrollerPrevious;
+  fSelected := 0;
 End;
 
 End.
