@@ -22,7 +22,7 @@ Var
 Begin
   SelfReference := 'test5' {$IFDEF WINDOWS} + '.exe'{$ENDIF};
   Root := TWebComponent.Create('root', 'test5', Nil);
-  TWebPageDrawer.Create('scroller1', 'scroller', Root);
+  TWebPageScroller.Create('scroller1', 'scroller', Root);
   For Ctrl := 1 To 10 Do
     With TWebComponent.Create('dialog' + IntToStr(Ctrl), 'dialog', Root.Components['scroller1']) Do
       Caption := 'dialog' + IntToStr(Ctrl);
