@@ -14,10 +14,10 @@ uses
 
 type eNames = (tNone);
 const names: array [eNames] of str15 = ('none');
+var o: TFpcOptions;
 
 procedure BuildExamples(var Paths: TPaths);
-var o: TFpcOptions;
-    all: boolean;
+var all: boolean;
 begin
   Init(o);
   o.smartstrip:= true;
@@ -36,16 +36,18 @@ procedure CopyNeededFiles;
 var Paths: TPaths;
 begin
   NoteLn('COPYING HTML FILES');
-  GetDirFiles('./', '*.template.html', Paths);
+  GetDirFiles('./', '*.template.html', Paths, true);
+  CopyFiles(Paths,  GetProgTargetDir(o));
   if Paths.count < 1 then HaltErr('Path problem getting example *.TEMPLATE.HTML files');
-  writeln('debug: ', Paths.Items[1].path );
+  //writeln('debug: ', Paths.Items[1].path );
 end;
 
-var Paths: TPaths;
+
 procedure Build;
+var Paths: TPaths;
 begin
   // get all .DPR files to compile
-  GetDirFiles('./', '*.dpr', Paths);
+  GetDirFiles('./', '*.dpr', Paths, true);
   if Paths.count < 1 then HaltErr('Path problem getting example *.DPR files');
   BuildExamples(Paths);
 end;
