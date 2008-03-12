@@ -28,8 +28,8 @@ type
     Name: str15;   // group name
     Dir,              // working directory
     Crapdir,          // subdir for .o/.a/.ppu files (relative to working dir)
-    ProgBinFile,      // program file name
-    ProgBinDir: astr; // program bin    
+    ProgBinFile,         // exe output file name
+    ProgBinDir: astr;    // exe output directory
     SmartStrip,       // -XX -CX -Xs
     Compile,
     Rebuild,
@@ -41,9 +41,8 @@ type
       defines,                                                         
       incpaths, 
       unitpaths: AstrArray;
-      Inited: bln;           // signals whether record has been initialized
       craptargetdir: astr;   // i.e. /.crap/i386-win32/
-      progbintargetdir: astr;   // i.e. /bin/i386-win32/
+      progtargetdir: astr;   // i.e. /bin/i386-win32/
     end;
   end;
 
@@ -52,6 +51,8 @@ procedure NoteLn(const s: string);
 procedure HaltErr(const s: astr);
 
 procedure Init(out opts: TFpcOptions);
+
+function GetProgTargetDir(const opts: TFpcOptions): string;
 
 function Compile(const srcunit, opts, fpversion: astr; IgnoreErr: bln): num;
 function Compile(const srcunit: astr; var opts: TFpcOptions): num;
@@ -117,6 +118,12 @@ var // all build groups
   Groups: TGroups = nil;
   VisibleGroups: str15array = nil;
 
+
+
+function GetProgTargetDir(const opts: TFpcOptions): string;
+begin
+  result:= opts.progtargetdir;
+end;
 
 procedure SetVisibleGroups(const names: str15array);
 begin
@@ -320,14 +327,6 @@ begin
   setlength(a, 0);
 end;
 
-procedure CheckIfOptsInited(const opts: TFpcOptions);
-begin
-  if not opts.intern.inited then 
-    HaltErr('"opts" record must be inited before using');
-end;
-
-
-
 { must call this to ensure Record is initialized }
 procedure Init(out opts: TFpcOptions);
 begin
@@ -344,13 +343,11 @@ begin
     Compile:= not cleaning;
 
     with intern do begin
-      // signal to other functions we are initialized
-      intern.Inited:= true;
       setlength(defines, 0);
       setlength(incpaths, 0);
       setlength(unitpaths, 0);
       craptargetdir:= '';
-      progbintargetdir:= '';
+      progtargetdir:= '';
     end;
   end;
 end;
@@ -358,61 +355,45 @@ end;
 { adds an -Fu path }
 procedure AddUnitPath(var opts: TFpcOptions; s: astr);
 begin
-  // must be initialized first 
-  CheckIfOptsInited(opts);
   AstrArrayAdd(opts.intern.unitpaths, s);
 end;
 
 
 procedure ResetExtraOpts(var opts: TFpcOptions);
 begin
-  // must be initialized first 
-  CheckIfOptsInited(opts);
   opts.extra:= '';
 end;
 
 procedure ResetUnitPaths(var opts: TFpcOptions);
 begin
-  // must be initialized first 
-  CheckIfOptsInited(opts);
   AstrArrayReset(opts.intern.unitpaths);
 end;
 
 { adds an -Fi path }
 procedure AddIncPath(var opts: TFpcOptions; s: astr);
 begin
-  // must be initialized first 
-  CheckIfOptsInited(opts);
   AstrArrayAdd(opts.intern.incpaths, s);
 end;
 
 { adds extra compiler option,  example -Sd -Whatever -Blah }
 procedure AddExtraOpt(var opts: TFpcOptions; s: astr);
 begin
-  // must be initialized first 
-  CheckIfOptsInited(opts);
   opts.extra:= opts.extra + ' ' + s;
 end;
 
 
 procedure ResetIncPaths(var opts: TFpcOptions);
 begin
-  // must be initialized first 
-  CheckIfOptsInited(opts);
   AstrArrayReset(opts.intern.incpaths);
 end;
 
 procedure AddDefine(var opts: TFpcOptions; s: astr);
 begin
-  // must be initialized first 
-  CheckIfOptsInited(opts);
   AstrArrayAdd(opts.intern.defines, s);
 end;
 
 procedure ResetDefines(var opts: TFpcOptions);
 begin
-  // must be initialized first 
-  CheckIfOptsInited(opts);
   AstrArrayReset(opts.intern.defines);
 end;
 
@@ -472,36 +453,34 @@ var allopts: astr = '';
     AddTrailSlash(opts.ProgBinDir);
   end;
 
-var targetdir: string;
+var targdir: string;
 
 begin
-  targetdir:= '';
-  // must be initialized first 
-  CheckIfOptsInited(opts);
+  targdir:= '';
   AddTrailSlashes;
   AddStrArrayOpts;                            
   if opts.smartstrip then AddSimpleOpts('-XX -CX -Xs');
   if opts.rebuild then AddSimpleOpts('-B');
 
   if opts.crapdir <> '' then begin
-    targetdir:= opts.dir + opts.crapdir + FpcTargetDir();
+    targdir:= opts.dir + opts.crapdir + FpcTargetDir();
     if opts.CleanBeforeRebuild then begin
-      CleanUnitCrap(targetdir);
+      CleanUnitCrap(targdir);
     end;
-    opts.intern.craptargetdir:= targetdir;
-    ForceDir(targetdir);
+    opts.intern.craptargetdir:= targdir;
+    ForceDir(targdir);
   end;
 
-  targetdir:= '';                                 
+  targdir:= '';                                 
   if opts.progbindir <> '' then begin
-    targetdir:= opts.dir + opts.progbindir + FpcTargetDir();
-    opts.intern.progbintargetdir:= targetdir;
-    if not ForceDir(targetdir) then 
-      HaltErr('error creating directory: '+targetdir); 
+    targdir:= opts.dir + opts.progbindir + FpcTargetDir();
+    opts.intern.progtargetdir:= targdir;
+    if not ForceDir(targdir) then 
+      HaltErr('error creating directory: '+targdir); 
   end;
 
   AddOpts('-FU', opts.intern.craptargetdir);
-  AddOpts('-FE', opts.intern.progbintargetdir);
+  AddOpts('-FE', opts.intern.progtargetdir);
   AddOpts('-o', opts.progbinfile);
   AddSimpleOpts(opts.extra);
   result:= allopts;
@@ -510,8 +489,6 @@ end;
 { writes Record options to screen as a string }
 procedure ShowOpts(var opts: TFpcOptions);
 begin
-  // must be initialized first 
-  CheckIfOptsInited(opts);
   writeln(makeopts(opts));
 end;
 
@@ -642,8 +619,9 @@ end;
 end.
 
 
+(*
 
-{function compile(const srcunit: astr; const opts: TFpcOptions): integer;
+function compile(const srcunit: astr; const opts: TFpcOptions): integer;
 var allopts: astr = '';
 
   procedure AddOpts(const opts: astr);
@@ -676,4 +654,12 @@ begin
   AddOpts('-o'+opts.outprog);
   AddOpts(opts.extra);
   result:= compile('fpc', srcunit+' '+allopts);
-end;}
+end;
+
+
+procedure CheckIfOptsInited(const opts: TFpcOptions);
+begin
+  if not opts.intern.inited then 
+    HaltErr('"opts" record must be inited before using');
+end;
+*)
