@@ -8,27 +8,25 @@
 program build; {$mode objfpc} {$H+} 
 
 uses 
-  pwtypes in '../../../main/pwtypes.pas',
-  pwdirutil in '../../../main/pwdirutil.pas',
-  pwbuildutil in '../../../main/pwbuildutil.pas';
+  pwtypes in '../../main/pwtypes.pas',
+  pwdirutil in '../../main/pwdirutil.pas',
+  pwbuildutil in '../../main/pwbuildutil.pas';
 
 
 type
-  eNames = (tGzipOn, tGzipSysutilsOn, tSysutilsOn);
+  eNames = (tNone);
 const
   names: array [eNames] of str15 =
-    ('gzipon', 'gzipsysutilson', 'sysutilson');
+    ('none');
 
 
 procedure BuildExamples(var Paths: TPaths);
 var o: TFpcOptions;
     all: boolean;
-    curgroup: astr;
 begin
   Init(o);
   o.smartstrip:= true;
-  AddUnitPath(o, '../main/');
-  AddUnitPath(o, 'code-pastie/hiliter/');
+  AddUnitPath(o, '../../main/');
 
   all:= doingall();
 
@@ -36,37 +34,6 @@ begin
     o.ProgBinDir:= 'bin';
     o.Name:= 'default';
     CreateGroup(paths, o);
-  end;
-
-  // now build other copies of the program with custom DEFINES
-  curgroup:= names[tGzipOn];
-  if (all) or (group = curgroup) then begin
-    AddDefine(o, 'GZIP_ON'); 
-    o.Name:= curgroup;
-    o.ProgBinDir:= 'bin-'+curgroup; 
-    o.Rebuild:= true;
-    CreateGroup(Paths,  o);
-  end;
-
-  curgroup:= names[tGzipSysutilsOn];
-  if (all) or (group = curgroup) then begin
-    ResetDefines(o);
-    AddDefine(o, 'GZIP_ON'); 
-    AddDefine(o, 'SYSUTILS_ON');
-    o.Name:= curgroup;
-    o.ProgBinDir:= 'bin-'+curgroup; 
-    o.Rebuild:= true;
-    CreateGroup(Paths,  o);
-  end;
-
-  curgroup:= names[tSysutilsOn];
-  if (all) or (group = curgroup) then begin
-    ResetDefines(o);
-    AddDefine(o, 'SYSUTILS_ON');
-    o.ProgBinDir:= 'bin-'+curgroup; 
-    o.Name:= curgroup;
-    o.Rebuild:= true;
-    CreateGroup(Paths,  o);
   end;
 
   Run();
