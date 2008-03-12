@@ -41,8 +41,8 @@ Type
   // ones wich have the condition 'visible' set
   TWebComponentList = Class(TWebComponent)
   Private
-    fCurComponent : Integer;
-    fCurCaption : Integer;
+    fCurComponent : LongInt;
+    fCurCaption : LongInt;
     fOnShowComponent : TWebEvent;
   Protected
     Procedure ComponentCaptionList(Caller : TXMLTag);
@@ -53,8 +53,8 @@ Type
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
   Published
     Property OnShowComponent : TWebEvent Read fOnShowComponent Write fOnShowComponent;
-    Property CurComponent : Integer Read fCurComponent;
-    Property CurCaption : Integer Read fCurCaption;
+    Property CurComponent : LongInt Read fCurComponent;
+    Property CurCaption : LongInt Read fCurCaption;
   End;
 
   // This component inherits TWebComponentList to allow the user
@@ -84,14 +84,14 @@ Type
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
   Published
     Property OnSelect : TWebEvent Read fOnSelect Write fOnSelect;
-    Property Selected : Integer Read fSelected;
+    Property Selected : LongInt Read fSelected;
   End;
 
   // This component inherits TWebComponentList to allow the user
   // to scroll back and forth between child components
   TWebPageScroller = Class(TWebComponentList)
   Private
-    fSelected   : Integer;
+    fSelected   : LongInt;
     fOnNext,
     fOnPrevious : TWebEvent;
   Protected
@@ -102,7 +102,7 @@ Type
   Published
     Property OnNext : TWebEvent Read fOnNext Write fOnNext;
     Property OnPrevious : TWebEvent Read fOnPrevious Write fOnPrevious;
-    Property Selected : Integer Read fSelected;
+    Property Selected : LongInt Read fSelected;
   End;
 
 Implementation
@@ -159,14 +159,11 @@ Begin
     If ComponentByIndex[fCurComponent].Visible Then
     Begin
       SetVar('self', SelfReference);
-      SetVar('component', CompleteName);
-      SetVar('caption', Caption);
+      ComponentByIndex[fCurComponent].ExportMyProperties;
       ComponentByIndex[fCurComponent].Template.LoadAndEmit;
       If Assigned(fOnShowComponent) Then
         fOnShowComponent();
       SetVar('self', SelfReference);
-      SetVar('component', CompleteName);
-      SetVar('caption', Caption);
     End;
   Inc(fCurComponent);
 End;
@@ -261,39 +258,37 @@ End;
 // TWebPageScroller
 
 Procedure TWebPageScroller.ScrollerNext(Actions : TTokenList; Depth : LongWord);
+Var
+  Ctrl : LongInt;
 Begin
   If Assigned(fOnNext) Then
     fOnNext();
-  If (fSelected < 0) Then
-    fSelected := Count - 1;
-  If (fSelected >= Count) Then
-    fSelected := 0;
-  If (fSelected > -1) And (fSelected < Count) Then
-    ComponentByIndex[fSelected].Visible := False;
-  Inc(fSelected);
-  If (fSelected < 0) Then
-    fSelected := Count - 1;
-  If (fSelected >= Count) Then
-    fSelected := 0;
-  ComponentByIndex[fSelected].Visible := True;
+  If Count > 0 Then
+    For Ctrl := Count - 1 DownTo 0 Do
+      If ComponentByIndex[Ctrl].Visible Then
+        If Ctrl + 1 < Count Then
+        Begin
+          ComponentByIndex[Ctrl].Visible := False;
+          ComponentByIndex[Ctrl + 1].Visible := True;
+          fSelected := Ctrl + 1;
+        End
 End;
 
 Procedure TWebPageScroller.ScrollerPrevious(Actions : TTokenList; Depth : LongWord);
+Var
+  Ctrl : LongInt;
 Begin
   If Assigned(fOnPrevious) Then
     fOnPrevious();
-  If (fSelected < 0) Then
-    fSelected := Count - 1;
-  If (fSelected >= Count) Then
-    fSelected := 0;
-  If (fSelected > -1) And (fSelected < Count) Then
-    ComponentByIndex[fSelected].Visible := False;
-  Dec(fSelected);
-  If (fSelected < 0) Then
-    fSelected := Count - 1;
-  If (fSelected >= Count) Then
-    fSelected := 0;
-  ComponentByIndex[fSelected].Visible := True;
+  If Count > 0 Then
+    For Ctrl := 0 To Count - 1 Do
+      If ComponentByIndex[Ctrl].Visible Then
+        If Ctrl - 1 > -1 Then
+        Begin
+          ComponentByIndex[Ctrl].Visible := False;
+          ComponentByIndex[Ctrl - 1].Visible := True;
+          fSelected := Ctrl - 1;
+        End
 End;
 
 Constructor TWebPageScroller.Create(Name, Tmpl : String; Owner : TWebComponent);
@@ -301,7 +296,6 @@ Begin
   Inherited Create(Name, Tmpl, Owner);
   Actions['next'] := Self.ScrollerNext;
   Actions['previous'] := Self.ScrollerPrevious;
-  fSelected := 0;
 End;
 
 End.
