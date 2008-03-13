@@ -1,5 +1,4 @@
-<exportvars/> 
-<if notwhen="Logged">
+<exportvars/> <if notwhen="Logged"> 
 <form method="GET" action="{$self}">
   <table border="0" align="center" cellpadding="4" bordercolor="#000000">
     <tr> 
@@ -12,29 +11,25 @@
         <input name="Login" type="text" value="{$Login}" size="16" maxlength="24"/> 
         <br/>
         Password 
-        <input name="Password" type="password" value="{$Password}" size="16" maxlength="24"/>
-	    </td>
+        <input name="Password" type="password" value="{$Password}" size="16" maxlength="24"/> 
+      </td>
     </tr>
     <tr bgcolor="#0000FF"> 
       <td align="right"> <button name="action" type="submit" value="{$ComponentName}.submit">Login</button></td>
     </tr>
   </table>
 </form>
-</if>
-<if when="Logged">
-  <table border="0" align="center" cellpadding="4" bordercolor="#000000">
-    <tr> 
-      <td align="center" bgcolor="#0000FF"><font color="#FFFFFF" face="Verdana, Arial, Helvetica, sans-serif"> 
-        <strong>{$Caption}</strong></font></td>
-    </tr>
-    <tr> 
-      <td align="left" bgcolor="#FFCC66">You are currently logged as {$Login}
-	    </td>
-    </tr>
-    <tr bgcolor="#0000FF"> 
-      
-    <td align="right"> <a href="{$self}?{$ComponentName}.logout"><font color="#FFFFFF">Logout</font></a> 
-    </td>
-    </tr>
-  </table>
-</if>
+</if> <if when="Logged"> 
+<table border="0" align="center" cellpadding="4" bordercolor="#000000">
+  <tr> 
+    <td align="center" bgcolor="#0000FF"><font color="#FFFFFF" face="Verdana, Arial, Helvetica, sans-serif"> 
+      <strong>{$Caption}</strong></font></td>
+  </tr>
+  <tr> 
+    <td align="left" bgcolor="#FFCC66">You are currently logged as {$Login} </td>
+  </tr>
+  <tr bgcolor="#0000FF"> 
+    <td align="right"> <button onclick="javascript: document.location.href = '{$self}?{$ComponentName}.logout'">Logout</button></td>
+  </tr>
+</table>
+</if> 
