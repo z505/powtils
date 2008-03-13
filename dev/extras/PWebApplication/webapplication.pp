@@ -38,6 +38,8 @@ Type
     fActions       : TWebActionList;
     fSubComponents : TStringList;
     fVisible       : Boolean;
+    fError         : Boolean;
+    fErrorValue    : String;
     Function GetComponent(Name : String): TWebComponent;
     Function GetComponentByIndex(Idx : LongInt): TWebComponent;
     Function GetCount : LongInt;
@@ -68,6 +70,8 @@ Type
     Property ComponentName : String Read CompleteName;
     Property Caption : String Read fCaption Write fCaption;
     Property Visible : Boolean Read fVisible Write fVisible;
+    Property Error : Boolean Read fError Write fError;
+    Property ErrorValue : String Read fErrorValue Write fErrorValue;
 	End;
 
 ThreadVar
@@ -180,6 +184,8 @@ Begin
   fTemplate.Tag['component'] := Self.SubComponent;
   fTemplate.Tag['inputcarry'] := Self.CarryOnVar;
   fTemplate.Tag['exportvars'] := Self.ExportVars;
+  fError := False;
+  fErrorValue := '';
   If Assigned(Owner) Then
   Begin
     fOwner.Actions[fInstanceName] := Self.fActions.CheckAction;
@@ -255,7 +261,10 @@ Begin
       tkSString, tkLString, tkAString, tkWString] Then
       Entry := AName + '="' + GetStrProp(Self, PName) + '"';
     If PLst^[Ctrl]^.PropType^.Kind = tkFloat Then
-      Entry := AName + '="' + FloatToStr(GetFloatProp(Self, PName)) + '"';
+      If PLst^[Ctrl]^.PropType^.Name = "TDateTime" Then
+        Entry := AName + '="' + DateTimeToStr(GetFloatProp(Self, PName)) + '"';
+      Else
+        Entry := AName + '="' + FloatToStr(GetFloatProp(Self, PName)) + '"';
     If PLst^[Ctrl]^.PropType^.Kind = tkInt64 Then
       Entry := AName + '="' + IntToStr(GetInt64Prop(Self, PName)) + '"';
     If PLst^[Ctrl]^.PropType^.Kind =  tkEnumeration Then
@@ -296,7 +305,10 @@ Begin
         tkSString, tkLString, tkAString, tkWString] Then
         SetStrProp(Self, PName, Value);
       If PLst^[Ctrl]^.PropType^.Kind = tkFloat Then
-        SetFloatProp(Self, PName, StrToFloat(Value));
+        If PLst^[Ctrl]^.PropType^.Name = 'TDateTime' Then
+          SetFloatProp(Self, PName, StrToDateTime(Value))
+        Else
+          SetFloatProp(Self, PName, StrToFloat(Value));
       If PLst^[Ctrl]^.PropType^.Kind = tkInt64 Then
         SetInt64Prop(Self, PName, StrToInt(Value));
       If PLst^[Ctrl]^.PropType^.Kind =  tkEnumeration Then
