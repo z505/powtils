@@ -261,8 +261,8 @@ Begin
       tkSString, tkLString, tkAString, tkWString] Then
       Entry := AName + '="' + GetStrProp(Self, PName) + '"';
     If PLst^[Ctrl]^.PropType^.Kind = tkFloat Then
-      If PLst^[Ctrl]^.PropType^.Name = "TDateTime" Then
-        Entry := AName + '="' + DateTimeToStr(GetFloatProp(Self, PName)) + '"';
+      If PLst^[Ctrl]^.PropType^.Name = 'TDateTime' Then
+        Entry := AName + '="' + DateTimeToStr(GetFloatProp(Self, PName)) + '"'
       Else
         Entry := AName + '="' + FloatToStr(GetFloatProp(Self, PName)) + '"';
     If PLst^[Ctrl]^.PropType^.Kind = tkInt64 Then
@@ -389,13 +389,13 @@ Begin
     Root.CascadeLoad(States);
     States.Free;
   End;
-  If IsSess('globalstate') Then
+{  If IsSess('globalstate') Then
   Begin
     States := TStringList.Create;
     States.Text := GetSess('globalstate');
     Root.CascadeLoad(States);
     States.Free;
-  End;
+  End; }
   If IsCGIVar('action') Then
   Begin
     TheActions := BreakApartNames(GetCGIVar('action'));
@@ -407,10 +407,10 @@ Begin
     TheActions[0] := 'default';
     Root.Actions.CheckAction(TheActions, 0);
   End;
-  States := TStringList.Create;
+{  States := TStringList.Create;
   SetSess('globalstate', States.Text);
   Root.CascadeSave(States);
-  States.Free;
+  States.Free; }
   If Not(FileExists(SelfReference + '.states')) Then
   Begin
     States := TStringList.Create;

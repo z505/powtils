@@ -342,7 +342,6 @@ Var
   Siz   : LongInt;
   Ctrl  : LongInt;
   PName : String;
-  AName : String;
   Value : String;
 
 Begin
