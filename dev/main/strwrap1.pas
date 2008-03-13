@@ -1,5 +1,5 @@
-{ Authors: Lars (L505), JKP (YetAnotherGeek). See the /notes/ directory.
-  Do not copy or distribute any of this file until you read strwrap1.note.txt }
+{ Authors: Lars (L505), JKP (YetAnotherGeek). 
+  Miscellaneous string and related functions }
 
 unit StrWrap1;
 
@@ -13,7 +13,8 @@ unit StrWrap1;
 {$ENDIF}
 
 interface
-
+uses 
+  pwfileutil;
 
 {--- Public constants ---------------------------------------------------------}
 const
@@ -57,20 +58,17 @@ const
     end;
 {------------------------------------------------------------------------------}
 
-
-{--- public functions ---------------------------------------------------------}
-type
- TFileOfChar = file of char;
-
+{ BEGIN: BACKWARDS COMPATIBLE (JUST WRAPPERS }
   function OpenFileRead(var F:file; const fname: string; recsize: integer): boolean;
   function OpenFileReWrite(var F:file; const fname:string; recsize:integer): boolean;
   function OpenFile(var F: text; const fname: string; mode: char): boolean; overload;
   function OpenFile(var F: file; const fname: string; recsize:integer; mode: byte): boolean; overload;
   function OpenFile(var F: file; const fname: string; mode: char): boolean; overload;
   function OpenFile(var F: TFileOfChar; const fname: string; mode: char): boolean; overload;  
-
   function MakeDir(s: string): boolean;
+{ END: BACKWARDS COMPATIBLE (JUST WRAPPERS }
 
+{--- public functions ---------------------------------------------------------}
   function ReadChunk(const fname: string; ChunkSize: integer; buf: pointer): boolean;
   function SaveChunk(fname: string; buf: pointer; chunksize: integer): boolean;
 
@@ -125,114 +123,32 @@ uses
 
 function MakeDir(s: string): boolean;
 begin
-  result:= false;
- {$I-} // temporarily shut of io checking
-  MkDir(s);
- {$I+}
-  if IOResult <> 0 then
-    result:= false
-  else
-    result:= true;
+  result:= pwfileutil.MakeDir(s);
 end;
 
-{ Try to open a text file, return true on success.
-  The MODE argument must be one of [R]=read, [W]=write, or [A]=append. }
 function OpenFile(var F: text; const fname: string; mode: char): boolean;
-var
-  oldFM: byte;
 begin
-  if ( mode in ['A', 'R', 'W'] ) then
-    inc(mode, 32); // convert "mode" to lowercase
-  if ( mode in ['a', 'r', 'w'] ) then
-  begin
-    oldFM:= filemode;
-    if ( mode= 'r') then filemode:= 0 else filemode:= 1;
-    {$I-} // I/O checks off for now
-     ioresult; // Clears any previous error.
-     assign(F, fname);
-     case mode of
-       'a':append(F);
-       'r':reset(F);
-       'w':rewrite(F);
-     end;
-     Result:= (ioresult = 0);
-    {$I+} // restore I/O checking
-    filemode:= oldFM;
-  end else
-    Result:= FALSE; // invalid MODE argument
+  result:= pwfileutil.OpenFile(F, fname, mode);
 end;
 
 function OpenFileRead(var F: file; const fname: string; recsize: integer): boolean;
-var
-  oldFM: byte;       
 begin
-  oldFM:= filemode;
-  filemode:= fmOpenRead;
-{$I-} // I/O checks off for now
-  ioresult; // Clears any previous error.
-  assign(F, fname);
-  reset(F, recsize);
-  Result:= (ioresult = 0);
-{$I+} // restore I/O checking
-  filemode:= oldFM;
+  result:= pwfileutil.OpenFileRead(F, fname, recsize);
 end;
-
 
 function OpenFile(var F: file; const fname: string; recsize: integer; mode: byte): boolean;
-var                                                                                        
-  oldFM: byte;
 begin
-  oldFM:= filemode;
-  filemode:= mode; 
-{$I-} // I/O checks off for now
-  ioresult; // Clears any previous error.
-  assign(F, fname);
-  reset(F, recsize);
-  Result:= (ioresult = 0);
-{$I+} // restore I/O checking
-  filemode:= oldFM;
+  result:= pwfileutil.OpenFile(F, fname, recsize, mode);
 end;
 
-// tres to open file, forces file to be created if it does not exist
-function OpenFileReWrite(var F: file; const fname: string; recsize: integer): boolean;
-var                                                                                        
-  oldFM: byte;
+function OpenFileRewrite(var F: file; const fname: string; recsize: integer): boolean;
 begin
-  oldFM:= filemode;
-  filemode:= fmOpenReadWrite; 
-{$I-} // I/O checks off for now
-  ioresult; // Clears any previous error.
-  assign(F, fname);
-  rewrite(F, recsize);
-  Result:= (ioresult = 0);
-{$I+} // restore I/O checking
-  filemode:= oldFM;
+  result:= pwfileutil.OpenFileRewrite(F, fname, recsize);
 end;
 
-
-{ Try to open a file (doesn't have to be text) return false if unsuccessful }
 function OpenFile(var F: file; const fname: string; mode: char): boolean;
-var
-  oldFM: byte;
 begin
-  if ( mode in ['R', 'W'] ) then
-    inc(mode, 32); // convert "mode" to lowercase
-  if ( mode in ['r', 'w'] ) then
-  begin
-    oldFM:= filemode;
-    if ( mode= 'r') then filemode:= 0 else filemode:= 1;
-    {$I-} // I/O checks off for now
-     ioresult; // Clears any previous error.
-     assign(F, fname);
-     case mode of
-       'r':reset(F);
-       'w':rewrite(F);
-     end;
-     Result:= (ioresult = 0);
-    {$I+} // restore I/O checking
-    filemode:= oldFM;
-  end else
-    Result:= FALSE; // invalid MODE argument
+  result:= pwfileutil.OpenFile(F, fname, mode);
 end;
 
 function OpenFile(var F: TFileOfChar; const fname: string; mode: char): boolean;
