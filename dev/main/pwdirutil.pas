@@ -87,8 +87,9 @@ function DelFiles(dir: astr; const wildcard: astr): bln;
 
 // Todo:
 //   function DelFiles(paths: TPaths): bln;
-//   function CopyFiles(from, to: astr; const wildcard: astr): bln;
-//   function CopyFiles(frompaths: TPaths; todir: astr): bln;
+//   function CloneFiles(frompaths: TPaths; todir: astr): bln; overload;
+
+function CloneFiles(src, dest: astr; const wildcard: astr): bln;
 
 procedure RunTests;
 
@@ -373,8 +374,27 @@ begin
   end;
   if problem > 0 then result:= false else result:= true;
 end;
-{
-function CopyFiles(fromdir, todir: astr; const wildcard: astr): bln;
+
+function CloneFiles(src, dest: astr; const wildcard: astr): bln;
+var fn: TFileNames;
+    i, 
+    problem,               // if issues occur during copying
+    copyres: integer;      // result of each copy
+begin
+  copyres:= -1; problem:= 0;
+  src:= includetrailingpathdelimiter(src);
+  dest:= includetrailingpathdelimiter(dest);
+  GetFiles(src, wildcard, fn);
+  if fn.count < 1 then exit;
+  for i:= 0 to fn.count-1 do begin
+    copyres:= CloneFile(src + fn.files[i], dest);
+    if copyres < 1 then inc(problem);
+  end;
+  if problem > 0 then result:= false else result:= true;
+end;
+
+{ TODO oveloaded
+function CopyFiles(Paths: TPaths; dest: astr): bln;
 begin
   
 end;
