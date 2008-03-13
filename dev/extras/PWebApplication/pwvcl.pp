@@ -21,6 +21,8 @@ Uses
   Typinfo;
 
 Type
+  TPassword = String;
+    
   // This class shows the contents of a TStringList
   TWebMemoShow = Class(TWebComponent)
   Private
@@ -103,6 +105,25 @@ Type
     Property OnNext : TWebEvent Read fOnNext Write fOnNext;
     Property OnPrevious : TWebEvent Read fOnPrevious Write fOnPrevious;
     Property Selected : LongInt Read fSelected;
+  End;
+
+  // This component shows a frame where users can edit its properties
+  TWebEditPage = Class(TWebComponent)
+  Private
+    fCurrentProp : LongInt;
+    fNumProp     : LongInt;
+    fOnSubmit    : TWebEvent;
+    fPropList    : PPropList;
+    fPTypeData   : PTypeData;
+  Protected
+    Procedure EditProp(Caller : TXMLTag);
+    Procedure EditList(Caller : TXMLTag);
+    Procedure EditSubmit(Action : TTokenList; Depth : LongWord);
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+    Destructor Destroy; Override;
+  Published
+    Property OnSubmit : TWebEvent Read fOnSubmit Write fOnSubmit;
   End;
 
 Implementation
@@ -296,6 +317,82 @@ Begin
   Inherited Create(Name, Tmpl, Owner);
   Actions['next'] := Self.ScrollerNext;
   Actions['previous'] := Self.ScrollerPrevious;
+End;
+
+// TWebEditPage
+
+Procedure TWebEditPage.EditProp(Caller : TXMLTag);
+Var
+  PropName : String;
+  PropType : String;
+  PropKind : TPropKind;
+  CurValue : String;
+  DontShow : TStringList;
+
+Begin
+  DontShow := TStringList.Create;
+  If Caller.Attributes.IndexOfName('blocked') > -1 Then
+    DontShow.Text := UnQuote(Caller.Attributes.Values['blocked']);
+  PropName := fPropList^[fCurrentProp]^.Name;
+  If DontShow.IndexOf(PropName) <= -1 Then
+  Begin
+  PropType := fPropList^[fCurrentProp]^.PropType^.Name;
+  PropKind := fPropList^[fCurrentProp]^.PropType^.Kind;
+  If PropKind In [
+    tkInteger, tkSet, tkBool, tkWChar, tkChar] Then
+    SetVar('Value', IntToStr(GetOrdProp(Self, PropName)));
+  If PropKind In [
+    tkSString, tkLString, tkAString, tkWString] Then
+    If PropType = 'TPassword' Then
+      SetVar('Value', '');
+    Else
+      SetVar('Value', GetStrProp(Self, PropName));
+  If PropKind = tkFloat Then
+    If PropType = 'TDateTime' Then
+      SetVar('Value', DateTimeToStr(GetFloatProp(Self, PropName)))
+    Else
+      SetVar('Value', FloatToStr(GetFloatProp(Self, PropName)));
+  If PropKind = tkInt64 Then
+    SetVar('Value', IntToStr(GetInt64Prop(Self, PropName)));
+  If PropKind =  tkEnumeration Then
+    SetVar('Value', GetEnumProp(Self, PropName));
+  SetVar('PropName', PropName);
+  OutF('<input name="{$PropName}" value="{$Value}" ');
+  If PropType = "TPassword" Then
+    OutF('type="password"/>')
+  Else
+    OutF('type="text"/>');
+  Inc(fNumProp);
+End;
+
+Procedure EditList(Caller : TXMLTag);
+Begin
+  While fCurrentProp < fNumProp Do
+    Caller.EmitChilds;
+End;
+
+Procedure EditSubmit(Action : TTokenList; Depth : LongWord);
+Begin
+  If Assigned(fOnSubmit) Then
+    fOnSubmit();
+End;
+
+Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+Begin
+  Inherited Create(Name, Tmpl, Owner);
+  fPTypeData := GetTypeData(Self.ClassInfo);
+  GetMem(fPropList, fPTypeData^.PropCount * SizeOf(Pointer));
+  fNumProp := GetPropList(Self.ClassInfo, fPropList);
+  fCurrentProp := 0;
+  Template.Tag['property.list'] := Self.EditList;
+  Template.Tag['property.edit'] := Self.EditProp;
+  Actions['submit'] := Self.EditSubmit;
+End;
+
+Destructor Destroy; Override;
+Begin
+  FreeMem(fPropList, fPTypeData^.PropCount * SizeOf(Pointer));
+  Inherited Destroy;
 End;
 
 End.
