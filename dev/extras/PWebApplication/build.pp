@@ -37,8 +37,7 @@ var Paths: TPaths;
 begin
   NoteLn('COPYING HTML FILES');
   GetDirFiles('./', '*.template.html', Paths, true);
-// TODO: freepascal doesn't have a fricking CopyFile function in RTL (lazarus has one but for frick sake!)
-//  CopyFiles(Paths,  GetProgTargetDir(o));
+  CloneFiles('./', GetProgTargetDir(o), '*.template.html');
   if Paths.count < 1 then HaltErr('Path problem getting example *.TEMPLATE.HTML files');
   //writeln('debug: ', Paths.Items[1].path );
 end;
