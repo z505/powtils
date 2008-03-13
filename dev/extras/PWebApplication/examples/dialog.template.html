@@ -1,4 +1,5 @@
 <exportvars/> 
+<if notwhen="Logged">
 <form method="GET" action="{$self}">
   <table border="0" align="center" cellpadding="4" bordercolor="#000000">
     <tr> 
@@ -6,18 +7,34 @@
         <strong>{$Caption}</strong></font></td>
     </tr>
     <tr> 
-      <td align="left" bgcolor="#FFCC66"><if notwhen="Logged">
-	    <if when="Error">{$ErrorValue}<br/></if>Login 
+      <td align="left" bgcolor="#FFCC66"> <if when="Error"><font color="#FF0000">{$ErrorValue}</font><br/>
+        </if>Login 
         <input name="Login" type="text" value="{$Login}" size="16" maxlength="24"/> 
         <br/>
         Password 
-        <input name="Password" type="password" value="{$Password}" size="16" maxlength="24"/></if>
-		<if when="Logged">You are currently logged as {$Login}</if>
-      </td>
+        <input name="Password" type="password" value="{$Password}" size="16" maxlength="24"/>
+	    </td>
     </tr>
     <tr bgcolor="#0000FF"> 
-      <td align="right"> <button name="action" type="submit" value="{$ComponentName}.submit">OK</button>
-        <button name="action" type="submit" value="{$ComponentName}.cancel">Cancel</button></td>
+      <td align="right"> <button name="action" type="submit" value="{$ComponentName}.submit">Login</button></td>
     </tr>
   </table>
 </form>
+</if>
+<if when="Logged">
+  <table border="0" align="center" cellpadding="4" bordercolor="#000000">
+    <tr> 
+      <td align="center" bgcolor="#0000FF"><font color="#FFFFFF" face="Verdana, Arial, Helvetica, sans-serif"> 
+        <strong>{$Caption}</strong></font></td>
+    </tr>
+    <tr> 
+      <td align="left" bgcolor="#FFCC66">You are currently logged as {$Login}
+	    </td>
+    </tr>
+    <tr bgcolor="#0000FF"> 
+      
+    <td align="right"> <a href="{$self}?{$ComponentName}.logout"><font color="#FFFFFF">Logout</font></a> 
+    </td>
+    </tr>
+  </table>
+</if>
