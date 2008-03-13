@@ -18,7 +18,6 @@ Uses
 Var
   LoginMan : TWebLoginManager;
 
-
 Begin
   SelfReference := 'test1' {$IFDEF WINDOWS} + '.exe'{$ENDIF};
   LoginMan := TWebLoginManager.Create;
@@ -26,6 +25,8 @@ Begin
   With TWebLoginBox.Create('dialog1', 'dialog', Root) Do
   Begin
     Visible := True;
+    Active := True;
+    Logged := False;
     LoginManager := LoginMan;
   End;
   Run;

@@ -109,18 +109,24 @@ Type
   TWebEditPage = Class(TWebComponent)
   Private
     fOnSubmit : TWebEvent;
+    fWhiteList : TStringList;
+    fActive : Boolean;
   Protected
     Procedure EditSubmit(Action : TTokenList; Depth : LongWord);
   Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+    Destructor Destroy; Override;
   Published
     Property OnSubmit : TWebEvent Read fOnSubmit Write fOnSubmit;
+    Property WhiteList : TStringList Read fWhiteList;
+    Property Active : Boolean Read fActive Write fActive;
   End;
 
   TWebLoginManager = Class
   Private
   Public
-     Function Login(L, P : String): Boolean;
+    Function Login(L, P : String): Boolean;
+    Function Logout(L : String): Boolean;
   End;
 
   TWebLoginBox = Class(TWebEditPage)
@@ -131,6 +137,7 @@ Type
     fLogged   : Boolean;
   Protected
     Procedure UponLogin;
+    Procedure Logout(Action : TTokenList; Depth : LongWord);
   Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
   Published
@@ -345,41 +352,52 @@ Var
   Value : String;
 
 Begin
-  PTd := GetTypeData(Self.ClassInfo);
-  GetMem(PLst, PTd^.PropCount * SizeOf(Pointer));
-  Siz := GetPropList(Self.ClassInfo, PLst);
-  For Ctrl := 0 To Siz - 1 Do
+  If fActive Then
   Begin
-    PName := PLst^[Ctrl]^.Name;
-    If IsCGIVar(PName) Then
+    PTd := GetTypeData(Self.ClassInfo);
+    GetMem(PLst, PTd^.PropCount * SizeOf(Pointer));
+    Siz := GetPropList(Self.ClassInfo, PLst);
+    For Ctrl := 0 To Siz - 1 Do
     Begin
-      Value := GetCGIVar(PName);
-      If PLst^[Ctrl]^.PropType^.Kind In [
-        tkInteger, tkSet, tkBool, tkWChar, tkChar] Then
-        SetOrdProp(Self, PName, StrToInt(Value));
-      If PLst^[Ctrl]^.PropType^.Kind In [
-        tkSString, tkLString, tkAString, tkWString] Then
-        SetStrProp(Self, PName, Value);
-      If PLst^[Ctrl]^.PropType^.Kind = tkFloat Then
-        If PLst^[Ctrl]^.PropType^.Name = 'TDateTime' Then
-          SetFloatProp(Self, PName, StrToDateTime(Value))          
-        Else
-          SetFloatProp(Self, PName, StrToFloat(Value));
-      If PLst^[Ctrl]^.PropType^.Kind = tkInt64 Then
-        SetInt64Prop(Self, PName, StrToInt(Value));
-      If PLst^[Ctrl]^.PropType^.Kind =  tkEnumeration Then
-        SetEnumProp(Self, PName, Value);
+      PName := PLst^[Ctrl]^.Name;
+      If ((IsCGIVar(PName)) And (fWhiteList.IndexOf(PName) > -1)) Then
+      Begin
+        Value := GetCGIVar(PName);
+        If PLst^[Ctrl]^.PropType^.Kind In [
+          tkInteger, tkSet, tkBool, tkWChar, tkChar] Then
+          SetOrdProp(Self, PName, StrToInt(Value));
+        If PLst^[Ctrl]^.PropType^.Kind In [
+          tkSString, tkLString, tkAString, tkWString] Then
+          SetStrProp(Self, PName, Value);
+        If PLst^[Ctrl]^.PropType^.Kind = tkFloat Then
+          If PLst^[Ctrl]^.PropType^.Name = 'TDateTime' Then
+            SetFloatProp(Self, PName, StrToDateTime(Value))          
+          Else
+            SetFloatProp(Self, PName, StrToFloat(Value));
+        If PLst^[Ctrl]^.PropType^.Kind = tkInt64 Then
+          SetInt64Prop(Self, PName, StrToInt(Value));
+        If PLst^[Ctrl]^.PropType^.Kind =  tkEnumeration Then
+          SetEnumProp(Self, PName, Value);
+      End;
     End;
+    FreeMem(PLst, PTd^.PropCount * SizeOf(Pointer));
+    If Assigned(fOnSubmit) Then
+      fOnSubmit();
   End;
-  FreeMem(PLst, PTd^.PropCount * SizeOf(Pointer));
-  If Assigned(fOnSubmit) Then
-    fOnSubmit();
 End;
 
 Constructor TWebEditPage.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Tmpl, Owner);
+  fWhiteList := TStringList.Create;
   Actions['submit'] := Self.EditSubmit;
+End;
+
+Destructor TWebEditPage.Destroy;
+Begin
+  If Assigned(fWhiteList) Then
+    fWhiteList.Free;
+  Inherited Destroy;
 End;
 
 // TWebLoginManager
@@ -389,17 +407,38 @@ Begin
   Login := True;
 End;
 
+Function TWebLoginManager.Logout(L : String): Boolean;
+Begin
+  Logout := True;
+End;
+
 // TWebLoginBox
 
 Procedure TWebLoginBox.UponLogin;
 Begin
-  fLogged := fLoginMan.Login(fLogin, fPassword);
+  If Assigned(fLoginMan) Then
+    fLogged := fLoginMan.Login(fLogin, fPassword);
+  Active := Not(fLogged);
+End;
+
+Procedure TWebLoginBox.Logout(Action : TTokenList; Depth : LongWord);
+Begin
+  fLogged := Not(fLoginMan.Logout(fLogin));
+  Active := Not(fLogged);
+  If Not(fLogged) Then
+  Begin
+    fLogin := '';
+    fPassword := '';
+  End;
 End;
 
 Constructor TWebLoginBox.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Tmpl, Owner);
   OnSubmit := Self.UponLogin;
+  WhiteList.Add('Login');
+  WhiteList.Add('Password');
+  Actions['logout'] := Self.Logout;
 End;
 
 End.
