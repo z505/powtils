@@ -21,13 +21,11 @@ Uses
   Typinfo;
 
 Type
-  TPassword = String;
-    
   // This class shows the contents of a TStringList
   TWebMemoShow = Class(TWebComponent)
   Private
     fMemoSource : TStringList;
-    fCurLine : LongInt;
+    fCurLine    : LongInt;
     fOnShowLine : TWebEvent;
   Protected
     Procedure MemoShow(Caller : TXMLTag);
@@ -110,20 +108,36 @@ Type
   // This component shows a frame where users can edit its properties
   TWebEditPage = Class(TWebComponent)
   Private
-    fCurrentProp : LongInt;
-    fNumProp     : LongInt;
-    fOnSubmit    : TWebEvent;
-    fPropList    : PPropList;
-    fPTypeData   : PTypeData;
+    fOnSubmit : TWebEvent;
   Protected
-    Procedure EditProp(Caller : TXMLTag);
-    Procedure EditList(Caller : TXMLTag);
     Procedure EditSubmit(Action : TTokenList; Depth : LongWord);
   Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
-    Destructor Destroy; Override;
   Published
     Property OnSubmit : TWebEvent Read fOnSubmit Write fOnSubmit;
+  End;
+
+  TWebLoginManager = Class
+  Private
+  Public
+     Function Login(L, P : String): Boolean;
+  End;
+
+  TWebLoginBox = Class(TWebEditPage)
+  Private
+    fLogin,
+    fPassword : String;
+    fLoginMan : TWebLoginManager;
+    fLogged   : Boolean;
+  Protected
+    Procedure UponLogin;
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+  Published
+    Property Login : String Read fLogin Write fLogin;
+    Property Password : String Read fPassword Write fPassword;
+    Property LoginManager : TWebLoginManager Read fLoginMan Write fLoginMan;
+    Property Logged : Boolean Read fLogged Write fLogged;
   End;
 
 Implementation
@@ -321,78 +335,72 @@ End;
 
 // TWebEditPage
 
-Procedure TWebEditPage.EditProp(Caller : TXMLTag);
+Procedure TWebEditPage.EditSubmit(Action : TTokenList; Depth : LongWord);
 Var
-  PropName : String;
-  PropType : String;
-  PropKind : TPropKind;
-  CurValue : String;
-  DontShow : TStringList;
+  PLst  : PPropList;
+  PTd   : PTypeData;
+  Siz   : LongInt;
+  Ctrl  : LongInt;
+  PName : String;
+  AName : String;
+  Value : String;
 
 Begin
-  DontShow := TStringList.Create;
-  If Caller.Attributes.IndexOfName('blocked') > -1 Then
-    DontShow.Text := UnQuote(Caller.Attributes.Values['blocked']);
-  PropName := fPropList^[fCurrentProp]^.Name;
-  If DontShow.IndexOf(PropName) <= -1 Then
+  PTd := GetTypeData(Self.ClassInfo);
+  GetMem(PLst, PTd^.PropCount * SizeOf(Pointer));
+  Siz := GetPropList(Self.ClassInfo, PLst);
+  For Ctrl := 0 To Siz - 1 Do
   Begin
-  PropType := fPropList^[fCurrentProp]^.PropType^.Name;
-  PropKind := fPropList^[fCurrentProp]^.PropType^.Kind;
-  If PropKind In [
-    tkInteger, tkSet, tkBool, tkWChar, tkChar] Then
-    SetVar('Value', IntToStr(GetOrdProp(Self, PropName)));
-  If PropKind In [
-    tkSString, tkLString, tkAString, tkWString] Then
-    If PropType = 'TPassword' Then
-      SetVar('Value', '');
-    Else
-      SetVar('Value', GetStrProp(Self, PropName));
-  If PropKind = tkFloat Then
-    If PropType = 'TDateTime' Then
-      SetVar('Value', DateTimeToStr(GetFloatProp(Self, PropName)))
-    Else
-      SetVar('Value', FloatToStr(GetFloatProp(Self, PropName)));
-  If PropKind = tkInt64 Then
-    SetVar('Value', IntToStr(GetInt64Prop(Self, PropName)));
-  If PropKind =  tkEnumeration Then
-    SetVar('Value', GetEnumProp(Self, PropName));
-  SetVar('PropName', PropName);
-  OutF('<input name="{$PropName}" value="{$Value}" ');
-  If PropType = "TPassword" Then
-    OutF('type="password"/>')
-  Else
-    OutF('type="text"/>');
-  Inc(fNumProp);
-End;
-
-Procedure EditList(Caller : TXMLTag);
-Begin
-  While fCurrentProp < fNumProp Do
-    Caller.EmitChilds;
-End;
-
-Procedure EditSubmit(Action : TTokenList; Depth : LongWord);
-Begin
+    PName := PLst^[Ctrl]^.Name;
+    If IsCGIVar(PName) Then
+    Begin
+      Value := GetCGIVar(PName);
+      If PLst^[Ctrl]^.PropType^.Kind In [
+        tkInteger, tkSet, tkBool, tkWChar, tkChar] Then
+        SetOrdProp(Self, PName, StrToInt(Value));
+      If PLst^[Ctrl]^.PropType^.Kind In [
+        tkSString, tkLString, tkAString, tkWString] Then
+        SetStrProp(Self, PName, Value);
+      If PLst^[Ctrl]^.PropType^.Kind = tkFloat Then
+        If PLst^[Ctrl]^.PropType^.Name = 'TDateTime' Then
+          SetFloatProp(Self, PName, StrToDateTime(Value))          
+        Else
+          SetFloatProp(Self, PName, StrToFloat(Value));
+      If PLst^[Ctrl]^.PropType^.Kind = tkInt64 Then
+        SetInt64Prop(Self, PName, StrToInt(Value));
+      If PLst^[Ctrl]^.PropType^.Kind =  tkEnumeration Then
+        SetEnumProp(Self, PName, Value);
+    End;
+  End;
+  FreeMem(PLst, PTd^.PropCount * SizeOf(Pointer));
   If Assigned(fOnSubmit) Then
     fOnSubmit();
 End;
 
-Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+Constructor TWebEditPage.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Tmpl, Owner);
-  fPTypeData := GetTypeData(Self.ClassInfo);
-  GetMem(fPropList, fPTypeData^.PropCount * SizeOf(Pointer));
-  fNumProp := GetPropList(Self.ClassInfo, fPropList);
-  fCurrentProp := 0;
-  Template.Tag['property.list'] := Self.EditList;
-  Template.Tag['property.edit'] := Self.EditProp;
   Actions['submit'] := Self.EditSubmit;
 End;
 
-Destructor Destroy; Override;
+// TWebLoginManager
+
+Function TWebLoginManager.Login(L, P : String): Boolean;
 Begin
-  FreeMem(fPropList, fPTypeData^.PropCount * SizeOf(Pointer));
-  Inherited Destroy;
+  Login := True;
+End;
+
+// TWebLoginBox
+
+Procedure TWebLoginBox.UponLogin;
+Begin
+  fLogged := fLoginMan.Login(fLogin, fPassword);
+End;
+
+Constructor TWebLoginBox.Create(Name, Tmpl : String; Owner : TWebComponent);
+Begin
+  Inherited Create(Name, Tmpl, Owner);
+  OnSubmit := Self.UponLogin;
 End;
 
 End.

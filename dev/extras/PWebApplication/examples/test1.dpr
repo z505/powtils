@@ -15,11 +15,19 @@ Uses
   WebTemplate,
   PWVCL;
 
+Var
+  LoginMan : TWebLoginManager;
+
+
 Begin
   SelfReference := 'test1' {$IFDEF WINDOWS} + '.exe'{$ENDIF};
+  LoginMan := TWebLoginManager.Create;
   Root := TWebComponent.Create('root', 'test1', Nil);
-  With TWebComponent.Create('dialog1', 'dialog', Root) Do
+  With TWebLoginBox.Create('dialog1', 'dialog', Root) Do
+  Begin
     Visible := True;
+    LoginManager := LoginMan;
+  End;
   Run;
   Root.Free;
 End.
