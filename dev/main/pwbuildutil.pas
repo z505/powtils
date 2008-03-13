@@ -122,7 +122,7 @@ var // all build groups
 
 function GetProgTargetDir(const opts: TFpcOptions): string;
 begin
-  result:= opts.progtargetdir;
+  result:= opts.intern.progtargetdir;
 end;
 
 procedure SetVisibleGroups(const names: str15array);
