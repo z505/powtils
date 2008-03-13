@@ -25,7 +25,7 @@ Begin
   Root := TWebComponent.Create('root', 'test5', Nil);
   TWebPageScroller.Create('scroller1', 'scroller', Root);
   For Ctrl := 1 To 10 Do
-    With TWebComponent.Create('dialog' + IntToStr(Ctrl), 'dialog', Root.Components['scroller1']) Do
+    With TWebLoginBox.Create('dialog' + IntToStr(Ctrl), 'dialog', Root.Components['scroller1']) Do
       Caption := 'dialog' + IntToStr(Ctrl);
   Run;
   Root.Free;

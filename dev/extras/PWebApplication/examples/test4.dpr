@@ -25,7 +25,7 @@ Begin
   Root := TWebComponent.Create('root', 'test4', Nil);
   TWebPageDrawer.Create('drawer1', 'drawer', Root);
   For Ctrl := 1 To 10 Do
-    With TWebComponent.Create('dialog' + IntToStr(Ctrl), 'dialog', Root.Components['drawer1']) Do
+    With TWebLoginBox.Create('dialog' + IntToStr(Ctrl), 'dialog', Root.Components['drawer1']) Do
       Caption := 'dialog' + IntToStr(Ctrl);
   Run;
   Root.Free;

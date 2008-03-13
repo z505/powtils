@@ -112,36 +112,41 @@ Var
   Cond    : Boolean;
 Begin
   Cond := False;
-  If Caller.Attributes.IndexOfName('when') > -1 Then
-    If Caller.Attributes.IndexOfName('notwhen') > -1 Then
-      Cond :=
-        Boolean(
-        GetOrdProp(
-        Self, UnQuote(
-        Caller.Attributes.Values['when']
-        )
-        )) And
-        Not(
-        Boolean(
-        GetOrdProp(
-        Self, UnQuote(
-        Caller.Attributes.Values['notwhen']))))
-    Else
-      Cond :=
-        Boolean(
-        GetOrdProp(
-        Self, UnQuote(
-        Caller.Attributes.Values['when'])))
-  Else
-    If Caller.Attributes.IndexOfName('notwhen') > -1 Then
-      Cond :=
-        Not(
-        Boolean(
-        GetOrdProp(
-        Self, UnQuote(
-        Caller.Attributes.Values['notwhen']))))
-    Else
+  Try
+    If Caller.Attributes.IndexOfName('when') > -1 Then
+      If Caller.Attributes.IndexOfName('notwhen') > -1 Then
+        Cond :=
+          Boolean(
+          GetOrdProp(
+          Self, UnQuote(
+          Caller.Attributes.Values['when']
+          )
+          )) And
+          Not(
+          Boolean(
+          GetOrdProp(
+          Self, UnQuote(
+          Caller.Attributes.Values['notwhen']))))
+      Else
+        Cond :=
+          Boolean(
+          GetOrdProp(
+          Self, UnQuote(
+          Caller.Attributes.Values['when'])))
+    Else  
+      If Caller.Attributes.IndexOfName('notwhen') > -1 Then
+        Cond :=
+          Not(
+          Boolean(
+          GetOrdProp(
+          Self, UnQuote(
+          Caller.Attributes.Values['notwhen']))))
+      Else
+        Cond := False;
+  Except
+    On E: EPropertyError Do
       Cond := False;
+  End;
   If Cond Then
     Caller.EmitChilds;
 End;
@@ -411,7 +416,7 @@ Begin
   SetSess('globalstate', States.Text);
   Root.CascadeSave(States);
   States.Free; }
-  If Not(FileExists(SelfReference + '.states')) Then
+//  If Not(FileExists(SelfReference + '.states')) Then
   Begin
     States := TStringList.Create;
     Root.CascadeSave(States);
