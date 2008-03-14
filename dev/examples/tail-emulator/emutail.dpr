@@ -41,9 +41,6 @@ var
   showlines: string;
   FirstTimeLoading: boolean;
   LastLines: string;
-  StrArray: array of string;
-
-
 
 begin
 
