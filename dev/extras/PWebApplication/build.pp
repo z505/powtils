@@ -32,14 +32,13 @@ begin
   Run();
 end;
 
+var tmp: astr;
+
 procedure CopyNeededFiles;
-var Paths: TPaths;
 begin
   NoteLn('COPYING HTML FILES');
-  GetDirFiles('./', '*.template.html', Paths, true);
-  CloneFiles('./', GetProgTargetDir(o), '*.template.html');
-  if Paths.count < 1 then HaltErr('Path problem getting example *.TEMPLATE.HTML files');
-  //writeln('debug: ', Paths.Items[1].path );
+  if not CloneFiles('examples', GetProgTargetDir(0), '*.template.html') then 
+    writeln('Error copying html files');
 end;
 
 
