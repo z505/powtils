@@ -2,8 +2,7 @@
   have shell/ssh/telnet access available
 
   Notes:
-    -tested on linux
-    -does not work on windows
+    -tested on linux, not on MS Windows
 
   Author: 
     Lars (L505
@@ -12,13 +11,14 @@
 program webcmd1;
 {$mode objfpc} {$H+}
 
-uses  {$ifdef unix}unix, baseunix,{$endif}
-  pwinit in '..\..\main/pwinit.pas',
-  pwmain in '..\..\main/pwmain.pas',
-  pwenvvar in '..\..\main\pwenvvar.pas',
-  compactsysutils in '..\..\main\compactsysutils.pas',
-  pwsubstr in '..\..\main\pwsubstr.pas',
-  pwfileutil in '..\..\main\pwfileutil.pas',
+uses  
+  {$ifdef unix}unix, baseunix, compactsysutils,{$endif} 
+  {$ifdef windows}sysutils,{$endif}
+  pwinit,
+  pwmain,
+  pwenvvar,
+  pwsubstr,
+  pwfileutil,
   htmout;
 
 procedure err(const s: string);
@@ -32,7 +32,8 @@ begin
   out('<hr style="border-style: solid;">');
   out('Output of command: <b>'+ cmd + '</b>');
   outln('<textarea style="width:100%; font-size:0.9em; font-family:courier new;" ROWS=80>');
-  err:=   fpSystem(cmd); //ls -l *.pp
+  {$ifdef unix}   err:= fpSystem(cmd);{$endif} //ls -l *.pp
+  {$ifdef windows}err:= executeprocess('', cmd);{$endif}
   outln(  '-------------------------------------------------------------------------');
   outln(  'WEBCMD NOTE: command exited with status: ' + inttostr(err));
   outln('</textarea>');
