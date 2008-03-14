@@ -20,7 +20,7 @@ type
   str15array = array of str15;
   str31array = array of str31;
   ShortstrArray = array of shortstring;
-
+  num  = integer;    
   bln = boolean;
 
 
