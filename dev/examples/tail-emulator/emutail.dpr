@@ -39,16 +39,13 @@ var
   CurrentTime: string;
   hh, mm, ss, ms: word; //hours, minutes, seconds, milliseconds
   showlines: string;
-  FirstTimeLoading: boolean;
   LastLines: string;
 
 begin
 
-  FirstTimeLoading:= false;
   // if this is the first session
   if GetSess('OldFileSize') = '' then
   begin
-    FirstTimeLoading:= true;
     OldFileSize:= GetFileSize(WatchFile)
   end else
   // if we have already been here before via a session
