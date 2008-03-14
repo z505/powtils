@@ -33,10 +33,7 @@ const
 var
   CurrentFileSize,
   OldFileSize: longint;
-  FileSizeChanged,
-  AbortProgram: boolean; //for the infinite loop, until we want to kill program
-  T1,
-  T2: text;
+  FileSizeChanged: boolean; //for the infinite loop, until we want to kill program
   
 var
   CurrentTime: string;

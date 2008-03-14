@@ -5,10 +5,7 @@
 
 program edit; {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF} {$APPTYPE CONSOLE}
 uses
-  pwinit in '..\..\main\pwinit.pas',
-  pwmain in '..\..\main\pwmain.pas',
-  strwrap1 in '..\..\main\strwrap1.pas',
-  sysutils;
+  pwinit, pwmain, strwrap1, sysutils;
 
 // get the size of any file, doesn't matter whether it's a text or binary file.
 function GetFileSize(FileName: string): int64;
@@ -26,10 +23,6 @@ const
 var
   CurrentTime: string;
   hh, mm, ss, ms: word; //hours, minutes, seconds, milliseconds
-  showlines: string;
-  FirstTimeLoading: boolean;
-  LastLines: string;
-  StrArray: array of string;
   Edit1_Lines: string;
 
 
