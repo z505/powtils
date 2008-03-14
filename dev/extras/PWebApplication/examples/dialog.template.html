@@ -1,4 +1,4 @@
-<exportvars/> <if notwhen="Logged"> 
+ <exportvars/> <if notwhen="Logged"> 
 <form method="GET" action="{$self}">
   <table border="0" align="center" cellpadding="4" bordercolor="#000000">
     <tr> 
@@ -6,16 +6,20 @@
         <strong>{$Caption}</strong></font></td>
     </tr>
     <tr> 
-      <td align="left" bgcolor="#FFCC66"> <if when="Error"><font color="#FF0000">{$ErrorValue}</font><br/>
-        </if>Login 
-        <input name="Login" type="text" value="{$Login}" size="16" maxlength="24"/> 
-        <br/>
-        Password 
-        <input name="Password" type="password" value="{$Password}" size="16" maxlength="24"/> 
-      </td>
+      <td align="right" bgcolor="#FFCC66"> <if when="Error"><font color="#FF0000">{$ErrorValue}</font><br/>
+        </if> <table width="100%" border="0" cellspacing="4" cellpadding="0">
+          <tr> 
+            <td>Login <br/>
+              Password </td>
+            <td> <input name="Login" type="text" class="loginbox" value="{$Login}" size="16" maxlength="24"/> <br/>
+
+              <input name="Password" type="password" class="loginbox" value="{$Password}" size="16" maxlength="24"/> 
+            </td>
+          </tr>
+        </table></td>
     </tr>
     <tr bgcolor="#0000FF"> 
-      <td align="right"> <button name="action" type="submit" value="{$ComponentName}.submit">Login</button></td>
+      <td align="right"> <button name="action" value="{$ComponentName}.submit" type="submit" class="loginbox">Login</button></td>
     </tr>
   </table>
 </form>
@@ -29,7 +33,7 @@
     <td align="left" bgcolor="#FFCC66">You are currently logged as {$Login} </td>
   </tr>
   <tr bgcolor="#0000FF"> 
-    <td align="right"> <button onclick="javascript: document.location.href = '{$self}?action={$ComponentName}.logout'">Logout</button></td>
+    <td align="right"> <button class="loginbox" onclick="javascript: document.location.href = '{$self}?action={$ComponentName}.logout'">Logout</button></td>
   </tr>
 </table>
 </if> 
