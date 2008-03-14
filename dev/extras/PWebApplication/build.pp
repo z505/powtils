@@ -39,6 +39,8 @@ begin
   NoteLn('COPYING HTML FILES');
   if not CloneFiles('examples', GetProgTargetDir(0), '*.template.html') then 
     writeln('Error copying html files');
+  if not CloneFiles('examples', GetProgTargetDir(0), 'pwu_*.conf') then 
+    writeln('Error copying config files');
 end;
 
 
