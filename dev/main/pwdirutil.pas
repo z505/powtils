@@ -252,7 +252,7 @@ end;
 
   This would get all *.txt files from "dir/", "other/", and "place/"
  
-  Note: result var is not cleared first, it is persistent    }
+  Note: result var is cleared first only if InitRec is true }
 procedure GetDirFiles(const dir, mask: astr; var res: TPaths; initrec: bln);
 var dn: TDirNames;
     fn: TFileNames;
@@ -313,6 +313,9 @@ begin
   fn.Count:= length(fn.files); 
 end;
 
+{ Gets files from a directory using wild card match 
+
+  Note: result var is cleared first only if InitRec is true }
 procedure GetFiles(dir: astr; const wildcard: astr; var res: TFileNames; initrec: bln); overload;
 var Info : TSearchRec;
 begin
@@ -346,6 +349,7 @@ begin
   GetFiles(dir, wildcard, res, DEFAULT_INIT); 
 end;
 
+{  Note: result var is cleared first only if InitRec is true }
 procedure GetFiles(dir: astr; var res: TFileNames; initrec: bln);
 begin
   GetFiles(dir, res, initrec);
@@ -375,6 +379,7 @@ begin
   if problem > 0 then result:= false else result:= true;
 end;
 
+{ copies many files from src directory to dest, using wildcard match  }
 function CloneFiles(src, dest: astr; const wildcard: astr): bln;
 var fn: TFileNames;
     i, 
@@ -407,7 +412,8 @@ end;
 
 { find all subdirectory names in a given directory, with wildcard
   Appends if VAR result has existing contents
-  READ-ONLY DIRECTORIES are skipped, dotted directories skipped }
+  READ-ONLY DIRECTORIES are skipped, dotted directories skipped 
+  Note: result var is cleared first only if InitRec is true } 
 procedure GetSubDirs(Dir: astr; const wildcard: astr; var res: TDirNames; initrec: bln);
 var Info : TSearchRec;
 begin
@@ -433,6 +439,7 @@ begin
   FindClose(Info);
 end;
 
+{  Note: result var is cleared first only if InitRec is true }
 procedure GetSubDirs(dir: astr; var res: TDirNames; initrec: bln);
 begin
   GetSubDirs(Dir, '*', res, initrec);
@@ -452,14 +459,14 @@ begin
 end;
 
 
-
 procedure GetDirContent_nodots(dir: astr; const wildcard: astr; var res: TDirContents);
 begin
   GetDirContent_nodots(dir, wildcard, res, DEFAULT_INIT);  
 end;
 
-{ find contents of any directory with wildcard, but skip dots ../ ./
-   READ-ONLY FILES are skipped }
+{ Find contents of any directory with wildcard, but skip dots ../ ./
+  READ-ONLY FILES are skipped 
+  Note: result var is cleared first only if InitRec is true }   
 procedure GetDirContent_nodots(dir: astr; const wildcard: astr; var res: TDirContents; initrec: bln);
 var
   Info : TSearchRec;
@@ -498,6 +505,7 @@ begin
   GetDirContent_nodots(dir, '*', res);
 end;
 
+{ Note: result var is cleared first only if InitRec is true }
 procedure GetDirContent_nodots(dir: astr; var res: TDirContents; initrec: bln);
 begin
   GetDirContent_nodots(dir, '*', res, initrec);
@@ -509,7 +517,8 @@ begin
 end;
 
 { find contents of any directory with a wildcard filter
-  READ ONLY FILES are skipped }
+  READ ONLY FILES are skipped 
+  Note: result var is cleared first only if InitRec is true }  
 procedure GetDirContent(dir: astr; const wildcard: astr; var res: TDirContents; initrec: bln); overload;
 var
   Info : TSearchRec;                              
@@ -539,6 +548,7 @@ begin
   FindClose(Info);
 end;
 
+{ Note: result var is cleared first only if InitRec is true }
 procedure GetDirContent(dir: astr; var res: TDirContents; initrec: bln); overload;
 begin
   GetDirContent(dir, '*.*', res, initrec);
