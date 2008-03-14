@@ -394,13 +394,13 @@ Begin
     Root.CascadeLoad(States);
     States.Free;
   End;
-{  If IsSess('globalstate') Then
+  If IsSess('globalstate') Then
   Begin
     States := TStringList.Create;
-    States.Text := GetSess('globalstate');
+    States.DelimitedText := GetSess('globalstate');
     Root.CascadeLoad(States);
     States.Free;
-  End; }
+  End;
   If IsCGIVar('action') Then
   Begin
     TheActions := BreakApartNames(GetCGIVar('action'));
@@ -412,11 +412,11 @@ Begin
     TheActions[0] := 'default';
     Root.Actions.CheckAction(TheActions, 0);
   End;
-{  States := TStringList.Create;
-  SetSess('globalstate', States.Text);
+  States := TStringList.Create;
+  SetSess('globalstate', States.DelimitedText);
   Root.CascadeSave(States);
-  States.Free; }
-//  If Not(FileExists(SelfReference + '.states')) Then
+  States.Free; 
+  If Not(FileExists(SelfReference + '.states')) Then
   Begin
     States := TStringList.Create;
     Root.CascadeSave(States);
