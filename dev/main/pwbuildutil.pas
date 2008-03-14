@@ -18,10 +18,10 @@ uses
   arrayfuncs;
 
 type 
-  astr = ansistring;
-  AstrArray = array of astr;
-  bln = boolean;
-  num  = integer;                                                   
+//  astr = ansistring;
+//  AstrArray = array of astr;
+//  bln = boolean;
+                                               
 
 
   TFpcOptions = record
@@ -52,7 +52,7 @@ procedure HaltErr(const s: astr);
 
 procedure Init(out opts: TFpcOptions);
 
-function GetProgTargetDir(const opts: TFpcOptions): string;
+function GetProgTargetDir(groupidx: num): string;
 
 function Compile(const srcunit, opts, fpversion: astr; IgnoreErr: bln): num;
 function Compile(const srcunit: astr; var opts: TFpcOptions): num;
@@ -83,10 +83,10 @@ procedure ResetExtraOpts(var opts: TFpcOptions);
 procedure WriteSeparator;
 procedure WriteSeparator1;
 
-function group: str15;
-function rebuilding: boolean;
-function doingall: boolean;
-function cleaning: boolean;
+function Group: str15;
+function Rebuilding: boolean;
+function DoingAll: boolean;
+function Cleaning: boolean;
 function doingdefault: boolean;
 
 procedure CreateGroup(paths: TPaths; opts: TFpcOptions);
@@ -119,10 +119,11 @@ var // all build groups
   VisibleGroups: str15array = nil;
 
 
-
-function GetProgTargetDir(const opts: TFpcOptions): string;
+function GetProgTargetDir(groupidx: num): astr;
 begin
-  result:= opts.intern.progtargetdir;
+  result:= '';
+  if length(Groups)-1 < groupidx then exit;
+  result:= Groups[groupidx].opts.intern.progtargetdir;
 end;
 
 procedure SetVisibleGroups(const names: str15array);
@@ -224,7 +225,7 @@ procedure ShowHelp;
   end;
 
   procedure ShowLns(a: array of str15);
-  var i: integer;
+  var i: num;
   begin
     for i:= low(a) to high(a) do Ln(a[i]);
   end;
@@ -256,7 +257,7 @@ end;
 
 
 function AllGroupNames: str15array;
-var i: integer;
+var i: num;
 begin
   if length(groups) < 1 then exit;
   setlength(result, length(groups));
@@ -270,8 +271,8 @@ procedure CheckGroups;
   
   procedure FindGroups;
   var i1: eDefgroups;
-      i2: integer;
-      found: integer;
+      i2: num;
+      found: num;
   begin
     found:= 0;
     // find default (df), all
@@ -292,7 +293,7 @@ end;
 
 
 procedure Run;
-var i: integer;
+var i: num;
 begin
   Checkgroups;
   if length(groups) < 1 then HaltErr('groups array has zero registered');
@@ -303,7 +304,7 @@ end;
 
 { add a group of files to be compiled with options }
 procedure CreateGroup(paths: TPaths; opts: TFpcOptions);
-var oldlen: integer;
+var oldlen: num;
 begin
   if opts.Name = '' then HaltErr('Must specify a name for each group.');
   oldlen:= length(groups);
@@ -402,7 +403,7 @@ const
   masks: array [1..5] of string[5]
     = ('*.ppu', '*.dcu','*.a', '*.res','*.o');
 var
-  i: integer;
+  i: num;
 begin
   noteln('Removing files from dir: ' + path);
   for i:= low(masks) to high(masks) do begin
@@ -512,7 +513,7 @@ end;
 { adds trailing slash if not already there 
   TODO: move function to pwdirutil/strwrap1/pwfileutil/}
 procedure ForceTrailSlash(var path: astr);
-var len: integer;
+var len: num;
 begin
   len:= length(path); 
   if len < 1 then exit;
@@ -576,7 +577,7 @@ begin
 end;
 
 procedure CompileMany(var paths: TPaths; var opts: TFpcOptions; ShowSeparator: bln);
-var i: integer;
+var i: num;
 begin
   if paths.count < 1 then exit;
   writeln('>>>>>> PROCESSING GROUP ', opts.Name, ' >>>>>>');
@@ -621,7 +622,7 @@ end.
 
 (*
 
-function compile(const srcunit: astr; const opts: TFpcOptions): integer;
+function compile(const srcunit: astr; const opts: TFpcOptions): num;
 var allopts: astr = '';
 
   procedure AddOpts(const opts: astr);

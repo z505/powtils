@@ -387,7 +387,7 @@ begin
   GetFiles(src, wildcard, fn);
   if fn.count < 1 then exit;
   for i:= 0 to fn.count-1 do begin
-    copyres:= CloneFile(src + fn.files[i], dest);
+    copyres:= CloneFile(src + fn.files[i], dest + fn.files[i]);
     if copyres < 1 then inc(problem);
   end;
   if problem > 0 then result:= false else result:= true;
