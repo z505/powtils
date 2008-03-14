@@ -9,9 +9,10 @@ program EmuTail; {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF} {$APPTYPE CONSOLE}
 
 
 uses
-  pwinit in '..\..\main\pwinit.pas',
-  pwmain in '..\..\main\pwmain.pas',
-  strwrap1 in '..\..\main\strwrap1.pas',
+  pwinitall,
+  pwmain,
+  pwsdssess,
+  strwrap1,
   sysutils;
 
 
