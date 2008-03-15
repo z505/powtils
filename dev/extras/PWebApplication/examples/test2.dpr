@@ -23,10 +23,19 @@ Var
 Begin
   SelfReference := 'test2' {$IFDEF WINDOWS} + '.exe'{$ENDIF};
   Root := TWebComponent.Create('root', 'test2', Nil);
-  TWebComponentList.Create('group1', 'group', Root);
+  With TWebComponentList.Create('group1', 'group', Root) Do
+    Visible := True;
   For Ctrl := 1 To 10 Do
     With TWebLoginBox.Create('dialog' + IntToStr(Ctrl), 'dialog', Root.Components['group1']) Do
-      Visible := True;
+    Begin
+      Caption      := 'Authentication';
+      Error        := False;
+      ErrorValue   := '';
+      Logged       := False;
+      Visible      := True;
+      Active       := True;
+      LoginManager := Nil;
+    End;
   Run;
   Root.Free;
 End.

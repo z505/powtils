@@ -30,7 +30,6 @@ Begin
     Logged       := False;
     Visible      := True;
     Active       := True;
-    Logged       := False;
     LoginManager := LoginMan;
   End;
   Run;
