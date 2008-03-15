@@ -84,14 +84,13 @@ Type
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
   Published
     Property OnSelect : TWebEvent Read fOnSelect Write fOnSelect;
-    Property Selected : LongInt Read fSelected;
+    Property Selected : LongInt Read fSelected Write fSelected;
   End;
 
   // This component inherits TWebComponentList to allow the user
   // to scroll back and forth between child components
   TWebPageScroller = Class(TWebComponentList)
   Private
-    fSelected   : LongInt;
     fOnNext,
     fOnPrevious : TWebEvent;
   Protected
@@ -102,7 +101,6 @@ Type
   Published
     Property OnNext : TWebEvent Read fOnNext Write fOnNext;
     Property OnPrevious : TWebEvent Read fOnPrevious Write fOnPrevious;
-    Property Selected : LongInt Read fSelected;
   End;
 
   // This component shows a frame where users can edit its properties
@@ -312,7 +310,6 @@ Begin
         Begin
           ComponentByIndex[Ctrl].Visible := False;
           ComponentByIndex[Ctrl + 1].Visible := True;
-          fSelected := Ctrl + 1;
         End
 End;
 
@@ -329,7 +326,6 @@ Begin
         Begin
           ComponentByIndex[Ctrl].Visible := False;
           ComponentByIndex[Ctrl - 1].Visible := True;
-          fSelected := Ctrl - 1;
         End
 End;
 

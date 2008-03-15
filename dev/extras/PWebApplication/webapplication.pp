@@ -17,10 +17,11 @@ Uses
   Classes,
   Sysutils,
   TypInfo,
+  PWInitAll,
   PWMain,
+  PWSDSSess,
 	WebTemplate,
   WebAction,
-  WebStatefull,
   XMLBase;
 
 Type
@@ -388,13 +389,11 @@ Var
 
 Begin
   States := TStringList.Create;
-  If IsCookie('states') And FileExists(SelfReference + '.' + GetCookie('states') + '.states') Then
+  If IsSess(SelfReference + '.states') Then
   Begin
-    States.LoadFromFile(SelfReference + '.' + GetCookie('states') + '.states');
+    States.DelimitedText := GetSess(SelfReference + '.states');
     Root.CascadeLoad(States);
-  End
-  Else
-    NewState;
+  End;
   If IsCGIVar('action') Then
   Begin
     TheActions := BreakApartNames(GetCGIVar('action'));
@@ -408,7 +407,7 @@ Begin
   End;
   States.Clear;
   Root.CascadeSave(States);
-  States.SaveToFile(SelfReference + '.' + GetCookie('states') + '.states');
+  SetSess(SelfReference + '.states', States.DelimitedText);
   States.Free;
   Root.Template.Load;
   Root.Template.Emit;

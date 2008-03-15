@@ -23,10 +23,22 @@ Var
 Begin
   SelfReference := 'test3' {$IFDEF WINDOWS} + '.exe'{$ENDIF};
   Root := TWebComponent.Create('root', 'test3', Nil);
-  TWebPageFliper.Create('fliper1', 'fliper', Root);
+  With TWebPageFliper.Create('fliper1', 'fliper', Root) Do
+  Begin
+    Visible := True;
+    Selected := 0;
+  End;
   For Ctrl := 1 To 10 Do
     With TWebLoginBox.Create('dialog' + IntToStr(Ctrl), 'dialog', Root.Components['fliper1']) Do
-      Caption := 'dialog' + IntToStr(Ctrl);
+    Begin
+      Caption      := 'Authentication';
+      Error        := False;
+      ErrorValue   := '';
+      Logged       := False;
+      Active       := True;
+      LoginManager := Nil;
+    End;
+  Root.Components['fliper1'].Components['dialog1'].Visible := True;
   Run;
   Root.Free;
 End.
