@@ -24,11 +24,16 @@ Begin
   Root := TWebComponent.Create('root', 'test1', Nil);
   With TWebLoginBox.Create('dialog1', 'dialog', Root) Do
   Begin
-    Visible := True;
-    Active := True;
-    Logged := False;
+    Caption      := 'Authentication';
+    Error        := False;
+    ErrorValue   := '';
+    Logged       := False;
+    Visible      := True;
+    Active       := True;
+    Logged       := False;
     LoginManager := LoginMan;
   End;
   Run;
+  LoginMan.Free;
   Root.Free;
 End.

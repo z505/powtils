@@ -14,15 +14,14 @@ Unit WebApplication;
 
 Interface
 Uses
-  PWInitAll,
-  PWMain,
-  PWSDSSess,
   Classes,
   Sysutils,
+  TypInfo,
+  PWMain,
 	WebTemplate,
   WebAction,
-  XMLBase,
-  TypInfo;
+  WebStatefull,
+  XMLBase;
 
 Type
 	TWebComponent = Class;
@@ -385,22 +384,17 @@ End;
 Procedure Run;
 Var
   TheActions : TTokenList;
-  States : TStringList;
+  States     : TStringList;
+
 Begin
-  If FileExists(SelfReference + '.states') Then
+  States := TStringList.Create;
+  If IsCookie('states') And FileExists(SelfReference + '.' + GetCookie('states') + '.states') Then
   Begin
-    States := TStringList.Create;
-    States.LoadFromFile(SelfReference + '.states');
+    States.LoadFromFile(SelfReference + '.' + GetCookie('states') + '.states');
     Root.CascadeLoad(States);
-    States.Free;
-  End;
-  If IsSess('globalstate') Then
-  Begin
-    States := TStringList.Create;
-    States.DelimitedText := GetSess('globalstate');
-    Root.CascadeLoad(States);
-    States.Free;
-  End;
+  End
+  Else
+    NewState;
   If IsCGIVar('action') Then
   Begin
     TheActions := BreakApartNames(GetCGIVar('action'));
@@ -412,17 +406,10 @@ Begin
     TheActions[0] := 'default';
     Root.Actions.CheckAction(TheActions, 0);
   End;
-  States := TStringList.Create;
-  SetSess('globalstate', States.DelimitedText);
+  States.Clear;
   Root.CascadeSave(States);
-  States.Free; 
-  If Not(FileExists(SelfReference + '.states')) Then
-  Begin
-    States := TStringList.Create;
-    Root.CascadeSave(States);
-    States.SaveToFile(SelfReference + '.states');
-    States.Free;
-  End;
+  States.SaveToFile(SelfReference + '.' + GetCookie('states') + '.states');
+  States.Free;
   Root.Template.Load;
   Root.Template.Emit;
 End;
