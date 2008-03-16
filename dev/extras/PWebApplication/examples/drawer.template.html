@@ -1,11 +1,14 @@
-<table>
-<components.list>
-<components.captionlist>
-<tr>
-<td><drawer><components.caption/></drawer></td>
-<td><components.current/></td>
-</tr>
-</components.captionlist>
-</components.list>
-</table>
-
+<div align="center"> 
+  <table width="60%" border="0" cellspacing="0" cellpadding="4">
+    <tr> 
+      <td width="256" align="center" valign="top" bgcolor="#FFFF99"> 
+	  <components.list>
+	  <components.current/>
+	  <exportvars/>
+	  <a href="{$Self}?action={$ComponentName}.toggle.{$CurComponentNum}">Hide/Show</a>
+	  <components.next/>
+	  </components.list>
+      </td>
+    </tr>
+  </table>
+</div>

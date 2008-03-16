@@ -20,6 +20,17 @@ Uses
   Classes,
   Typinfo;
 
+Const
+  ccCGIString      = 0;
+  ccCGINumeric     = 1;
+  ccCGIDate        = 2;
+  ccCGITime        = 3;
+  ccCGIDateAndTime = 4;
+  ccCGIFloat       = 5;
+  ccCGIInt64       = 6;
+  ccCGIEnum        = 7;
+  ccCGIBool        = 8;
+
 Type
   // This class shows the contents of a TStringList
   TWebMemoShow = Class(TWebComponent)
@@ -41,20 +52,22 @@ Type
   // ones wich have the condition 'visible' set
   TWebComponentList = Class(TWebComponent)
   Private
-    fCurComponent : LongInt;
-    fCurCaption : LongInt;
+    fCurComponentNum : LongInt;
     fOnShowComponent : TWebEvent;
+    Function GetCurCaption: String;
+    Function GetIfCurVisible: Boolean;
+    Procedure SetIfCurVisible(Vis : Boolean);
   Protected
-    Procedure ComponentCaptionList(Caller : TXMLTag);
-    Procedure ComponentCaptionCurrent(Caller : TXMLTag);
     Procedure ComponentList(Caller : TXMLTag);
     Procedure ComponentCurrent(Caller : TXMLTag);
+    Procedure ComponentNext(Caller : TXMLTag);
   Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
   Published
     Property OnShowComponent : TWebEvent Read fOnShowComponent Write fOnShowComponent;
-    Property CurComponent : LongInt Read fCurComponent;
-    Property CurCaption : LongInt Read fCurCaption;
+    Property CurComponentNum : LongInt Read fCurComponentNum;
+    Property CurCaption : String Read GetCurCaption;
+    Property CurVisible : Boolean Read GetIfCurVisible Write SetIfCurVisible;
   End;
 
   // This component inherits TWebComponentList to allow the user
@@ -63,7 +76,6 @@ Type
   Private
     fOnChange : TWebEvent;
   Protected
-    Procedure Drawer(Caller : TXMLTag);
     Procedure DrawerClick(Actions : TTokenList; Depth : LongWord);
   Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
@@ -73,13 +85,12 @@ Type
 
   // This component inherits TWebComponentList to allow the user
   // to select only one of the child components that be shown
-  TWebPageFliper = Class(TWebComponentList)
+  TWebPageFlipper = Class(TWebComponentList)
   Private
     fSelected : LongInt;
     fOnSelect : TWebEvent;
   Protected
-    Procedure Fliper(Caller : TXMLTag);
-    Procedure FliperSelect(Actions : TTokenList; Depth : LongWord);
+    Procedure FlipperSelect(Actions : TTokenList; Depth : LongWord);
   Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
   Published
@@ -107,16 +118,18 @@ Type
   TWebEditPage = Class(TWebComponent)
   Private
     fOnSubmit : TWebEvent;
-    fWhiteList : TStringList;
+    fWhiteList : Array Of Record
+        Name : String;
+        Kind : Byte;
+      End;
     fActive : Boolean;
   Protected
     Procedure EditSubmit(Action : TTokenList; Depth : LongWord);
   Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
-    Destructor Destroy; Override;
+    Procedure WhiteList(Name : String; Kind : Byte);
   Published
     Property OnSubmit : TWebEvent Read fOnSubmit Write fOnSubmit;
-    Property WhiteList : TStringList Read fWhiteList;
     Property Active : Boolean Read fActive Write fActive;
   End;
 
@@ -172,40 +185,45 @@ End;
 
 // TWebComponentList
 
-Procedure TWebComponentList.ComponentCaptionList(Caller : TXMLTag);
+Function TWebComponentList.GetCurCaption: String;
 Begin
-  fCurCaption := 0;
-  While fCurCaption < Count Do
-    Caller.EmitChilds;
+  If fCurComponentNum < Count Then
+    Result := ComponentByIndex[fCurComponentNum].Caption;
 End;
 
-Procedure TWebComponentList.ComponentCaptionCurrent(Caller : TXMLTag);
+Function TWebComponentList.GetIfCurVisible: Boolean;
 Begin
-  If fCurCaption < Count Then
-    WebWrite(ComponentByIndex[fCurCaption].Caption);
-  Inc(fCurCaption);
+  GetIfCurVisible := (fCurComponentNum < Count) And ComponentByIndex[fCurComponentNum].Visible;
+End;
+
+Procedure TWebComponentList.SetIfCurVisible(Vis : Boolean);
+Begin
 End;
 
 Procedure TWebComponentList.ComponentList(Caller : TXMLTag);
 Begin
-  fCurComponent := 0;
-  While fCurComponent < Count Do
+  fCurComponentNum := 0;
+  While fCurComponentNum < Count Do
     Caller.EmitChilds;
 End;
 
 Procedure TWebComponentList.ComponentCurrent(Caller : TXMLTag);
 Begin
-  If fCurComponent < Count Then
-    If ComponentByIndex[fCurComponent].Visible Then
-    Begin
-      SetVar('self', SelfReference);
-      ComponentByIndex[fCurComponent].ExportMyProperties;
-      ComponentByIndex[fCurComponent].Template.LoadAndEmit;
-      If Assigned(fOnShowComponent) Then
-        fOnShowComponent();
-      SetVar('self', SelfReference);
-    End;
-  Inc(fCurComponent);
+  If fCurComponentNum < Count Then
+  Begin
+    SetVar('self', SelfReference);
+    ComponentByIndex[fCurComponentNum].ExportMyProperties;
+    ComponentByIndex[fCurComponentNum].Template.LoadAndEmit;
+    If Assigned(fOnShowComponent) Then
+      fOnShowComponent();
+    SetVar('self', SelfReference);
+    ExportMyProperties;
+  End;
+End;
+
+Procedure TWebComponentList.ComponentNext(Caller : TXMLTag);
+Begin
+  Inc(fCurComponentNum);
 End;
 
 Constructor TWebComponentList.Create(Name, Tmpl : String; Owner : TWebComponent);
@@ -213,24 +231,11 @@ Begin
   Inherited Create(Name, Tmpl, Owner);
   Template.Tag['components.list'] := Self.ComponentList;
   Template.Tag['components.current'] := Self.ComponentCurrent;
-  Template.Tag['components.captionlist'] := Self.ComponentCaptionList;
-  Template.Tag['components.caption'] := Self.ComponentCaptionCurrent;
-  fCurComponent := 0;
-  fCurCaption := 0;
+  Template.Tag['components.next'] := Self.ComponentNext;
+  fCurComponentNum := 0;
 End;
 
 // TWebPageDrawer
-
-Procedure TWebPageDrawer.Drawer(Caller : TXMLTag);
-Begin
-  If (CurComponent > -1) And (CurComponent < Count) Then
-  Begin
-    SetVar('component', CompleteName);
-    OutF('<a href="{$self}?action={$component}.toggle.' + IntToStr(CurComponent) + '">');
-    Caller.EmitChilds;
-    WebWrite('</a>');
-  End;
-End;
 
 Procedure TWebPageDrawer.DrawerClick(Actions : TTokenList; Depth : LongWord);
 Var
@@ -246,33 +251,12 @@ End;
 Constructor TWebPageDrawer.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Tmpl, Owner);
-  Template.Tag['drawer'] := Self.Drawer;
   Actions['toggle'] := Self.DrawerClick;
 End;
 
-// TWebPageFliper
+// TWebPageFlipper
 
-Procedure TWebPageFliper.Fliper(Caller : TXMLTag);
-Begin
-  If (CurComponent > -1) And (CurComponent < Count) Then
-  Begin
-    SetVar('component', CompleteName);
-    If fSelected <> fCurComponent Then
-    Begin
-      ComponentByIndex[fCurComponent].Visible := False;
-      OutF('<a href="{$self}?action={$component}.select.' + IntToStr(CurComponent) + '">');
-      Caller.EmitChilds;
-      WebWrite('</a>');
-    End
-    Else
-    Begin
-      ComponentByIndex[CurComponent].Visible := True;
-      Caller.EmitChilds;
-    End;
-  End;
-End;
-
-Procedure TWebPageFliper.FliperSelect(Actions : TTokenList; Depth : LongWord);
+Procedure TWebPageFlipper.FlipperSelect(Actions : TTokenList; Depth : LongWord);
 Var
   Clicked : LongInt;
 Begin
@@ -288,11 +272,10 @@ Begin
     fOnSelect();
 End;
 
-Constructor TWebPageFliper.Create(Name, Tmpl : String; Owner : TWebComponent);
+Constructor TWebPageFlipper.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Tmpl, Owner);
-  Template.Tag['fliper'] := Self.Fliper;
-  Actions['select'] := Self.FliperSelect;
+  Actions['select'] := Self.FlipperSelect;
 End;
 
 // TWebPageScroller
@@ -346,6 +329,41 @@ Var
   Ctrl  : LongInt;
   PName : String;
   Value : String;
+  Kind  : LongInt;
+
+  Function IsWhiteListed: Boolean;
+  Var
+    Ctrl : LongWord;
+  Begin
+    Result := False;
+    If Length(fWhiteList) > 0 Then
+      For Ctrl := 0 To Length(fWhiteList) - 1 Do
+        If fWhiteList[Ctrl].Name = PName Then
+        Begin
+          Result := True;
+          Exit;
+        End
+        Else
+    Else
+      Result := False;
+  End;
+
+  Function GetWhiteType: LongInt;
+  Var
+    Ctrl : LongWord;
+  Begin
+    Result := -1;
+    If Length(fWhiteList) > 0 Then
+      For Ctrl := 0 To Length(fWhiteList) - 1 Do
+        If fWhiteList[Ctrl].Name = PName Then
+        Begin
+          Result := fWhiteList[Ctrl].Kind;
+          Exit;
+        End
+        Else
+    Else
+      Result := -1;
+  End;
 
 Begin
   If fActive Then
@@ -356,24 +374,102 @@ Begin
     For Ctrl := 0 To Siz - 1 Do
     Begin
       PName := PLst^[Ctrl]^.Name;
-      If ((IsCGIVar(PName)) And (fWhiteList.IndexOf(PName) > -1)) Then
+      If IsCGIVar(PName) And IsWhiteListed Then
       Begin
         Value := GetCGIVar(PName);
-        If PLst^[Ctrl]^.PropType^.Kind In [
-          tkInteger, tkSet, tkBool, tkWChar, tkChar] Then
-          SetOrdProp(Self, PName, StrToInt(Value));
-        If PLst^[Ctrl]^.PropType^.Kind In [
-          tkSString, tkLString, tkAString, tkWString] Then
-          SetStrProp(Self, PName, Value);
-        If PLst^[Ctrl]^.PropType^.Kind = tkFloat Then
-          If PLst^[Ctrl]^.PropType^.Name = 'TDateTime' Then
-            SetFloatProp(Self, PName, StrToDateTime(Value))          
-          Else
+        Kind := GetWhiteType;
+        Case Kind Of
+        ccCGINumeric:
+          Try
+            SetOrdProp(Self, PName, StrToInt(Value));
+          Except
+            On E: Exception Do
+            Begin
+              Self.Error := True;
+              Self.ErrorValue := Value + ' is not a valid integer numeric.';
+            End;
+          End;
+        ccCGIString:
+          Try
+            SetStrProp(Self, PName, Value);
+          Except
+            On E: Exception Do
+            Begin
+              Self.Error := True;
+              Self.ErrorValue := Value + ' is not a valid string (?).';
+            End;
+          End;
+        ccCGIDate:
+          Try
+            SetFloatProp(Self, PName, StrToDate(Value))
+          Except
+            On E: Exception Do
+            Begin
+              Self.Error := True;
+              Self.ErrorValue := Value + ' is not a valid date.';
+            End;
+          End;
+        ccCGITime:
+          Try
+            SetFloatProp(Self, PName, StrToTime(Value))
+          Except
+            On E: Exception Do
+            Begin
+              Self.Error := True;
+              Self.ErrorValue := Value + ' is not a valid time.';
+            End;
+          End;
+        ccCGIDateAndTime:
+          Try
+            SetFloatProp(Self, PName, StrToDateTime(Value))
+          Except
+            On E: Exception Do
+            Begin
+              Self.Error := True;
+              Self.ErrorValue := Value + ' is not a valid time.';
+            End;
+          End;
+        ccCGIFloat:
+          Try
             SetFloatProp(Self, PName, StrToFloat(Value));
-        If PLst^[Ctrl]^.PropType^.Kind = tkInt64 Then
-          SetInt64Prop(Self, PName, StrToInt(Value));
-        If PLst^[Ctrl]^.PropType^.Kind =  tkEnumeration Then
-          SetEnumProp(Self, PName, Value);
+          Except
+            On E: Exception Do
+            Begin
+              Self.Error := True;
+              Self.ErrorValue := Value + ' is not a valid floating point number.';
+            End;
+          End;
+        ccCGIInt64:
+          Try
+            SetInt64Prop(Self, PName, StrToInt(Value));
+          Except
+            On E: Exception Do
+            Begin
+              Self.Error := True;
+              Self.ErrorValue := Value + ' is not a valid 64bits integer.';
+            End;
+          End;
+        ccCGIEnum:
+          Try
+            SetEnumProp(Self, PName, Value);
+          Except
+            On E: Exception Do
+            Begin
+              Self.Error := True;
+              Self.ErrorValue := Value + ' is not a valid value for this field.';
+            End;
+          End;
+        ccCGIBool:
+          Try
+            SetOrdProp(Self, PName, Ord(StrToBool(Value)));
+          Except
+            On E: Exception Do
+            Begin
+              Self.Error := True;
+              Self.ErrorValue := Value + ' is not a valid boolean, must be either true or false.';
+            End;
+          End;
+        End;
       End;
     End;
     FreeMem(PLst, PTd^.PropCount * SizeOf(Pointer));
@@ -385,15 +481,14 @@ End;
 Constructor TWebEditPage.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Tmpl, Owner);
-  fWhiteList := TStringList.Create;
   Actions['submit'] := Self.EditSubmit;
 End;
 
-Destructor TWebEditPage.Destroy;
+Procedure TWebEditPage.WhiteList(Name : String; Kind : Byte);
 Begin
-  If Assigned(fWhiteList) Then
-    fWhiteList.Free;
-  Inherited Destroy;
+  SetLength(fWhiteList, Length(fWhiteList) + 1);
+  fWhiteList[High(fWhiteList)].Name := Name;
+  fWhiteList[High(fWhiteList)].Kind := Kind;
 End;
 
 // TWebLoginManager
@@ -432,8 +527,8 @@ Constructor TWebLoginBox.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Tmpl, Owner);
   OnSubmit := Self.UponLogin;
-  WhiteList.Add('Login');
-  WhiteList.Add('Password');
+  WhiteList('Login', ccCGIString);
+  WhiteList('Password', ccCGIString);
   Actions['logout'] := Self.Logout;
 End;
 
