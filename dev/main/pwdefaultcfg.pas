@@ -161,7 +161,7 @@ procedure LocalInit;
 begin
  {$IFDEF PWUDEBUG}
   assign(debugt, 'pwuconfig.debug.log');
-  rewrite(debugt)
+  rewrite(debugt);
  {$ENDIF}
   pwmain.CustomCfgUnitInit:= {$IFDEF FPC}@{$ENDIF}InitCfgUnit;
 end;
