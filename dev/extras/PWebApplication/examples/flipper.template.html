@@ -1,9 +1,12 @@
-<table>
-<labels>
-<tr><td><curlabel><curlabelcaption/></curlabel></td></tr>
-</labels>
-</table>
-<componentlist>
-<componentcurrent/>
-</componentlist>
-
+<div align="center"> 
+  <table width="90%" border="0" cellspacing="0" cellpadding="4">
+    <tr> 
+      <td width="128" align="center" valign="top"> <font size="-2" face="Verdana, Arial, Helvetica, sans-serif"><components.list><exportvars/> 
+        <if notwhen="CurVisible"><a href="{$Self}?action={$ComponentName}.select.{$CurComponentNum}">Select 
+        {$CurCaption}</a><br/>
+        </if> <components.next/> </components.list> </font></td>
+      <td align="center" valign="top" bgcolor="#FFFFCC"> <components.list> <if when="CurVisible"> 
+        <components.current/> </if> <components.next/> </components.list> </td>
+    </tr>
+  </table>
+</div>

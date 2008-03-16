@@ -36,7 +36,6 @@ Begin
       LoginManager := Nil;
     End;
   Root.
-    Components['fliper1'].
       Components['scroller1'].
         Components['dialog1'].
           Visible := True;
