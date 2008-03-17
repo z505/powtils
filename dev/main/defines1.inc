@@ -16,6 +16,6 @@
 // force debugln if PWUDEBUG is on
 {$ifdef PWUDEBUG}
   {$define DBUG_ON}
-{$ENDIF}
+{$endif}
 
 

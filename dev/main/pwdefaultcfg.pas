@@ -33,11 +33,12 @@ const
  {$endif}
 
 {$IFDEF PWUDEBUG}
- var debugt: text;
+ //var debugt: text;
+ var debugt: longint;
 
- procedure debugln(s: string);
+ procedure debugln(const s: string);
  begin
-   pwdefaultdebug.debugln(debugt, s);
+   pwdebugplugin.debugln(debugt, s);
  end;
 {$ENDIF}
 
@@ -159,16 +160,18 @@ end;
 
 procedure UnitInit;
 begin
- {$IFDEF DBUG_ON} // init logging if enabled
-  pwdebugplugin.DebugInit(debugt, 'pwdefaultcfg.debug.log');  
- {$ENDIF}
-  pwmain.CustomCfgUnitInit:= {$IFDEF FPC}@{$ENDIF}InitCfg;
+ {$ifdef DBUG_ON} 
+  // init logging if enabled
+  pwdebugplugin.DebugInit(debugt, 'pwdefaultcfg.debug.log');                                               
+ {$endif}
+  // setup this unit as a config plugin for pwmain
+  pwmain.CustomCfgUnitInit:= {$ifdef FPC}@{$endif}InitCfg;
 end;
 
 procedure UnitFini;
 begin
  {$IFDEF DBUG_ON}
-  pwdebugplugin.DebugFini(t);
+  pwdebugplugin.DebugFini(debugt);
  {$ENDIF}
 end;
 

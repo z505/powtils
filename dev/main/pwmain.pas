@@ -308,12 +308,6 @@ const // obsolete backwards compatibility
   GetWebConfigVar: function(const name: astr): astr                             = {$IFDEF FPC}@{$ENDIF}GetCfgVar;
 
 
-{$IFDEF DBUG_ON}
-  procedure dummydebug(s: astr);
-  var debugln: procedure(s: astr) = {$IFDEF FPC}@{$ENDIF}dummydebug;
-  // DEVELOPERS: ASSIGN DEBUGLN() PROC IN YOUR CGI PROGRAM FOR CUSTOM LOGGING
-{$ENDIF}
-
 // flags
 var headers_sent: bln = false;
 
@@ -365,9 +359,17 @@ uses
   pwstrutil,
   {$IFDEF GZIP_ON}pwobjbuff,{$ENDIF} // output buffer w/built in gzip
   pwnative_out, // simple writeln
-  pwenvvar, pwfileutil, pwsubstr, pwurlenc, pwmimetypes, strwrap1;
+  pwenvvar, pwfileutil, pwsubstr, pwurlenc, pwmimetypes, strwrap1, 
+  pwdebugplugin;
 
-{$IFDEF PWUDEBUG}var debugt: text; // Debug output file (for localhost single visitor testing only!)
+{$IFDEF PWUDEBUG}
+  // var debugt: text; // Debug output file (for localhost single visitor testing only!)
+  var debugt: longint; 
+
+  procedure debugln(s: astr);
+  begin
+    pwdebugplugin.debugln(debugt, s);
+  end;
 {$ENDIF}
 
 var
@@ -452,11 +454,13 @@ function unsetenv(const name: pchar): longint; cdecl; external 'c' name 'unseten
 
  {$IFDEF PWUDEBUG} // error logging option
  { ERROR LOGGING   NOTE: WITH DYNPWU USE DEBUG DLL IF AVAIL }
+  (*
   procedure logdebugln(s: astr);
   begin
     writeln(debugt, s);
     flush(debugt);
   end;
+  *)
   {$ENDIF PWUDEBUG}
 {$ENDIF DBUG_ON}
 
@@ -2959,22 +2963,26 @@ begin
   plugin_init_called:= true;
 end;
 
-
-
 procedure LocalInit;
 begin
  {$IFDEF PWUDEBUG}
    // log file 
-  InitDebug('pwmain.debug.log', @logdebugln);  
+  DebugInit(debugt, 'pwmain.debug.log');  
  {$ENDIF}
 end;
 
 procedure LocalFini;
 begin
-  {$IFDEF GZIP_ON}SetGzipContentLength;{$ENDIF}
+ {$IFDEF GZIP_ON}
+  SetGzipContentLength;
+ {$ENDIF}
   if not headers_sent then SendHeaders;
-  {$IFDEF GZIP_ON}FlushOutputBuf;{$ENDIF}
-  {$IFDEF PWUDEBUG}close(debugt);{$ENDIF}
+ {$IFDEF GZIP_ON}
+  FlushOutputBuf;
+ {$ENDIF}
+ {$IFDEF PWUDEBUG}
+  pwdebugplugin.DebugFini(debugt);
+ {$ENDIF}
 end;
 
 initialization
