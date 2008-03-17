@@ -169,7 +169,7 @@ end;
 procedure UnitFini;
 begin
  {$IFDEF DBUG_ON}
-  pwdefaultdebug.FiniDebug(t);
+  pwdebugplugin.FiniDebug(t);
  {$ENDIF}
 end;
 

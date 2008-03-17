@@ -37,10 +37,6 @@ unit pwmain; {$IFDEF FPC}{$GOTO ON} {$NOTES ON} {$NOTE USING STATIC WEB UNIT}{$E
 
 {$I defines1.inc}
 
-{$IFNDEF FPC}{$DEFINE SYSUTILS_ON}{$ENDIF}
-
-{$IFDEF PWUDEBUG}{$DEFINE DBUG_ON}{$ENDIF} // debugln forced if pwudebug on
-
 {$J+} // persistent local scope vars
 
 interface
@@ -2964,21 +2960,13 @@ begin
 end;
 
 
+
 procedure LocalInit;
-
- {$IFDEF PWUDEBUG}
-  procedure InitDebug;
-  begin
-    debugln:= @logdebugln; // default log file debugging
-    assign(debugt, 'pwmain.debug.log');
-    rewrite(debugt);
-    debugln('----DEBUG LOG----');
-    flush(debugt);
-  end;
- {$ENDIF}
-
 begin
-  {$IFDEF PWUDEBUG}InitDebug;{$ENDIF}
+ {$IFDEF PWUDEBUG}
+   // log file 
+  InitDebug('pwmain.debug.log', @logdebugln);  
+ {$ENDIF}
 end;
 
 procedure LocalFini;
