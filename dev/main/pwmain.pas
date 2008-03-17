@@ -1048,7 +1048,7 @@ end;
 
 { Sets Run Time Information variable }
 procedure SetRTI(const name, value: astr);
-begin {$IFDEF DBUG_ON} debugln('SetRTIi begin');{$ENDIF}
+begin {$IFDEF DBUG_ON} debugln('SetRTI begin');{$ENDIF}
   if not UpdateWebVar(rti, name, value, CASE_IGNORE) then
     AddWebVar(rti, name, value);
   {$IFDEF DBUG_ON}debugln('SetRTI end');{$ENDIF}
