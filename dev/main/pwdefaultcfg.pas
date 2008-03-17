@@ -36,7 +36,7 @@ const
  //var debugt: text;
  var debugt: longint;
 
- procedure debugln(const s: string);
+ procedure debugln(s: string);
  begin
    pwdebugplugin.debugln(debugt, s);
  end;
