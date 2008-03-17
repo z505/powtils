@@ -1,9 +1,8 @@
 unit pwtypes;
 
-{$IFDEF FPC}{$MODE OBJFPC}{$H+}{$ENDIF}
-{$IFDEF WIN32}{$DEFINE WINDOWS}{$ENDIF}
-interface
+{$I defines1.inc}
 
+interface
 
 type
   // Below aliases reduce verbose line noise in long procedure declarations.
@@ -24,10 +23,9 @@ type
   bln = boolean;
 
 
-
-const // platform specific directory slash (Mac not supported yet)
-  {$IFDEF UNIX}SLASH = '/';{$ENDIF}
-  {$IFDEF WINDOWS}SLASH = '\';{$ENDIF}
+const // platform specific directory slash (old Mac not supported)
+  {$ifdef UNIX}SLASH = '/';{$endif}
+  {$ifdef WINDOWS}SLASH = '\';{$endif}
   SLASHES = ['\', '/'];
 
 const
@@ -38,58 +36,55 @@ const
 
 {$IFNDEF FPC} // delphi compatability
 
-const
-  DirectorySeparator = '\';  // TODO:  delphi VERSION check & KYLIX compat
-  PathDelim = DirectorySeparator;
-  DriveDelim = ':';          // ...
-  PathSep = ';';             // .. 
+  const
+    DirectorySeparator = SLASH;  // TODO:  delphi VERSION check & KYLIX compat
+    PathDelim = DirectorySeparator;
+    DriveDelim = ':';          // ...
+    PathSep = ';';             // .. 
 
+  type
+    UInt64 = Int64;  
 
-type
-  UInt64 = Int64;  
+    {$EXTERNALSYM INT_PTR}
+    {$EXTERNALSYM UINT_PTR}
+    {$EXTERNALSYM LONG_PTR}
+    {$EXTERNALSYM ULONG_PTR}
+    {$EXTERNALSYM DWORD_PTR}
+    INT_PTR = Longint;
+    UINT_PTR = LongWord;
+    LONG_PTR = Longint;
+    ULONG_PTR = LongWord;
+    DWORD_PTR = LongWord;
+    PINT_PTR = ^INT_PTR;
+    PUINT_PTR = ^UINT_PTR;
+    PLONG_PTR = ^LONG_PTR;
+    PULONG_PTR = ^ULONG_PTR;
 
-  {$EXTERNALSYM INT_PTR}
-  {$EXTERNALSYM UINT_PTR}
-  {$EXTERNALSYM LONG_PTR}
-  {$EXTERNALSYM ULONG_PTR}
-  {$EXTERNALSYM DWORD_PTR}
-  INT_PTR = Longint;
-  UINT_PTR = LongWord;
-  LONG_PTR = Longint;
-  ULONG_PTR = LongWord;
-  DWORD_PTR = LongWord;
-  PINT_PTR = ^INT_PTR;
-  PUINT_PTR = ^UINT_PTR;
-  PLONG_PTR = ^LONG_PTR;
-  PULONG_PTR = ^ULONG_PTR;
+    PtrInt = Longint;
+    PtrUInt = Longword;
+    PPtrInt = ^PtrInt;
+    PPtrUInt = ^PtrUInt;
 
-  PtrInt = Longint;
-  PtrUInt = Longword;
-  PPtrInt = ^PtrInt;
-  PPtrUInt = ^PtrUInt;
+    {$EXTERNALSYM SIZE_T}
+    {$EXTERNALSYM SSIZE_T}
+    SIZE_T = ULONG_PTR;
+    SSIZE_T = LONG_PTR;
+    PSIZE_T = ^SIZE_T;
+    PSSIZE_T = ^SSIZE_T;
 
-  {$EXTERNALSYM SIZE_T}
-  {$EXTERNALSYM SSIZE_T}
-  SIZE_T = ULONG_PTR;
-  SSIZE_T = LONG_PTR;
-  PSIZE_T = ^SIZE_T;
-  PSSIZE_T = ^SSIZE_T;
-
-  SizeInt = SSIZE_T;
-  SizeUInt = SIZE_T;
-  PSizeInt = PSSIZE_T;
-  PSizeUInt = PSIZE_T;
+    SizeInt = SSIZE_T;
+    SizeUInt = SIZE_T;
+    PSizeInt = PSSIZE_T;
+    PSizeUInt = PSIZE_T;
 {$ENDIF}
 
 {$IFDEF FPC}
 const
-// commenting is VP fix. These idents are in a different unit there.
   PathDelim={System.}DirectorySeparator;
   DriveDelim={System.}DriveSeparator;
   PathSep={System.}PathSeparator;
   MAX_PATH={System.}MaxPathLen;
 {$ENDIF}
-
 
 
 const

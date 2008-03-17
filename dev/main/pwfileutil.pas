@@ -39,6 +39,7 @@ const
   fmShareDenyNone  = $0040;
     
 procedure Xpath(var path: astr);
+
 function NewFile(const fname: astr): bln;
 function CloneFile(src, dest: astr): integer;
 function FileError: astr;
