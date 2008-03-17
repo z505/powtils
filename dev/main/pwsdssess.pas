@@ -44,13 +44,22 @@ function SetSessAsFloat(const name: string; value: double): boolean;
 function SetSessAsInt(const name: string; value: longint): boolean;
 function UnsetSess(const name: string): boolean;
 
-
 implementation
 uses 
-  pwenvvar,  pwurlenc, pwsds, pwfileutil, pwbase64enc, sysutils;
+  pwenvvar,  pwurlenc, pwsds, pwfileutil, pwbase64enc, sysutils, pwdebugplugin;
 
 var sess: TWebVars;   
     sess_initialized: boolean = false; 
+   {$ifdef DBUG_ON}
+    debugt: longint;
+   {$endif}
+
+{$ifdef DBUG_ON}
+  procedure DebugLn(s: astr);
+  begin
+    pwdebugplugin.debugln(debugt, s);
+  end;
+{$endif}
 
 {&I delphisystemcompat.inc }
 
@@ -63,7 +72,8 @@ end;
 
 
 procedure SetDefaultSessCfg;
-begin {$IFDEF DBUG_ON} debugln('SetDefaultSessCfg begin');{$ENDIF}
+begin 
+  {$IFDEF DBUG_ON} debugln('SetDefaultSessCfg begin');{$ENDIF}
   // local directory session file
   iAddWebCfgVar('session_path', PWU_SESS_FILE);
   iAddWebCfgVar('session_life_time', DEFAULT_SESS_TIME);
@@ -510,20 +520,29 @@ begin
   InitSess;
 end;
 
-procedure LocalInit;
+procedure UnitInit;
 begin
   // setup plugin functions
   CustomSessUpdate:= {$IFDEF FPC}@{$ENDIF}SessUpdate;
   CustomSessUnitInit:= {$IFDEF FPC}@{$ENDIF}InitSessUnit;
+ {$ifdef DBUG_ON} // init logging if enabled
+  pwdebugplugin.DebugInit(debugt, 'pwsdssess.debug.log');                                               
+ {$endif}
+end;
+
+
+procedure UnitFini;
+begin
+ {$IFDEF DBUG_ON}
+  pwdebugplugin.DebugFini(debugt);
+ {$ENDIF}
 end;
 
 initialization
-//  writeln('DEBUG: INIT pwsdssess');
-
-  LocalInit;
+  UnitInit;
 
 finalization
-
+  UnitFini;
 end.
 
 
