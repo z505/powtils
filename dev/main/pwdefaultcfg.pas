@@ -18,7 +18,8 @@ uses
  strwrap1,
  pwsubstr,
  pwnative_out,
- pwerrors;
+ pwerrors,
+ pwdebugplugin;
 
 
 const
@@ -150,9 +151,7 @@ begin
 
 end;
 
-
-
-procedure InitCfgUnit;
+procedure InitCfg;
 begin
   // can't find config file in global, local, or system path
   if not ParseCfg then ErrWithHeader(CANT_READ_CFG_FILE); 
@@ -161,15 +160,15 @@ end;
 procedure UnitInit;
 begin
  {$IFDEF DBUG_ON} // init logging if enabled
-  pwdefaultdebug.DebugInit(debugt, 'pwdefaultcfg.debug.log');  
+  pwdebugplugin.DebugInit(debugt, 'pwdefaultcfg.debug.log');  
  {$ENDIF}
-  pwmain.CustomCfgUnitInit:= {$IFDEF FPC}@{$ENDIF}InitCfgUnit;
+  pwmain.CustomCfgUnitInit:= {$IFDEF FPC}@{$ENDIF}InitCfg;
 end;
 
 procedure UnitFini;
 begin
  {$IFDEF DBUG_ON}
-  pwdebugplugin.FiniDebug(t);
+  pwdebugplugin.DebugFini(t);
  {$ENDIF}
 end;
 
