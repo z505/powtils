@@ -50,21 +50,24 @@ var
   sys_cfg_path,
   tmpstr: string;
 const
-  GLOBAL_CFG_DIR = 'pwu'+SLASH+'conf'+SLASH; 
+  GLOBAL_CFG_DIR = 'pwu/conf/'; 
 begin 
  {$IFDEF PWUDEBUG}debugln('GetCfgPath begin'); {$ENDIF}
   result:= '';
  {$IFDEF WINDOWS}
-  sys_cfg_path:= pwenvvar.GetEnvVar('WINDIR') + SLASH + PWU_CFG_FILE;
+  sys_cfg_path:= pwenvvar.GetEnvVar('WINDIR') +'/'+PWU_CFG_FILE;
  {$ENDIF}
  {$IFDEF UNIX}
   sys_cfg_path:= PWU_SYSCONF_PATH + PWU_CFG_FILE;
  {$ENDIF}
+  xpath(sys_cfg_path); // cross platform slashes
   tmpstr:= GetEnvVar('DOCUMENT_ROOT');
   if tmpstr <> '' then 
   begin
-    global_cfg_path1:=  tmpstr+SLASH+'..'+SLASH+GLOBAL_CFG_DIR + PWU_CFG_FILE;
-    global_cfg_path2:=  tmpstr+SLASH+GLOBAL_CFG_DIR + PWU_CFG_FILE;
+    global_cfg_path1:=  tmpstr+'/../'+GLOBAL_CFG_DIR + PWU_CFG_FILE;
+    global_cfg_path2:=  tmpstr+'/'+GLOBAL_CFG_DIR + PWU_CFG_FILE;
+    xpath(global_cfg_path1);
+    xpath(global_cfg_path2);
   end else
   begin
     global_cfg_path1:= '';
