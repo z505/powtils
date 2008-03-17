@@ -1,21 +1,15 @@
 {*******************************************************************************
-
                            Powtils File sharing
-
 ********************************************************************************
-  Functions for safe file sharing.
+  Custom file sharing implementation.
 
-  Copyright (c) 2003-2006 by PSP devel team. See PSP License for information.
-
+  Copyright (c) 2003-2006 by PSP devel team. See Artistic License for info.
   Authors/Credits: Trustmaster (Vladimir Sibirov), L505 (Lars Olson)
 ********************************************************************************}
 
 unit pwfileshare;
 
-{$IFDEF FPC}{$MODE OBJFPC}{$H+}
-    {$IFDEF EXTRA_SECURE}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
-{$ENDIF}
-{$IFDEF win32}{$DEFINE windows}{$ENDIF}
+{$i defines1.inc}
 
 interface
 
@@ -54,17 +48,17 @@ end;
 { Suspends the execution until writing operations are done }
 function FileSuspendRead(const fname: string): boolean;
 begin
-  {$IFDEF DEBUGLN_ON}debugln('FileSuspendRead begin');{$ENDIF}
+  {$IFDEF DBUG_ON}debugln('FileSuspendRead begin');{$ENDIF}
   // Garbage collection
-  if FileExists_read(fname + '.lfw')
+  if FileExists(fname + '.lfw')
     and ((abs(Now - FileDateToDateTime(FileAge(fname + '.lfw'))) * 1440)
     >= GC_TIMEOUT)
   then
     DeleteFile(pchar(fname + '.lfw'));
   // Suspending
-  while FileExists_read(fname + '.lfw') do sleep(WAIT_TIME);
+  while FileExists(fname + '.lfw') do sleep(WAIT_TIME);
   result:= true;
-  {$IFDEF DEBUGLN_ON}debugln('FileSuspendRead end');{$ENDIF}
+  {$IFDEF DBUG_ON}debugln('FileSuspendRead end');{$ENDIF}
 end;
 
 // Suspends the execution until the file is unlocked
@@ -72,7 +66,7 @@ function FileSuspendWrite(const fname: string): boolean;
 var
   sr: TSearchRec;
 begin
-  {$IFDEF DEBUGLN_ON}debugln('FileSuspendWrite begin');{$ENDIF}
+  {$IFDEF DBUG_ON}debugln('FileSuspendWrite begin');{$ENDIF}
   // First waiting for writing operations finish
   result := FileSuspendRead(fname);
 
@@ -95,7 +89,7 @@ begin
   end;
   sysutils.FindClose(sr); 
   result := true;
-  {$IFDEF DEBUGLN_ON}debugln('FileSuspendWrite end');{$ENDIF}
+  {$IFDEF DBUG_ON}debugln('FileSuspendWrite end');{$ENDIF}
 end;
 
 { Creates unique file reading flag, returns false if IO error }
@@ -103,26 +97,24 @@ function FileMarkRead(const fname: string; var key: word): boolean;
 var
   fh: file of byte;
   lex: string;
-  randomw: word;
 begin
-  {$IFDEF DEBUGLN_ON}debugln('FileMarkRead begin');{$ENDIF}
+  {$IFDEF DBUG_ON}debugln('FileMarkRead begin');{$ENDIF}
   result:= false;
   lex := '';
   FileSuspendRead(fname);
-  if not FileExists_read(fname) then exit; 
+  if not FileExists(fname) then exit; 
 
   repeat
     randomize;
-    randomw:= word(random(65534-256)) + random(100) + random(100); // L505: increase chances of random number by adding two additional random numbers 
-    key:= randomw;
+    key:= word(random(65534)); // random key
     str(key, lex);
-  until not FileExists_read(fname + '.lfr' + lex);
+  until not FileExists(fname + '.lfr' + lex);
 
   assign(fh, fname + '.lfr' + lex);
   rewrite(fh);
   close(fh);
   if ioresult = 0 then result:= true;
- {$IFDEF DEBUGLN_ON}
+ {$IFDEF DBUG_ON}
   debugln('FileMarkRead: Last I/O ' + FileError);
   debugln('FileMarkRead end');
  {$ENDIF}
@@ -132,17 +124,17 @@ end;
 function FileMarkWrite(const fname: string): boolean;
 var fh: file of byte;
 begin
-  {$IFDEF DEBUGLN_ON}debugln('FileMarkWrite begin');{$ENDIF}
+  {$IFDEF DBUG_ON}debugln('FileMarkWrite begin');{$ENDIF}
   result:= false;
   FileSuspendWrite(fname);
-  if FileExists_read(fname) and (not FileExists_read(fname + '.lfw')) then
+  if FileExists(fname) and (not FileExists(fname + '.lfw')) then
   begin
     assign(fh, fname + '.lfw');
     rewrite(fh);
     close(fh);
     result := true;
   end;
-  {$IFDEF DEBUGLN_ON}debugln('FileMarkWrite end');{$ENDIF}
+  {$IFDEF DBUG_ON}debugln('FileMarkWrite end');{$ENDIF}
 end;
 
 // Removes unique file reading flag, returns false if IO error
@@ -150,16 +142,16 @@ function FileUnmarkRead(const fname: string; key: word): boolean;
 var fh: file of byte;
     lex: string;
 begin
-  {$IFDEF DEBUGLN_ON}debugln('FileUnmarkRead begin');{$ENDIF}
+  {$IFDEF DBUG_ON}debugln('FileUnmarkRead begin');{$ENDIF}
   result:= false;
   lex := '';
-  if not FileExists_read(fname) then exit;
+  if not FileExists(fname) then exit;
   str(key, lex);
-  if not FileExists_read(fname + '.lfr' + lex) then exit;
+  if not FileExists(fname + '.lfr' + lex) then exit;
   assign(fh, fname + '.lfr' + lex);
   erase(fh);
   if ioresult = 0 then result:= true;
- {$IFDEF DEBUGLN_ON}
+ {$IFDEF DBUG_ON}
   debugln('FileUnmarkRead: Last I/O ' + FileError);
   debugln('FileUnmarkRead end');
  {$ENDIF}
@@ -169,16 +161,16 @@ end;
 function FileUnmarkWrite(const fname: string): boolean;
 var fh: file of byte;
 begin
- {$IFDEF DEBUGLN_ON}debugln('FileUnmarkWrite begin');{$ENDIF}
+ {$IFDEF DBUG_ON}debugln('FileUnmarkWrite begin');{$ENDIF}
   result:= false;
-  if FileExists_read(fname + '.lfw') then
+  if FileExists(fname + '.lfw') then
   begin                                               
     assign(fh, fname + '.lfw');
     erase(fh);
     if ioresult = 0 then result := true;
-   {$IFDEF DEBUGLN_ON}debugln('FileUnmarkWrite: Last I/O ' + FileError); {$ENDIF}
+   {$IFDEF DBUG_ON}debugln('FileUnmarkWrite: Last I/O ' + FileError); {$ENDIF}
   end;
- {$IFDEF DEBUGLN_ON}debugln('FileUnmarkWrite end');{$ENDIF}
+ {$IFDEF DBUG_ON}debugln('FileUnmarkWrite end');{$ENDIF}
 end;
 
 end.
