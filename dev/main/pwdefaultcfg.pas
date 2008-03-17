@@ -33,9 +33,10 @@ const
 
 {$IFDEF PWUDEBUG}
  var debugt: text;
+
  procedure debugln(s: string);
  begin
-   writeln(debugt, s);    
+   pwdefaultdebug.debugln(debugt, s);
  end;
 {$ENDIF}
 
@@ -48,7 +49,8 @@ var
   tmpstr: string;
 const
   GLOBAL_CFG_DIR = 'pwu'+SLASH+'conf'+SLASH; 
-begin {$IFDEF PWUDEBUG}debugln('GetCfgPath begin'); {$ENDIF}
+begin 
+ {$IFDEF PWUDEBUG}debugln('GetCfgPath begin'); {$ENDIF}
   result:= '';
  {$IFDEF WINDOWS}
   sys_cfg_path:= pwenvvar.GetEnvVar('WINDIR') + SLASH + PWU_CFG_FILE;
@@ -156,28 +158,25 @@ begin
   if not ParseCfg then ErrWithHeader(CANT_READ_CFG_FILE); 
 end;
 
-
-procedure LocalInit;
+procedure UnitInit;
 begin
- {$IFDEF PWUDEBUG}
-  assign(debugt, 'pwuconfig.debug.log');
-  rewrite(debugt);
+ {$IFDEF DBUG_ON} // init logging if enabled
+  pwdefaultdebug.DebugInit(debugt, 'pwdefaultcfg.debug.log');  
  {$ENDIF}
   pwmain.CustomCfgUnitInit:= {$IFDEF FPC}@{$ENDIF}InitCfgUnit;
 end;
 
-procedure LocalFini;
+procedure UnitFini;
 begin
-{$IFDEF PWUDEBUG}
-  close(debugt);
-{$ENDIF}
+ {$IFDEF DBUG_ON}
+  pwdefaultdebug.FiniDebug(t);
+ {$ENDIF}
 end;
 
 
 initialization
-//  writeln('DEBUG: INIT defaultcfg');
-  LocalInit;
+  UnitInit;
 finalization
-  LocalFini;
+  UnitFini;
 end.
 
