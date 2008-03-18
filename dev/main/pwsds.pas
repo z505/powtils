@@ -89,11 +89,12 @@ uses pwdebugplugin;
 
 var debugt: longint;
 
+{$ifdef DBUG_ON}
 procedure debugln(s: astr);
 begin
   pwdebugplugin.debugln(debugt, s);
 end;
-
+{$endif}
 {------------------------------------------------------------------------------}
 {      PRIVATE TYPE DECLARATIONS                                               }
 {------------------------------------------------------------------------------}
@@ -3162,7 +3163,11 @@ begin
 end;
 
 initialization
+{$ifdef PWUDEBUG}
   pwdebugplugin.DebugInit(debugt, 'pwsds.debug.log');  
+{$endif}
 finalization
+{$ifdef PWUDEBUG}
   pwdebugplugin.DebugFini(debugt);  
+{$endif}
 end.
