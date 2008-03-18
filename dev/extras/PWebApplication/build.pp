@@ -32,7 +32,6 @@ begin
   Run();
 end;
 
-var tmp: astr;
 
 procedure CopyNeededFiles;
 begin
