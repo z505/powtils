@@ -73,7 +73,7 @@ end;
 
 procedure SetDefaultSessCfg;
 begin 
-  {$IFDEF DBUG_ON} debugln('SetDefaultSessCfg begin');{$ENDIF}
+ {$IFDEF DBUG_ON} debugln('SetDefaultSessCfg begin');{$ENDIF}
   // local directory session file
   iAddWebCfgVar('session_path', PWU_SESS_FILE);
   iAddWebCfgVar('session_life_time', DEFAULT_SESS_TIME);
@@ -133,40 +133,35 @@ function SessGC: boolean;
    {$ENDIF}
   end;
 var
- SessTblPath, tmppath, sess_lim: astr;
- res: SDS_Result;
- sess_time: longword;
- limdate: TDateTime;
- err: integer;
+  SessTblPath, tmppath, sess_lim: astr;
+  res: SDS_Result;
+  sess_time: longword;
+  limdate: TDateTime;
+  err: integer;
 begin
- result:= false;
- SessTblPath:= GetCfgVar('session_path');
- // cross platform slashes
- xpath(SessTblPath);
- if not FileExists(SessTblPath) then
- begin
-   // Searching in system temp
-   tmppath:= TmpDir();
-   if FileExists(tmppath) then
-     SessTblPath:= tmppath
-   else
-     exit; // false
- end;
- // Checking lifetime in minutes
- val(GetCfgVar('session_life_time'), sess_time, err);
- if (sess_time = 0) or (err <> 0) then
- begin
-   result:= true;
-   exit;
- end;
- limdate:= now - (sess_time / 1440);
- sess_lim:= FormatDateTime('yyyy-mm-dd hh:nn:ss', limdate);
- // Perform GC
- res:= pwsds.query(
+  result:= false;
+  SessTblPath:= GetCfgVar('session_path');
+  // cross platform slashes
+  xpath(SessTblPath);
+  if not FileExists(SessTblPath) then begin
+    // Searching in system temp
+    tmppath:= TmpDir();
+    if FileExists(tmppath) then SessTblPath:= tmppath else exit; // false
+  end;
+  // Checking lifetime in minutes
+  val(GetCfgVar('session_life_time'), sess_time, err);
+  if (sess_time = 0) or (err <> 0) then begin
+    result:= true;
+    exit;
+  end;
+  limdate:= now - (sess_time / 1440);
+  sess_lim:= FormatDateTime('yyyy-mm-dd hh:nn:ss', limdate);
+  // Perform GC
+  res:= pwsds.query(
         'DELETE FROM `' + SessTblPath + '` WHERE modified < "' + sess_lim + '"'
-       );
- if pwsds.ResultError(res) = '' then result:= true;
- pwsds.FreeResult(res);
+        );
+  if pwsds.ResultError(res) = '' then result:= true;
+  pwsds.FreeResult(res);
 end;
 
 // Gets session data
@@ -187,17 +182,12 @@ begin
  {$IFDEF DBUG_ON} debugln('SessStart begin');{$ENDIF}
  // Init
  result:= '';
- // Checking path
- SessTblPath:= GetCfgVar('session_path');
- // Ensure correct cross platform slashes in path first
- xpath(SessTblPath);
- //...
- if not FileExists_readwrite(SessTblPath) then
- begin
+ SessTblPath:= GetCfgVar('session_path');  // Path from config
+ xpath(SessTblPath);  // cross platform slashes 
+ if not FileExists_readwrite(SessTblPath) then begin
    // try in system temp
    if FileExists_readwrite(SysSessPath) then SessTblPath:= SysSessPath
-   else
-   begin
+   else begin
      {$IFDEF DBUG_ON} debugln('SessStart exit, file not found');{$ENDIF}
      exit;
    end;
@@ -205,8 +195,7 @@ begin
  // Run garbage collector
  SessGC;
  // Is it registered
- if not IsCookie('PWUSESS') then
- begin
+ if not IsCookie('PWUSESS') then begin
     //    session_registered:= false;
    SetRTI('SESSION_REGISTERED', 'FALSE');
    exit;
@@ -218,15 +207,12 @@ begin
  key:= pwsds.Escape(copy(key, 1, 12));
  // Selecting
  res:= pwsds.Query('SELECT data FROM `' + SessTblPath + '` WHERE id = ' + sid + 
-                     ' AND key = "' + key + '"');
- if pwsds.ResultRows(res) = 1 then
- begin
+                   ' AND key = "' + key + '"');
+ if pwsds.ResultRows(res) = 1 then begin
    row:= pwsds.FetchRow(res);
    result:= Base64Decode(pwsds.FetchColumn(row, 0));
    pwsds.FreeRow(row);
- end
-   else
- begin
+ end else begin
    result:= '';
    // Unset, it has timed out
    UnsetCookie('PWUSESS');
@@ -246,7 +232,7 @@ begin
   sess_initialized:= true;
 end;
 
-// Updates session table due to sess or registers a new session
+// Updates session table due to sess, or registers a new session
 function SessUpdate: boolean;
 var
  SessTblPath, data: string;
@@ -257,7 +243,6 @@ var
  tmpstr: string;
 begin
  {$IFDEF DBUG_ON}debugln('SessUpdate begin');{$ENDIF}
-
  result:= false;
  if length(sess) < 1 then exit;
  SessTblPath:= GetCfgVar('session_path');
@@ -312,12 +297,10 @@ begin
                                              ' AND key = "' + key + '"');
    if pwsds.ResultRows(res) = 1 then result:= true;
    pwsds.FreeResult(res);
- end
-   else
+ end else 
  begin
    // Check headers
-   if headers_sent then
-   begin
+   if headers_sent then begin
      ThrowErr('Can''t set new session, headers already sent');
      result:= false;
      exit;
@@ -329,15 +312,13 @@ begin
                        'VALUES ("' + key + '", "' +
                                  pwsds.Escape(data) + '", ' +
                                  'NOW' +')');
-   if pwsds.ResultRows(res) = 1 then
-   begin
+   if pwsds.ResultRows(res) = 1 then begin
      id:= pwsds.LastID(SessTblPath);
      str(id, sid);
      key:= Base64Encode(key + sid);
      SetCookie('PWUSESS', key);
      SetRTI('SESSION_REGISTERED', 'TRUE');
-   end else
-     result:= false;
+   end else result:= false;
    pwsds.FreeResult(res);
  end;
  {$IFDEF DBUG_ON} debugln('SessUpdate end');{$ENDIF}
@@ -366,8 +347,6 @@ begin
   // Unset sess
   SetLength(sess, 0);
 end;
-
-{PUBLIC}
 
 { Returns value of session variable
  todo: research if security levels can be implemented }
@@ -511,7 +490,7 @@ begin
  else
    result:= '';
 end;
-{END PUBLIC}
+
 
 procedure InitSessUnit;
 begin
@@ -522,12 +501,12 @@ end;
 
 procedure UnitInit;
 begin
-  // setup plugin functions
-  CustomSessUpdate:= {$IFDEF FPC}@{$ENDIF}SessUpdate;
-  CustomSessUnitInit:= {$IFDEF FPC}@{$ENDIF}InitSessUnit;
  {$ifdef DBUG_ON} // init logging if enabled
   pwdebugplugin.DebugInit(debugt, 'pwsdssess.debug.log');                                               
  {$endif}
+  // setup plugin functions
+  CustomSessUpdate:= {$IFDEF FPC}@{$ENDIF}SessUpdate;
+  CustomSessUnitInit:= {$IFDEF FPC}@{$ENDIF}InitSessUnit;
 end;
 
 

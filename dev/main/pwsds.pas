@@ -16,14 +16,11 @@
 ********************************************************************************}
 
 
-{$DEFINE EXTRA_SECURE}
-{$IFDEF FPC}{$MODE OBJFPC}{$H+}
-    {$IFDEF EXTRA_SECURE}
-     {$R+}{$Q+}{$CHECKPOINTER ON}
-    {$ENDIF}
-{$ENDIF}
 unit pwsds;
 
+{$DEFINE EXTRA_SECURE}
+
+{$I defines1.inc}
 
 // Define it if REGEXP operator is needed (not yet supported)
 //{$DEFINE ENABLE_REGEXP}
@@ -34,8 +31,8 @@ uses
   pwfileshare, // File access in shared mode
   pwfileutil,
   {$IFDEF ENABLE_REGEXP}pwregexp_tregexpr,{$ENDIF}
+  pwtypes,
   sysutils; // DATETIME operations
-
 
 type
   SDS_Result = Pointer;
@@ -88,7 +85,14 @@ function Query(const InputQuery: string): SDS_Result;
 
 
 implementation
+uses pwdebugplugin;
 
+var debugt: longint;
+
+procedure debugln(s: astr);
+begin
+  pwdebugplugin.debugln(debugt, s);
+end;
 
 {------------------------------------------------------------------------------}
 {      PRIVATE TYPE DECLARATIONS                                               }
@@ -333,150 +337,72 @@ end;
 
 // Compares 2 SQL TIME fields (HH:MM:SS)
 function TimeCompare(date1, date2: string): shortint;
-var 
-  n1, n2: word;
-  dummy: integer;
+var n1, n2: word;
+    dummy: integer;
 begin
+  {$ifdef DBUG_ON}debugln('TimeCompare begin');{$endif}
   // Comparing hours
   val(copy(date1, 1, 2), n1, dummy);
   val(copy(date2, 1, 2), n2, dummy);
-  if n1 < n2 then
-  begin
-    result:= -1;
-    exit;
-  end;
-  if n1 > n2 then
-  begin
-    result:= 1;
-    exit;
-  end;
+  if n1 < n2 then begin result:= -1; exit; end;
+  if n1 > n2 then begin result:= 1; exit; end;
   // Comparing minutes
   val(copy(date1, 4, 2), n1, dummy);
   val(copy(date2, 4, 2), n2, dummy);
-  if n1 < n2 then
-  begin
-    result:= -1;
-    exit;
-  end;
-  if n1 > n2 then
-  begin
-    result:= 1;
-    exit;
-  end;
+  if n1 < n2 then begin result:= -1; exit; end;
+  if n1 > n2 then begin result:= 1;  exit; end;
 
   // Comparing seconds
   val(copy(date1, 7, 2), n1, dummy);
   val(copy(date2, 7, 2), n2, dummy);
-  if n1 < n2 then
-  begin                                                   
-    result:= -1;
-    exit;
-  end;
-  if n1 > n2 then
-  begin
-    result:= 1;
-    exit;
-  end;
+  if n1 < n2 then begin result:= -1; exit; end;
+  if n1 > n2 then begin result:= 1;  exit; end;
   // If still equal
   result := 0;
+  {$ifdef DBUG_ON}debugln('TimeCompare end');{$endif}
 end;
 
 
 // Compares 2 SQL DATETIME fields (YYYY-MM-DD HH:MM:SS)
-function DatetimeCompare(date1, date2: string): shortint;
-var 
-  n1, n2: word;
-  dummy: integer;
+function DateTimeCompare(date1, date2: string): shortint;
+var n1, n2: word;
+    dummy: integer;
 begin
-  // Comparing years
+  {$ifdef DBUG_ON}debugln('DateTimeCompare begin');{$endif}
+  // Compare years
   val(copy(date1, 1, 4), n1, dummy);
   val(copy(date2, 1, 4), n2, dummy);
-  if n1 < n2 then
-  begin
-    result:= -1;
-    exit;
-  end;
-  if n1 > n2 then
-  begin
-    result:= 1;
-    exit;
-  end;
-  // Comparing months
+  if n1 < n2 then begin result:= -1; exit; end;
+  if n1 > n2 then begin result:= 1;  exit; end;
+  // Compare months
   val(copy(date1, 6, 2), n1, dummy);
   val(copy(date2, 6, 2), n2, dummy);
-  if n1 < n2 then
-  begin
-    result:= -1;
-    exit;
-  end;
-
-  if n1 > n2 then
-  begin
-    result:= 1;
-    exit;
-  end;
-
-  // Comparing days
+  if n1 < n2 then begin result:= -1; exit; end;
+  if n1 > n2 then begin result:= 1;  exit; end;
+  // Compare days
   val(copy(date1, 9, 2), n1, dummy);
   val(copy(date2, 9, 2), n2, dummy);
-  if n1 < n2 then
-  begin
-    result:= -1;
-    exit;
-  end;
-
-  if n1 > n2 then
-  begin
-    result:= 1;
-    exit;
-  end;
-
-  // Comparing hours
+  if n1 < n2 then begin result:= -1; exit; end;
+  if n1 > n2 then begin result:= 1;  exit; end;
+  // Compare hours
   val(copy(date1, 12, 2), n1, dummy);
   val(copy(date2, 12, 2), n2, dummy);
-  if n1 < n2 then
-  begin
-    result:= -1;
-    exit;
-  end;
-
-  if n1 > n2 then
-  begin
-    result:= 1;
-    exit;
-  end;
-
-  // Comparing minutes
+  if n1 < n2 then begin result:= -1; exit; end;
+  if n1 > n2 then begin result:= 1;  exit; end;
+  // Compare minutes
   val(copy(date1, 15, 2), n1, dummy);
   val(copy(date2, 15, 2), n2, dummy);
-  if n1 < n2 then
-  begin
-    result:= -1;
-    exit;
-  end;
-
-  if n1 > n2 then
-  begin
-    result:= 1;
-    exit;
-  end;
-  // Comparing seconds
+  if n1 < n2 then begin result:= -1; exit; end;
+  if n1 > n2 then begin result:= 1;  exit; end;
+  // Compare seconds
   val(copy(date1, 18, 2), n1, dummy);
   val(copy(date2, 18, 2), n2, dummy);
-  if n1 < n2 then
-  begin
-    result:= -1;
-    exit;
+  if n1 < n2 then begin result:= -1; exit; end;
+  if n1 > n2 then begin result:= 1; exit;
   end;
-
-  if n1 > n2 then
-  begin
-    result:= 1;
-    exit;
-  end;
-
   // If still equal
   result:= 0;
+  {$ifdef DBUG_ON}debugln('DateTimeCompare end');{$endif}
 end;
 
 // Returns difference between two timestamps in seconds
@@ -710,27 +636,32 @@ end;
 // Reads the table header from open file stream
 function ReadHeader(var fh: text): SDS_Header;
 begin
+  {$ifdef DBUG_ON}debugln('ReadHeader begin');{$endif}
   readln(fh, result.intro);
   readln(fh, result.fields);
   readln(fh, result.last_id);
   readln(fh, result.rows);
   readln(fh);
+  {$ifdef DBUG_ON}debugln('ReadHeader end');{$endif}
 end;
 
 // Writes the table header into the open file stream
 procedure WriteHeader(var fh: text; hdr: SDS_PHeader);
 begin
+  {$ifdef DBUG_ON}debugln('WriteHeader begin');{$endif}
   writeln(fh, hdr^.intro);
   writeln(fh, hdr^.fields);
   writeln(fh, hdr^.last_id);
   writeln(fh, hdr^.rows);
   writeln(fh);
+  {$ifdef DBUG_ON}debugln('WriteHeader end');{$endif}
 end;
 
 // Reads the table column data
 function ReadCols(var fh: text; fields: longint): SDS_Cols;
 var i: longint;
 begin
+  {$ifdef DBUG_ON}debugln('ReadCols begin');{$endif}
   if fields < 1 then exit;
   for i := 0 to fields - 1 do
   begin
@@ -739,12 +670,14 @@ begin
     readln(fh, result[i].data_type);
   end;
   readln(fh);
+  {$ifdef DBUG_ON}debugln('ReadCols end');{$endif}
 end;
 
 // Writes table column data
 procedure WriteCols(var fh: text; cols: SDS_PCols);
 var i: longint;
 begin
+  {$ifdef DBUG_ON}debugln('WriteCols begin');{$endif}
   if length(cols^) < 1 then exit;
   for i := 0 to length(cols^) - 1 do
   begin
@@ -752,6 +685,7 @@ begin
     writeln(fh, cols^[i].data_type);
   end;
   writeln(fh);
+  {$ifdef DBUG_ON}debugln('WriteCols end');{$endif}
 end;
 
 // Retrives header and column data standalone
@@ -759,6 +693,7 @@ procedure ReadInfo(const FileName: string; var hdr: SDS_Header; var cols: SDS_Co
 var fh: text;
     fk: word;
 begin
+  {$ifdef DBUG_ON}debugln('ReadInfo begin');{$endif}
   FileMarkRead(FileName, fk);
   assign(fh, FileName);
   reset(fh);
@@ -766,6 +701,7 @@ begin
   cols := ReadCols(fh, hdr.fields);
   close(fh);
   FileUnmarkRead(FileName, fk);
+  {$ifdef DBUG_ON}debugln('ReadInfo end');{$endif}
 end;
 
 // Checks if row matches the condition
@@ -779,6 +715,7 @@ var
   tmp: string;
   dummy: integer;
 begin
+  {$ifdef DBUG_ON}debugln('MatchCondition begin');{$endif}
   result := true;
   if length(cond^) = 0 then exit;
 
@@ -965,6 +902,7 @@ begin
         6: result := result xor (not sub);
     end;
   end;
+  {$ifdef DBUG_ON}debugln('MatchConditin end');{$endif}
 end;
 
 // Creates a new table
@@ -973,6 +911,7 @@ var
   fh: text;
   hdr: SDS_Header;
 begin
+  {$ifdef DBUG_ON}debugln('CreateTable begin');{$endif}
   FileMarkWrite(FileName);
   assign(fh, FileName);
   rewrite(fh);
@@ -985,15 +924,16 @@ begin
   close(fh);
   FileUnmarkWrite(FileName);
   result := true;
+  {$ifdef DBUG_ON}debugln('CreateTable end');{$endif}
 end;
 
 // Drops a table
 function DropTable(const FileName: string): boolean;
-var
-  fh: text;
+var fh: text;
 begin
+  {$ifdef DBUG_ON}debugln('DropTable begin');{$endif}
   result := false;
-  if not FileExists_read(FileName) then
+  if not FileExists(FileName) then
   begin
     result:= false;
     exit;
@@ -1003,6 +943,7 @@ begin
   erase(fh);
   FileUnmarkWrite(FileName);
   result := true;
+  {$ifdef DBUG_ON}debugln('DropTable end');{$endif}
 end;
 
 // Returns number of fields in the table
@@ -1012,11 +953,9 @@ var
   hdr: SDS_Header;
   fk: word;
 begin
+  {$ifdef DBUG_ON}debugln('NumFields begin');{$endif}
   result := 0;
-  if not FileExists_read(FileName) then
-  begin
-    exit;
-  end;
+  if not FileExists(FileName) then exit;
   FileMarkRead(FileName, fk);
   assign(fh, FileName);
   reset(fh);
@@ -1024,20 +963,19 @@ begin
   close(fh);
   FileUnmarkRead(FileName, fk);
   result := hdr.fields;
+  {$ifdef DBUG_ON}debugln('NumFields end');{$endif}
 end;
 
 // Gets last ID in the table
-function LastID(const FileName: string): longint;
+function LastId(const FileName: string): longint;
 var 
   fh: text;
   hdr: SDS_Header;
   fk: word;
 begin
+  {$ifdef DBUG_ON}debugln('LastId begin');{$endif}
   result := 0;
-  if not FileExists_read(FileName) then
-  begin
-    exit;
-  end;
+  if not FileExists(FileName) then exit;
   FileMarkRead(FileName, fk);
   assign(fh, FileName);
   reset(fh);
@@ -1045,6 +983,7 @@ begin
   close(fh);
   FileUnmarkRead(FileName, fk);
   result := hdr.last_id;
+  {$ifdef DBUG_ON}debugln('LastId end');{$endif}
 end;
 
 // Returns total number of rows in the table
@@ -1055,7 +994,7 @@ var
   fk: word;
 begin
   result := 0;
-  if not FileExists_read(FileName) then exit;
+  if not FileExists(FileName) then exit;
   FileMarkRead(FileName, fk);
   assign(fh, FileName);
   reset(fh);
@@ -1073,7 +1012,7 @@ var
   fk: word;
 begin
   result := 0;
-  if not FileExists_read(FileName) then exit;
+  if not FileExists(FileName) then exit;
   FileMarkRead(FileName, fk);
   assign(fh, FileName);
   reset(fh);
@@ -1091,7 +1030,7 @@ var
   cols: SDS_PCols;
   fk: word;
 begin
-  if not FileExists_read(FileName) then exit;
+  if not FileExists(FileName) then exit;
   new(cols);
   FileMarkRead(FileName, fk);
   assign(fh, FileName);
@@ -1174,7 +1113,7 @@ var
 begin
   // Initializing, locking
   result := 0;
-  if not FileExists_read(FileName) then exit;
+  if not FileExists(FileName) then exit;
   FileMarkWrite(FileName);
   // Copying/modifying header
   assign(fh, FileName);
@@ -1300,14 +1239,12 @@ var
   dummy: integer;
 begin
   // Preparing LIMIT
-  if length(limit^) = 1 then
-  begin
-      use_limit := true;
-      loffs := 0;
-      val(limit^[0], lcnt, dummy);
+  if length(limit^) = 1 then begin
+    use_limit := true;
+    loffs := 0;
+    val(limit^[0], lcnt, dummy);
   end else
-    if length(limit^) = 2 then
-    begin
+    if length(limit^) = 2 then begin
       use_limit := true;
       val(limit^[0], loffs, dummy);
       val(limit^[1], lcnt, dummy);
@@ -1331,10 +1268,8 @@ begin
     if MatchCondition(cond, @cols, @row) then
     begin
       inc(cnt);
-      if use_limit and (cnt > (loffs + lcnt)) then
-        break;
-      if use_limit and (cnt <= loffs) then
-        continue;
+      if use_limit and (cnt > (loffs + lcnt)) then break;
+      if use_limit and (cnt <= loffs) then continue;
       RowsetAdd(res, @row);
     end;
   end;
@@ -1463,7 +1398,8 @@ begin
       end else
       begin
         case cols[fields^[0]].data_type of
-            1: if pwsubstr.strcomp(row[fields^[0]], st) <= 0 then continue else st := row[fields^[0]];
+            1: if pwsubstr.strcomp(row[fields^[0]], st) <= 0 then 
+                 continue else st := row[fields^[0]];
             2: begin
                 val(row[fields^[0]], nr, dummy);
                 if nr <= nt then continue else nt := nr;
@@ -1473,8 +1409,10 @@ begin
                 if fr <= ft then continue else ft := fr;
             end;
             4: if DateCompare(row[fields^[0]], st) <= 0 then continue else st := row[fields^[0]];
-            5: if TimeCompare(row[fields^[0]], st) <= 0 then continue else st := row[fields^[0]];
-            6: if DatetimeCompare(row[fields^[0]], st) <= 0 then continue else st := row[fields^[0]];
+            5: if TimeCompare(row[fields^[0]], st) <= 0 then 
+                 continue else st := row[fields^[0]];
+            6: if DatetimeCompare(row[fields^[0]], st) <= 0 then 
+                 continue else st := row[fields^[0]];
         end;
         RowsetSet(res, 0, @row);
       end;
@@ -1550,7 +1488,8 @@ begin
       end else
       begin
         case cols[fields^[0]].data_type of
-            1: if pwsubstr.strcomp(row[fields^[0]], st) >= 0 then continue else st := row[fields^[0]];
+            1: if pwsubstr.strcomp(row[fields^[0]], st) >= 0 then 
+                 continue else st := row[fields^[0]];
             2: begin
                 val(row[fields^[0]], nr, dummy);
                 if nr >= nt then continue else nt := nr;
@@ -1559,9 +1498,12 @@ begin
                 val(row[fields^[0]], fr, dummy);
                 if fr >= ft then continue else ft := fr;
                end;
-            4: if DateCompare(row[fields^[0]], st) >= 0 then continue else st := row[fields^[0]];
-            5: if TimeCompare(row[fields^[0]], st) >= 0 then continue else st := row[fields^[0]];
-            6: if DatetimeCompare(row[fields^[0]], st) >= 0 then continue else st := row[fields^[0]];
+            4: if DateCompare(row[fields^[0]], st) >= 0 then 
+                 continue else st := row[fields^[0]];
+            5: if TimeCompare(row[fields^[0]], st) >= 0 then 
+                 continue else st := row[fields^[0]];
+            6: if DatetimeCompare(row[fields^[0]], st) >= 0 then 
+                 continue else st := row[fields^[0]];
         end;
         RowsetSet(res, 0, @row);
       end;
@@ -1582,7 +1524,7 @@ var fh, fhn: text;
 begin
   // Initializing
   result := 0;
-  if not FileExists_read(FileName) then exit;
+  if not FileExists(FileName) then exit;
   FileMarkWrite(FileName);
   // Opening
   assign(fh, FileName);
@@ -1643,7 +1585,7 @@ var
 begin
   // Initialization, checks, locking
   result := 0;
-  if not FileExists_read(FileName) then exit;
+  if not FileExists(FileName) then exit;
   FileMarkWrite(FileName);
   assign(fh, FileName);
   assign(fhn, FileName + '.tmp');
@@ -1692,7 +1634,7 @@ begin
 end;
 
 // Exports Comma Separated Values from SDS table
-function ExportCSV(const FileName: string): string;
+function ExportCsv(const FileName: string): string;
 var
   fh: text;
   i, j: longint;
@@ -1701,8 +1643,9 @@ var
   cols: SDS_Cols;
   fk: word;
 begin
+  {$ifdef DBUG_ON}debugln('ExportCsv begin');{$endif}
   result:= '';
-  if not FileExists_read(FileName) then exit;
+  if not FileExists(FileName) then exit;
   FileMarkRead(FileName, fk);
   assign(fh, FileName);
   reset(fh);
@@ -1715,9 +1658,11 @@ begin
     for j := 0 to (hdr.fields - 1) do
     begin
       if pos('"', row[j]) > 0 then row[j] := substrreplace(row[j], '"', '""');
-      if (cols[j].data_type = 1) or (cols[j].data_type = 4) or (cols[j].data_type = 5) or (cols[j].data_type = 6) then
-      begin
-        if j = 0 then result := result + '"' + row[j] + '"'
+      if (cols[j].data_type = 1) or (cols[j].data_type = 4) 
+         or (cols[j].data_type = 5) or (cols[j].data_type = 6) 
+      then begin
+        if j = 0 then 
+          result := result + '"' + row[j] + '"'
         else result := result + ',"' + row[j] + '"';
       end else
       begin
@@ -1729,6 +1674,7 @@ begin
   end;
   close(fh);
   FileUnmarkRead(FileName, fk);
+  {$ifdef DBUG_ON}debugln('ExportCsv end');{$endif}
 end;
 
 
@@ -1742,8 +1688,9 @@ var
   cols: SDS_Cols;
   fk: word;
 begin
+  {$ifdef DBUG_ON}debugln('ExportCsv_custom begin');{$endif}
   result:= '';
-  if not FileExists_read(FileName) then exit;
+  if not FileExists(FileName) then exit;
   FileMarkRead(FileName, fk);
   assign(fh, FileName);
   reset(fh);
@@ -1755,10 +1702,13 @@ begin
     row := ReadRow(fh, hdr.fields);
     for j := 0 to (hdr.fields - 1) do
     begin
-      if pos(encloser, row[j]) > 0 then row[j] := substrreplace(row[j], encloser, encloser+encloser);
-      if (cols[j].data_type = 1) or (cols[j].data_type = 4) or (cols[j].data_type = 5) or (cols[j].data_type = 6) then
-      begin
-        if j = 0 then result := result + encloser + row[j] + encloser
+      if pos(encloser, row[j]) > 0 then 
+        row[j] := substrreplace(row[j], encloser, encloser+encloser);
+      if (cols[j].data_type = 1) or (cols[j].data_type = 4) 
+         or (cols[j].data_type = 5) or (cols[j].data_type = 6) 
+      then begin
+        if j = 0 then 
+         result := result + encloser + row[j] + encloser
         else result := result + delimiter + encloser + row[j] + encloser;
       end else
       begin
@@ -1770,6 +1720,7 @@ begin
   end;
   close(fh);
   FileUnmarkRead(FileName, fk);
+  {$ifdef DBUG_ON}debugln('ExportCsvCustom end');{$endif}
 end;
 
 // Exports SDS table `from` to SDS/SQL table dump script.
@@ -1783,8 +1734,9 @@ var
   buff: string;
   fk: word;
 begin
+  {$ifdef DBUG_ON}debugln('ExportSds begin');{$endif}
   result:= '';
-  if not FileExists_read(FileName) then exit;
+  if not FileExists(FileName) then exit;
   FileMarkRead(FileName, fk);
   result := '/**' + #13 + #10 + '* SDS Table SQL Dump for file:' + #13 + #10 + '* ' + FileName + #13 + #10 + '*/' + #13 + #10;
   assign(fh, FileName);
@@ -1831,6 +1783,7 @@ begin
   end;
   close(fh);
   FileUnmarkRead(FileName, fk);
+  {$ifdef DBUG_ON}debugln('ExportSds end');{$endif}
 end;
 
 // Exports SDS table `from` to SQL table dump script for table `SQLTable`.
@@ -1843,54 +1796,57 @@ var fh: text;
     buff: string;
     fk: word;
 begin
-    result:='';
-    if not FileExists_read(FileName) then exit;
-    FileMarkRead(FileName, fk);
-    result := '/**' + #13 + #10 + '* SDS Table SQL Dump for file:' + #13 + #10 + '* ' + FileName + #13 + #10 + '*/' + #13 + #10;
-    assign(fh, FileName);
-    reset(fh);
-    hdr := ReadHeader(fh);
-    SetLength(row, hdr.fields);
-    cols := ReadCols(fh, hdr.fields);
-    // First CREATE TABLE query
-    result := result + 'CREATE TABLE `' + SQLTable + '` (`' + cols[0].name + '` INT UNSIGNED PRIMARY KEY AUTO_INCREMENT';
+  {$ifdef DBUG_ON}debugln('ExportSql begin');{$endif}
+  result:='';
+  if not FileExists(FileName) then exit;
+  FileMarkRead(FileName, fk);
+  result := '/**' + #13 + #10 + '* SDS Table SQL Dump for file:' + #13 + #10 + '* ' + FileName + #13 + #10 + '*/' + #13 + #10;
+  assign(fh, FileName);
+  reset(fh);
+  hdr := ReadHeader(fh);
+  SetLength(row, hdr.fields);
+  cols := ReadCols(fh, hdr.fields);
+  // First CREATE TABLE query
+  result := result + 'CREATE TABLE `' + SQLTable + '` (`' + cols[0].name + '` INT UNSIGNED PRIMARY KEY AUTO_INCREMENT';
+  for j := 1 to (hdr.fields - 1) do
+  begin
+    case cols[j].data_type of
+      1: buff := 'TEXT';
+      2: buff := 'INT';
+      3: buff := 'DOUBLE';
+      4: buff := 'DATE';
+      5: buff := 'TIME';
+      6: buff := 'DATETIME';
+    end;
+    result := result + ', `' + cols[j].name + '` ' + buff;
+  end;
+  result := result + ');' + #13 + #10;
+  // Then INSERT ones
+  for i := 0 to (hdr.rows - 1) do
+  begin
+    result := result + 'INSERT INTO `' + SQLTable + '` (';
+    for j := 0 to (hdr.fields - 1) do
+    begin
+      if j = 0 then result := result + '`' + cols[j].name + '`'
+      else result := result + ', `' + cols[j].name + '`';
+    end;
+    result := result + ') VALUES (';
+    row := ReadRow(fh, hdr.fields);
+    result := result + row[0];
+    // Do RegExp here again to determine whether to use quotes or not ->
     for j := 1 to (hdr.fields - 1) do
     begin
-      case cols[j].data_type of
-          1: buff := 'TEXT';
-          2: buff := 'INT';
-          3: buff := 'DOUBLE';
-          4: buff := 'DATE';
-          5: buff := 'TIME';
-          6: buff := 'DATETIME';
-      end;
-      result := result + ', `' + cols[j].name + '` ' + buff;
+      if (cols[j].data_type = 1) or (cols[j].data_type = 4) or
+        (cols[j].data_type = 5) or (cols[j].data_type = 6) 
+      then
+        result := result + ', ''' + EscapeSQL(row[j]) + ''''
+      else result := result + ', ' + row[j];
     end;
-    result := result + ');' + #13 + #10;
-    // Then INSERT ones
-    for i := 0 to (hdr.rows - 1) do
-    begin
-      result := result + 'INSERT INTO `' + SQLTable + '` (';
-      for j := 0 to (hdr.fields - 1) do
-      begin
-        if j = 0 then result := result + '`' + cols[j].name + '`'
-        else result := result + ', `' + cols[j].name + '`';
-      end;
-      result := result + ') VALUES (';
-      row := ReadRow(fh, hdr.fields);
-      result := result + row[0];
-      // Do RegExp here again to determine whether to use quotes or not ->
-      for j := 1 to (hdr.fields - 1) do
-      begin
-        if (cols[j].data_type = 1) or (cols[j].data_type = 4) or
-          (cols[j].data_type = 5) or (cols[j].data_type = 6) then
-            result := result + ', ''' + EscapeSQL(row[j]) + ''''
-        else result := result + ', ' + row[j];
-      end;
       result := result + ');' + #13 + #10;
-    end;
-    close(fh);
-    FileUnmarkRead(FileName, fk);
+  end;
+  close(fh);
+  FileUnmarkRead(FileName, fk);
+  {$ifdef DBUG_ON}debugln('ExportSql end');{$endif}
 end;
 
 // Exports SDS table `from` to XML data. Root element tag can be set with
@@ -1905,7 +1861,7 @@ var
   fk: word;
 begin
   result:= '';
-  if not FileExists_read(FileName) then exit;
+  if not FileExists(FileName) then exit;
   FileMarkRead(FileName, fk);
   result := '<' + TableTag + '>' + #13 + #10;
   assign(fh, FileName);
@@ -2469,32 +2425,100 @@ var
     end;
 
 begin
-    // Turning the timer on
-    stamp := Now;
-    // Result init
-    new(resp);
-    resp^.rows:= 0;
-    resp^.fields:= 0;
-    resp^.point:= 0;
-    resp^.time:= 0.0;
-    // Determine SQL query type
-    i := 1;
-    len := length(InputQuery);
+  {$ifdef DBUG_ON}debugln('Query begin');{$endif}
+  // Turning the timer on
+  stamp := Now;
+  // Result init
+  new(resp);
+  resp^.rows:= 0;
+  resp^.fields:= 0;
+  resp^.point:= 0;
+  resp^.time:= 0.0;
+  // Determine SQL query type
+  i := 1;
+  len := length(InputQuery);
+  lex := '';
+  // Reading string till ' '
+  while (i < len) and (InputQuery[i] <> ' ') do
+  begin
+    SetLength(lex, length(lex) + 1);
+    lex[length(lex)] := InputQuery[i];
+    inc(i);
+  end;
+  resp^.cmd := uppercase(lex);
+  // Skipping whitespace
+  while (i < len) and (InputQuery[i] = ' ') do inc(i);
+  if resp^.cmd = 'CREATE' then
+  begin
+    // SQL CREATE
+    // Next word should be 'TABLE' as only CREATE TABLE syntax is supported
     lex := '';
-    // Reading string till ' '
     while (i < len) and (InputQuery[i] <> ' ') do
     begin
       SetLength(lex, length(lex) + 1);
       lex[length(lex)] := InputQuery[i];
       inc(i);
     end;
-    resp^.cmd := uppercase(lex);
     // Skipping whitespace
     while (i < len) and (InputQuery[i] = ' ') do inc(i);
-    if resp^.cmd = 'CREATE' then
+    if uppercase(lex) <> 'TABLE' then
     begin
-      // SQL CREATE
-      // Next word should be 'TABLE' as only CREATE TABLE syntax is supported
+      resp^.error := 'SQL syntax error: TABLE expected after CREATE';
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    buff := sds_compile_name;
+    // Skipping whitespace and looking for brace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    if InputQuery[i] <> '(' then
+    begin
+      resp^.error := 'SQL syntax error: ( expected after TABLE';
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    inc(i);
+    // Reading column name/type defination into cols
+    cols := sds_compile_types;
+    resp^.cs := cols;
+    // Performing query
+    flag := CreateTable(buff, @cols);
+    if flag then resp^.rows := 1 else resp^.rows := 0;
+  end;
+  if resp^.cmd = 'DROP' then
+  begin
+    // SQL DROP
+    // Next word should be 'TABLE' as only DROP TABLE syntax is supported
+    lex := '';
+    while (i < len) and (InputQuery[i] <> ' ') do
+    begin
+      SetLength(lex, length(lex) + 1);
+      lex[length(lex)] := InputQuery[i];
+      inc(i);
+    end;
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    if uppercase(lex) <> 'TABLE' then
+    begin
+      resp^.error := 'SQL syntax error: TABLE expected after DROP';
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    buff := sds_compile_name;
+    // Performing query
+    // Checking if exists
+    if not FileExists(buff) then
+    begin
+      resp^.error := 'File does not exist: ' + buff;
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    flag := DropTable(buff);
+    if flag then resp^.rows := 1 else resp^.rows := 0;
+  end;
+  if resp^.cmd = 'INSERT' then
+  begin
+      // SQL INSERT
+      // Next word should be 'INTO' as only INSERT INTO syntax is supported
       lex := '';
       while (i < len) and (InputQuery[i] <> ' ') do
       begin
@@ -2504,33 +2528,40 @@ begin
       end;
       // Skipping whitespace
       while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      if uppercase(lex) <> 'TABLE' then
-      begin
-        resp^.error := 'SQL syntax error: TABLE expected after CREATE';
+      if uppercase(lex) <> 'INTO' then begin
+        resp^.error := 'SQL syntax error: INTO expected after INSERT';
         result:= SDS_Result(resp);
         exit;
       end;
       buff := sds_compile_name;
+      // Checking if exists
+      if not FileExists(buff) then begin
+        resp^.error := 'File does not exist: ' + buff;
+        result:= SDS_Result(resp);
+        exit;
+      end;
+      // Reading table data
+      ReadInfo(buff, hdr, cols);
       // Skipping whitespace and looking for brace
       while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      if InputQuery[i] <> '(' then
-      begin
-        resp^.error := 'SQL syntax error: ( expected after TABLE';
+      if InputQuery[i] <> '(' then begin
+        resp^.error := 'SQL syntax error: ( expected after ' + buff;
         result:= SDS_Result(resp);
         exit;
       end;
       inc(i);
-      // Reading column name/type defination into cols
-      cols := sds_compile_types;
-      resp^.cs := cols;
-      // Performing query
-      flag := CreateTable(buff, @cols);
-      if flag then resp^.rows := 1 else resp^.rows := 0;
-    end;
-    if resp^.cmd = 'DROP' then
-    begin
-      // SQL DROP
-      // Next word should be 'TABLE' as only DROP TABLE syntax is supported
+      // Getting field list
+      fields := sds_compile_fields(@cols);
+      // Closing brace
+      if InputQuery[i] <> ')' then begin
+        resp^.error := 'SQL syntax error: ) expected after field list';
+        result:= SDS_Result(resp);
+        exit;
+      end;
+      inc(i);
+      // Skipping whitespace
+      while (i < len) and (InputQuery[i] = ' ') do inc(i);
+      // Next word should be 'VALUES'
       lex := '';
       while (i < len) and (InputQuery[i] <> ' ') do
       begin
@@ -2538,148 +2569,315 @@ begin
         lex[length(lex)] := InputQuery[i];
         inc(i);
       end;
-      // Skipping whitespace
+      if uppercase(lex) <> 'VALUES' then
+      begin
+        resp^.error := 'SQL syntax error: VALUES expected after the field list';
+        result:= SDS_Result(resp);
+        exit;
+      end;
+      // Skipping whitespace and looking for brace
       while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      if uppercase(lex) <> 'TABLE' then
+      if InputQuery[i] <> '(' then
       begin
-        resp^.error := 'SQL syntax error: TABLE expected after DROP';
+        resp^.error := 'SQL syntax error: ( expected after VALUES';
         result:= SDS_Result(resp);
         exit;
       end;
-      buff := sds_compile_name;
+      inc(i);
+      // Getting values
+      values := sds_compile_values;
+      // Closing brace
+      if InputQuery[i] <> ')' then
+      begin
+        resp^.error := 'SQL syntax error: ) expected after value list';
+        result:= SDS_Result(resp);
+        exit;
+      end;
+      inc(i);
       // Performing query
-      // Checking if exists
-      if not FileExists_plain(buff) then
+      resp^.rows := InsertRow(buff, @fields, @values);
+  end;
+  if resp^.cmd = 'DELETE' then
+  begin
+    // SQL DELETE
+    // Next word should be 'FROM' as only DELETE FROM syntax is supported
+    lex := '';
+    while (i < len) and (InputQuery[i] <> ' ') do
+    begin
+      SetLength(lex, length(lex) + 1);
+      lex[length(lex)] := InputQuery[i];
+      inc(i);
+    end;
+    if uppercase(lex) <> 'FROM' then
+    begin
+      resp^.error := 'SQL syntax error: FROM expected after DELETE';
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    // Getting name
+    buff := sds_compile_name;
+    // Checking if exists
+    if not FileExists(buff) then begin
+      resp^.error := 'File does not exist: ' + buff;
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    // Next word should be 'WHERE'
+    lex:= '';
+    while (i < len) and (InputQuery[i] <> ' ') do
+    begin
+      SetLength(lex, length(lex) + 1);
+      lex[length(lex)]:= InputQuery[i];
+      inc(i);
+    end;
+    if uppercase(lex) <> 'WHERE' then
+    begin
+      resp^.error := 'SQL syntax error: WHERE expected after ' + buff;
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    // Retriving table info
+    ReadInfo(buff, hdr, cols);
+    // Reading and compiling search condition
+    cond := sds_compile_condition(@cols);
+    // Performing query
+    resp^.rows := DeleteRow(buff, @cond);
+  end;
+  if resp^.cmd = 'UPDATE' then
+  begin
+    // SQL UPDATE
+    lex := '';
+    // Reading table name
+    buff := sds_compile_name;
+    // Checking if exists
+    if not FileExists(buff) then begin
+      resp^.error := 'File does not exist: ' + buff;
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    // Fetching info
+    ReadInfo(buff, hdr, cols);
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    // Next word should be 'SET'
+    lex := '';
+    while (i < len) and (InputQuery[i] <> ' ') do begin
+      SetLength(lex, length(lex) + 1);
+      lex[length(lex)] := InputQuery[i];
+      inc(i);
+    end;
+    if uppercase(lex) <> 'SET' then begin
+      resp^.error := 'SQL syntax error: SET expected after ' + buff;
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    // Parsing SET data
+    updset := sds_compile_set(@cols);
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    // Next word should be 'WHERE'
+    lex := '';
+    while (i < len) and (InputQuery[i] <> ' ') do
+    begin
+      SetLength(lex, length(lex) + 1);
+      lex[length(lex)] := InputQuery[i];
+      inc(i);
+    end;
+    if uppercase(lex) <> 'WHERE' then
+    begin
+      resp^.error := 'SQL syntax error: WHERE expected after the UPDATE name = value data';
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    // Reading condition
+    cond := sds_compile_condition(@cols);
+    // Performing query
+    resp^.rows := Update(buff, @updset, @cond);
+  end;
+  if resp^.cmd = 'SELECT' then
+  begin
+    // SQL SELECT
+    // SELECT, SELECT COUNT(*) or SELECT ALL
+    bflag := 0;
+    if ((i + 4) < len) and (uppercase(copy(InputQuery, i, 4)) = 'MIN(') then
+    begin
+      bflag := 5;
+      i := i + 4;
+    end;
+    if ((i + 4) < len) and (uppercase(copy(InputQuery, i, 4)) = 'MAX(') then
+    begin
+      bflag := 4;
+      i := i + 4;
+    end;
+    if ((i + 8) < len) and (uppercase(copy(InputQuery, i, 8)) = 'COUNT(*)') then
+    begin
+      bflag := 3;
+      i := i + 8;
+    end;
+    if ((i + 3) < len) and (uppercase(copy(InputQuery, i, 3)) = 'ALL') then
+    begin
+      bflag := 2;
+      i := i + 3
+    end;
+    if (i < len) and (InputQuery[i] = '*') then
+    begin
+      bflag := 2;
+      inc(i);
+    end;
+    if bflag = 0 then bflag := 1;
+    if (bflag = 1) or (bflag = 4) or (bflag = 5) then
+    begin
+      // Getting field list
+      // We need table name before we can extract fields
+      j := i;
+      while (j < len) and (lex <> 'FROM') do
       begin
-        resp^.error := 'File does not exist: ' + buff;
+        lex := '';
+        // Ignoring whitespace
+        while (j < len) and (InputQuery[j] = ' ') do inc(j);
+        // Reading data till ' '
+        while (j < len) and (InputQuery[j] <> ' ') do
+        begin
+          SetLength(lex, length(lex) + 1);
+          lex[length(lex)] := InputQuery[j];
+          inc(j);
+        end;
+      end;
+      while (j < len) and (InputQuery[j] = ' ') do inc(j);
+      lex := '';
+      if (InputQuery[j] = '''') or (InputQuery[j] = '"') or (InputQuery[j] = '`') then
+      begin
+        // Quoted filename
+        quot := InputQuery[j];
+        inc(j);
+        while (j <= len) and (InputQuery[j] <> quot) do
+        begin
+          SetLength(lex, length(lex) + 1);                               
+          lex[length(lex)] := InputQuery[j];
+          inc(j);
+        end;
+        inc(j);
+      end
+      else
+      begin
+        // Reading till whitespace
+        while (j <= len) and (InputQuery[j] <> ' ') do
+        begin
+          SetLength(lex, length(lex) + 1);
+          lex[length(lex)]:= InputQuery[j];
+          inc(j);
+        end;
+      end;
+      buff:= lex;
+      // Checking if exists
+      if not FileExists(buff) then
+      begin
+        resp^.error:= 'File does not exist: ' + buff;
         result:= SDS_Result(resp);
         exit;
       end;
-      flag := DropTable(buff);
-      if flag then resp^.rows := 1 else resp^.rows := 0;
+      // Fetching table info
+      ReadInfo(buff, hdr, cols);
+      resp^.fields:= hdr.fields;
+      resp^.cs:= cols;
     end;
-    if resp^.cmd = 'INSERT' then
+    if bflag = 1 then
     begin
-        // SQL INSERT
-        // Next word should be 'INTO' as only INSERT INTO syntax is supported
+      // Reading field list
+      fields:= sds_compile_fields(@cols);
+    end;
+    if (bflag = 4) or (bflag = 5) then
+    begin
+      // Getting name of the key field for MIN/MAX()
+      if InputQuery[i] = '`' then
+      begin
+        // Quoted field name. Getting string inside of backticks
+        inc(i);
+        lex:= '';
+        while (i <= len) and (InputQuery[i] <> '`') do
+        begin
+          SetLength(lex, length(lex) + 1);
+          lex[length(lex)]:= InputQuery[i];
+          inc(i);
+        end;
+        inc(i);
+      end
+      else
+      begin
+        // Unquoted field name. Getting column name till space.
         lex := '';
-        while (i < len) and (InputQuery[i] <> ' ') do
+        while (i <= len) and (InputQuery[i] <> ' ') and (InputQuery[i] <> ')') do
         begin
           SetLength(lex, length(lex) + 1);
           lex[length(lex)] := InputQuery[i];
           inc(i);
         end;
-        // Skipping whitespace
-        while (i < len) and (InputQuery[i] = ' ') do inc(i);
-        if uppercase(lex) <> 'INTO' then
-        begin
-          resp^.error := 'SQL syntax error: INTO expected after INSERT';
-          result:= SDS_Result(resp);
-          exit;
-        end;
-        buff := sds_compile_name;
-        // Checking if exists
-        if not FileExists_plain(buff) then
-        begin
-          resp^.error := 'File does not exist: ' + buff;
-          result:= SDS_Result(resp);
-          exit;
-        end;
-        // Reading table data
-        ReadInfo(buff, hdr, cols);
-        // Skipping whitespace and looking for brace
-        while (i < len) and (InputQuery[i] = ' ') do inc(i);
-        if InputQuery[i] <> '(' then
-        begin
-          resp^.error := 'SQL syntax error: ( expected after ' + buff;
-          result:= SDS_Result(resp);
-          exit;
-        end;
-        inc(i);
-        // Getting field list
-        fields := sds_compile_fields(@cols);
-        // Closing brace
-        if InputQuery[i] <> ')' then
-        begin
-          resp^.error := 'SQL syntax error: ) expected after field list';
-          result:= SDS_Result(resp);
-          exit;
-        end;
-        inc(i);
-        // Skipping whitespace
-        while (i < len) and (InputQuery[i] = ' ') do inc(i);
-        // Next word should be 'VALUES'
-        lex := '';
-        while (i < len) and (InputQuery[i] <> ' ') do
-        begin
-          SetLength(lex, length(lex) + 1);
-          lex[length(lex)] := InputQuery[i];
-          inc(i);
-        end;
-        if uppercase(lex) <> 'VALUES' then
-        begin
-          resp^.error := 'SQL syntax error: VALUES expected after the field list';
-          result:= SDS_Result(resp);
-          exit;
-        end;
-        // Skipping whitespace and looking for brace
-        while (i < len) and (InputQuery[i] = ' ') do inc(i);
-        if InputQuery[i] <> '(' then
-        begin
-          resp^.error := 'SQL syntax error: ( expected after VALUES';
-          result:= SDS_Result(resp);
-          exit;
-        end;
-        inc(i);
-        // Getting values
-        values := sds_compile_values;
-        // Closing brace
-        if InputQuery[i] <> ')' then
-        begin
-          resp^.error := 'SQL syntax error: ) expected after value list';
-          result:= SDS_Result(resp);
-          exit;
-        end;
-        inc(i);
-        // Performing query
-        resp^.rows := InsertRow(buff, @fields, @values);
+      end;
+      // Detecting key value
+      for j := 0 to length(cols) - 1 do if cols[j].name = lex then
+      begin
+        SetLength(fields, 1);
+        fields[0] := j;
+        break;
+      end;
+      if InputQuery[i] <> ')' then
+      begin
+        resp^.error := 'SQL syntax error: ) expected after ' + lex;
+        result:= SDS_Result(resp);
+        exit;
+      end;
+      inc(i);
     end;
-    if resp^.cmd = 'DELETE' then
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    // Next word should be 'FROM'
+    lex := '';
+    while (i < len) and (InputQuery[i] <> ' ') do
     begin
-      // SQL DELETE
-      // Next word should be 'FROM' as only DELETE FROM syntax is supported
+      SetLength(lex, length(lex) + 1);
+      lex[length(lex)] := InputQuery[i];
+      inc(i);
+    end;
+    if uppercase(lex) <> 'FROM' then
+    begin
+      resp^.error := 'SQL syntax error: FROM expected after the field list';
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    // Getting table name
+    buff := sds_compile_name;
+    // Checking if exists
+    if not FileExists(buff) then
+    begin
+      resp^.error := 'File does not exist: ' + buff;
+      result:= SDS_Result(resp);
+      exit;
+    end;
+    ReadInfo(buff, hdr, cols);
+    resp^.cs := cols;
+    resp^.fields := hdr.fields;
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    // Next word should be 'WHERE' if it is not whole table select
+    if i < len then
+    begin
       lex := '';
       while (i < len) and (InputQuery[i] <> ' ') do
       begin
         SetLength(lex, length(lex) + 1);
         lex[length(lex)] := InputQuery[i];
-        inc(i);
-      end;
-      if uppercase(lex) <> 'FROM' then
-      begin
-        resp^.error := 'SQL syntax error: FROM expected after DELETE';
-        result:= SDS_Result(resp);
-        exit;
-      end;
-      // Skipping whitespace
-      while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      // Getting name
-      buff := sds_compile_name;
-      // Checking if exists
-      if not FileExists_plain(buff) then
-      begin
-        resp^.error := 'File does not exist: ' + buff;
-        result:= SDS_Result(resp);
-        exit;
-      end;
-      // Skipping whitespace
-      while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      // Next word should be 'WHERE'
-      lex:= '';
-      while (i < len) and (InputQuery[i] <> ' ') do
-      begin
-        SetLength(lex, length(lex) + 1);
-        lex[length(lex)]:= InputQuery[i];
         inc(i);
       end;
       if uppercase(lex) <> 'WHERE' then
@@ -2690,305 +2888,59 @@ begin
       end;
       // Skipping whitespace
       while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      // Retriving table info
-      ReadInfo(buff, hdr, cols);
-      // Reading and compiling search condition
+      // Getting search condition
       cond := sds_compile_condition(@cols);
-      // Performing query
-      resp^.rows := DeleteRow(buff, @cond);
+      // Skipping whitespace
+      while (i < len) and (InputQuery[i] = ' ') do inc(i);
     end;
-    if resp^.cmd = 'UPDATE' then
+    // Is there any ORDER BY?
+    if ((i + 8) < len) and (uppercase(copy(InputQuery, i, 8)) = 'ORDER BY') then
     begin
-      // SQL UPDATE
-      lex := '';
-      // Reading table name
-      buff := sds_compile_name;
-      // Checking if exists
-      if not FileExists_plain(buff) then
-      begin
-        resp^.error := 'File does not exist: ' + buff;
-        result:= SDS_Result(resp);
-        exit;
-      end;
-      // Fetching info
-      ReadInfo(buff, hdr, cols);
-      // Skipping whitespace
-      while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      // Next word should be 'SET'
-      lex := '';
-      while (i < len) and (InputQuery[i] <> ' ') do
-      begin
-        SetLength(lex, length(lex) + 1);
-        lex[length(lex)] := InputQuery[i];
-        inc(i);
-      end;
-      if uppercase(lex) <> 'SET' then
-      begin
-        resp^.error := 'SQL syntax error: SET expected after ' + buff;
-        result:= SDS_Result(resp);
-        exit;
-      end;
-      // Skipping whitespace
-      while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      // Parsing SET data
-      updset := sds_compile_set(@cols);
-      // Skipping whitespace
-      while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      // Next word should be 'WHERE'
-      lex := '';
-      while (i < len) and (InputQuery[i] <> ' ') do
-      begin
-        SetLength(lex, length(lex) + 1);
-        lex[length(lex)] := InputQuery[i];
-        inc(i);
-      end;
-      if uppercase(lex) <> 'WHERE' then
-      begin
-        resp^.error := 'SQL syntax error: WHERE expected after the UPDATE name = value data';
-        result:= SDS_Result(resp);
-        exit;
-      end;
-      // Skipping whitespace
-      while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      // Reading condition
-      cond := sds_compile_condition(@cols);
-      // Performing query
-      resp^.rows := Update(buff, @updset, @cond);
+      i := i + 8;
+      order := sds_compile_order(@cols);
     end;
-    if resp^.cmd = 'SELECT' then
+    // Skipping whitespace
+    while (i < len) and (InputQuery[i] = ' ') do inc(i);
+    // Is there any LIMIT?
+    if ((i + 5) < len) and (uppercase(copy(InputQuery, i, 5)) = 'LIMIT') then
     begin
-      // SQL SELECT
-      // SELECT, SELECT COUNT(*) or SELECT ALL
-      bflag := 0;
-      if ((i + 4) < len) and (uppercase(copy(InputQuery, i, 4)) = 'MIN(') then
-      begin
-        bflag := 5;
-        i := i + 4;
-      end;
-      if ((i + 4) < len) and (uppercase(copy(InputQuery, i, 4)) = 'MAX(') then
-      begin
-        bflag := 4;
-        i := i + 4;
-      end;
-      if ((i + 8) < len) and (uppercase(copy(InputQuery, i, 8)) = 'COUNT(*)') then
-      begin
-        bflag := 3;
-        i := i + 8;
-      end;
-      if ((i + 3) < len) and (uppercase(copy(InputQuery, i, 3)) = 'ALL') then
-      begin
-        bflag := 2;
-        i := i + 3
-      end;
-      if (i < len) and (InputQuery[i] = '*') then
-      begin
-        bflag := 2;
-        inc(i);
-      end;
-      if bflag = 0 then bflag := 1;
-      if (bflag = 1) or (bflag = 4) or (bflag = 5) then
-      begin
-        // Getting field list
-        // We need table name before we can extract fields
-        j := i;
-        while (j < len) and (lex <> 'FROM') do
-        begin
-          lex := '';
-          // Ignoring whitespace
-          while (j < len) and (InputQuery[j] = ' ') do inc(j);
-          // Reading data till ' '
-          while (j < len) and (InputQuery[j] <> ' ') do
-          begin
-            SetLength(lex, length(lex) + 1);
-            lex[length(lex)] := InputQuery[j];
-            inc(j);
-          end;
-        end;
-        while (j < len) and (InputQuery[j] = ' ') do inc(j);
-        lex := '';
-        if (InputQuery[j] = '''') or (InputQuery[j] = '"') or (InputQuery[j] = '`') then
-        begin
-          // Quoted filename
-          quot := InputQuery[j];
-          inc(j);
-          while (j <= len) and (InputQuery[j] <> quot) do
-          begin
-            SetLength(lex, length(lex) + 1);                               
-            lex[length(lex)] := InputQuery[j];
-            inc(j);
-          end;
-          inc(j);
-        end
-        else
-        begin
-          // Reading till whitespace
-          while (j <= len) and (InputQuery[j] <> ' ') do
-          begin
-            SetLength(lex, length(lex) + 1);
-            lex[length(lex)]:= InputQuery[j];
-            inc(j);
-          end;
-        end;
-        buff:= lex;
-        // Checking if exists
-        if not FileExists_plain(buff) then
-        begin
-          resp^.error:= 'File does not exist: ' + buff;
-          result:= SDS_Result(resp);
-          exit;
-        end;
-        // Fetching table info
-        ReadInfo(buff, hdr, cols);
-        resp^.fields:= hdr.fields;
-        resp^.cs:= cols;
-      end;
-      if bflag = 1 then
-      begin
-        // Reading field list
-        fields:= sds_compile_fields(@cols);
-      end;
-      if (bflag = 4) or (bflag = 5) then
-      begin
-        // Getting name of the key field for MIN/MAX()
-        if InputQuery[i] = '`' then
-        begin
-          // Quoted field name. Getting string inside of backticks
-          inc(i);
-          lex:= '';
-          while (i <= len) and (InputQuery[i] <> '`') do
-          begin
-            SetLength(lex, length(lex) + 1);
-            lex[length(lex)]:= InputQuery[i];
-            inc(i);
-          end;
-          inc(i);
-        end
-        else
-        begin
-          // Unquoted field name. Getting column name till space.
-          lex := '';
-          while (i <= len) and (InputQuery[i] <> ' ') and (InputQuery[i] <> ')') do
-          begin
-            SetLength(lex, length(lex) + 1);
-            lex[length(lex)] := InputQuery[i];
-            inc(i);
-          end;
-        end;
-        // Detecting key value
-        for j := 0 to length(cols) - 1 do if cols[j].name = lex then
-        begin
-          SetLength(fields, 1);
-          fields[0] := j;
-          break;
-        end;
-        if InputQuery[i] <> ')' then
-        begin
-          resp^.error := 'SQL syntax error: ) expected after ' + lex;
-          result:= SDS_Result(resp);
-          exit;
-        end;
-        inc(i);
-      end;
-      // Skipping whitespace
-      while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      // Next word should be 'FROM'
-      lex := '';
-      while (i < len) and (InputQuery[i] <> ' ') do
-      begin
-        SetLength(lex, length(lex) + 1);
-        lex[length(lex)] := InputQuery[i];
-        inc(i);
-      end;
-      if uppercase(lex) <> 'FROM' then
-      begin
-        resp^.error := 'SQL syntax error: FROM expected after the field list';
-        result:= SDS_Result(resp);
-        exit;
-      end;
-      // Skipping whitespace
-      while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      // Getting table name
-      buff := sds_compile_name;
-      // Checking if exists
-      if not FileExists_plain(buff) then
-      begin
-        resp^.error := 'File does not exist: ' + buff;
-        result:= SDS_Result(resp);
-        exit;
-      end;
-      ReadInfo(buff, hdr, cols);
-      resp^.cs := cols;
-      resp^.fields := hdr.fields;
-      // Skipping whitespace
-      while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      // Next word should be 'WHERE' if it is not whole table select
-      if i < len then
-      begin
-        lex := '';
-        while (i < len) and (InputQuery[i] <> ' ') do
-        begin
-          SetLength(lex, length(lex) + 1);
-          lex[length(lex)] := InputQuery[i];
-          inc(i);
-        end;
-        if uppercase(lex) <> 'WHERE' then
-        begin
-          resp^.error := 'SQL syntax error: WHERE expected after ' + buff;
-          result:= SDS_Result(resp);
-          exit;
-        end;
-        // Skipping whitespace
-        while (i < len) and (InputQuery[i] = ' ') do inc(i);
-        // Getting search condition
-        cond := sds_compile_condition(@cols);
-        // Skipping whitespace
-        while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      end;
-      // Is there any ORDER BY?
-      if ((i + 8) < len) and (uppercase(copy(InputQuery, i, 8)) = 'ORDER BY') then
-      begin
-        i := i + 8;
-        order := sds_compile_order(@cols);
-      end;
-      // Skipping whitespace
-      while (i < len) and (InputQuery[i] = ' ') do inc(i);
-      // Is there any LIMIT?
-      if ((i + 5) < len) and (uppercase(copy(InputQuery, i, 5)) = 'LIMIT') then
-      begin
-        i := i + 5;
-        values := sds_compile_values;
-      end;
-      // Perforiming query
-      case bflag of
-          1: Select(buff, @fields, @cond, @order, @values, resp);
-          2: SelectAll(buff, @cond, @order, @values, resp);
-          3: SelectCount(buff, @cond, @values, resp);
-          4: SelectMax(buff, @fields, @cond, @values, resp);
-          5: SelectMin(buff, @fields, @cond, @values, resp);
-      end;
+      i := i + 5;
+      values := sds_compile_values;
     end;
-    // Getting query time
-    resp^.time := StampSpan(stamp, Now);
-    // Converting returned value
-    result := SDS_Result(resp);
+    // Perforiming query
+    case bflag of
+        1: Select(buff, @fields, @cond, @order, @values, resp);
+        2: SelectAll(buff, @cond, @order, @values, resp);
+        3: SelectCount(buff, @cond, @values, resp);
+        4: SelectMax(buff, @fields, @cond, @values, resp);
+        5: SelectMin(buff, @fields, @cond, @values, resp);
+    end;
+  end;
+  // Getting query time
+  resp^.time := StampSpan(stamp, Now);
+  // Converting returned value
+  result := SDS_Result(resp);
+  {$ifdef DBUG_ON}debugln('Query end');{$endif}
 end;
 
 // Returns type of the command which caused the result
 function ResultCmd(rp: SDS_Result): string;
-var 
-  res: SDS_PRowSet;
+var res: SDS_PRowSet;
 begin
+  {$ifdef DBUG_ON}debugln('ResultCmd begin');{$endif}
   res := SDS_PRowSet(rp);
   result := res^.cmd;
+  {$ifdef DBUG_ON}debugln('ResultCmd end');{$endif}
 end;
 
 // True if the result pointer is at the end of rowset
-function ResultEOF(rp: SDS_Result): boolean;
-var
-  res: SDS_PRowSet;
+function ResultEof(rp: SDS_Result): boolean;
+var res: SDS_PRowSet;
 begin
+  {$ifdef DBUG_ON}debugln('ResultEof begin');{$endif}
   res := SDS_PRowSet(rp);
   if res^.point >= res^.rows then result := true else result := false;
+  {$ifdef DBUG_ON}debugln('ResultEof end');{$endif}
 end;
 
 // Returns last error message if error was caused by the query
@@ -3052,10 +3004,10 @@ end;
 
 // Fetches row as SDS_Block object
 function FetchRow(rp: SDS_Result): SDS_Array;
-var
-  res: SDS_PRowSet;
-  row: SDS_PBlock;
+var res: SDS_PRowSet;
+    row: SDS_PBlock;
 begin
+  {$ifdef DBUG_ON}debugln('FetchRow begin');{$endif}
   res := SDS_PRowSet(rp);
   result:= nil;
   if res^.point = res^.rows then exit;
@@ -3064,14 +3016,15 @@ begin
   row^.cols := @(res^.cs);
   inc(res^.point);
   result := SDS_Array(row);
+  {$ifdef DBUG_ON}debugln('FetchRow end');{$endif}
 end;
 
 // Frees the result
 procedure FreeResult(rp: SDS_Result);
-var
-  res: SDS_PRowSet;
-  i: longint;
+var res: SDS_PRowSet;
+    i: longint;
 begin
+  {$ifdef DBUG_ON}debugln('FreeResult begin');{$endif}
   if rp = nil then exit;
   res := SDS_PRowSet(rp);
   if (res^.rows > 0) and (res^.cmd = 'SELECT') and (length(res^.rs) > 0) then
@@ -3079,18 +3032,21 @@ begin
     for i := 0 to length(res^.rs) - 1 do dispose(res^.rs[i]);
     SetLength(res^.rs, 0);
   end;
-    dispose(res);
+  dispose(res);
+  {$ifdef DBUG_ON}debugln('FreeResult end');{$endif}
 end;
 
 // Fetches column specified by index as string
 function FetchColumn(ap: SDS_Array; index: longint): string;
 var row: SDS_PBlock;
 begin
+  {$ifdef DBUG_ON}debugln('FetchColumn begin');{$endif}
   result:= '';
   if index < 0 then exit;
   row := SDS_PBlock(ap);
   if index >= length(row^.row^) then exit;
   result:= row^.row^[index];
+  {$ifdef DBUG_ON}debugln('FetchColumn end');{$endif}
 end;
 
 // Fetches column specified by index as longint
@@ -3118,15 +3074,13 @@ function FetchField(ap: SDS_Array; const name: string): string;
 var row: SDS_PBlock;
     i: longint;
 begin
+  {$ifdef DBUG_ON}debugln('FetchField begin');{$endif}
   row := SDS_PBlock(ap);
   result := '';
   if length(row^.cols^) > 0 then
   for i := 0 to length(row^.cols^) - 1 do
-    if row^.cols^[i].name = name then
-    begin
-      result:= row^.row^[i];
-      exit;
-    end;
+    if row^.cols^[i].name = name then begin result:= row^.row^[i]; exit; end;
+  {$ifdef DBUG_ON}debugln('FetchField end');{$endif}
 end;
 
 // Fetches field specified by name as longint
@@ -3207,5 +3161,8 @@ begin
   end;
 end;
 
-
+initialization
+  pwdebugplugin.DebugInit(debugt, 'pwsds.debug.log');  
+finalization
+  pwdebugplugin.DebugFini(debugt);  
 end.

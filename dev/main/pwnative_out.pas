@@ -43,12 +43,23 @@ procedure NativeWrite(PString : PChar); overload;
 procedure NativeWrite(Buffer: PChar;  NumChars: Cardinal); overload;
 procedure NativeWriteLn(s: astr); overload;
 procedure NativeWriteLn; overload;
+procedure ErrWithHeader(const s: astr);
 
 
 // function strlen is defined in system unit.
 // function strlen(p:pchar):sizeint;external name 'FPC_PCHAR_LENGTH';
 
 IMPLEMENTATION
+
+{ Send simple headers and an error.. for cases where headers not in itialized }
+procedure ErrWithHeader(const s: astr);
+begin
+  NativeWriteLn('Content-type: text/html');
+  NativeWriteLn;
+  NativeWriteLn('ERR '+s);
+  halt;
+end;
+
 
 {$IFNDEF FPC}  // delphi doesn't work with native out unit
   procedure NativeWrite(s: astr); overload;

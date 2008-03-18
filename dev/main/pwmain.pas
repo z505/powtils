@@ -234,7 +234,6 @@ function GetCfgVar(const name: astr): astr;
 { Error Functions }
 procedure ThrowErr(const s: astr);
 procedure ThrowWarn(const s: astr);  
-procedure ErrWithHeader(const s: astr);
 
 const // obsolete backwards compatibility
   CountCgiVars: function: longword = {$ifdef FPC}@{$endif}countpostvars;
@@ -360,7 +359,7 @@ uses
   pwenvvar, pwfileutil, pwsubstr, pwurlenc, pwmimetypes, strwrap1, 
   pwdebugplugin;
 
-{$IFDEF PWUDEBUG}
+{$IFDEF DBUG_ON}
   // var debugt: text; // Debug output file (for localhost single visitor testing only!)
   var debugt: longint; 
 
@@ -669,7 +668,8 @@ procedure InitRTI;
 
 { Defaults if not using config file plugin unit }
 procedure DefaultCfgInit;
-begin {$IFDEF DBUG_ON} debugln('SetDefaultCfgInit begin');{$ENDIF}
+begin 
+  {$IFDEF DBUG_ON}debugln('SetDefaultCfgInit begin');{$ENDIF}
   AddWebCfgVar(L_HEADER_CHARSET, 'iso-8859-1');
   AddWebCfgVar(L_ERROR_REPORTING, 'on');
   AddWebCfgVar(L_ERROR_HALT, 'off');
@@ -743,16 +743,6 @@ begin
   cook_initialized:= true;
 end;
 
-
-{ Send simple headers and an error.. for cases where headers not in itialized }
-procedure ErrWithHeader(const s: astr);
-begin
-  NativeWriteLn('Content-type: text/html');
-  NativeWriteLn;
-  NativeWriteLn('ERR '+s);
-  headers_sent:= true;
-  halt;
-end;
 
 { Send HTTP headers }
 function SendHeaders: bln;
@@ -2929,7 +2919,12 @@ end;
   first such as addon session and config plugin units }
 procedure Init;
 begin
+ {$IFDEF PWUDEBUG}
+   // log file 
+  pwdebugplugin.DebugInit(debugt, 'pwmain.debug.log');  
+ {$ENDIF}
   if plugin_init_called then exit;
+  plugin_init_called:= true; // must be here, not at the end of this proc
   if iCustomCfgUnitSet then CustomCfgUnitInit else DefaultCfgInit;
   InitRTI;
   InitBufAndHeaders;
@@ -2938,16 +2933,8 @@ begin
   InitCook; 
   // init sessions
   if iCustomSessUnitSet then CustomSessUnitInit;
-  plugin_init_called:= true;
 end;
 
-procedure LocalInit;
-begin
- {$IFDEF PWUDEBUG}
-   // log file 
-  DebugInit(debugt, 'pwmain.debug.log');  
- {$ENDIF}
-end;
 
 procedure LocalFini;
 begin
@@ -2964,7 +2951,7 @@ begin
 end;
 
 initialization
-  LocalInit;
+
 finalization
   LocalFini;
 end.
