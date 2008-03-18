@@ -44,6 +44,17 @@ var
 {$endif}
 
 implementation
+uses
+  pwnative_out,
+  {$ifdef WINDOWS}windows{$ENDIF}
+  {$ifdef UNIX}baseunix{$ENDIF}
+  ;
+
+function lasterr: integer;
+begin
+  {$ifdef WINDOWS}result:= getlasterror;{$endif}
+  {$ifdef UNIX}result:= fpgeterrno;{$endif}
+end;
 
 {$ifdef DBUG_ON}
 (*
@@ -72,9 +83,13 @@ implementation
 *)
 
  procedure DefaultDebugInit(var F: THandle; const fname: astr);
+ var err: astr;
  begin 
    F:= FileCreate(fname, fmShareDenyNone);   // TODO: UNIX FILE LOCKING
-   //  if F = -1 then Halt(1);
+   if F = -1 then begin
+     str(lasterr, err);
+     ErrWithHeader('problem creating debug file: '+fname+' lasterror: '+err);
+   end;
  end;
 
  procedure DefaultDebugLn(F: THandle; var s: astr);
@@ -85,7 +100,7 @@ implementation
 
  procedure DefaultDebugFini(F: THandle);
  begin
-   FileClose(f);
+   FileClose(F);
  end;
 {$endif}
 

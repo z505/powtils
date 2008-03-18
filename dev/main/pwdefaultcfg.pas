@@ -32,7 +32,7 @@ const
  {$ifdef WINDOWS} PWU_CFG_FILE     = 'pwu_win.conf'; 
  {$endif}
 
-{$IFDEF PWUDEBUG}
+{$IFDEF DBUG_ON}
  //var debugt: text;
  var debugt: longint;
 
@@ -163,8 +163,7 @@ end;
 
 procedure UnitInit;
 begin
- {$ifdef DBUG_ON} 
-  // init logging if enabled
+ {$ifdef DBUG_ON} // init logging if enabled
   pwdebugplugin.DebugInit(debugt, 'pwdefaultcfg.debug.log');                                               
  {$endif}
   // setup this unit as a config plugin for pwmain
