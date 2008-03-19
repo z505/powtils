@@ -13,14 +13,15 @@ Uses
   PWSDSSess,
   WebApplication,
   WebTemplate,
-  PWVCL;
+  PWVCL,
+  NoLoginManager;
 
 Var
-  LoginMan : TWebLoginManager;
+  LoginMan : TNoLoginManager;
 
 Begin
   SelfReference := 'test1' {$IFDEF WINDOWS} + '.exe'{$ENDIF};
-  LoginMan := TWebLoginManager.Create;
+  LoginMan := TNoLoginManager.Create;
   Root := TWebComponent.Create('root', 'test1', Nil);
   With TWebLoginBox.Create('dialog1', 'dialog', Root) Do
   Begin
