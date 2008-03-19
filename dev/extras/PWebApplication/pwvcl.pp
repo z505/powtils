@@ -135,17 +135,27 @@ Type
 
   TWebLoginManager = Class
   Private
+    fLogin,
+    fPassword : String;
+    fLogged   : Boolean;
   Public
-    Function Login(L, P : String): Boolean;
-    Function Logout(L : String): Boolean;
+    Function Login(L, P : String): Boolean; Virtual; Abstract;
+    Function Logout(L : String): Boolean; Virtual; Abstract;
+    Property LoginName : String Read fLogin;
+    Property Password : String Read fPassword;
+    Property Logged : Boolean Read fLogged;
   End;
 
   TWebLoginBox = Class(TWebEditPage)
   Private
     fLogin,
-    fPassword : String;
-    fLoginMan : TWebLoginManager;
-    fLogged   : Boolean;
+    fPassword   : String;
+    fLoginMan   : TWebLoginManager;
+    fLogged     : Boolean;
+    fOnLogin    : TWebEvent;
+    fOnLogout   : TWebEvent;
+    fOnLoginErr : TWebEvent;
+    Procedure DefaultLoginErr;
   Protected
     Procedure UponLogin;
     Procedure Logout(Action : TTokenList; Depth : LongWord);
@@ -156,6 +166,9 @@ Type
     Property Password : String Read fPassword Write fPassword;
     Property LoginManager : TWebLoginManager Read fLoginMan Write fLoginMan;
     Property Logged : Boolean Read fLogged Write fLogged;
+    Property OnLogin : TWebEvent Read fOnLogin Write fOnLogin;
+    Property OnLogout : TWebEvent Read fOnLogout Write fOnLogout;
+    Property OnLoginErr : TWebEvent Read fOnLoginErr Write fOnLoginErr;
   End;
 
 Implementation
@@ -491,30 +504,61 @@ Begin
   fWhiteList[High(fWhiteList)].Kind := Kind;
 End;
 
-// TWebLoginManager
-
-Function TWebLoginManager.Login(L, P : String): Boolean;
-Begin
-  Login := True;
-End;
-
-Function TWebLoginManager.Logout(L : String): Boolean;
-Begin
-  Logout := True;
-End;
-
 // TWebLoginBox
+
+Procedure TWebLoginBox.DefaultLoginErr;
+Begin
+  Error := True;
+  ErrorValue := 'Login not sucessfull.';
+End;
 
 Procedure TWebLoginBox.UponLogin;
 Begin
   If Assigned(fLoginMan) Then
-    fLogged := fLoginMan.Login(fLogin, fPassword);
+    If fLoginMan.Login(fLogin, fPassword) Then
+    Begin
+      fLogged := True;
+      Error := False;
+      ErrorValue := '';
+      If Assigned(fOnLogin) Then
+        fOnLogin()
+    End
+    Else
+    Begin
+      DefaultLoginErr;
+      If Assigned(fOnLoginErr) Then
+        fOnLoginErr();
+    End
+  Else
+  Begin
+    Error := True;
+    ErrorValue := 'No Login Manager associated.';
+  End;
   Active := Not(fLogged);
 End;
 
 Procedure TWebLoginBox.Logout(Action : TTokenList; Depth : LongWord);
 Begin
-  fLogged := Not(fLoginMan.Logout(fLogin));
+  If Assigned(fLoginMan) Then
+    If fLoginMan.Logout(fLogin) Then
+    Begin
+      fLogged := False;
+      Error := False;
+      ErrorValue := '';
+      If Assigned(fOnLogout) Then
+        fOnLogout();
+    End
+    Else
+    Begin
+      DefaultLoginErr;
+      If Assigned(fOnLoginErr) Then
+        fOnLoginErr();
+    End
+  Else
+  Begin
+    Error := True;
+    ErrorValue := 'No Login Manager associated.';
+  End;
   Active := Not(fLogged);
   If Not(fLogged) Then
   Begin

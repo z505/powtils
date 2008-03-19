@@ -1,8 +1,11 @@
 <components.list>
+<if when="CurVisible">
 <components.current/>
+</if>
+<components.next/>
 </components.list>
-<form action="{$self}" method="GET">
 <exportvars/>
+<form action="{$self}" method="GET">
 <button type="submit" name="action" value="{$ComponentName}.previous">Previous</button>
 <button type="submit" name="action" value="{$ComponentName}.next">Next</button>
 </form>
