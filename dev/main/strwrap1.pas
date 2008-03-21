@@ -17,6 +17,10 @@ uses
   pwfileutil;
 
 {--- Public constants ---------------------------------------------------------}
+
+const 
+  FILE_ERR = '-1NF';
+
 const
   { File open modes }
   fmOpenRead       = $0000;
@@ -231,10 +235,9 @@ var F: file;
     InputFileSize: Integer;
     Buffer: Pointer;
 begin
-  result:= ''; // init               
-  if OpenFile(F, fname, 1, fmOpenReadWrite) = false then begin 
-    result:= '-1NF';  EXIT;
-  end;
+  result:= FILE_ERR; 
+  if OpenFile(F, fname, 1, fmOpenReadWrite) = false then EXIT;
+  result:= '';
   InputFileSize:= FileSize(F);
   SetLength(Result, InputFileSize);
   Buffer:= PChar(Result);
@@ -306,13 +309,11 @@ var F: text;
     Line: string;
     i:longint;
 begin
-  result:= ''; //safety
-  if not OpenFile(F, fname, 'r') then  begin result:= '-1NF'; EXIT; end;
-  str1:='';
-  i:=0;
+  result:= FILE_ERR; 
+  if not OpenFile(F, fname, 'r') then EXIT; 
+  str1:=''; result:= ''; i:=0;
   while ( i < NumOfLines ) and ( not  EOF(F) ) do begin
-    inc(i);
-    Readln(F,Line);
+    inc(i); Readln(F,Line);
     str1:= str1 + Line + CRLF; //todo: optimize - concats are dead slow (L505)
   end;
   result:= str1;
@@ -331,29 +332,25 @@ var F: text;
     i:longint;
     GotLines: boolean; //to signal that we have 'got' all the lines we need
 begin
-  result:= ''; //safety
+  result:= FILE_ERR; 
   GotLines:= false; //initialize as false
-  if not OpenFile(F, fname, 'r') then
-  begin result:= '-1NF'; EXIT;
-  end;
-  str1:='';
-  i:=0;
+  if not OpenFile(F, fname, 'r') then exit;
+  str1:=''; result:= ''; i:=0;
   while ( GotLines <> true )do begin
     if EOF(F) then gotlines:= true;
     inc(i);
-    if i < FromLine then   //we are still before the specified range
-      Readln(F);
-    if i >= FromLine then   //we are at the start of the specified range
-    begin
+    //we are still before the specified range
+    if i < FromLine then Readln(F);
+    //we are at the start of the specified range
+    if i >= FromLine then begin
       Readln(F,Line);
       str1:= str1+Line+CRLF; //todo: optimize - concats are dead slow (L505)
     end;
-    if i = ToLine then      //we've 'gotten' all the lines we need
-      GotLines:= true;          //so exit this while loop
+    //we've 'gotten' all the lines we need so exit loop
+    if i = ToLine then GotLines:= true;          
   end;
   result:= str1;
-  close(F); //close file
-
+  close(F); 
 end;
 
 
@@ -365,8 +362,8 @@ var
   F: text;
   Line: string;
 begin
-  result:= ''; 
-  if not OpenFile(F, fname, 'r') then  begin result:= '-1NF'; EXIT; end;
+  result:= FILE_ERR; 
+  if not OpenFile(F, fname, 'r') then exit; 
   // read only the first line of file and close it
   Readln(F, Line); 
   result:= Line;
@@ -380,8 +377,8 @@ function GetLn2(const fname: string): string;
 var F: text;
     Line: string;
 begin
-  result:= ''; //safety
-  if not OpenFile(F, fname, 'r') then begin result:= '-1NF'; EXIT; end;
+  result:= FILE_ERR; 
+  if not OpenFile(F, fname, 'r') then EXIT; 
   ReadLn(F); //pass the first line of the file
   ReadLn(F,Line); //read only the second line of file
   result:= Line;
@@ -397,11 +394,9 @@ var
   Line: string;
 //  GotLine: boolean;
 begin
-  result:= ''; //safety
+  result:= ''; 
   if ( LineNumber < 1 ) then  exit; //nothing to do, file lines start at line 1
-  if not OpenFile(F, fname, 'r') then 
-  begin result:= '-1NF'; EXIT;
-  end;
+  if not OpenFile(F, fname, 'r') then begin result:= FILE_ERR; EXIT; end;
   if not EOF(f) then //only continue reading the lines of the file until we have GOT our line that we want
   begin
     for i:= 1 to LineNumber-1 do
@@ -426,7 +421,7 @@ var
   i:longint;
 begin
   setlength(result,1);
-  result[0]:= '-1NF';  // error to array[0] if no file found
+  result[0]:= FILE_ERR;  // error to array[0] if no file found
   if not OpenFile(F, fname, 'r') then EXIT; 
   i:=0;
   while not Eof(F) do begin
@@ -449,7 +444,7 @@ var
   i:longint;
 begin
   setlength(result.Lines,1);
-  result.Lines[0]:='-1NF'; // error to array[0] if no file found
+  result.Lines[0]:=FILE_ERR; // error to array[0] if no file found
   result.Count:= -1;   // returns count at -1 if nothing found
   if not OpenFile(F, fname, 'r') then EXIT;
   i:=0;
@@ -473,7 +468,7 @@ var F: text;
 begin
   setlength(result,1);
   if not OpenFile(F, fname, 'r') then 
-  begin result[0]:= '-1NF';  EXIT;
+  begin result[0]:= FILE_ERR;  EXIT;
   end;
   i:= -1;
   while not Eof(F) do
@@ -498,7 +493,7 @@ begin
   setlength(result.Lines,1);
   result.Count:= -1;   //...
   if not OpenFile(F, fname, 'r') then
-  begin result.Lines[0]:= '-1NF'; EXIT; 
+  begin result.Lines[0]:= FILE_ERR; EXIT; 
   end;
   i:= -1;
   while not Eof(F) do
@@ -524,7 +519,7 @@ var
   i:longint;
 begin
   setlength(result,1);
-  result[0]:= '-1NF'; //safety
+  result[0]:= FILE_ERR; //safety
   i:= 0;
   setlength(result,NumOfLines+1); //we know the exact length that the array will be
   if not OpenFile(F, fname, 'r') then EXIT;
@@ -547,7 +542,7 @@ var
 begin
   setlength(result,NumOfLines); //we know the exact length that the array will be
   if not OpenFile(F, fname, 'r') then 
-  begin result[0]:= '-1NF'; EXIT;
+  begin result[0]:= FILE_ERR; EXIT;
   end;
   i:= -1;
   while( i < NumOfLines-1 )  and ( not Eof(F) ) do
@@ -573,7 +568,7 @@ var
 begin
   RngAmt:= ToLine - FromLine + 1; //the range i.e. 4:6 is 4,5,6 so add 1 to subtraction
   setlength(result,(RngAmt)+2); //we know the exact length that the array will be  +2 because range 4 to 6 is three lines, not two. So +1,  and setlength is 0 based, so another +1.
-  result[0]:= '-1NF'; 
+  result[0]:= FILE_ERR; 
   if not OpenFile(F, fname, 'r') then EXIT;
   if not ( Eof(F) ) then
   begin
@@ -600,7 +595,7 @@ var
 begin
   setlength(result,1);
   if not OpenFile(F, fname, 'r') then 
-  begin result[0]:='-1NF'; EXIT;
+  begin result[0]:=FILE_ERR; EXIT;
   end;
   i:= -1; i2:= 0;
   setlength(result,(ToLine-FromLine)+1); //we know the exact length that the array will be  +2 because range 4 to 6 is three lines, not two. So +1
@@ -632,7 +627,7 @@ begin
   LineCnt:= GetLineCount(fname);
   if not OpenFile(F, fname, 'r') then 
   begin 
-    result:= '-1NF'; 
+    result:= FILE_ERR; 
     exit;
   end;
   // the line we will start reading at
