@@ -1,0 +1,96 @@
+Im starting to document the model.
+
+The basic component, TWebComponent :
+
+  TWebComponent = Class(TPersistent)
+	Private
+    fInstanceName  : String;
+    fCaption       : String;
+    fOwner         : TWebComponent;
+    fTemplate      : TWebTemplate;
+    fActions       : TWebActionList;
+    fSubComponents : TStringList;
+    fVisible       : Boolean;
+    fError         : Boolean;
+    fErrorValue    : String;
+    Function GetComponent(Name : String): TWebComponent;
+    Function GetComponentByIndex(Idx : LongInt): TWebComponent;
+    Function GetCount : LongInt;
+  Protected
+    Procedure ConditionalTag(Caller : TXMLTag);
+    Procedure SubComponent(Caller : TXMLTag);
+    Procedure CarryOnVar(Caller : TXMLTag);
+    Procedure ExportVars(Caller : TXMLTag);
+	Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+		Destructor Destroy; Override;
+    Function CompleteName: String;
+    Function ActionName(Name : String): String;
+    Procedure AppendComponent(Name : String; Instance : TWebComponent);
+    Procedure SaveMeToStringList(Dst : TStringList);
+    Procedure LoadMeFromStringList(Src : TStringList);
+    Procedure CascadeSave(Dst : TStringList);
+    Procedure CascadeLoad(Src : TStringList);
+    Procedure ExportMyProperties;
+    Property Template : TWebTemplate Read fTemplate Write fTemplate;
+    Property Actions : TWebActionList Read fActions Write fActions;
+    Property Components[Name : String]: TWebComponent Read GetComponent;
+    Property ComponentByIndex[Idx : LongInt]: TWebComponent Read GetComponentByIndex;
+    Property Count : LongInt Read GetCount;
+    Property Owner : TWebComponent Read fOwner;
+  Published
+    Property InstanceName : String Read fInstanceName Write fInstanceName;
+    Property ComponentName : String Read CompleteName;
+    Property Caption : String Read fCaption Write fCaption;
+    Property Visible : Boolean Read fVisible Write fVisible;
+    Property Error : Boolean Read fError Write fError;
+    Property ErrorValue : String Read fErrorValue Write fErrorValue;
+	End;
+
+fInstanceName field, InstanceName property :
+
+This is the true name of this instance. Each instance is identified by its instance name,
+wich is used in the template system to identify a unique component apart from others of the
+same class. Instance name my be something like 'dialog1'.
+
+To access the instance name inside the template, place a '<exportmyvars/>' tag and
+put a '{$InstanceName}' place holder where you want the template system to output the instance name.
+
+Instance name is used to build the complete component name.
+
+CompleteName Function, ComponentName property :
+
+this function/property looks backwards for all owners Instance Names in order to build
+a complete name for this component, wich is used to determine the action handler to be called.
+
+To access the component name inside the template, place a '<exportmyvars/>' tag and a '{$ComponentName}' where
+you want the template system to write the component name. This is usefull to create links to
+actions, something like :
+
+<exportmyvars/>
+<a href="{$self}?action={$ComponentName}.Action">bla bla bla</a>
+
+This will push component properties to macrovars and then create a link to a action named Action
+wich lies in the current component.
+
+Caption property, fCaption field :
+
+This is used as Caption in various components and should be acessed by the '{$Caption}' macrovar...
+(needs <exportmyvars/> as usual)
+
+Visible property, fVisible field :
+
+The usefullness of this property is doubled. It can be user by a owning component to decide if it should
+emit its child and is used by the child itself to decide how its appearence should be. If a owning component
+calls its child irrespective to this property, the child will generally show itself in a folded fashion...
+
+Error property, fError field :
+
+This boolean property is used to determine if there was an error in this component. Normally it is used with
+<if> tags in order to show/hide an error msg. ErrorValue holds an string wich can be used to show an explanation to the user.
+
+something like :
+
+<exportmyvars/>
+<if when="Error"><font color="$FFFF00">{$ErrorValue}</font></if>
+
