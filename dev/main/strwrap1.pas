@@ -197,14 +197,12 @@ end;
 
  JEFF: return -1 on error}
 function GetLineCount(const fname: string): longint;
-var
-  F: text;
+var F: text;
 begin
   Result:=-1;
   if not OpenFile(F, fname, 'r') then EXIT;
   Result:=0;
-  while not EOF(F) do
-  begin
+  while not EOF(F) do begin
     Readln(F);
     inc(result); //increment line count
   end;
@@ -214,33 +212,27 @@ end;
 
 { Verify line exists in file (i.e. on large files, does line 150000 exist?) }
 function FindLine(const fname: string; linenum: longword): boolean;
-var
-  F: text;
-  cnt: longword;
+var F: text;
+    cnt: longword;
 begin
   Result:= false;
   cnt:= 0;
   if not OpenFile(F, fname, 'r') then EXIT;
-  while (result <> true) or (not EOF(F)) do
-  begin
+  while (result <> true) or (not EOF(F)) do begin
     Readln(F);
     inc(cnt); //increment line count
-    if cnt = linenum then
-      result:= true;
+    if cnt = linenum then result:= true;
   end;
   close(F); //close file
-
 end;
 
 function StrLoadFile(const fname: string): string;
-var
-  F: file;
-  InputFileSize: Integer;
-  Buffer: Pointer;
+var F: file;
+    InputFileSize: Integer;
+    Buffer: Pointer;
 begin
   result:= ''; // init               
-  if OpenFile(F, fname, 1, fmOpenReadWrite) = false then 
-  begin 
+  if OpenFile(F, fname, 1, fmOpenReadWrite) = false then begin 
     result:= '-1NF';  EXIT;
   end;
   InputFileSize:= FileSize(F);
@@ -252,10 +244,9 @@ end;
 
 { save a string directly to a file }
 function StrSaveFile(const fname, InputStr: string): boolean; overload;
-var
-  F: file;
-  OutputFileSize: integer;
-  Buffer: Pointer;
+var F: file;
+    OutputFileSize: integer;
+    Buffer: Pointer;
 begin
   result:= false;
   if OpenFileRewrite(F, fname, 1) = false then EXIT; // open in write mode
@@ -268,9 +259,8 @@ end;
 
 { read a chunk from any file }
 function ReadChunk(const fname: string; ChunkSize: integer; buf: pointer): boolean;
-var
-  f: file;
-  readamt: integer;
+var f: file;
+    readamt: integer;
 begin
   result:= false;
   if OpenFileRead(F, fname, 1) = false then EXIT; // open in write mode
@@ -281,8 +271,7 @@ end;
 
 { save a chunk directly to a file }
 function SaveChunk(fname: string; buf: pointer; chunksize: integer): boolean;
-var
-  F: file;
+var F: file;
 begin
   result:= false;
   // open in write mode  
@@ -293,11 +282,10 @@ end;
 
 { same as above but ability to specify final line ending at end of file }
 function StrSaveFile(const fname, InputStr, endlnfeed: string): boolean; overload;
-var
-  F: file;
-  OutputFileSize: integer;
-  Buffer: Pointer;
-  tmpstr: string;
+var F: file;
+    OutputFileSize: integer;
+    Buffer: Pointer;
+    tmpstr: string;
 begin
   result:= false;
   if OpenFileRewrite(F, fname, 1) = false then EXIT; // open in write mode
@@ -313,27 +301,22 @@ end;
   file getting loaded into memory!
   Note: an extra carriage return is appended to the end }
 function StrLoadLns(NumOfLines: longint; const fname: string): string;
-var
-  F: text;
-  str1: string;
-  Line: string;
-  iLoc:longint;
+var F: text;
+    str1: string;
+    Line: string;
+    i:longint;
 begin
   result:= ''; //safety
-  if not OpenFile(F, fname, 'r') then
-  begin result:= '-1NF'; EXIT;
-  end;
+  if not OpenFile(F, fname, 'r') then  begin result:= '-1NF'; EXIT; end;
   str1:='';
-  iLoc:=0;
-  while ( iLoc < NumOfLines ) and ( not  EOF(F) ) do
-  begin
-    inc(iLoc);
+  i:=0;
+  while ( i < NumOfLines ) and ( not  EOF(F) ) do begin
+    inc(i);
     Readln(F,Line);
     str1:= str1 + Line + CRLF; //todo: optimize - concats are dead slow (L505)
   end;
   result:= str1;
   close(F); //close up file
-
 end; { Todo: get rid of extra carriage return that is appended. Will require an
        extra if statement, so may cause some slow down }
      { NOTE: Personally, I think the extra CRLF is a good thing. (Jeff) }
@@ -342,12 +325,11 @@ end; { Todo: get rid of extra carriage return that is appended. Will require an
 { Load certain range of lines from a text file into a string.
   Example: lines 10 to 15 only }
 function StrLoadRng(FromLine:longint; ToLine:longint; const fname: string): string;
-var
-  F: text;
-  str1: string;
-  Line: string;
-  iLoc:longint;
-  GotLines: boolean; //to signal that we have 'got' all the lines we need
+var F: text;
+    str1: string;
+    Line: string;
+    i:longint;
+    GotLines: boolean; //to signal that we have 'got' all the lines we need
 begin
   result:= ''; //safety
   GotLines:= false; //initialize as false
@@ -355,19 +337,18 @@ begin
   begin result:= '-1NF'; EXIT;
   end;
   str1:='';
-  iLoc:=0;
-  while ( GotLines <> true )do
-  begin
+  i:=0;
+  while ( GotLines <> true )do begin
     if EOF(F) then gotlines:= true;
-    inc(iLoc);
-    if iLoc < FromLine then   //we are still before the specified range
+    inc(i);
+    if i < FromLine then   //we are still before the specified range
       Readln(F);
-    if iLoc >= FromLine then   //we are at the start of the specified range
+    if i >= FromLine then   //we are at the start of the specified range
     begin
       Readln(F,Line);
       str1:= str1+Line+CRLF; //todo: optimize - concats are dead slow (L505)
     end;
-    if iLoc = ToLine then      //we've 'gotten' all the lines we need
+    if i = ToLine then      //we've 'gotten' all the lines we need
       GotLines:= true;          //so exit this while loop
   end;
   result:= str1;
@@ -384,27 +365,23 @@ var
   F: text;
   Line: string;
 begin
-  result:= ''; //safety
-  if not OpenFile(F, fname, 'r') then 
-  begin result:= '-1NF'; EXIT;
-  end;
-  Readln(F, Line); //read only the first line of file
+  result:= ''; 
+  if not OpenFile(F, fname, 'r') then  begin result:= '-1NF'; EXIT; end;
+  // read only the first line of file and close it
+  Readln(F, Line); 
   result:= Line;
-  close(F); //close file
+  close(F); 
 end;
 
 
 { Get the second line of text into a string, from a specified file
   Tiny bit more efficient than using GetLnN, if you are only accessing Line 2 }
 function GetLn2(const fname: string): string;
-var
- F: text;
- Line: string;
+var F: text;
+    Line: string;
 begin
   result:= ''; //safety
-  if not OpenFile(F, fname, 'r') then 
-  begin result:= '-1NF'; EXIT;
-  end;
+  if not OpenFile(F, fname, 'r') then begin result:= '-1NF'; EXIT; end;
   ReadLn(F); //pass the first line of the file
   ReadLn(F,Line); //read only the second line of file
   result:= Line;
@@ -416,7 +393,7 @@ end;
 function GetLnN(LineNumber: longint; const fname: string): string;
 var
   F: text;
-  iLoc:longint; //local incremental longint
+  i:longint; //local incremental longint
   Line: string;
 //  GotLine: boolean;
 begin
@@ -427,12 +404,12 @@ begin
   end;
   if not EOF(f) then //only continue reading the lines of the file until we have GOT our line that we want
   begin
-    for iLoc:= 1 to LineNumber-1 do
+    for i:= 1 to LineNumber-1 do
        Readln(F);                    //get to the beginning of the specified line
      Readln(F, Line);
      result:= Line;
   end; //else past end of file
-  close(F); //close file
+  close(F); 
 end;
 
 
@@ -446,18 +423,17 @@ function ArrayLoadFile(const fname: string): StrArray;
 var
   F: text;
   Line: string;
-  iLoc:longint;
+  i:longint;
 begin
   setlength(result,1);
   result[0]:= '-1NF';  // error to array[0] if no file found
   if not OpenFile(F, fname, 'r') then EXIT; 
-  iLoc:=0;
-  while not Eof(F) do
-  begin
-    inc(iLoc);
+  i:=0;
+  while not Eof(F) do begin
+    inc(i);
     Readln(F,Line);
-    setlength(result,iLoc + 1);
-    result[iLoc]:= Line;
+    setlength(result,i + 1);
+    result[i]:= Line;
   end;
   close(F); //close up file
 end; { Todo: optimize, maybe less setlengths somehow, since setlength is in a loop.}
@@ -470,45 +446,42 @@ function ArrayLoadFile_c(const fname: string): StrArray_c;
 var
   F: text;
   Line: string;
-  iLoc:longint;
+  i:longint;
 begin
   setlength(result.Lines,1);
   result.Lines[0]:='-1NF'; // error to array[0] if no file found
   result.Count:= -1;   // returns count at -1 if nothing found
   if not OpenFile(F, fname, 'r') then EXIT;
-  iLoc:=0;
-  while not Eof(F) do
-  begin
-    inc(iLoc);
+  i:=0;
+  while not Eof(F) do begin
+    inc(i);
     Readln(F,Line);
-    setlength(result.lines,iLoc+1);
-    result.Lines[iLoc]:= Line;
+    setlength(result.lines,i+1);
+    result.Lines[i]:= Line;
   end;
-  result.Count:= iLoc;
-  close(F); //close file
-
-end; { Todo: optimize, maybe less setlengths somehow, since setlength is in a loop.}
+  result.Count:= i;
+  close(F); 
+end; { Todo: optimize, less setlengths using caparray concept }
 
 
 { Same as ArrayLoadFile except array starts at [0] instead of [1]
   Returns -1NF in array[0] contents if file not found }
 function ArrayLoadFile_0(const fname: string): StrArray;
-var
-  F: text;
-  Line: string;
-  iLoc:longint;
+var F: text;
+    Line: string;
+    i:longint;
 begin
   setlength(result,1);
   if not OpenFile(F, fname, 'r') then 
   begin result[0]:= '-1NF';  EXIT;
   end;
-  iLoc:= -1;
+  i:= -1;
   while not Eof(F) do
   begin
-    inc(iLoc);
+    inc(i);
     Readln(F,Line);
-    setlength(result,iLoc+1);
-    result[iLoc]:= Line;
+    setlength(result,i+1);
+    result[i]:= Line;
   end;
   close(F); //close up file
 
@@ -548,18 +521,18 @@ function ArrayLoadLns(NumOfLines:longint; const fname: string): StrArray;
 var
   F: text;
   Line: string;
-  iLoc:longint;
+  i:longint;
 begin
   setlength(result,1);
   result[0]:= '-1NF'; //safety
-  iLoc:= 0;
+  i:= 0;
   setlength(result,NumOfLines+1); //we know the exact length that the array will be
   if not OpenFile(F, fname, 'r') then EXIT;
-  while not ( Eof(F) ) and ( iLoc < NumOfLines ) do
+  while not ( Eof(F) ) and ( i < NumOfLines ) do
   begin
-    inc(iLoc);
+    inc(i);
     Readln(F,Line);
-    result[iLoc]:= Line;
+    result[i]:= Line;
   end;
   close(F); //close up file
 end;
@@ -570,18 +543,18 @@ function ArrayLoadLns_0(NumOfLines:longint; const fname: string): StrArray;
 var
   F: text;
   Line: string;
-  iLoc:longint;
+  i:longint;
 begin
   setlength(result,NumOfLines); //we know the exact length that the array will be
   if not OpenFile(F, fname, 'r') then 
   begin result[0]:= '-1NF'; EXIT;
   end;
-  iLoc:= -1;
-  while( iLoc < NumOfLines-1 )  and ( not Eof(F) ) do
+  i:= -1;
+  while( i < NumOfLines-1 )  and ( not Eof(F) ) do
   begin
-    inc(iLoc);
+    inc(i);
     Readln(F,Line);
-    result[iLoc]:= Line;
+    result[i]:= Line;
   end;
   close(F); 
 
@@ -595,7 +568,7 @@ function ArrayLoadRng(FromLine:longint; ToLine:longint; const fname: string): St
 var
   F: text;
   Line: string;
-  iLoc:longint;
+  i:longint;
   RngAmt:longint;
 begin
   RngAmt:= ToLine - FromLine + 1; //the range i.e. 4:6 is 4,5,6 so add 1 to subtraction
@@ -604,12 +577,12 @@ begin
   if not OpenFile(F, fname, 'r') then EXIT;
   if not ( Eof(F) ) then
   begin
-    for iLoc:= 1 to FromLine-1 do
+    for i:= 1 to FromLine-1 do
       readln(F); //go to the first line we need
-    for iLoc:= 1 to RngAmt do
+    for i:= 1 to RngAmt do
     begin
       Readln(F,Line);
-      result[iLoc]:= Line;
+      result[i]:= Line;
     end;
   end; //else we are out of range, file isn't big enough for specified range
   close(F); //close file
@@ -622,23 +595,23 @@ function ArrayLoadRng_0(FromLine:longint; ToLine:longint; const fname: string): 
 var
   F: text;
   Line: string;
-  iLoc,
-  iLoc2:longint;
+  i,
+  i2:longint;
 begin
   setlength(result,1);
   if not OpenFile(F, fname, 'r') then 
   begin result[0]:='-1NF'; EXIT;
   end;
-  iLoc:= -1; iLoc2:= 0;
+  i:= -1; i2:= 0;
   setlength(result,(ToLine-FromLine)+1); //we know the exact length that the array will be  +2 because range 4 to 6 is three lines, not two. So +1
-  while not ( Eof(F) ) and ( iLoc < ToLine-1 ) do
+  while not ( Eof(F) ) and ( i < ToLine-1 ) do
   begin
-    inc(iLoc);      //current line we are at
+    inc(i);      //current line we are at
     Readln(F,Line);
-    if iLoc >= FromLine-1 then //we are in the correct range
+    if i >= FromLine-1 then //we are in the correct range
     begin
-      result[iLoc2]:= Line;
-      inc(iLoc2);
+      result[i2]:= Line;
+      inc(i2);
     end;
   end;
   close(F); //close file
@@ -681,8 +654,8 @@ end;
 // note: will not work unles string array is sorted!
 function RemoveDupStrings(var InputStrArray: StrArray): integer;
 var
-  iLoc: integer; //local loop integer
-  iLoc2: integer; //local increment integer
+  i: integer; //local loop integer
+  i2: integer; //local increment integer
   NonDupeStrArray: StrArray;
 begin
   result:= -1; //safety
@@ -691,18 +664,18 @@ begin
   if length(InputStrArray) = 1 then EXIT; //must be at least length of 2 to have a duplicate
 //  setlength(NonDupeStrArray, 1);
 
-  //give ourselves an extra buffer zone (1 additional blank string) at the end of the array, so we can check all the strings in the below loop (otherwise runtime error when adding 1 to iLoc)
+  //give ourselves an extra buffer zone (1 additional blank string) at the end of the array, so we can check all the strings in the below loop (otherwise runtime error when adding 1 to i)
   setlength(InputStrArray, length(InputStrArray) + 1);
 
-  iLoc2:= 0;
-  for iLoc:= 0 to length(InputStrArray) - 2 do //up until the second last string in the array (last string is checked second last)
+  i2:= 0;
+  for i:= 0 to length(InputStrArray) - 2 do //up until the second last string in the array (last string is checked second last)
   begin
       // only record the string if it is not a duplicate
-      if (InputStrArray[iLoc] <> InputStrArray[iLoc + 1]) then
+      if (InputStrArray[i] <> InputStrArray[i + 1]) then
       begin
         setlength(NonDupeStrArray, length(NonDupeStrArray) + 1);
-        NonDupeStrArray[iLoc2]:= InputStrArray[iLoc];
-        inc(iLoc2);
+        NonDupeStrArray[i2]:= InputStrArray[i];
+        inc(i2);
       end;
   end;
 
@@ -746,9 +719,9 @@ function ArrayLoadExact(LineNumsArray:LnArray; fname:string): StrArray;
 var
   F: text;
   Line: string;
-  iLoc,
-  iLoc2,
-  iLoc3:integer;
+  i,
+  i2,
+  i3:integer;
   GotLines: boolean; //to signal that we have 'got' all the lines we need
 begin
   setlength(result,1);
@@ -761,23 +734,23 @@ begin
   GotLines:= false; //initialize as false
   Assign(F, fname);
   Reset(F);
-  iLoc:= 0; iLoc2:= 1; iLoc3:= 0;
+  i:= 0; i2:= 1; i3:= 0;
   setlength(result,length(LineNumsArray)+1); //we know the exact length that the array will be
   while not ( Eof(F) ) and ( GotLines <> true ) do
   begin
-    inc(iLoc);      //current line we are at
+    inc(i);      //current line we are at
     Readln(F,Line);
-   {if LineNumsArray[iLoc3] = iLoc then
+   {if LineNumsArray[i3] = i then
     begin
-      inc(iLoc3);
-      result[iLoc3+1]:= Line;
+      inc(i3);
+      result[i3+1]:= Line;
     end;  }
-    for iLoc3:= 0 to length(LineNumsArray)-1 do //optimize this
+    for i3:= 0 to length(LineNumsArray)-1 do //optimize this
     begin
-     if LineNumsArray[iLoc3] = iLoc then //we are on a line specified
-       result[iLoc3+1]:= Line;
+     if LineNumsArray[i3] = i then //we are on a line specified
+       result[i3+1]:= Line;
     end;
-    if iLoc = LineNumsArray[length(LineNumsArray)-1] then   //we've 'gotten' all the lines we need
+    if i = LineNumsArray[length(LineNumsArray)-1] then   //we've 'gotten' all the lines we need
       GotLines:= true;         //so exit this while loop
   end;
   close(F); //close up file
@@ -792,9 +765,9 @@ function Array0LoadExact(LineNumsArray:LnArray; fname:string): StrArray;
 var
   F: text;
   Line: string;
-  iLoc,
-  iLoc2,
-  iLoc3:integer;
+  i,
+  i2,
+  i3:integer;
   GotLines: boolean; //to signal that we have 'got' all the lines we need
 begin
   setlength(result,1);
@@ -807,23 +780,23 @@ begin
   GotLines:= false; //initialize as false
   Assign(F, fname);
   Reset(F);
-  iLoc:= -1; iLoc2:= 0; iLoc3:= 0;
+  i:= -1; i2:= 0; i3:= 0;
   setlength(result,length(LineNumsArray)); //we know the exact length that the array will be
   while not ( Eof(F) ) and ( GotLines <> true ) do
   begin
-    inc(iLoc);      //current line we are at
+    inc(i);      //current line we are at
     Readln(F,Line);
-   {if LineNumsArray[iLoc3] = iLoc then
+   {if LineNumsArray[i3] = i then
     begin
-      inc(iLoc3);
-      result[iLoc3]:= Line;
+      inc(i3);
+      result[i3]:= Line;
     end;  }
-    for iLoc3:= 0 to length(LineNumsArray)-1 do
+    for i3:= 0 to length(LineNumsArray)-1 do
     begin
-     if LineNumsArray[iLoc3] = iLoc then //we are on a line specified
-       result[iLoc3]:= Line;
+     if LineNumsArray[i3] = i then //we are on a line specified
+       result[i3]:= Line;
     end;
-    if iLoc = LineNumsArray[length(LineNumsArray)-1] then   //we've 'gotten' all the lines we need
+    if i = LineNumsArray[length(LineNumsArray)-1] then   //we've 'gotten' all the lines we need
       GotLines:= true;         //so exit this while loop
   end;
   close(F); //close up file
