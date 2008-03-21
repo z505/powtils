@@ -439,7 +439,7 @@ Begin
             On E: Exception Do
             Begin
               Self.Error := True;
-              Self.ErrorValue := Value + ' is not a valid time.';
+              Self.ErrorValue := Value + ' is not a valid date and time.';
             End;
           End;
         ccCGIFloat:
