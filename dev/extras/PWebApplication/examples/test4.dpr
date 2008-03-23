@@ -34,7 +34,7 @@ Begin
       Logged       := False;
       Visible      := True;
       Active       := True;
-      LoginManager := Nil;
+      LoginController := Nil;
     End;
   Run;
   Root.Free;

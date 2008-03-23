@@ -14,24 +14,26 @@ Uses
   WebApplication,
   WebTemplate,
   PWVCL,
-  NoLoginManager;
+  NoLoginController;
 
 Var
-  LoginMan : TNoLoginManager;
+  LoginMan : TNoLoginController;
+  Dialog1  : TWebLoginBox;
 
 Begin
   SelfReference := 'test1' {$IFDEF WINDOWS} + '.exe'{$ENDIF};
-  LoginMan := TNoLoginManager.Create;
   Root := TWebComponent.Create('root', 'test1', Nil);
-  With TWebLoginBox.Create('dialog1', 'dialog', Root) Do
+  Dialog1 := TWebLoginBox.Create('dialog1', 'dialog', Root);
+  LoginMan := TNoLoginController.Create(Dialog1);
+  With Dialog1 Do
   Begin
-    Caption      := 'Authentication';
-    Error        := False;
-    ErrorValue   := '';
-    Logged       := False;
-    Visible      := True;
-    Active       := True;
-    LoginManager := LoginMan;
+    Caption         := 'Authentication';
+    Error           := False;
+    ErrorValue      := '';
+    Logged          := False;
+    Visible         := True;
+    Active          := True;
+    LoginController := LoginMan;
   End;
   Run;
   LoginMan.Free;

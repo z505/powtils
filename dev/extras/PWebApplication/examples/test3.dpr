@@ -36,7 +36,7 @@ Begin
       ErrorValue   := '';
       Logged       := False;
       Active       := True;
-      LoginManager := Nil;
+      LoginController := Nil;
     End;
   Root.Components['flipper1'].Components['dialog1'].Visible := True;
   Run;

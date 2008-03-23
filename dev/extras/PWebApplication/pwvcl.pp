@@ -133,24 +133,27 @@ Type
     Property Active : Boolean Read fActive Write fActive;
   End;
 
-  TWebLoginManager = Class
+  TWebLoginBox = Class;
+
+  TWebLoginController = Class
   Private
-    fLogin,
-    fPassword : String;
-    fLogged   : Boolean;
+    fView : TWebLoginBox;
+    Function GetLogin: String;
+    Function GetState: Boolean;
   Public
-    Function Login(L, P : String): Boolean; Virtual; Abstract;
-    Function Logout(L : String): Boolean; Virtual; Abstract;
-    Property LoginName : String Read fLogin;
-    Property Password : String Read fPassword;
-    Property Logged : Boolean Read fLogged;
+    Constructor Create(aView : TWebLoginBox);
+    Function Login: Boolean; Virtual; Abstract;
+    Function Logout: Boolean; Virtual; Abstract;
+  Published
+    Property LoginName : String Read GetLogin;
+    Property Logged : Boolean Read GetState;
   End;
 
   TWebLoginBox = Class(TWebEditPage)
   Private
     fLogin,
     fPassword   : String;
-    fLoginMan   : TWebLoginManager;
+    fLoginMan   : TWebLoginController;
     fLogged     : Boolean;
     fOnLogin    : TWebEvent;
     fOnLogout   : TWebEvent;
@@ -164,7 +167,7 @@ Type
   Published
     Property Login : String Read fLogin Write fLogin;
     Property Password : String Read fPassword Write fPassword;
-    Property LoginManager : TWebLoginManager Read fLoginMan Write fLoginMan;
+    Property LoginController : TWebLoginController Read fLoginMan Write fLoginMan;
     Property Logged : Boolean Read fLogged Write fLogged;
     Property OnLogin : TWebEvent Read fOnLogin Write fOnLogin;
     Property OnLogout : TWebEvent Read fOnLogout Write fOnLogout;
@@ -504,6 +507,30 @@ Begin
   fWhiteList[High(fWhiteList)].Kind := Kind;
 End;
 
+// TWebLoginController
+
+Function TWebLoginController.GetLogin: String;
+Begin
+  If Assigned(fView) Then
+    GetLogin := fView.Login
+  Else
+    GetLogin := '';
+End;
+
+Function TWebLoginController.GetState: Boolean;
+Begin
+  If Assigned(fView) Then
+    GetState := fView.Logged
+  Else
+    GetState := False;
+End;
+
+Constructor TWebLoginController.Create(aView : TWebLoginBox);
+Begin
+  Inherited Create;
+  fView     := aView;
+End;
+
 // TWebLoginBox
 
 Procedure TWebLoginBox.DefaultLoginErr;
@@ -515,7 +542,7 @@ End;
 Procedure TWebLoginBox.UponLogin;
 Begin
   If Assigned(fLoginMan) Then
-    If fLoginMan.Login(fLogin, fPassword) Then
+    If fLoginMan.Login Then
     Begin
       fLogged := True;
       Error := False;
@@ -540,7 +567,7 @@ End;
 Procedure TWebLoginBox.Logout(Action : TTokenList; Depth : LongWord);
 Begin
   If Assigned(fLoginMan) Then
-    If fLoginMan.Logout(fLogin) Then
+    If fLoginMan.Logout Then
     Begin
       fLogged := False;
       Error := False;
