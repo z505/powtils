@@ -33,7 +33,7 @@ Begin
       ErrorValue   := '';
       Logged       := False;
       Active       := True;
-      LoginManager := Nil;
+      LoginController := Nil;
     End;
   Root.
       Components['scroller1'].
