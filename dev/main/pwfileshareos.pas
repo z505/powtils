@@ -10,8 +10,9 @@ unit pwfileshareos;
 {$i defines1.inc}
 interface
 
-function OpenFileShared(var f:Text): integer;
+function ResetFileShared(var f: TextFile; const fname: shortstring): integer;
 procedure CloseFileShared(var f: text);
+procedure RunTest1;
 
 implementation
 
@@ -24,21 +25,37 @@ uses
  const invalid_handle_value = -1;
 {$endif}
 
-{ Same as system.reset but implements file sharing returns -1 if problem }
-function ResetFileShared(var f:Text): integer;
+
+procedure RunTest1;
+var t: text;
 begin
+  Assign(t,  'test123.txt');
+  ResetFileShared(t, 'test123.txt');
+  {
+  writeln('This is a test for file sharing');
+  writeln('Run simultaneous processes at once to ensure this works.');
+  writeln('This is a test for file sharing');  
+  writeln('This is a test for file sharing');  
+  writeln('This is a test for file sharing');  
+  writeln('This is a test for file sharing');    
+  writeln('This is a test for file sharing');    }
+  CloseFileShared(t);
+end;
+
+
+{ Same as system.reset but implements file sharing returns nonzero if problem }
+function ResetFileShared(var f: TextFile; const fname: shortstring): integer;
+begin
+  reset(f);
  {$ifdef windows}
-  with TTextRec(f) do begin 
-    handle:=FileOpen(Name,fmShareDenyNone);
-    if dword(handle) = invalid_handle_value then result:= -1;
-    mode:=fmInput;
-    BufPos:=0;
-    BufEnd:=0;
-  end;  
+  TTextRec(f).handle:= FileCreate(fname,fmShareDenyNone);
+  if dword(TTextRec(f).handle) = invalid_handle_value then result:= -1;
+  TTextRec(f).mode:= fmInput;
+  TTextRec(f).BufPos:= 0;
+  TTextRec(f).BufEnd:= 0;
  {$endif}  
 
  {$ifdef unix}  
-  reset(f);
   result:= fpflock(f, LOCK_SH);
  {$endif}
 end; 
