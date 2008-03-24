@@ -1,6 +1,7 @@
 {**************** Powtils ******************************************************
  Cross platform file sharing through OS calls
  Alternative to the fileshare.pas unit
+ NOT DONE YET... DO NOT USE.
  
  Autrhors: Lars (L505) http://z505.com ,
  License: ~NRCOL public domain
@@ -10,7 +11,7 @@ unit pwfileshareos;
 {$i defines1.inc}
 interface
 
-function ResetFileShared(var f: TextFile; const fname: shortstring): integer;
+function ResetFileShared(var f: TextFile{; const fname: shortstring}): integer;
 procedure CloseFileShared(var f: text);
 procedure RunTest1;
 
@@ -30,7 +31,7 @@ procedure RunTest1;
 var t: text;
 begin
   Assign(t,  'test123.txt');
-  ResetFileShared(t, 'test123.txt');
+  ResetFileShared(t{, 'test123.txt'});
   {
   writeln('This is a test for file sharing');
   writeln('Run simultaneous processes at once to ensure this works.');
@@ -44,17 +45,17 @@ end;
 
 
 { Same as system.reset but implements file sharing returns nonzero if problem }
-function ResetFileShared(var f: TextFile; const fname: shortstring): integer;
+function ResetFileShared(var f: TextFile{; const fname: shortstring}): integer;
 begin
-  reset(f);
  {$ifdef windows}
-  TTextRec(f).handle:= FileCreate(fname,fmShareDenyNone);
-  if dword(TTextRec(f).handle) = invalid_handle_value then result:= -1;
-  TTextRec(f).mode:= fmInput;
-  TTextRec(f).BufPos:= 0;
-  TTextRec(f).BufEnd:= 0;
+  TTextRec(f).handle:= FileCreate(TTextRec(f).name,fmShareDenyNone);
+//  if dword(TTextRec(f).handle) = invalid_handle_value then result:= -1;
+//  TTextRec(f).mode:= fmInput;
+//  TTextRec(f).BufPos:= 0;
+//  TTextRec(f).BufEnd:= 0;
  {$endif}  
 
+  reset(f);
  {$ifdef unix}  
   result:= fpflock(f, LOCK_SH);
  {$endif}
