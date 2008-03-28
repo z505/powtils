@@ -477,11 +477,10 @@ end;
 procedure InitHeaders;
 {$I begin_initheaders.inc}
   SetLength(hdr, 2);
-  hdr[0].name:= 'X-Powered-By';
+  hdr[0].name:= 'X-Powered-By'; 
   hdr[0].value:= 'Powtils/' + PWU_VERSION;
   hdr[1].name:= 'Content-Type';
   hdr[1].value:= 'text/html; charset=' + GetCfgVar(L_HEADER_CHARSET);
-
  {$IFDEF GZIP_ON}
   if (output_buffering) and (output_compression)
     and substrexists(GetEnvVar('HTTP_ACCEPT_ENCODING'), 'gzip') then begin
@@ -511,8 +510,7 @@ var i: longword;
 begin
   result:= 0.0;
   if length(w) = 0 then exit;
-  for i:= 0 to length(w) - 1 do if w[i].name = name then
-  begin
+  for i:= 0 to length(w) - 1 do if w[i].name = name then begin
     val(w[i].value, result);
     break;
   end;
@@ -524,8 +522,7 @@ var i: longword;
 begin
   result:= 0;
   if length(w) = 0 then exit;
-  for i:= 0 to length(w) - 1 do if w[i].name = name then
-  begin
+  for i:= 0 to length(w) - 1 do if w[i].name = name then begin
     val(w[i].value, result);
     break;
   end;
@@ -761,7 +758,6 @@ begin
       NativeWriteLn(hdr[i].name + ': ' + hdr[i].value);
 
   NativeWriteLn;
-
   // Update RTI
   headers_sent:= true;
   SetRTI(U_HEADERS_SENT, 'TRUE');
@@ -883,7 +879,6 @@ begin {$IFDEF DBUG_ON} debugln('MP_GetLine begin');{$ENDIF}
   until (s = #13) or (s = #10);
 
   inc(ptr);
-
   {$IFDEF DBUG_ON} debugln('MP_GetLine end');{$ENDIF}
 end;
 
@@ -1090,8 +1085,8 @@ end;
 { wrapper for fpc/delphi lowercase function }
 function Lcase(const s: astr): astr;
 begin
- {$IFDEF FPC} result:= system.lowercase(s);
- {$ELSE}      result:= lowercase(s);
+ {$IFDEF FPC}result:= system.lowercase(s);
+ {$ELSE}     result:= lowercase(s);
  {$ENDIF}
 end;
 
@@ -1444,14 +1439,12 @@ begin
   result:= FetchTWebvarName_S(rti, idx, SECURE_OFF);
 end;
 
-
 { Indexed access to RTI variable }
 function FetchRtiVal(idx: longword): astr;
 begin
   // security off for same reasons as FetchRtiName
   result:= FetchTWebvarVal_S(rti, idx, SECURE_OFF);
 end;
-
 
 { Indexed access to uploaded file name }
 function FetchUpFileName(idx: longword): astr;
@@ -1461,7 +1454,6 @@ begin
   else
     result:= '';
 end;
-
 
 { Indexed access to user defined variable }
 function FetchVarName(idx: longword): astr;
@@ -1652,12 +1644,12 @@ function GetPostVar1(const name: astr; filter: TFilterFunc): astr;
 begin
   result:= GetPostVar(name, filter);
 end;
+
 { for DLL }
 function GetPostVar2(const name: astr): astr;
 begin
   result:= GetPostVar(name);
 end;
-
 
 function GetPostVar_Unsafe(const name: astr): astr;
 var i: longword;
@@ -2525,18 +2517,16 @@ end;
 { Sets HTTP header }
 function SetHeader(const name, value: astr): bln;
 begin
-  {$IFDEF DBUG_ON} debugln('SetHeader begin'); {$ENDIF}
+  {$IFDEF DBUG_ON}debugln('SetHeader begin'); {$ENDIF}
   result:= false;
   // Check headers
-  if headers_sent then
-  begin
+  if headers_sent then begin
     ThrowErr('Can''t set header, headers already sent');
     {$IFDEF DBUG_ON} debugln('SetHeader exit 1'); {$ENDIF}
     exit;
   end;
   // Change value if already exist or add new if not exist
-  if not UpdateWebVar(hdr, name, value, CASE_IGNORE) then
-  begin
+  if not UpdateWebVar(hdr, name, value, CASE_IGNORE) then begin
     // add new
     AddWebVar(hdr, name, value);
     result:= true;
