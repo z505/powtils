@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru">
+  <head>
+    <title>Documentation</title>
+    <meta http-equiv="content-type" content="text/html; charset=Windows-1251" />
+    <style type="text/css">
+body {
+  background-color: #f3f2f7;
+  color: #000000;
+  font-family: Verdana, Tahoma, Arial, sans-serif;
+  font-size: 13px;
+
+  margin: 0px;
+  padding: 20px;
+}
+div {
+  border-width: 0px;
+  background-color: #f3f2f7;
+  color: #000000;
+  font-family: Verdana, Tahoma, Arial, sans-serif;
+  font-size: 14px;
+  text-align: center;
+  padding: 3px;
+  margin: 0px;
+  width: 700px;
+}
+p {
+  text-align: justify;
+}
+h3 {
+  font-size: 16px;
+}
+h4 {
+  font-style: italic;
+}
+em {
+  background-color: #f3f2f7;
+  color: #006600;
+  font-style: normal;
+}
+.top {
+  background-color: #f3f2f7;
+  color: #ff0000;
+  font-family: Verdana, Tahoma, Arial, sans-serif;
+  font-size: 25px;
+  font-weight: bold;
+}
+.top {
+  background-color: #f3f2f7;
+  color: #ff0000;
+  font-family: Verdana, Tahoma, Arial, sans-serif;
+  font-size: 25px;
+  font-weight: bold;
+}
+.main {
+  text-align: left;
+}
+.footer {
+  border-top: #c2bfcb 1px solid;
+  text-align: left;
+  font-style: italic;
+}
+.menu {
+  position: inline;
+  width: 500px;
+  border: #c2bfcb 1px solid;
+  text-align: right;
+}
+a {
+  background-color: #f3f2f7;
+  color: #0000ff;
+  text-decoration: none;
+}
+a:hover {
+  background-color: #f3f2f7;
+  color: #ff0000;
+  text-decoration: underline;
+}
+img {
+  position: block;
+  border-width: 0px;
+  margin: 5px;
+}
+    </style>
+  </head>
+  <body>
+    <center>
+      <div class="top">
+Documentation
+      </div>
+      <div class="menu">
+<a href="../index.html" title="back">Back</a>
+      </div>
+      <div class="main">
+        <br /><br />
+        <h2>Configuration</h2>
+        <h3>Just after unpacking Zip</h3>
+        <p>
+Modify parameters <em>ip</em> and <em>port</em> in file
+<strong>config.cfg</strong>. Then modify parameters <em>default</em> and
+<em>localhost</em> in file <strong>vhost.cfg</strong>. Read more about those
+parameters in the following.
+        </p>
+        <h3>Configuration files</h3>
+        <p>
+All parameters are in following format (BNF-like):
+<br /><br />
+&lt;Parameter name&gt;=&lt;Parameter Value&gt;
+        </p>
+        <h4>config.cfg</h4>
+        <p>
+<strong>ip</strong><br />
+IP-address of network interface. Can be used Internet or Ethernet IPv4 address.
+Use 127.0.0.1 to use on local mashine.
+<br /><br />
+<strong>port</strong><br />
+Port to use with Server (1 &mdash; 65535). Standart HTTP port is 80. But if you
+already have running HTTP-server on port 80, you need to choose other port. To
+avoid conflicts, use ports greater than 1024.
+<br /><br />
+<strong>deletelog</strong><br />
+If true, then log-file will be cleared every time you run server. If false, then
+log-file will be just added by new information.
+<br /><br />
+<strong>logfile</strong><br />
+Filename of log-file.
+<br /><br />
+<strong>error404</strong><br />
+Filename of page to show if error 404 detected.
+<br /><br />
+<strong>error403</strong><br />
+Filename of page to show if error 403 detected.
+<br /><br />
+<strong>index</strong><br />
+Default page in directory. If user types address with terminating slash (www.site.com/fold/),
+this string will be added to the end of request (www.site.com/fold/index.html).
+        </p>
+        <h4>mime.cfg</h4>
+        <p>
+This file defines headers, which server send to client. Every parameter consists of
+file extention and MIME-type. When client send request for a file with defined extention,
+server replies with header, which tells browser about file type.
+        </p>
+        <p>
+If client requests about file with undefined extention, server will use MIME-type,
+defined with parameter <em>default</em>.
+        </p>
+        <h4>vhost.cfg</h4>
+        <p>
+This file defines directories for sites. Every site is located at their own directory.
+You need to define, which directory belongs to requested hostname.
+        </p>
+        <p>
+For example, line
+<br /><br />
+test1=E:\MyProjects\fpc\Aservia/test1
+<br /><br />
+means that site <em>http://test1/</em> is located at
+<em>E:\MyProjects\fpc\Aservia/test1</em> directory.
+        </p>
+        <p>
+Note, that domain <em>www</em>, as well as other subdomain needs their own
+parameter.
+        </p>
+        <p>
+Parameter <em>default</em> defines which directory should be used, when client
+doesn't request certain domain name or when there is no record for requested domain.
+For example, you can define directory <em>C:\Aservia\localhost</em> for host
+<em>localhost</em> (http://localhost/) and directory <em>C:\Aservia\default</em>
+for undefined host (http://127.0.0.1/). You can use any hostname, which can be
+in <em>Host</em> field of HTTP header.
+        </p>
+        <h4>blacklist.cfg</h4>
+        <p>
+This is the black list. On each line can be located one IPv4 address.
+Client with this IP address will not be abble to get any file from
+server. The only page he will see is <em>Error 403</em> page.
+        </p>
+        <p>
+For example, file with content
+<br /><br />
+140.12.15.20<br />
+45.1.87.29
+<br /><br />
+means that client with referred above IP-addresses cannot access any site
+located on <strong>Aservia</strong> server. 
+        </p>
+        <h2>Work with program</h2>
+        <h3>Running Aservia</h3>
+        <h4>Windows platforms</h4>
+        <p>
+To run <strong>Aservia</strong> you need just execute file <em>Aservua.exe</em>.
+        </p>
+        <h4>Linux platforms</h4>
+        <p>
+To run <strong>Aservia</strong> you need just execute file <em>aservia</em> under
+<em>root</em>. Make sure, that file <em>aservia</em> has permissions, enough to
+execute it.
+        </p>
+        <h3>Stopping Aservia</h3>
+        <p>
+Type <em>quit</em> or <em>q</em> straight in <strong>Aservia</strong> console
+and press <em>Enter</em>.
+        </p>
+        <h3>Changing configuration</h3>
+        <p>
+First of all you need stop <strong>Aservia</strong>. Then you can change
+configuration files. After all changes have been made, just run
+<strong>Aservia</strong> server again.
+        </p>
+        <h3>Viewing logs</h3>
+        <p>
+Log file consists of user requests. There are headers which clients send to
+server, client IP-addresse and date/time of connections.
+        </p>
+        <p>
+Note, that in russian version of <strong>Aservia</strong> log file will be in
+ASCII (cp866) charset.
+        </p>
+        <h3>Adding virtual hosts</h3>
+        <p>
+Add directory which will be used to allocate new site. It can be any directory of
+your system, even if it is already used by some site. Then change configuration of
+<strong>Aservia</strong> as it is described above. You need to change file
+<em>vhost.cfg</em>.
+        </p>
+        <p>
+If you work under Linux, make sure that host directory has right permissions.
+        </p>
+      </div>
+    </center>
+    <div class="footer">
+      Alexander N Zubakov, 2006, Lars Olson, 2008
+    </div>
+  </body>
+</html>
