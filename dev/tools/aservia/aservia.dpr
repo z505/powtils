@@ -1,3 +1,5 @@
+{ Modified March 2008 by Lars Olson. Aservia (web server).
+  Based on nYume Server }
 
 
 Program aservia;

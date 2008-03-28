@@ -1,3 +1,7 @@
+{ Modified March 2008 by Lars Olson. Aservia (web server).
+  Based on nYume Server }
+
+
 {$MODE OBJFPC}
 {$SMARTLINK ON}
 {$LONGSTRINGS ON}

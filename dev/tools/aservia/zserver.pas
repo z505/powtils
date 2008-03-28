@@ -1,6 +1,5 @@
-{ Modified March 2008 by Lars Olson: 
-  
-  Aservia Web Server based on nYume. 
+{ Modified March 2008 by Lars Olson. Aservia (web server).
+  Based on nYume Server 
 
 +-----------------------------------------------+------------+
  Модуль zserver 1.1                            | 17.02.2006 
