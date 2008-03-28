@@ -16,6 +16,8 @@ unit pwfileutil;
 
 interface
 uses 
+  {$ifdef windows}windows,{$endif}
+  {$ifdef unix}baseunix, unix,{$endif}
   pwtypes;
 
 
@@ -75,14 +77,25 @@ function OpenFile(var F: file; const fname: string; mode: char): boolean; overlo
 function OpenFile(var F: TFileOfChar; const fname: string; mode: char): boolean; overload;  
 function MakeDir(s: string): boolean;
 
-// backwards compatibility
+function DirectoryExists(const directory: string): boolean;
+
+{$ifdef windows}
+function GetFileAttributes(Directory: string): dword;
+{$endif}
+
+function ExecuteProcess(Const Path: AnsiString; Const ComLine: AnsiString):integer;
+function ExecuteProcess(Const Path: AnsiString; Const ComLine: Array of AnsiString):integer;
+
+// backwards compatibility for older Powtils programs (use FileThere)
 function FileExists_plain(const fname: astr): bln;
 function FileExists_read(const fname: astr): bln;
 function FileExists_readwrite(const fname: astr): bln;
 
+procedure Sleep(milliseconds: Cardinal);
+
+
 Const
   DirSeparators : set of char = ['/','\'];
-
 
 implementation
 
@@ -103,6 +116,214 @@ begin
   writeln('                      ', ExtractFname('/path/success', false));
   writeln('CloneFile result (test.txt must exist): ', clonefile('test.txt', 'newfile-success.txt') );
   readln;
+end;
+
+{$ifdef unix}
+
+  { fpc rtl }
+  procedure Sleep(milliseconds: Cardinal);
+  var timeout,timeoutresult : TTimespec;
+  begin
+    timeout.tv_sec:=milliseconds div 1000;
+    timeout.tv_nsec:=1000*1000*(milliseconds mod 1000);
+    fpnanosleep(@timeout,@timeoutresult);
+  end;
+
+
+  { fpc rtl 
+    TODO: return error as OUT param }
+  function ExecuteProcess(Const Path: AnsiString; Const ComLine: AnsiString):integer;
+  var
+    pid    : longint;
+    CommandLine: AnsiString;
+    cmdline2 : ppchar;
+  //  e      : EOSError;
+  Begin
+    { always surround the name of the application by quotes
+      so that long filenames will always be accepted. But don't
+      do it if there are already double quotes!
+    }
+     cmdline2:=nil;
+     if Comline<>'' Then
+       begin
+         CommandLine:=ComLine;
+         { Make an unique copy because stringtoppchar modifies the
+           string }
+         UniqueString(CommandLine);
+         cmdline2:=StringtoPPChar(CommandLine,1);
+         cmdline2^:=pchar(Path);
+       end
+     else
+       begin
+         getmem(cmdline2,2*sizeof(pchar));
+         cmdline2^:=pchar(Path);
+         cmdline2[1]:=nil;
+       end;
+  //  {$ifdef USE_VFORK}
+  //  pid:=fpvFork;
+  //  {$else USE_VFORK}
+    pid:=fpFork;
+  //  {$endif USE_VFORK}
+    if pid=0 then
+     begin
+     {The child does the actual exec, and then exits}
+  //    {$ifdef FPC_USE_FPEXEC}
+        fpexecv(pchar(Path),Cmdline2);
+  //    {$else}
+  //      Execl(CommandLine);
+  //    {$endif}
+       { If the execve fails, we return an exitvalue of 127, to let it be known}
+       fpExit(127);
+     end
+    else
+     if pid=-1 then         {Fork failed}
+     begin
+  //      e:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,-1]);
+  //      e.ErrorCode:=-1;
+  //      raise e;
+          exit;
+          // TODO: return error as OUT param
+     end;
+
+    { We're in the parent, let's wait. }
+    result:=WaitProcess(pid); // WaitPid and result-convert
+
+  //  {$ifdef FPC_USE_FPEXEC}
+    if Comline<>'' Then
+      freemem(cmdline2);
+  //  {$endif}
+
+    if (result<0) or (result=127) then begin
+  //    E:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,result]);
+  //    E.ErrorCode:=result;
+  //    Raise E;
+        exit;
+        // TODO: return error as OUT param
+    end;
+  End;
+
+  { fpc rtl }
+  function ExecuteProcess(Const Path: AnsiString; Const ComLine: Array Of AnsiString):integer;
+  var pid    : longint;
+  //  e : EOSError;
+  Begin
+    pid:=fpFork;
+    if pid=0 then begin
+       {The child does the actual exec, and then exits}
+        fpexecl(Path,Comline);
+       { If the execve fails, we return an exitvalue of 127, to let it be known}
+       fpExit(127);
+    end else if pid=-1 then         {Fork failed}
+    begin
+  //      e:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,-1]);
+  //      e.ErrorCode:=-1;
+  //      raise e;
+          exit;
+    end;
+
+    { We're in the parent, let's wait. }
+    result:=WaitProcess(pid); // WaitPid and result-convert
+
+    if (result<0) or (result=127) then begin
+  //    E:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,result]);
+  //    E.ErrorCode:=result;
+  //    raise E;
+        exit;
+    end;
+  end;
+
+{$endif unix}
+
+{$ifdef windows}
+
+procedure Sleep(milliseconds: Cardinal);
+begin
+  windows.sleep(milliseconds);
+end;
+
+function GetFileAttributes(Directory: string): dword;
+begin
+  result:=GetFileAttributesA(PChar(Directory));
+end;
+
+{ from fpc rtl 
+  todo: return OUT param for error code }
+function ExecuteProcess(Const Path: AnsiString; Const ComLine: AnsiString):integer;
+var
+  SI: TStartupInfo;
+  PI: TProcessInformation;
+  Proc : THandle;
+  l    : DWord;
+  CommandLine : ansistring;
+//  e : EOSError;
+begin
+  FillChar(SI, SizeOf(SI), 0);
+  SI.cb:=SizeOf(SI);
+  SI.wShowWindow:=1;
+  { always surround the name of the application by quotes
+    so that long filenames will always be accepted. But don't
+    do it if there are already double quotes, since Win32 does not
+    like double quotes which are duplicated!
+  }
+  if pos('"',path)=0 then CommandLine:='"'+path+'"' else CommandLine:=path;
+  if ComLine <> '' then 
+    CommandLine:=Commandline+' '+ComLine+#0
+  else CommandLine := CommandLine + #0;
+
+  if not CreateProcess(nil, pchar(CommandLine), 
+    Nil, Nil, False,$20, Nil, Nil, SI, PI) 
+  then begin
+// todo: return error code
+//    e:=EOSError.CreateFmt(SExecuteProcessFailed,[CommandLine,GetLastError]);
+//    e.ErrorCode:=GetLastError;
+//    raise e;
+    exit;
+  end;
+  Proc:=PI.hProcess;
+  if WaitForSingleObject(Proc, dword($ffffffff)) <> $ffffffff then
+    begin
+      GetExitCodeProcess(Proc,l);
+      CloseHandle(Proc);
+      CloseHandle(PI.hThread);
+      result:=l;
+    end
+  else
+    begin
+// todo: return error code
+//      e:=EOSError.CreateFmt(SExecuteProcessFailed,[CommandLine,GetLastError]);
+//      e.ErrorCode:=GetLastError;
+      CloseHandle(Proc);
+      CloseHandle(PI.hThread);
+//      raise e;
+    end;
+end;
+
+function ExecuteProcess(Const Path: AnsiString; Const ComLine: Array of AnsiString):integer;
+var CommandLine: AnsiString;
+    i: Integer;
+begin
+  Commandline:='';
+  For i:=0 to high(ComLine) Do Commandline:=CommandLine+' '+Comline[i];
+  ExecuteProcess:=ExecuteProcess(Path,CommandLine);
+end;
+{$endif}
+
+{ fpc rtl: todo, other platforms using include files :( }
+function DirectoryExists (Const Directory : String) : Boolean;
+{$ifdef windows}
+var Attr:Dword;
+begin
+  Attr:=GetFileAttributes(Directory);
+  if Attr <> $ffffffff then
+    Result:= (Attr and FILE_ATTRIBUTE_DIRECTORY) > 0
+  else
+    Result:=False;
+{$endif}
+{$ifdef unix}
+Var Info : Stat;
+begin
+  DirectoryExists:=(fpstat(Directory,Info)>=0) and fpS_ISDIR(Info.st_mode);
+{$endif}
 end;
 
 
