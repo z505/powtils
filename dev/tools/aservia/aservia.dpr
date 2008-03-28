@@ -1,16 +1,19 @@
+
+
 Program aservia;
 {$mode Delphi}
 {$SMARTLINK ON}
 {$LONGSTRINGS ON}
 
 uses
-  {$ifndef win32}cthreads,{$endif} zserver, cfgfile, sysutils, shell;
+  {$ifdef unix}cthreads,{$endif} {$ifdef windows}windows,{$endif}
+  zserver, cfgfile, pwfileutil, pwstrutil, shell;
 
 {$Include lang.inc}
 
 var
   server   : TzServer;
-  str      : string;
+  str1     : string;
   critical : TRTLCriticalSection;
   fl       : text;
   cfg      : TCfgFile; 
@@ -159,9 +162,9 @@ begin
   try
     clearEnv;
     server.select(longint(p^));
-    str := server.sread;
-    writeln(str_request, DateTimeToStr(Date), ', ', TimeToStr(Time));
-    writeln(str);
+    str1 := server.sread;
+    writeln(str_request{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
+    writeln(str1);
     ip := server.getip(longint(p^));
     addEnv('REMOTE_ADDR', ip);
     addEnv('SERVER_SOFTWARE', str_server);
@@ -172,9 +175,9 @@ begin
     end;
 
     if deny then server.swrite(getfile(error403, '403 Access denied')) else
-    if str <> '' then
+    if str1 <> '' then
     begin
-      filename := parceRequest(str);
+      filename := parceRequest(str1);
       if (filedir = '') or (filedir = ip) then
         filedir := vhost.getOption('default', '')
       else
@@ -185,19 +188,19 @@ begin
       if pos('?', filename) > 0 then
         name := copy(filename, 1, pos('?', filename) - 1);
 
-      if (not FileExists(filedir + name)) 
+      if (not FileThere(filedir + name, fmDefault)) 
          and DirectoryExists(filedir + name) 
       then name += '/' + defaultfl;
 
       addEnv('SCRIPT_NAME', name);
 
-      if FileExists(filedir + name) 
+      if FileThere(filedir + name, fmDefault) 
          and (pos('/../', ExtractRelativepath(filedir, filedir + name)) <> 0) 
       then begin
         server.swrite(getfile(error403, '403 Access denied'));
         deny := true;
       end else begin 
-        if FileExists(filedir + name) then
+        if FileThere(filedir + name, fmDefault) then
           server.swrite(getfile(filedir + name, '200 OK', filename))
         else
           server.swrite(getfile(error404, '404 File not found'));
@@ -206,8 +209,8 @@ begin
    {$I-}
     Assign(fl, logflname); Append(fl);
     if IOResult <> 0 then Rewrite(fl);
-    writeln(fl, str_requestfrom, ip, '; ', DateTimeToStr(Date), ', ', TimeToStr(Time));
-    writeln(fl, str);
+    //writeln(fl, str_requestfrom, ip, '; ', DateTimeToStr(Date), ', ', TimeToStr(Time));
+    writeln(fl, str1);
     if deny then writeln(fl, str_denied);
     close(fl);
    {$I+}
@@ -243,7 +246,7 @@ begin
   if not newlog then Append(fl);
   if newlog or (IOResult <> 0) then Rewrite(fl);
   writeln(fl, str_server, #13#10);
-  writeln(fl, str_runserver, DateTimeToStr(Date), ', ', TimeToStr(Time));
+  writeln(fl, str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
   writeln(fl, str_socket, ip, ':', port);
   writeln(fl);  
   close(fl);
@@ -272,7 +275,7 @@ procedure RunServer;
 begin
   writeln(str_server);
   writeln(str_qcom, #13#10);
-  writeln(str_runserver, DateTimeToStr(Date), ', ', TimeToStr(Time));
+  writeln(str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
 
   SetupCfg;
   cfg := TCfgFile.create('mime.cfg');
