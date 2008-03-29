@@ -69,20 +69,19 @@ end;
 
 procedure TzServer.TryBind(const ip, port: string);
 begin
-  // Note: his halt is currently called in the constructor, not best design. 
-  // Todo: move bind() to a function that is not called by the constructor
-  //       OOP bites again.
   if not Bind(MainSocket, saddr, SizeOf(saddr)) then 
   begin
+    // Note: his halt is currently called in the constructor, not best design. 
+    // Todo: move bind() to a function that is not called by the constructor
+    //       OOP bites again. Hard to clean up memory when halt is encapsulated.
     ErrHalt('Can''t connect to address or port.'+ LF+
             'The ip:port you are using is '+ip+':'+port+ LF+
-           ' Make sure another server is not running.'+ LF+
-           ' Verify port & IP are avail.'+ LF+
+           ' Tip: make sure another server is not running.'+ LF+
            ' Error # '+ {$ifdef windows}inttostr(GetLastError){$endif}
-                         {$ifdef unix}inttostr(fpGetErrNo){$endif}
+                        {$ifdef unix}inttostr(fpGetErrNo){$endif}
     ); 
-    // Have to put ugly inline ifdef above due to FPC bug, cannot wrap it
-    // in another function with fpc 2.2.0.  
+    // Ugly inline ifdef is above due to FPC bug, cannot wrap in another 
+    // function with fpc 2.2.0. 
     // See http://bugs.freepascal.org/view.php?id=10205
   end;
 end;
