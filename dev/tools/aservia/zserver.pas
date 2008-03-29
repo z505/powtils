@@ -43,6 +43,7 @@ type
     ip    : array of string;
     ccount: longint;
     csock : longint;
+    procedure TryBind(const ip, port: string);
   public
     constructor Create(ip: string; port: word);
     function  Connect: longint;
@@ -55,6 +56,36 @@ type
   end;
 
 implementation
+uses
+  {$ifdef unix}baseunix, unix,{$endif}
+  {$ifdef windows}windows,{$endif}
+  pwstrutil, pwtypes;
+
+procedure ErrHalt(const msg: string);
+begin
+  writeln(msg);
+  halt;
+end;
+
+procedure TzServer.TryBind(const ip, port: string);
+begin
+  // Note: his halt is currently called in the constructor, not best design. 
+  // Todo: move bind() to a function that is not called by the constructor
+  //       OOP bites again.
+  if not Bind(MainSocket, saddr, SizeOf(saddr)) then 
+  begin
+    ErrHalt('Can''t connect to address or port.'+ LF+
+            'The ip:port you are using is '+ip+':'+port+ LF+
+           ' Make sure another server is not running.'+ LF+
+           ' Verify port & IP are avail.'+ LF+
+           ' Error # '+ {$ifdef windows}inttostr(GetLastError){$endif}
+                         {$ifdef unix}inttostr(fpGetErrNo){$endif}
+    ); 
+    // Have to put ugly inline ifdef above due to FPC bug, cannot wrap it
+    // in another function with fpc 2.2.0.  
+    // See http://bugs.freepascal.org/view.php?id=10205
+  end;
+end;
 
 constructor TzServer.Create;
 begin
@@ -64,7 +95,7 @@ begin
   saddr.Family := AF_INET;
   saddr.Port   := htons(port);
   saddr.Addr   := LongWord(StrToNetAddr(ip));
-  Bind(MainSocket, saddr, SizeOf(saddr));
+  TryBind(ip, inttostr(port));
   Listen(MainSocket, 1);
 end;
   
