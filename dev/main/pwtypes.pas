@@ -27,7 +27,9 @@ const // platform specific directory slash (old Mac not supported)
   {$ifdef UNIX}SLASH = '/';{$endif}
   {$ifdef WINDOWS}SLASH = '\';{$endif}
   SLASHES = ['\', '/'];
-
+  {$ifdef fpc}LF = LineEnding;{$endif}
+  {$ifndef fpc}LF = {$ifdef windows}#13#10{$else}#10{$endif}{$endif}
+  
 const
   // CGI uses #13#10 no matter what OS
   CGI_CRLF = #13#10; 
