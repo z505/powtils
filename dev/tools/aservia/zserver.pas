@@ -43,9 +43,10 @@ type
     ip    : array of string;
     ccount: longint;
     csock : longint;
-    procedure TryBind(const ip, port: string);
+    function TryBind: boolean;
   public
-    constructor Create(ip: string; port: word);
+    constructor Create;
+    function InitConnection(const ip: string; port: word): boolean;
     function  Connect: longint;
     procedure Disconnect(socket_index: longint);
     procedure Stop;
@@ -61,43 +62,29 @@ uses
   {$ifdef windows}windows,{$endif}
   pwstrutil, pwtypes;
 
-procedure ErrHalt(const msg: string);
+function TzServer.TryBind: boolean;
 begin
-  writeln(msg);
-  halt;
-end;
-
-procedure TzServer.TryBind(const ip, port: string);
-begin
-  if not Bind(MainSocket, saddr, SizeOf(saddr)) then 
-  begin
-    // Note: his halt is currently called in the constructor, not best design. 
-    // Todo: move bind() to a function that is not called by the constructor
-    //       OOP bites again. Hard to clean up memory when halt is encapsulated.
-    ErrHalt('Can''t connect to address or port.'+ LF+
-            'The ip:port you are using is '+ip+':'+port+ LF+
-           ' Tip: make sure another server is not running.'+ LF+
-           ' Error # '+ {$ifdef windows}inttostr(GetLastError){$endif}
-                        {$ifdef unix}inttostr(fpGetErrNo){$endif}
-    ); 
-    // Ugly inline ifdef is above due to FPC bug, cannot wrap in another 
-    // function with fpc 2.2.0. 
-    // See http://bugs.freepascal.org/view.php?id=10205
-  end;
+  result:= Bind(MainSocket, saddr, SizeOf(saddr));
 end;
 
 constructor TzServer.Create;
 begin
   inherited Create;
   ccount := 0;
+end;
+
+{ User must call this after constructing, to bind IP and Port. 
+  Returns false if problem }
+function TzServer.InitConnection(const ip: string; port: word): boolean;
+begin
+  result:= false;
   MainSocket := Socket(AF_INET, SOCK_STREAM, 0);
   saddr.Family := AF_INET;
   saddr.Port   := htons(port);
   saddr.Addr   := LongWord(StrToNetAddr(ip));
-  TryBind(ip, inttostr(port));
-  Listen(MainSocket, 1);
+  if TryBind then begin Listen(MainSocket,1); result:= true; end;
 end;
-  
+
 function TzServer.Connect;
 var sock     : longint;
     sAddrSize: longint;
@@ -140,20 +127,19 @@ procedure TzServer.sWrite;
 var i: cardinal;
     s: integer;
 begin
-  s := Length(str);
+  s:= Length(str);
   if s < packet_size then i := s else i := packet_size;
   while s > 0 do begin
     Send(csock, pointer(str)^, i, 0);
     delete(str, 1, i);
-    s := s - packet_size;
+    s:= s - packet_size;
     if s < packet_size then i := s;
   end;
 end;
   
 function TzServer.sRead;
-var
-  buf  : string;
-  count: integer;
+var buf  : string;
+    count: integer;
 begin
   setLength(buf, packet_size);
   count := Recv(csock, pointer(buf)^, packet_size, 0);

@@ -9,7 +9,7 @@ Program aservia;
 
 uses
   {$ifdef unix}cthreads,{$endif} {$ifdef windows}windows,{$endif}
-  zserver, cfgfile, pwfileutil, pwstrutil, shell;
+  zserver, cfgfile, pwfileutil, pwstrutil, pwtypes, shell;
 
 {$Include lang.inc}
 
@@ -18,8 +18,7 @@ var
   str1     : string;
   critical : TRTLCriticalSection;
   fl       : text;
-  cfg      : TCfgFile; 
-  vhost    : TCfgFile;  
+  mimecfg, vhostcfg: TCfgFile;  
   logflname: string;
   filedir  : string;
   ip       : string;
@@ -103,13 +102,14 @@ function gettype(filename: string): string;
 var ext  : string;
     def  : string;
 begin
-  def := cfg.getOption('default', 'application/force-download');;
-  ext := LowerCase(ExtractFileExt(filename));
+  def:= mimecfg.getOption('default', 'application/force-download');;
+  ext:= LowerCase(ExtractFileExt(filename));
   delete(ext, 1, 1);
-  Result := cfg.getOption(ext, def);
+  Result := mimecfg.getOption(ext, def);
 end;
   
-function getfile(filename: string; errcode: string = '200 OK'; query: string = ''): string;
+function getfile(filename: string; errcode: string = '200 OK'; 
+                 query: string = ''): string;
 var
   fl   : file;
   buf  : string;
@@ -154,9 +154,7 @@ begin
 end;  
 
 function request(p: pointer): longint;
-var filename: string;
-    name    : string;
-    ip      : string;
+var filename, name, ip: string;
     i       : integer;
     deny    : boolean = false;
 begin
@@ -167,7 +165,7 @@ begin
     str1 := server.sread;
     writeln(str_request{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
     writeln(str1);
-    ip := server.getip(longint(p^));
+    ip:= server.getip(longint(p^));
     addEnv('REMOTE_ADDR', ip);
     addEnv('SERVER_SOFTWARE', str_server);
     i := 0;
@@ -181,9 +179,9 @@ begin
     begin
       filename := parceRequest(str1);
       if (filedir = '') or (filedir = ip) then
-        filedir := vhost.getOption('default', '')
+        filedir := vhostcfg.getOption('default', '')
       else
-        filedir := vhost.getOption(filedir, vhost.getOption('default', ''));
+        filedir := vhostcfg.getOption(filedir, vhostcfg.getOption('default', ''));
 
       addEnv('DOCUMENT_ROOT', filedir);
       name := filename;
@@ -221,24 +219,7 @@ begin
     LeaveCriticalSection(critical);
   end;
 
-  Result := 0;
-end;
-
-procedure SetupCfg;
-begin
-  cfg := TCfgFile.create('config.cfg');
-    ip        := cfg.getOption('ip',        '127.0.0.1');
-    port      := cfg.getOption('port',      80);
-    newlog    := cfg.getOption('deletelog', false);
-    logflname := cfg.getOption('logfile',   'connections.log');
-    defaultfl := cfg.getOption('index',     'index.html');
-    error404  := cfg.getOption('error404',  'error404.html');
-    error403  := cfg.getOption('error403',  'error403.html');
-  cfg.free;
-
-  cfg := TCfgFile.create('blacklist.cfg');
-    blacklist := cfg.getAllOptions;
-  cfg.free;
+  result:= 0;
 end;
 
 procedure SetupLog;
@@ -273,22 +254,77 @@ begin
   DoneCriticalSection(critical);
 end;
 
+procedure Err(const msg: string);
+begin
+  writeln(msg);
+end;
+
+procedure CreateCfgAndServer;
+
+  procedure SetupOtherCfg;
+  var othercfg: TCfgFile;
+  begin
+    othercfg := TCfgFile.create('config.cfg');
+      ip        := othercfg.getOption('ip',        '127.0.0.1');
+      port      := othercfg.getOption('port',      80);
+      newlog    := othercfg.getOption('deletelog', false);
+      logflname := othercfg.getOption('logfile',   'connections.log');
+      defaultfl := othercfg.getOption('index',     'index.html');
+      error404  := othercfg.getOption('error404',  'error404.html');
+      error403  := othercfg.getOption('error403',  'error403.html');
+    othercfg.free; othercfg:= nil;
+
+    othercfg:= TCfgFile.create('blacklist.cfg');
+      blacklist:= othercfg.getAllOptions;
+    othercfg.free; othercfg:= nil;
+  end;
+
+begin
+  SetupOtherCfg;
+  mimecfg := TCfgFile.create('mime.cfg');
+  vhostcfg := TCfgFile.create('vhost.cfg');
+  server := TzServer.Create;
+end;
+
+procedure FreeCfgAndServer;
+begin
+  vhostcfg.Free; vhostcfg:= nil;
+  mimecfg.Free; mimecfg:= nil;
+  server.Free; server:= nil;
+end;
+
+procedure ErrCantConnect;
+begin
+  Err(LF+'Can''t connect to address or port.'+ LF+
+      'The ip:port you are using is '+ip+':'+inttostr(port)+ LF+
+      'Tip: make sure another server is not running.'+ LF+
+      'Error # '+ {$ifdef windows}inttostr(GetLastError){$endif}
+                   {$ifdef unix}inttostr(fpGetErrNo){$endif}
+  ); 
+  // Ugly inline ifdef above due to FPC bug, cannot wrap in another function 
+  // with fpc 2.2.0. See http://bugs.freepascal.org/view.php?id=10205
+
+  // cleanup, then kill
+  FreeCfgAndServer; Halt;
+end;
+
 procedure RunServer;
+var inited: boolean;
 begin
   writeln(str_server);
   writeln(str_qcom, #13#10);
   writeln(str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
-
-  SetupCfg;
-  cfg := TCfgFile.create('mime.cfg');
-  vhost := TCfgFile.create('vhost.cfg');
-  server := TzServer.Create(ip, port);
-  writeln(str_socket, ip, ':', port);
-  SetupLog;
-  RunThreadLoop;
-  server.Free;
-  cfg.Free;
+  CreateCfgAndServer;
+  inited:= server.InitConnection(ip, port);
+  if inited then begin
+    writeln(str_socket, ip, ':', port);
+    SetupLog;
+    RunThreadLoop;
+  end else 
+    ErrCantConnect;
+  FreeCfgAndServer;
 end;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 begin
