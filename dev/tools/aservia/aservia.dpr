@@ -8,7 +8,8 @@ Program aservia;
 {$LONGSTRINGS ON}
 
 uses
-  {$ifdef unix}cthreads,{$endif} {$ifdef windows}windows,{$endif}
+  {$ifdef unix}cthreads, baseunix, unix,{$endif} 
+  {$ifdef windows}windows,{$endif}
   zserver, cfgfile, pwfileutil, pwstrutil, pwtypes, shell;
 
 {$Include lang.inc}
