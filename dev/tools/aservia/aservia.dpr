@@ -14,6 +14,8 @@ uses
 
 {$Include lang.inc}
 
+const HTTP_VERSION = 'HTTP/1.0';
+
 var
   server   : TzServer;
   str1     : string;
@@ -95,7 +97,7 @@ begin
     end;
   end;
 
-  Result := StringReplace(Result, ' HTTP/1.1', '', [rfIgnoreCase]);
+  Result := StringReplace(Result, ' '+HTTP_VERSION, '', [rfIgnoreCase]);
   if (Result = '') or (Result[Length(Result)] = '/') then Result += defaultfl;
 end;
   
@@ -125,12 +127,12 @@ begin
     Result := '';
     Assign(fl, filename);
     Reset(fl, 1);
-    Result := 'HTTP/1.1 ' + errcode + #13#10 + 
-               str_server + #13#10 +
-              'MIME-version: 1.0'#13#10 +
-              'Allow: GET, POST'#13#10 +
-              'Content-type: ' + filetype + #13#10 +
-              'Content-length: ' + IntToStr(FileSize(fl)) + #13#10 + 
+    Result := HTTP_VERSION+' ' + errcode + #13#10 + 
+              str_server + #13#10 +
+             'MIME-version: 1.0'#13#10 +
+             'Allow: GET, POST'#13#10 +
+             'Content-type: ' + filetype + #13#10 +
+             'Content-length: ' + IntToStr(FileSize(fl)) + #13#10 + 
               #13#10;
     while not eof(fl) do begin
       BlockRead(fl, pointer(buf)^, 4096, count);
@@ -149,7 +151,7 @@ begin
     parameters := StringReplace(parameters, '%', '%%', [rfReplaceAll]);
    {$endif}
     parameters := StringReplace(parameters, '&', ';', [rfReplaceAll]);
-    Result := 'HTTP/1.1 ' + errcode + #13#10 
+    Result := HTTP_VERSION+' '+errcode+#13#10 
               + command(filename + ' "' + parameters + '"');
   end;
 end;  
