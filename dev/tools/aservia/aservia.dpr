@@ -35,9 +35,11 @@ var
   blacklist: array of string;
   needStopServer: boolean = false;
 
+{ user commands to stop server with keyboard at console }
 function needStop(p: pointer): longint;
 var s: string;
 begin
+  s:= '';
   repeat
     readln(s);
     if (s = 'q') or (s = 'quit') then needStopServer := true;
@@ -160,8 +162,9 @@ end;
 function request(p: pointer): longint;
 var filename, name, ip: string;
     i       : integer;
-    deny    : boolean = false;
+    deny    : boolean;
 begin
+  deny:= false;
   EnterCriticalSection(critical);
   try
     clearEnv;
@@ -189,8 +192,8 @@ begin
 
       addEnv('DOCUMENT_ROOT', filedir);
       name := filename;
-      if pos('?', filename) > 0 then
-        name := copy(filename, 1, pos('?', filename) - 1);
+      if pos('?',filename) > 0 then 
+        name:= copy(filename,1,pos('?',filename) - 1);
 
       if (not FileThere(filedir + name, fmDefault)) 
          and DirectoryExists(filedir + name) 
@@ -202,7 +205,7 @@ begin
          and (pos('/../', ExtractRelativepath(filedir, filedir + name)) <> 0) 
       then begin
         server.swrite(getfile(error403, '403 Access denied'));
-        deny := true;
+        deny:= true;
       end else begin 
         if FileThere(filedir + name, fmDefault) then
           server.swrite(getfile(filedir + name, '200 OK', filename))
@@ -213,7 +216,7 @@ begin
    {$I-}
     Assign(fl, logflname); Append(fl);
     if IOResult <> 0 then Rewrite(fl);
-    //writeln(fl, str_requestfrom, ip, '; ', DateTimeToStr(Date), ', ', TimeToStr(Time));
+    writeln(fl, str_requestfrom, ip, '; '{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
     writeln(fl, str1);
     if deny then writeln(fl, str_denied);
     close(fl);
