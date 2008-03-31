@@ -14,6 +14,7 @@ uses
 
 {$Include lang.inc}
 
+// NOTE: MUST BE 1.0 SINCE IT DOESN'T SUPPORT ALL 1.1 FEATURES YET
 const HTTP_VERSION = 'HTTP/1.0';
 
 var
