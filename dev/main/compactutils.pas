@@ -5,158 +5,80 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  A compact alternative to Sysutils unit, Classes unit, StringLists, and more.
+  Like KOL/MCK, a compact alternative to Sysutils unit, Classes unit, 
+  StringLists, and more. It is useful as a general purpose utility unit of 
+  lists, string routines, etc.
 
-  This CompactUtils unit makes executables that are nice and compact in size,
-  yet still powerful than if using classes or sysutils units.
-
-  See also StrWrap1 unit and CompactSysUtils unit
-
-  Included in this unit are StringList using old borland object and many more
-  algorithms from KOL (thanks Vladimir Kladov).
-
-  ----------------------------------------------------------------------------
-   Why do classes and sysutils cause so much kilobytes and bulk into our exes?
-  ----------------------------------------------------------------------------
-    Initialization and finalization. This CompactUtils unit was created with
-    no initialization and finalization. Initialization and finalization ruins
-    much of the smartlinking process. Also old borland objects offer some
-    savings.
-
-    Note: even the dos unit itself has initialization and finalization. Not
-          just the sysutils unit. As for BaseUnix, I'll tell you more
-          about that in the next release of CompactUtils.
-
-  ----------------------------------------------------------------------------
-   So this unit does not rely on Classes unit, but has stringlists available?
-  ----------------------------------------------------------------------------
-    Yes, a stringlist without using classes.  (actually old pascal objects.)
-
-    Don't fear NewStrList versus TStringList.create. Give it a try, it's
-    really no different. You still call strlist.free and strlist:=nil just
-    like normal.
-      
-  ----------------------------------------------------------------------------
-   There is exe/dll/elf size reduction and speed gains by using CompactUtils?
-  ----------------------------------------------------------------------------
-    Small-medium utilities, embedded stuff, CGI programs or DLL's/DSO's that
-    you want to load into the memory fast, will benefit from this CompactUtils
-    unit.
-
-    However, it's not just for the kilobyte savings. This CompactUtils unit 
-    still has powerful functions regardless of the size/compactness benefits. 
-
-  ----------------------------------------------------------------------------
-   Is it a drop in replacement?
-  ----------------------------------------------------------------------------
-    For many functions. Some of the objects are a bit different than classes.
-    
-    Rule of thumb: when you are considering using SysUtils in any application
-    whatsoever, try CompactSysUtils and CompactStrUtils first (and also 
-    CompactUtils). If CompactSysUtils.pas doesn't meet your needs then simply
-    replace CompactSysUtils in your uses clause with SysUtils. 
-    
---------------------------------------------------------------------------------
- GOALS:
---------------------------------------------------------------------------------
-  -compatible with freepascal (delphi later)
+  Future Goals: ability to choose stack objects instead of just heap. For 
+  example a string list that requires no free and create. Reduces complexity
+  of application code, keeps code free of dangling pointers, etc. Better
+  than using arrays as no setlength or memory allocation required. 
   
-  -unit should work on Linux and Windows, and in the future other operating
-   systems if anyone wants to help. Currently Linux and Windows are the
-   ones being maintained by the current developer.
+  Saving Exe size is not the main goal, although that may be a side effect and
+  bonus since this code is tight and based on KOL/MCK ideas. Rather, this unit 
+  will aim to make programming easier, simpler, etc. The classes/lists available
+  in the FPC and Delphi RTL are too complex for our needs many times.
   
-  -no classes unit reliance!
-
-  -no sysutils reliance!
-
---------------------------------------------------------------------------------
- TODO:
---------------------------------------------------------------------------------
-
-  -currently i386 and ARM processors supported, we welcome patches for other
-   CPU's and we can give you even an SVN account if needed.
-
-  Streams and threads are left out for now. Do not use any stream or thread
-  functions in this unit, as they are just here under construction for now.
-  They should be commented out or deleted for now, but please notify
-  me if I forgot to comment out or delete a stream or thread function.
-
- General to do
-  
-   -Delphi support. Right now only freepascal is being worked on.
-
- Left out for now, to do later:
-
-   -CompareAnsiStrListItems
-
-   -TStrList.AnsiSort, TStrListEx.AnsiSort
-
-   -lots of stream code
-
-   -TStream.ReadAsync, TStream.SeekAsync, TStream.WriteAsync
-   
-   -NewThread, NewThreadEx, etc.
-   
-   -Stringlist LoadFromStream, save to stream.
-
+  See also StrWrap1, CompactSysUtils, and other units from Powtils
 
 --------------------------------------------------------------------------------
  CONTRIBUTORS/AUTHORS:
 --------------------------------------------------------------------------------
+  Ideas from KOL 2.10 (Vladimir Kladov). 
+  KOL&MCK Library Web Site:  
+    http://xcl.cjb.net  
+    http://kolmck.net/   
+  Download it and try it for delphi and fpc.
 
-  Lars aka L505
-  http://z505.com
-
-  Bernd M.
-  Arm patches, thanks!
-
-  Much of the ideas and source code derived from KOL (Vladimir Kladov)
-  and contributors. Portions of this file are from the FPC source code too.
+  This unit is the same as KOL 2.10 but geared for Web Programming, Win, Unix  
   
-  Anyone wishing to contribute to this unit is welcome. I can easily put
-  it on SVN. Contact fpcunits(@)z505(.)com
+  Contributors:  
+   -Lars aka L505 http://z505.com   
+   -Bernd M. Arm patches
 
+  Anyone wishing to contribute to this unit contact L(@)z505(.)com
 
 --------------------------------------------------------------------------------
  LICENSE/TERMS:
 --------------------------------------------------------------------------------
-
-  This file shall be used under the same license as the KOL project since code
-  is derived from the KOL project. See the KOL license (open source, free) for
-  more details.
-
-  See also licenses in the StrWrap1 file, plus the freepascal units such as dos,
-  windows, baseunix, math.
-
+  This file shall be used under the same license as the KOL project. Don't 
+  distribute this unit or KOL units unless you are fully willing to offer it 
+  open source and help out the KOL community and Powtils community. This unit
+  is not to be sold as source. You can incorporate code into binaries. 
+  Visit http://kolmck.net/ for KOL (2.10) license.
+ 
+--------------------------------------------------------------------------------
+ TODO:
+--------------------------------------------------------------------------------
+  -currently i386 and ARM processors supported, we welcome patches for other
+   CPU's and we can provide SVN account if needed.
+   Do not use any stream or thread functions in this unit, as they are just here 
+   under construction for now.
+ -Delphi support. Right now FPC is main compiler being tested. 
+ -CompareAnsiStrListItems
+ -TStrList.AnsiSort, TStrListEx.AnsiSort
+ -lots of stream code
+ -TStream.ReadAsync, TStream.SeekAsync, TStream.WriteAsync
+ -NewThread, NewThreadEx, etc.
+ -Stringlist LoadFromStream, SaveToStream.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%}
-unit CompactUtils;
 
-{$IFDEF FPC}
-  {$mode delphi}{$H+}
-{$ENDIF}
-
+unit CompactUtils; {$IFDEF FPC}{$mode delphi}{$H+}{$ENDIF}
 
 interface
 
-
 uses
- {$IFDEF WIN32}
-  windows,
+ {$IFDEF WIN32}windows,{$ENDIF}
+ {$IFDEF FPC}
+  {$IFDEF UNIX}baseunix,{$ENDIF}
+ {$ELSE}
+   messages,
  {$ENDIF}
-
-{$IFDEF FPC}
- {$IFDEF UNIX}
-  baseunix,
-  {$ENDIF}
-{$ELSE}
-  messages,
-{$ENDIF}
   StrWrap1;
 
-const
-  INVALID_HANDLE_VALUE = -1 ;  //L505: added constant
-
-const
+const 
+ //L505: added these
+  INVALID_HANDLE_VALUE = -1 ;  
   { File open modes }
   fmOpenRead       = $0000;
   fmOpenWrite      = $0001;
@@ -167,7 +89,6 @@ const
   fmShareDenyWrite = $0020;
   fmShareDenyRead  = $0030;
   fmShareDenyNone  = $0040;
-
 
 type
    _TObj = object
@@ -180,59 +101,44 @@ type
    end;
 
   PObj = ^TObj;
-
   PList = ^TList;
-
   TObjectMethod = procedure of object;
-
   TOnEvent = procedure( Sender: PObj ) of object;
+  PPointerList = ^TPointerList;
+  TPointerList = array[0..MaxInt div 4 - 1] of Pointer;
 
-
-   PPointerList = ^TPointerList;
-   TPointerList = array[0..MaxInt div 4 - 1] of Pointer;
-
-   TObj = {-} object( _TObj ) (*class*)
-
+  TObj = object( _TObj )
    protected
      fRefCount: Integer;
      fOnDestroy: TOnEvent;
      procedure DoDestroy;
    protected
      fAutoFree: PList;
-
      fTag: DWORD;
      { Custom data. }
-   (*public*)
-     destructor Destroy; {-} virtual; {+}{++}(* override; *){--}
-   (*protected*)
-     (*
-     procedure Init; virtual;
-     *)
+     
+     destructor Destroy; {-} virtual; 
      procedure Final;
    public
      procedure Free;
-
      // By Vyacheslav Gavrik:
-     {$IFNDEF CPUARM}
+    {$IFNDEF CPUARM}
      function InstanceSize: Integer;
-     {$ENDIF}
-
+    {$ENDIF}
      constructor Create;
-
-     {$IFNDEF CPUARM}
+    {$IFNDEF CPUARM}
      class function AncestorOfObject( Obj: Pointer ): Boolean;
      function VmtAddr: Pointer;
-     {$ENDIF}
+    {$ENDIF}
      procedure RefInc;
      procedure RefDec;
      property RefCount: Integer read fRefCount;
-
      property OnDestroy: TOnEvent read fOnDestroy write fOnDestroy;
      { This event is provided for any KOL object, so You can provide your own
        OnDestroy event for it. }
-    procedure Add2AutoFree( Obj: PObj );
-    procedure Add2AutoFreeEx( Proc: TObjectMethod );
-    property Tag: DWORD read fTag write fTag;
+     procedure Add2AutoFree( Obj: PObj );
+     procedure Add2AutoFreeEx( Proc: TObjectMethod );
+     property Tag: DWORD read fTag write fTag;
    protected
     {$IFDEF USE_NAMES}
      FName: String;
@@ -244,10 +150,8 @@ type
     {$ENDIF}
    end;
 
-
   TList = object( TObj )
-
-  protected
+   protected
     fItems: PPointerList;
     fCount: Integer;
     fCapacity: Integer;
@@ -256,7 +160,6 @@ type
     procedure SetAddBy(Value: Integer);
   (*public*)
     destructor Destroy; {-}virtual;{+}{++}(*override;*){--}
-
   (*protected*)
     procedure SetCapacity( Value: Integer );
     function Get( Idx: Integer ): Pointer;
@@ -290,13 +193,11 @@ type
     {$ENDIF}
   end;
 
-
 function NewList: PList;
 
 {$IFDEF _D4orHigher}
 function NewListInit( const AItems: array of Pointer ): PList;
 {$ENDIF}
-
 
 {$IFDEF USE_NAMES}
 var
@@ -305,26 +206,20 @@ var
 function FindObj( const Name: String ): PObj;
 {$ENDIF}
 
-
 //[DummyObjProc, DummyObjProcParam DECLARATION]
 procedure DummyObjProc( Sender: PObj );
 procedure DummyObjProcParam( Sender: PObj; Param: Pointer );
 
-
 { --- threads --- }
-
 const
   ABOVE_NORMAL_PRIORITY_CLASS = $8000; // only for Windows 2K
   BELOW_NORMAL_PRIORITY_CLASS = $4000; // and higher !
 
 type
-
   TThreadMethod = procedure of object;
 
 type
   PStrList = ^TStrList;
-
-
   TStrList = object(TObj)
   protected
     procedure Init; virtual;
@@ -361,7 +256,7 @@ type
     procedure Delete(Idx: integer);
     function IndexOf(const S: string): integer;
     function IndexOf_NoCase(const S: string): integer;
-    function IndexOfStrL_NoCase( Str: PChar; L: Integer ): integer;
+    function IndexOfStrL_NoCase(S: PChar; L: Integer ): integer;
     function Find(const S: String; var Index: Integer): Boolean;
     procedure Insert(Idx: integer; const S: string);
     function LoadFromFile(const FileName: string): Boolean;
@@ -377,10 +272,9 @@ type
     procedure Swap( Idx1, Idx2 : Integer );
     procedure Sort( CaseSensitive: Boolean );
 
-// L505: TODO
-//    procedure AnsiSort( CaseSensitive: Boolean );
-//    { Call it to sort ANSI string list. }
-
+  // L505: TODO
+  //    procedure AnsiSort( CaseSensitive: Boolean );
+  //    { Call it to sort ANSI string list. }
 
     // by Alexander Pravdin:
   protected
@@ -397,7 +291,6 @@ type
     { by Sergey Shishmintzev. }
   end;
 
-
 var
   DefaultNameDelimiter: Char = '=';
   ThsSeparator: Char = ',';
@@ -406,7 +299,6 @@ function NewStrList: PStrList;
 
 type
   PStrListEx = ^TStrListEx;
-
   TStrListEx = object( TStrList )
   protected
     FObjects: PList;
@@ -416,7 +308,6 @@ type
     procedure ProvideObjCapacity( NewCap: Integer );
   public
     destructor Destroy; virtual;(*override;*)
-
     property Objects[ Idx: Integer ]: DWORD read GetObjects write SetObjects;
     procedure AddStrings(Strings: PStrListEx);
     procedure Assign(Strings: PStrListEx);
@@ -426,10 +317,9 @@ type
     procedure Swap( Idx1, Idx2 : Integer );
     procedure Sort( CaseSensitive: Boolean );
 
-
-// L505: TODO
-//    procedure AnsiSort( CaseSensitive: Boolean );
-//    { Call it to sort ANSI string list. }
+  // L505: TODO
+  //    procedure AnsiSort( CaseSensitive: Boolean );
+  //    { Call it to sort ANSI string list. }
 
     function LastObj: DWORD;
     function AddObject( const S: String; Obj: DWORD ): Integer;
@@ -437,24 +327,25 @@ type
     function IndexOfObj( Obj: Pointer ): Integer;
   end;
 
-
 function NewStrListEx: PStrListEx;
 
-function StrComp_NoCase(const Str1, Str2: PChar): Integer;
-function StrLComp(const Str1, Str2: PChar; MaxLen: Cardinal): Integer;
-function StrLComp_NoCase(const Str1, Str2: PChar; MaxLen: Cardinal): Integer;
+function StrComp_NoCase(const S1, S2: PChar): Integer;
+function StrLComp(const S1, S2: PChar; MaxLen: Cardinal): Integer;
+function StrLComp_NoCase(const S1, S2: PChar; MaxLen: Cardinal): Integer;
+
+(*
 {$IFNDEF CPUARM}
 // defined in System for ARM
-function StrLen(const Str: PChar): Cardinal;
+function StrLen(const S: PChar): Cardinal;
 {$ENDIF}
-function StrScanLen(Str: PChar; Chr: Char; Len: Integer): PChar;
+*)
+
+function StrScanLen(S: PChar; Chr: Char; Len: Integer): PChar;
 
 procedure NormalizeUnixText( var S: String );
 
-
 type
   TCompareEvent = function (const Data: Pointer; const e1,e2 : Dword) : Integer;
-
   TSwapEvent = procedure (const Data : Pointer; const e1,e2 : Dword);
 
   procedure SortData( const Data: Pointer; const uNElem: Dword;
@@ -464,11 +355,11 @@ type
   function Parse( var S : String; const Separators : String ) : String;
   function IndexOfCharsMin( const S, Chars : String ) : Integer;
   function IndexOfChar( const S : String; Chr : Char ) : Integer;
-//  function AnsiCompareStr(const S1, S2: string): longint;
-  function StrComp(const Str1, Str2: PChar): Integer;
+  //  function AnsiCompareStr(const S1, S2: string): longint;
+  function StrComp(const S1, S2: PChar): Integer;
   function FileCreate (const FileName: string; Mode: Longint) : Longint;
 
-  function StrScan(Str: PChar; Chr: Char): PChar;
+  function StrScan(S: PChar; Chr: Char): PChar;
 { Fast search of given character in a string. Pointer to found character
   (or nil) is returned. }
 
@@ -480,8 +371,6 @@ type
   function StrLCopy(Dest: PChar; const Source: PChar; MaxLen: Cardinal): PChar;
 {$endif}
 
-
-
 {$ifndef _D6orHigher}
 type
    TMethod = packed record
@@ -490,7 +379,6 @@ type
    end;
 {$endif}
 
-
  function Min( X, Y: Integer ): Integer;
  function Max( X, Y: Integer ): Integer;
 {$ifndef fpc} // fpc does not need these, already defined in system
@@ -498,15 +386,14 @@ type
  function UpperCase(const S: string): string;
 {$endif}
 
- function Int2Str( Value : Integer ) : String;
+ function int2str( Value : Integer ) : String;
+ function i2s(i: integer): string; 
  
  function AnsiCompareStr(const S1, S2: string): longint;
 
 {------------------------------------------------------------------------------}
 implementation
 {------------------------------------------------------------------------------}
-
-
 
 { _TObj }
 
@@ -521,8 +408,7 @@ end;
 {$IFNDEF CPUARM}
 //[function _TObj.VmtAddr]
 function _TObj.VmtAddr: Pointer;
-asm
-   MOV EAX, [EAX]
+asm MOV EAX, [EAX]
 end;
 
 { TObj }
@@ -545,42 +431,32 @@ asm
 end;
 {$ENDIF}
 
-
 constructor TObj.Create;
 begin
   Init;
-  {++}(* inherited; *){--}
 end;
-
 
 procedure TObj.DoDestroy;
 begin
-  if fRefCount <> 0 then
-  begin
-    if not LongBool( fRefCount and 1) then
-       Dec( fRefCount );
-  end
-  else
-     Destroy;
+  if fRefCount <> 0 then begin
+    if not LongBool( fRefCount and 1) then  Dec( fRefCount );
+  end else Destroy;
 end;
 
 
 procedure TObj.RefDec;
 begin
   Dec( fRefCount, 2 );
-  if (fRefCount < 0) and LongBool(fRefCount and 1) then
-    Destroy;
+  if (fRefCount < 0) and LongBool(fRefCount and 1) then  Destroy;
 end;
 
 procedure TObj.RefInc;
-begin
-  Inc( fRefCount, 2 );
+begin Inc( fRefCount, 2 );
 end;
 
 {$IFNDEF CPUARM}
 function TObj.VmtAddr: Pointer;
-asm
-       MOV    EAX, [EAX - 4]
+asm MOV    EAX, [EAX - 4]
 end;
 
 function TObj.InstanceSize: Integer;
@@ -594,19 +470,14 @@ end;
 //[procedure TObj.Free]
 {$IFDEF F_P}
 procedure TObj.Free;
-begin
-  if Self <> nil then
-    DoDestroy;
+begin if Self <> nil then DoDestroy;
 end;
 {$ELSE DELPHI}
 
 procedure TObj.Free;
-begin
-  if @Self <> nil then
-    DoDestroy;
+begin if @Self <> nil then DoDestroy;
 end;
 {$ENDIF F_P/DELPHI}
-
 
 destructor TObj.Destroy;
 begin
@@ -629,28 +500,22 @@ begin
   inherited; *){--}
 end;
 
-
 (*
-
 procedure TObj.Init;
 begin
-
 end;
 *)
-
 
 procedure TObj.Final;
 var I: Integer;
     ProcMethod: TMethod;
     Proc: TObjectMethod Absolute ProcMethod;
 begin
-  if Assigned( fOnDestroy ) then
-  begin
+  if Assigned( fOnDestroy ) then begin
     fOnDestroy( @Self );
     fOnDestroy := nil;
   end;
-  if fAutoFree <> nil then
-  begin
+  if fAutoFree <> nil then begin
     for I := 0 to fAutoFree.fCount div 2 - 1 do
     begin
       ProcMethod.Code := fAutoFree.fItems[ I * 2 ];
@@ -662,19 +527,16 @@ begin
         MOV  EAX, [ProcMethod.Data]
         MOV  ECX, [ProcMethod.Code]
         CALL ECX
-      end;
-      *){--}
+      end; *){--}
     end;
     fAutoFree.Free;
     fAutoFree := nil;
   end;
 end;
 
-
 procedure TObj.Add2AutoFree(Obj: PObj);
 begin
-  if fAutoFree = nil then
-    fAutoFree := NewList;
+  if fAutoFree = nil then fAutoFree := NewList;
   fAutoFree.Insert( 0, Obj );
   fAutoFree.Insert( 0, Pointer( @TObj.Free ) );
 end;
@@ -682,8 +544,7 @@ end;
 
 procedure TObj.Add2AutoFreeEx( Proc: TObjectMethod );
 begin
-  if fAutoFree = nil then
-    fAutoFree := NewList;
+  if fAutoFree = nil then fAutoFree := NewList;
   fAutoFree.Insert( 0, Pointer( TMethod( Proc ).Data ) );
   fAutoFree.Insert( 0, Pointer( TMethod( Proc ).Code ) );
 end;
@@ -691,21 +552,17 @@ end;
 {$IFDEF USE_NAMES}
 procedure TObj.SetName(const NewName: String);
 begin
-  if FName <> '' then
-  begin
+  if FName <> '' then begin
     NamedObjectsList.Remove( @ Self );
     FName := '';
   end;
   if FindObj( NewName ) <> nil then Exit; // prevent duplications!
   FName := NewName;
-  if FName <> '' then
-    NamedObjectsList.Add( @ Self );
+  if FName <> '' then NamedObjectsList.Add( @ Self );
 end;
 {$ENDIF}
 
-
-
-{ TList }
+{------------------ TList ------------------------}
 
 {$IFDEF USE_CONSTRUCTORS}
 function NewList: PList;
@@ -723,7 +580,6 @@ end;
 
 function NewList: PList;
 begin
-
   New( Result, Create );
   (* Result := PList.Create; *)
   //Result.fAddBy := 4;
@@ -735,8 +591,7 @@ var i: Integer;
 begin
   Result := NewList;
   Result.Capacity := Length( AItems );
-  for i := 0 to High( AItems ) do
-    Result.Add( AItems[ i ] );
+  for i := 0 to High( AItems ) do Result.Add( AItems[ i ] );
 end;
 
 destructor TList.Destroy;
@@ -749,9 +604,7 @@ procedure TList.Release;
 var I: Integer;
 begin
   if @ Self = nil then Exit;
-  for I := 0 to fCount - 1 do
-    if fItems[ I ] <> nil then
-      FreeMem( fItems[ I ] );
+  for I:= 0 to fCount - 1 do  if fItems[ I ] <> nil then FreeMem( fItems[I] );
   Free;
 end;
 
@@ -759,16 +612,14 @@ procedure TList.ReleaseObjects;
 var I: Integer;
 begin
   if @ Self = nil then Exit;
-  for I := fCount-1 downto 0 do
-    PObj( fItems[ I ] ).Free;
+  for I := fCount-1 downto 0 do PObj( fItems[ I ] ).Free;
   Free;
 end;
 
 //var NewItems: PPointerList;
 procedure TList.SetCapacity( Value: Integer );
 begin
-   if Value < Count then
-      Value := Count;
+   if Value < Count then Value := Count;
    if Value = fCapacity then Exit;
    ReallocMem( fItems, Value * Sizeof( Pointer ) );
    fCapacity := Value;
@@ -776,8 +627,7 @@ end;
 
 procedure TList.Clear;
 begin
-   if fItems <> nil then
-      FreeMem( fItems );
+   if fItems <> nil then FreeMem( fItems );
    fItems := nil;
    fCount := 0;
    fCapacity := 0;
@@ -791,16 +641,15 @@ end;
 
 procedure TList.Add( Value: Pointer );
 begin
-   //if fAddBy <= 0 then fAddBy := 4;
-   if fCapacity <= Count then
-   begin
-     if fAddBy <= 0 then
-       Capacity := Count + Min( 1000, Count div 4 + 1 )
-     else
-       Capacity := Count + fAddBy;
-   end;
-   fItems[ fCount ] := Value;
-   Inc( fCount );
+  //if fAddBy <= 0 then fAddBy := 4;
+  if fCapacity <= Count then begin
+    if fAddBy <= 0 then
+      Capacity := Count + Min( 1000, Count div 4 + 1 )
+    else
+      Capacity := Count + fAddBy;
+  end;
+  fItems[ fCount ] := Value;
+  Inc( fCount );
 end;
 
 {$IFDEF _D4orHigher}
@@ -808,8 +657,7 @@ procedure TList.AddItems(const AItems: array of Pointer);
 var i: Integer;
 begin
   Capacity := Count + Length( AItems );
-  for i := 0 to High( AItems ) do
-    Add( AItems[ i ] );
+  for i := 0 to High( AItems ) do Add( AItems[ i ] );
 end;
 {$ENDIF}
 
@@ -826,8 +674,7 @@ begin
   if Len <= 0 then Exit;
   if Idx >= Count then Exit;
   Assert( (Idx >= 0), 'TList.DeleteRange: index out of bounds' );
-  if DWORD( Idx + Len ) > DWORD( Count ) then
-    Len := Count - Idx;
+  if DWORD( Idx + Len ) > DWORD( Count ) then Len := Count - Idx;
   Move( fItems[ Idx + Len ], fItems[ Idx ], Sizeof( Pointer ) * (Count - Idx - Len) );
   Dec( fCount, Len );
 end;
@@ -835,17 +682,16 @@ end;
 procedure TList.Remove(Value: Pointer);
 var I: Integer;
 begin
-  I := IndexOf( Value );
-  if I >= 0 then
-    Delete( I );
+  I:= IndexOf(Value);
+  if I >= 0 then Delete(I);
 end;
 
 procedure TList.Put( Idx: Integer; Value: Pointer );
 begin
-   if Idx < 0 then Exit;
-   if Idx >= Count then Exit;
-   //Assert( (Idx >= 0) and (Idx < fCount), 'TList.Put: index out of bounds' );
-   fItems[ Idx ] := Value;
+  if Idx < 0 then Exit;
+  if Idx >= Count then Exit;
+  //Assert( (Idx >= 0) and (Idx < fCount), 'TList.Put: index out of bounds' );
+  fItems[Idx]:= Value;
 end;
 
 function TList.Get( Idx: Integer ): Pointer;
@@ -854,30 +700,28 @@ begin
    if Idx < 0 then Exit;
    if Idx >= fCount then Exit;
    //Assert( (Idx >= 0) and (Idx < fCount), 'TList.Get: index out of bounds' );
-   Result := fItems[ Idx ];
+   Result := fItems[Idx];
 end;
 
 function TList.IndexOf( Value: Pointer ): Integer;
 var I: Integer;
 begin
-   Result := -1;
-   for I := 0 to Count - 1 do
-   begin
-      if fItems[ I ] = Value then
-      begin
-         Result := I;
-         break;
-      end;
-   end;
+  Result := -1;
+  for I := 0 to Count - 1 do begin
+    if fItems[ I ] = Value then begin
+      Result := I;
+      break;
+    end;
+  end;
 end;
 
 procedure TList.Insert(Idx: Integer; Value: Pointer);
 begin
-   Assert( (Idx >= 0) and (Idx <= Count), 'List index out of bounds' );
-   Add( nil );
-   if fCount > Idx then
+  Assert( (Idx >= 0) and (Idx <= Count), 'List index out of bounds' );
+  Add( nil );
+  if fCount > Idx then
      Move( FItems[ Idx ], FItems[ Idx + 1 ], (fCount - Idx - 1) * Sizeof( Pointer ) );
-   FItems[ Idx ] := Value;
+  FItems[ Idx ] := Value;
 end;
 
 procedure TList.MoveItem(OldIdx, NewIdx: Integer);
@@ -893,10 +737,7 @@ end;
 
 function TList.Last: Pointer;
 begin
-  if Count = 0 then
-    Result := nil
-  else
-    Result := Items[ Count-1 ];
+  if Count = 0 then Result := nil else Result := Items[ Count-1 ];
 end;
 
 procedure TList.Swap(Idx1, Idx2: Integer);
@@ -916,23 +757,18 @@ end;
 procedure TList.Assign(SrcList: PList);
 begin
   Clear;
-  if SrcList.fCount > 0 then
-  begin
+  if SrcList.fCount > 0 then begin
     Capacity := SrcList.fCount;
     fCount := SrcList.fCount;
     Move( SrcList.FItems[ 0 ], FItems[ 0 ], Sizeof( Pointer ) * fCount );
   end;
 end;
 
-
-///////////////////////////////////////// STRING LIST OBJECT /////////////////
-
-{ TStrList }
+{ --------------------- TStrList ------------------------ }
 
 function NewStrList: PStrList;
 begin
-  New( Result, Create );
-
+  New(Result, Create);
 (*  Result := PStrList.Create;  *)
 end;
 
@@ -969,13 +805,10 @@ procedure TStrList.Clear;
 var I: Integer;
 begin
   if fCount > 0 then
-  for I := fList.Count - 1 downto 0 do
-    Delete( I );
-  fList.Free;
-  fList := nil;
+  for I := fList.Count - 1 downto 0 do Delete( I );
+  fList.Free; fList := nil;
   fCount := 0;
-  if fTextBuf <> nil then
-  begin
+  if fTextBuf <> nil then begin
     FreeMem( fTextBuf );
     fTextBuf := nil;
     fTextSiz := 0;
@@ -989,8 +822,7 @@ begin
   P := DWORD( fList.fItems[ Idx ] );
   if (fTextBuf <> nil) and ( P >= DWORD( fTextBuf )) and
      ( P < DWORD( fTextBuf ) + fTextSiz ) then
-  else
-  begin
+  else begin
     El := FList.Items[ Idx ];
     FreeMem( El );
   end;
@@ -1000,8 +832,7 @@ end;
 
 function TStrList.Get(Idx: integer): string;
 begin
-  if fList <> nil then
-    Result := PChar( fList.Items[ Idx ] )
+  if fList <> nil then Result := PChar( fList.Items[ Idx ] )
   else Result := '';
 end;
 
@@ -1011,31 +842,25 @@ begin
 end;
 
 function TStrList.GetTextStr: string;
-var
-   I, Len, Size: integer;
-   P: PChar;
+var I, Len, Size: integer;
+    P: PChar;
 begin
-     Size := 0;
-
-     for I := 0 to fCount - 1 do
-       Inc(Size, StrLen( PChar(fList.fItems[I]) ) + 2);
-
-     SetString(Result, nil, Size);
-
-     P := Pointer(Result);
-     for I := 0 to Count - 1 do
-     begin
-       Len := StrLen(PChar(fList.fItems[I]));
-       if (Len > 0) then
-       begin
-         System.Move(PChar(fList.fItems[I])^, P^, Len);
-         Inc(P, Len);
-       end;
-       P^ := #13;
-       Inc(P);
-       P^ := #10;
-       Inc(P);
+  Size := 0;
+  for I := 0 to fCount - 1 do Inc(Size, StrLen( PChar(fList.fItems[I]) ) + 2);
+  SetString(Result, nil, Size);
+  P := Pointer(Result);
+   for I := 0 to Count - 1 do
+   begin
+     Len := StrLen(PChar(fList.fItems[I]));
+     if (Len > 0) then begin
+       System.Move(PChar(fList.fItems[I])^, P^, Len);
+       Inc(P, Len);
      end;
+     P^ := #13;
+     Inc(P);
+     P^ := #10;
+     Inc(P);
+   end;
 end;
 
 function TStrList.IndexOf(const S: string): integer;
@@ -1053,17 +878,16 @@ begin
 end;
 
 
-function TStrList.IndexOfStrL_NoCase( Str: PChar; L: Integer ): integer;
+function TStrList.IndexOfStrL_NoCase(s: PChar; L: Integer): integer;
 begin
   for Result := 0 to fCount - 1 do
     if (StrLen( PChar( fList.fItems[ Result ] ) ) = DWORD( L )) and
-       (StrLComp_NoCase( Str, PChar( fList.fItems[ Result ] ), L ) = 0) then Exit;
+       (StrLComp_NoCase(S, PChar( fList.fItems[ Result ] ), L ) = 0) then Exit;
   Result := -1;
 end;
 
 function TStrList.Find(const S: String; var Index: Integer): Boolean;
-var
-  L, H, I, C: Integer;
+var L, H, I, C: Integer;
 begin
   Result := FALSE;
   L := 0;
@@ -1075,8 +899,7 @@ begin
     if C < 0 then L := I + 1 else
     begin
       H := I - 1;
-      if C = 0 then
-      begin
+      if C = 0 then  begin
         Result := TRUE;
         L := I;
         //break;
@@ -1091,24 +914,21 @@ procedure TStrList.Insert(Idx: integer; const S: string);
 var Mem: PChar;
     L: Integer;
 begin
-  if fList = nil then
-     fList := NewList;
+  if fList = nil then fList := NewList;
   L := Length( S ) + 1;
   GetMem( Mem, L );
   Mem[0] := #0;
-  if L > 1 then
-     System.Move( S[1], Mem[0], L );
+  if L > 1 then System.Move( S[1], Mem[0], L );
   fList.Insert( Idx, Mem );
   Inc( fCount );
 end;
 
 {$IFDEF UNIX}
 function FileCreate (Const FileName: string; Mode: Longint) : Longint;
-var
-  LinuxFlags : longint;
+var LinuxFlags : longint;
 begin
-  LinuxFlags:=0;
-  Case (Mode and 3) of
+  LinuxFlags:= 0;
+  case (Mode and 3) of
     0 : LinuxFlags:=LinuxFlags or O_RdOnly;
     1 : LinuxFlags:=LinuxFlags or O_WrOnly;
     2 : LinuxFlags:=LinuxFlags or O_RdWr;
@@ -1119,8 +939,7 @@ end;
 
 {$IFDEF WIN32}
 function FileCreate (const FileName: string; Mode: Longint) : Longint;
-var
-  FN : string;
+var FN : string;
 begin
   FN:=FileName+#0;
   Result := CreateFile(@FN[1], GENERIC_READ or GENERIC_WRITE,
@@ -1169,9 +988,8 @@ begin
 end;
 
 procedure TStrList.SetText(const S: string; Append2List: boolean);
-var
-  P, TheLast : PChar;
-  L, I : Integer;
+var P, TheLast : PChar;
+    L, I : Integer;
 
   procedure AddTextBuf(Src: PChar; Len: DWORD);
   var OldTextBuf, P: PChar;
@@ -1184,8 +1002,7 @@ var
       if fTextSiz <> 0 then
       begin
         System.Move( OldTextBuf^, fTextBuf^, fTextSiz );
-        for I := 0 to fCount - 1 do
-        begin
+        for I := 0 to fCount - 1 do begin
           P := fList.fItems[ I ];
           if (DWORD( P ) >= DWORD( OldTextBuf )) and
              (DWORD( P ) < DWORD( OldTextBuf ) + fTextSiz) then
@@ -1201,35 +1018,24 @@ var
 begin
      if not Append2List then Clear;
      if S = '' then Exit;
-
      L := fTextSiz;
      AddTextBuf( PChar( S ), Length( S ) + 1 );
-
      P := PChar( DWORD( fTextBuf ) + DWORD( L ) );
-     if fList = nil then
-       fList := NewList;
-
+     if fList = nil then fList := NewList;
      I := 0;
      TheLast := P + Length( S );
-     while P^ <> #0 do
-     begin
+     while P^ <> #0 do begin
        Inc( I );
        P := StrScanLen( P, #13, TheLast - P );
-       if P^ = #10 then
-         Inc( P );
+       if P^ = #10 then Inc( P );
      end;
-
      Inc( fCount, I );
-     if fList.fCapacity < fCount  then
-        fList.Capacity := fCount;
-
+     if fList.fCapacity < fCount  then fList.Capacity := fCount;
      P := PChar( DWORD( fTextBuf ) + DWORD( L ) );
-     while P^ <> #0 do
-     begin
+     while P^ <> #0 do begin
        fList.Add( P );
        P := StrScanLen( P, #13, TheLast - P );
-       if PChar( P - 1 )^ = #13 then
-         PChar( P - 1 )^ := #0;
+       if PChar( P - 1 )^ = #13 then PChar( P - 1 )^ := #0;
        if P^ = #10 then Inc(P);
      end;
 end;
@@ -1276,29 +1082,23 @@ end;
 
 function TStrList.Last: String;
 begin
-  if Count = 0 then
-    Result := ''
-  else
-    Result := Items[ Count - 1 ];
+  if Count = 0 then Result := '' else Result := Items[ Count - 1 ];
 end;
 
 function TStrList.IndexOfName(AName: string): Integer;
-var
-  i: Integer;
-  L: Integer;
+var i: Integer;
+    L: Integer;
 begin
   Result:=-1;
   // Do not start search if empty string
   L := Length( AName );
-  if L > 0 then
+  if L > 0 then 
   begin
     AName := LowerCase( AName ) + fNameDelim;
     Inc( L );
-    for i := 0 to fCount - 1 do
-    begin
+    for i := 0 to fCount - 1 do begin
       // For optimization, check only list entry that begin with same letter as searched name
-      if StrLComp( PChar( LowerCase( ItemPtrs[ i ] ) ), PChar( AName ), L ) = 0 then
-      begin
+      if StrLComp(PChar(LowerCase(ItemPtrs[i])), PChar(AName), L) = 0 then begin
         Result:=i;
         exit;
       end;
@@ -1307,23 +1107,23 @@ begin
 end;
 
 function TStrList.GetValue(const AName: string): string;
-var
-  i: Integer;
+var i: Integer;
 begin
   I := IndexOfName(AName);
-  if I >= 0
-  then Result := Copy(Items[i], Length(AName) + 2, Length(Items[i])-Length(AName)-1)
-  else Result := '';
+  if I >= 0 then 
+    Result := Copy(Items[i], Length(AName) + 2, Length(Items[i])-Length(AName)-1)
+  else 
+    Result := '';
 end;
 
 procedure TStrList.SetValue(const AName, Value: string);
-var
-  I: Integer;
+var I: Integer;
 begin
   I := IndexOfName(AName);
-  if i=-1
-  then Add( AName + fNameDelim + Value )
-  else Items[i] := AName + fNameDelim + Value;
+  if i=-1 then 
+    Add( AName + fNameDelim + Value ) 
+  else 
+    Items[i] := AName + fNameDelim + Value;
 end;
 
 function TStrList.GetLineName(Idx: Integer): string;
@@ -1334,7 +1134,7 @@ end;
 
 procedure TStrList.SetLineName(Idx: Integer; const NV: string);
 begin
-  Items[ Idx ] := NV + fNameDelim + LineValue[ Idx ];
+  Items[Idx] := NV + fNameDelim + LineValue[Idx];
 end;
 
 function TStrList.GetLineValue(Idx: Integer): string;
@@ -1349,23 +1149,19 @@ begin
 end;
 
 function TStrList.Join( const sep: String ): String;
-var
-   I, Len, Size: integer;
-   P: PChar;
+var I, Len, Size: integer;
+    P: PChar;
 begin
   Size := 0;
-
   for I := 0 to Count - 1 do
     Inc(Size, Integer( StrLen( ItemPtrs[I] ) ) + Length(Sep));
 
   SetString(Result, nil, Size);
-
   P := @ Result[ 1 ];
   for I := 0 to Count - 1 do
   begin
     Len := StrLen( ItemPtrs[I] );
-    if (Len > 0) then
-    begin
+    if (Len > 0) then begin
       System.Move( ItemPtrs[I]^, P^, Len);
       Inc(P, Len);
     end;
@@ -1373,18 +1169,11 @@ begin
   end;
 end;
 
-////////////////////////////////// EXTENDED STRING LIST OBJECT ////////////////
-
-{ TStrListEx }
+{ ------------------- TStrListEx ------------------------}
 
 function NewStrListEx: PStrListEx;
 begin
-  {-}
-  new( Result, Create );
-  {+}
-  {++}(*
-  Result := PStrListEx.Create;
-  *){--}
+  new(Result, Create);
 end;
 
 destructor TStrListEx.Destroy;
@@ -1427,8 +1216,7 @@ begin
   // move string
   fList.MoveItem( CurIndex, NewIndex );
   // move object
-  if FObjects.fCount >= Min( CurIndex, NewIndex ) then
-  begin
+  if FObjects.fCount >= Min( CurIndex, NewIndex ) then begin
     ProvideObjCapacity( max( CurIndex, NewIndex ) + 1 );
     FObjects.MoveItem( CurIndex, NewIndex );
   end;
@@ -1439,8 +1227,7 @@ begin
   // swap strings
   fList.Swap( Idx1, Idx2 );
   // swap objects
-  if FObjects.fCount >= Min( Idx1, Idx2 ) then
-  begin
+  if FObjects.fCount >= Min( Idx1, Idx2 ) then begin
     ProvideObjCapacity( max( Idx1, Idx2 ) + 1 );
     FObjects.Swap( Idx1, Idx2 );
   end;
@@ -1448,8 +1235,7 @@ end;
 
 procedure TStrListEx.ProvideObjCapacity(NewCap: Integer);
 begin
-  if FObjects.FCount < NewCap then
-  begin
+  if FObjects.FCount < NewCap then begin
     FObjects.Capacity := NewCap;
     FillChar( FObjects.FItems[ FObjects.FCount ],
               (FObjects.Capacity - FObjects.Count) * sizeof( Pointer ), 0 );
@@ -1461,8 +1247,7 @@ procedure TStrListEx.AddStrings(Strings: PStrListEx);
 var I: Integer;
 begin
   I := Count;
-  if Strings.FObjects.fCount > 0 then
-    ProvideObjCapacity( Count );
+  if Strings.FObjects.fCount > 0 then ProvideObjCapacity( Count );
   inherited AddStrings( Strings );
   if Strings.FObjects.fCount > 0 then
   begin
@@ -1494,10 +1279,7 @@ end;
 
 function TStrListEx.LastObj: DWORD;
 begin
-  if Count = 0 then
-    Result := 0
-  else
-    Result := Objects[ Count - 1 ];
+  if Count = 0 then Result := 0 else Result := Objects[ Count - 1 ];
 end;
 
 function TStrListEx.AddObject(const S: String; Obj: DWORD): Integer;
@@ -1518,183 +1300,54 @@ begin
   Result := FObjects.IndexOf( Obj );
 end;
 
-{$IFDEF CPUARM}
-     // function StrIComp(Str1, Str2 : PChar): SizeInt; genstr.inc
-     function StrComp_NoCase(const Str1, Str2 : PChar): Integer;
-     var
-      counter: SizeInt;
-      c1, c2: char;
-     Begin
-        counter := 0;
-        c1 := upcase(str1[counter]);
-        c2 := upcase(str2[counter]);
-       While c1 = c2 do
-       Begin
-         if (c1 = #0) or (c2 = #0) then break;
-         Inc(counter);
-         c1 := upcase(str1[counter]);
-         c2 := upcase(str2[counter]);
-      end;
-       StrComp_NoCase := ord(c1) - ord(c2);
-     end; 
-{$ELSE}
-function StrComp_NoCase(const Str1, Str2: PChar): Integer;
-asm
-        PUSH    EDI
-        PUSH    ESI
-        MOV     EDI,EDX
-        XCHG    ESI,EAX
-        OR      ECX, -1
-        XOR     EAX,EAX
-        REPNE   SCASB
+function StrComp_NoCase(const S1, S2 : PChar): Integer;
+var cnt: SizeInt; c1, c2: char;
+ begin
+   cnt := 0;
+   c1:= upcase(s1[cnt]); c2:= upcase(s2[cnt]);
+   while c1 = c2 do begin
+     if (c1 = #0) or (c2 = #0) then break;
+     inc(cnt);
+     c1 := upcase(s1[cnt]); c2 := upcase(s2[cnt]);
+   end;
+   StrComp_NoCase := ord(c1) - ord(c2);
+end; 
 
-        NOT     ECX
-        MOV     EDI,EDX
-  @@0:
-        XOR     EDX,EDX
-        REPE    CMPSB
-        MOV     AL,[ESI-1]
-        MOV     AH, AL
-        SUB     AH, 'a'
-        CMP     AH, 25
-        JA      @@1
-        SUB     AL, $20
-  @@1:
-        MOV     DL,[EDI-1]
-        MOV     AH, DL
-        SUB     AH, 'a'
-        CMP     AH, 25
-        JA      @@2
-        SUB     DL, $20
-  @@2:
-        MOV     AH, 0
-        SUB     EAX,EDX
-        JNZ     @@exit
-        CMP     DL, 0
-        JNZ     @@0
+function StrLComp_NoCase(const S1, S2: PChar; MaxLen: Cardinal): integer;
+var cnt: SizeInt; c1, c2: char;
+begin
+  cnt:= 0;
+  if MaxLen = 0 then begin StrLComp_NoCase:= 0; exit; end;
+  repeat
+    c1 := upcase(s1[cnt]); c2 := upcase(s2[cnt]);
+    if (c1 = #0) or (c2 = #0) then break;
+    inc(cnt);
+  until (c1 <> c2) or (cnt >= MaxLen);
+  StrLComp_NoCase := ord(c1) - ord(c2);
+end; 
 
-  @@exit:
-        POP     ESI
-        POP     EDI
-end;
-{$ENDIF}
+// function StrLComp(S1, S2 : PChar; L: SizeInt): SizeInt; genstr.inc
+ 
+function StrLComp(const S1, S2: PChar; MaxLen: Cardinal): Integer;
+var cnt: SizeInt; c1, c2: char;
+begin
+  cnt:= 0;
+  if MaxLen = 0 then begin
+    StrLComp := 0;
+    exit;
+  end;
+  repeat
+    c1 := s1[cnt];
+    c2 := s2[cnt];
+    if (c1 = #0) or (c2 = #0) then break;
+    inc(cnt);
+  until (c1 <> c2) or (cnt >= MaxLen);
+  StrLComp := ord(c1) - ord(c2);
+end; 
 
-{$IFDEF CPUARM}
-     // function StrLIComp(Str1, Str2 : PChar; L: SizeInt): SizeInt; genstr.inc
-     function StrLComp_NoCase(const Str1, Str2: PChar; MaxLen: Cardinal): Integer;
-     var
-      counter: SizeInt;
-      c1, c2: char;
-     Begin
-        counter := 0;
-       if MaxLen = 0 then
-       begin
-         StrLComp_NoCase := 0;
-         exit;
-       end;
-       Repeat
-         c1 := upcase(str1[counter]);
-         c2 := upcase(str2[counter]);
-         if (c1 = #0) or (c2 = #0) then break;
-         Inc(counter);
-      Until (c1 <> c2) or (counter >= MaxLen);
-       StrLComp_NoCase := ord(c1) - ord(c2);
-     end; 
-{$ELSE}
-function StrLComp_NoCase(const Str1, Str2: PChar; MaxLen: Cardinal): Integer;
-asm
-        PUSH    EDI
-        PUSH    ESI
-        PUSH    EBX
-        MOV     EDI,EDX
-        MOV     ESI,EAX
-        MOV     EBX,ECX
-        XOR     EAX,EAX
-        OR      ECX,ECX
-        JE      @@exit
-        REPNE   SCASB
-        SUB     EBX,ECX
-        MOV     ECX,EBX
-        MOV     EDI,EDX
-  @@0:
-        XOR     EDX,EDX
-        REPE    CMPSB
-        MOV     AL,[ESI-1]
-        MOV     AH, AL
-        SUB     AH, 'a'
-        CMP     AH, 25
-        JA      @@1
-        SUB     AL, $20
-  @@1:
-        MOV     DL,[EDI-1]
-        MOV     AH, DL
-        SUB     AH, 'a'
-        CMP     AH, 25
-        JA      @@2
-        SUB     DL, $20
-  @@2:
-        MOV     AH, 0
-        SUB     EAX,EDX
-        JECXZ   @@exit
-        JZ      @@0
-
-  @@exit:
-        POP     EBX
-        POP     ESI
-        POP     EDI
-end;
-{$ENDIF}
-
-{$IFDEF CPUARM}
-     // function StrLComp(Str1, Str2 : PChar; L: SizeInt): SizeInt; genstr.inc
-     function StrLComp(const Str1, Str2: PChar; MaxLen: Cardinal): Integer;
-     var
-      counter: SizeInt;
-      c1, c2: char;
-     Begin
-        counter := 0;
-       if MaxLen = 0 then
-       begin
-         StrLComp := 0;
-         exit;
-       end;
-       Repeat
-         c1 := str1[counter];
-         c2 := str2[counter];
-         if (c1 = #0) or (c2 = #0) then break;
-         Inc(counter);
-      Until (c1 <> c2) or (counter >= MaxLen);
-       StrLComp := ord(c1) - ord(c2);
-     end; 
-{$ELSE}
-function StrLComp(const Str1, Str2: PChar; MaxLen: Cardinal): Integer; assembler;
-asm
-        PUSH    EDI
-        PUSH    ESI
-        PUSH    EBX
-        MOV     EDI,EDX
-        MOV     ESI,EAX
-        MOV     EBX,ECX
-        XOR     EAX,EAX
-        OR      ECX,ECX
-        JE      @@1
-        REPNE   SCASB
-        SUB     EBX,ECX
-        MOV     ECX,EBX
-        MOV     EDI,EDX
-        XOR     EDX,EDX
-        REPE    CMPSB
-        MOV     AL,[ESI-1]
-        MOV     DL,[EDI-1]
-        SUB     EAX,EDX
-@@1:    POP     EBX
-        POP     ESI
-        POP     EDI
-end;
-{$ENDIF}
-
+(*
 {$IFNDEF CPUARM}
-function StrLen(const Str: PChar): Cardinal; assembler;
+function StrLen(const S: PChar): Cardinal; assembler;
 asm
         XCHG    EAX, EDI
         XCHG    EDX, EAX
@@ -1710,48 +1363,27 @@ asm
         MOV     EDI,EDX
 end;
 {$ENDIF}
+*)
 
-{$IFDEF CPUARM}
-function StrScanLen(Str: PChar; Chr: Char; Len: Integer): PChar;
-var
-   Counter: Integer;
+function StrScanLen(s: PChar; chr: Char; Len: Integer): PChar;
+var cnt: integer;
 begin
-   StrScanLen:= @(Str[Len]);
-   Counter:= 0;
+   StrScanLen:= @(s[len]);
+   cnt:= 0;
    while Len > 0 do begin
-      if Str[Counter] = Chr then begin
-         inc(Counter);
-         break;
-      end;
-      inc(Counter);
-      dec(Len);
+     if S[cnt] = chr then begin inc(cnt); break; end;
+     inc(cnt);
+     dec(len);
    end;
-   StrScanLen:= @(Str[Counter]);
+   StrScanLen:= @(s[cnt]);
 end;
-{$ELSE}
-function StrScanLen(Str: PChar; Chr: Char; Len: Integer): PChar; assembler;
-asm
-        PUSH    EDI
-        XCHG    EDI, EAX
-        XCHG    EAX, EDX
-        REPNE   SCASB
-        XCHG    EAX, EDI
-        POP     EDI
-        { -> EAX => to next character after found or to the end of Str,
-             ZF = 0 if character found. }
-end;
-{$ENDIF}
 
 procedure NormalizeUnixText( var S: String );
-var I: Integer;
+var I: integer;
 begin
-  if S <> '' then
-  begin
-    if S[ 1 ] = #10 then
-      S[ 1 ] := #13;
-    for I := 2 to Length(S) do
-      if (S[I]=#10) and (S[I-1]<>#13) then
-        S[I] := #13;
+  if S <> '' then begin
+    if S[1] = #10 then S[1] := #13;
+    for I:= 2 to Length(S) do if (S[I]=#10) and (S[I-1]<>#13) then S[I] := #13;
   end;
 end;
 
@@ -1761,33 +1393,27 @@ procedure SortData( const Data: Pointer; const uNElem: Dword;
 { uNElem - number of elements to sort }
 
   function Compare( const e1, e2 : DWord ) : Integer;
-  begin
-    Result := CompareFun( Data, e1 - 1, e2 - 1 );
+  begin Result := CompareFun( Data, e1 - 1, e2 - 1 );
   end;
 
   procedure Swap( const e1, e2 : DWord );
-  begin
-    SwapProc( Data, e1 - 1, e2 - 1 );
+  begin SwapProc( Data, e1 - 1, e2 - 1 );
   end;
 
   procedure qSortHelp(pivotP: Dword; nElem: Dword);
-  label
-    TailRecursion,
-    qBreak;
-  var
-    leftP, rightP, pivotEnd, pivotTemp, leftTemp: Dword;
-    lNum: Dword;
-    retval: integer;
+  label TailRecursion, qBreak;
+  var leftP, rightP, pivotEnd, pivotTemp, leftTemp: Dword;
+      lNum: Dword;
+      retval: integer;
   begin
     TailRecursion:
       if (nElem <= 2) then
       begin
-        if (nElem = 2) then
-          begin
+        if (nElem = 2) then begin
             rightP := pivotP +1;
             retval := Compare(pivotP,rightP);
             if (retval > 0) then Swap(pivotP,rightP);
-          end;
+        end;
         exit;
       end;
       rightP := (nElem -1) + pivotP;
@@ -1799,13 +1425,11 @@ procedure SortData( const Data: Pointer; const uNElem: Dword;
 
       if (retval > 0) then
         Swap(leftP, pivotP)
-      else
-      begin
+      else begin
         retval := Compare(pivotP,rightP);
         if retval > 0 then Swap(pivotP, rightP);
       end;
-      if (nElem = 3) then
-      begin
+      if (nElem = 3) then begin
         Swap(pivotP, leftP);
         exit;
       end;
@@ -1813,109 +1437,81 @@ procedure SortData( const Data: Pointer; const uNElem: Dword;
       pivotEnd := pivotP + 1;
       leftP := pivotEnd;
       repeat
-
         retval := Compare(leftP, pivotP);
         while (retval <= 0) do
           begin
-
-            if (retval = 0) then
-              begin
-                Swap(leftP, pivotEnd);
-                Inc(pivotEnd);
-              end;
-            if (leftP < rightP) then
-              Inc(leftP)
-            else
-              goto qBreak;
+            if (retval = 0) then begin
+              Swap(leftP, pivotEnd);
+              Inc(pivotEnd);
+            end;
+            if (leftP < rightP) then Inc(leftP) else goto qBreak;
             retval := Compare(leftP, pivotP);
           end; {while}
         while (leftP < rightP) do
-          begin
-            retval := Compare(pivotP, rightP);
-            if (retval < 0) then
-              Dec(rightP)
-
-            else
-              begin
-                Swap(leftP, rightP);
-                if (retval <> 0) then
-                  begin
-                    Inc(leftP);
-                    Dec(rightP);
-                  end;
-                break;
-              end;
-          end; {while}
-
+        begin
+          retval := Compare(pivotP, rightP);
+          if (retval < 0) then
+            Dec(rightP)
+          else begin
+            Swap(leftP, rightP);
+            if (retval <> 0) then begin inc(leftP); dec(rightP); end;
+            break;
+          end;
+        end;
       until (leftP >= rightP);
     qBreak:
       retval := Compare(leftP,pivotP);
       if (retval <= 0) then Inc(leftP);
-
       leftTemp := leftP -1;
       pivotTemp := pivotP;
-      while ((pivotTemp < pivotEnd) and (leftTemp >= pivotEnd)) do
-      begin
+      while ((pivotTemp < pivotEnd) and (leftTemp >= pivotEnd)) do begin
         Swap(pivotTemp, leftTemp);
-        Inc(pivotTemp);
-        Dec(leftTemp);
+        Inc(pivotTemp); Dec(leftTemp);
       end; {while}
       lNum := (leftP - pivotEnd);
       nElem := ((nElem + pivotP) -leftP);
-
-      if (nElem < lNum) then
-      begin
+      if (nElem < lNum) then begin
         qSortHelp(leftP, nElem);
         nElem := lNum;
-      end
-        else
-      begin
+      end else begin
         qSortHelp(pivotP, lNum);
         pivotP := leftP;
       end;
       goto TailRecursion;
     end; {qSortHelp }
-
 begin
   if (uNElem < 2) then  exit; { nothing to sort }
   qSortHelp(1, uNElem);
 end;
 
-function Parse( var S : String; const Separators : String ) : String;
+function Parse( var s: String; const Separators: String): String;
 var Pos : Integer;
 begin
-  Pos := IndexOfCharsMin( S, Separators );
-  if Pos <= 0 then
-     Pos := Length( S ) + 1;
-  Result := S;
-  S := Copy( Result, Pos + 1, MaxInt );
-  Result := Copy( Result, 1, Pos - 1 );
+  Pos:= IndexOfCharsMin(S, Separators);
+  if Pos <= 0 then Pos:= Length(S) + 1;
+  Result:= S;
+  S:= Copy(Result, Pos + 1, MaxInt);
+  Result:= Copy(Result, 1, Pos - 1);
 end;
 
 function IndexOfCharsMin( const S, Chars : String ) : Integer;
 var I, J : Integer;
 begin
   Result := -1;
-  for I := 1 to Length( Chars ) do
-  begin
+  for I := 1 to Length( Chars ) do begin
     J := IndexOfChar( S, Chars[ I ] );
-    if J > 0 then
-    begin
-      if (Result < 0) or (J < Result) then
-         Result := J;
-    end;
+    if J > 0 then begin if (Result < 0) or (J < Result) then Result := J; end;
   end;
 end;
 
 function IndexOfChar( const S : String; Chr : Char ) : Integer;
-var
-  P, F : PChar;
+var P, F : PChar;
 begin
-   P := PChar( S );
-   F := StrScan( P, Chr );
-   Result := -1;
-   if F = nil then Exit;
-   Result := Integer( F ) - Integer( P ) + 1;
+  P := PChar( S );
+  F := StrScan( P, Chr );
+  Result := -1;
+  if F = nil then Exit;
+  Result := Integer( F ) - Integer( P ) + 1;
 end;
 
 procedure DummyObjProc( Sender: PObj );
@@ -1928,166 +1524,64 @@ end;
 
 {$IFDEF WIN32}
 function AnsiCompareStr(const S1, S2: string): longint;
-begin
-  Result := CompareString(LOCALE_USER_DEFAULT, 0, PChar(S1), -1,
-    PChar(S2), -1 ) - 2;
+begin Result:= CompareString(LOCALE_USER_DEFAULT,0,PChar(S1),-1,PChar(S2), -1) - 2;
 end;
 {$ENDIF WIN32}
 
 {$IFDEF UNIX}
 function AnsiCompareStr(const S1, S2: string): integer;
-begin
-  result:=widestringmanager.CompareStrAnsiStringProc(s1,s2);
+begin result:=widestringmanager.CompareStrAnsiStringProc(s1,s2);
 end;
 {$ENDIF UNIX}
 
-{$IFDEF CPUARM}
- // function StrComp(Str1, Str2 : PChar): SizeInt; genstr.inc
-    function StrComp(const Str1, Str2: PChar): Integer;
-     var
-      counter: SizeInt;
-     Begin
-        counter := 0;
-       While str1[counter] = str2[counter] do
-       Begin
-         if (str2[counter] = #0) or (str1[counter] = #0) then
-            break;
-         Inc(counter);
-       end;
-       StrComp := ord(str1[counter]) - ord(str2[counter]);
-     end; 
-{$ELSE}
-function StrComp(const Str1, Str2: PChar): Integer; assembler;
-asm
-        PUSH    EDI
-        PUSH    ESI
-        MOV     EDI,EDX
-        XCHG    ESI,EAX
-        OR      ECX, -1
-        XOR     EAX,EAX
-        REPNE   SCASB
-        NOT     ECX
-        MOV     EDI,EDX
-        XOR     EDX,EDX
-        REPE    CMPSB
-        MOV     AL,[ESI-1]
-        MOV     DL,[EDI-1]
-        SUB     EAX,EDX
-        POP     ESI
-        POP     EDI
-end;
-{$ENDIF}
+
+function StrComp(const s1, s2: PChar): Integer;
+var cnt: SizeInt;
+begin
+  cnt:= 0;
+  while s1[cnt] = s2[cnt] do begin
+    if (s2[cnt] = #0) or (s1[cnt] = #0) then break; 
+    inc(cnt);
+  end;
+  StrComp := ord(s1[cnt]) - ord(s2[cnt]);
+end; 
+
 
 {$ifdef fpc}
 function strmove(dest,source : pchar;l : SizeInt) : pchar;
-begin
-  move(source^,dest^,l);
-  strmove:=dest;
+begin move(source^,dest^,l); strmove:= dest;
 end;
 
 function StrPCopy(Dest: PChar; Source: string): PChar;
-begin
-  result:= StrMove(Dest, PChar(Source), length(Source)+1);
+begin result:= StrMove(Dest, PChar(Source), length(Source)+1);
 end ;
 {$endif}
 
-{$IFDEF CPUARM}
- // function StrScan(P: PChar; C: Char): PChar; genstr.inc
-  function StrScan(Str: PChar; Chr: Char): PChar;
-   Var
-     count: SizeInt;
-  Begin
-
-   count := 0;
-   { As in Borland Pascal , if looking for NULL return null }
-   if Chr = #0 then
-   begin
-     StrScan := @(Str[StrLen(Str)]);
-     exit;
-   end;
+function StrScan(S: PChar; Chr: Char): PChar;
+var cnt: SizeInt;
+begin
+   cnt := 0;
+   { if looking for null, return null }
+   if Chr = #0 then begin StrScan := @(S[StrLen(S)]); exit; end;
    { Find first matching character of Ch in Str }
-   while Str[count] <> #0 do
-   begin
-     if Chr = Str[count] then
-      begin
-          StrScan := @(Str[count]);
-          exit;
-      end;
-     Inc(count);
+   while S[cnt] <> #0 do begin
+     if Chr = S[cnt] then begin
+        StrScan := @(S[cnt]);
+        exit;
+     end;
+     Inc(cnt);
    end;
    { nothing found. }
    StrScan := nil;
- end; 
-{$ELSE}
-function StrScan(Str: PChar; Chr: Char): PChar; assembler;
-asm
-        PUSH    EDI
-        PUSH    EAX
-        MOV     EDI,Str
-        OR      ECX, -1
-        XOR     AL,AL
-        REPNE   SCASB
-        NOT     ECX
-        POP     EDI
-        XCHG    EAX, EDX
-        REPNE   SCASB
+end; 
 
-        XCHG    EAX, EDI
-        POP     EDI
-
-        JE      @@1
-        XOR     EAX, EAX
-        RET
-
-@@1:    DEC     EAX
-end;
-{$ENDIF}
-
-{$IFDEF CPUARM}
 function Min( X, Y: Integer ): Integer;
-begin
-   if X < Y then
-      Min:= X
-   else
-      Min:= Y;   
+begin if X < Y then Min:= X else Min:= Y;   
 end;
-{$ELSE}
-function Min( X, Y: Integer ): Integer;
-asm
-  {$IFDEF USE_CMOV}
-  CMP   EAX, EDX
-  CMOVG EAX, EDX
-  {$ELSE}
-  CMP EAX, EDX
-  JLE @@exit
-  MOV EAX, EDX
-@@exit:
-  {$ENDIF}
-end;
-{$ENDIF}
 
-{$IFDEF CPUARM}
 function Max( X, Y: Integer ): Integer;
-begin
-   if X > Y then
-      Max:= X
-   else
-      Max:= Y;   
+begin if X > Y then Max:= X else Max:= Y;   
 end;
-{$ELSE}
-function Max( X, Y: Integer ): Integer;
-asm
-  {$IFDEF USE_CMOV}
-  CMP EAX, EDX
-  CMOVL EAX, EDX
-  {$ELSE}
-  CMP EAX, EDX
-  JGE @@exit
-  MOV EAX, EDX
-@@exit:
-  {$ENDIF}
-end;
-{$ENDIF}
 
 {$ifndef fpc} // not needed for fpc, defined in system
 function StrPCopy(Dest: PChar; const Source: string): PChar;
@@ -2132,8 +1626,7 @@ var I : Integer;
 begin
   Result := S;
   for I := 1 to Length( S ) do
-    if Result[ I ] in [ 'A'..'Z' ] then
-       Inc( Result[ I ], 32 );
+    if Result[ I ] in [ 'A'..'Z' ] then Inc( Result[ I ], 32 );
 end;
 
 function UpperCase(const S: string): string;
@@ -2141,10 +1634,8 @@ var I : Integer;
 begin
   Result := S;
   for I := 1 to Length( S ) do
-    if Result[ I ] in [ 'a'..'z' ] then
-       Dec( Result[ I ], 32 );
+    if Result[ I ] in [ 'a'..'z' ] then Dec( Result[ I ], 32 );
 end;
-
 {$ENDIF NOT FPC}
 
 function Int2Str( Value : Integer ) : string;
@@ -2156,23 +1647,26 @@ begin
   Dst := @Buf[ 15 ];
   Dst^ := #0;
   Minus := False;
-  if Value < 0 then
-  begin
+  if Value < 0 then begin
     Value := -Value;
     Minus := True;
   end;
-  D := Value;
+  D:= Value;
   repeat
     Dec( Dst );
     Dst^ := Char( (D mod 10) + Byte( '0' ) );
     D := D div 10;
   until D = 0;
-  if Minus then
-  begin
+  if Minus then begin
     Dec( Dst );
     Dst^ := '-';
   end;
   Result := Dst;
+end;
+ 
+{ alias for int2str: simpler, keeps ugly casts reduced in application code } 
+function i2s(i: integer): string;
+begin result:= int2str(i);
 end;
 
 end.
