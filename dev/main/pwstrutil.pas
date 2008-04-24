@@ -146,11 +146,13 @@ function AdjustLineBreaks(const S: string): string; overload;
 function AdjustLineBreaks(const S: string; Style: TTextLineBreakStyle): string; overload;
 function IsValidIdent(const Ident: string): boolean;
 
+function i2s(value: integer): string; overload;
+function i2s(value: int64): string; overload;
 
-function IntToStr(Value: integer): string; overload;
-function IntToStr(Value: int64): string; overload;
+function IntToStr(value: integer): string; overload;
+function IntToStr(value: int64): string; overload;
 {$IFDEF FPC}
-  function IntToStr(Value: QWord): string; overload;
+  function IntToStr(value: QWord): string; overload;
 {$ENDIF}
 
 
@@ -423,45 +425,57 @@ begin
   Result:=CompareText(S1,S2)=0;
 end;
 
-{ IntToStr returns a string representing Value    }
-function IntToStr(value: integer): string;
+{ returns a string representing integer Value  }
+function IntToStr(value: integer): string; overload;
 begin
   System.Str(value, result);
 end ;
 
-function IntToStr(value: int64): string;
+function IntToStr(value: int64): string; overload;
 begin
   System.Str(value, result);
 end ;
 
-{ wrapper for fpc/delphi lowercase function }
-function Lcase(const s: astr): astr;
+{ elegant alias }
+function i2s(value: integer): string; overload;
 begin
- {$IFDEF FPC} result:= system.lowercase(s);
- {$ELSE}      result:= lowercase(s);
- {$ENDIF}
-end;
+  result:= IntToStr(i);
+end ;
 
-{ wrapper for fpc/delphi uppercase function }
-function Ucase(const s: astr): astr;
+function i2s(value: int64): string; overload;
 begin
- {$IFDEF FPC}result:= system.upcase(s);
- {$ELSE}     result:= uppercase(s);
- {$ENDIF}
-end;
-
-
-function BoolToStr(b: boolean): string;
-begin
-  if b then result:='TRUE' else result:='FALSE';
-end;
+  result:= IntToStr(i);
+end ;
 
 {$IFDEF FPC}
  function IntToStr(value: QWord): string;
  begin
    System.Str(value, result);
  end ;
+
+ function i2s(value: QWord): string;
+ begin
+   result:= IntToStr(i);
+ end ;
 {$ENDIF}
+
+
+{ elegant wrapper for fpc/delphi lowercase function }
+function Lcase(const s: astr): astr;
+begin
+ {$IFDEF FPC}result:= system.lowercase(s);{$ELSE}result:= lowercase(s);{$ENDIF}
+end;
+
+{ elegant wrapper for fpc/delphi uppercase function }
+function Ucase(const s: astr): astr;
+begin
+ {$IFDEF FPC}result:= system.upcase(s);{$ELSE}result:= uppercase(s);{$ENDIF}
+end;
+
+function BoolToStr(b: boolean): string;
+begin
+  if b then result:='TRUE' else result:='FALSE';
+end;
 
 {   Trim returns a copy of S with blanks characters on the left and right stripped off   }
 const WhiteSpace = [' ',#10,#13,#9];
@@ -480,10 +494,10 @@ end ;
 function TrimLeft(const S: string): string;
 var i,l:integer;
 begin
-  l := length(s);
+  L:= length(s);
   i := 1;
-  while (i<=l) and (s[i] in whitespace) do inc(i);
-  Result := copy(s, i, l);
+  while (i<=L) and (s[i] in whitespace) do inc(i);
+  result:= copy(s, i, L);
 end ;
 
 {   TrimRight returns a copy of S with all blank characters on the right stripped off  }
@@ -505,22 +519,21 @@ end ;
 {   AnsiQuotedStr returns S quoted left and right by Quote,
     and every single occurance of Quote replaced by two   }
 function AnsiQuotedStr(const S: string; Quote: char): string;
-var i, j, count: integer;
+var i, j, cnt: integer;
 begin
-result := '' + Quote;
-count := length(s);
-i := 0;
-j := 0;
-while i < count do begin
-   i := i + 1;
-   if S[i] = Quote then begin
+  result:= '' + Quote;
+  cnt:= length(s);
+  i:= 0;
+  j:= 0;
+  while i < cnt do begin
+    i:= i+1;
+    if S[i] = Quote then begin
       result := result + copy(S, 1 + j, i - j) + Quote;
       j := i;
-      end ;
-   end ;
-if i <> j then
-   result := result + copy(S, 1 + j, i - j);
-result := result + Quote;
+    end ;
+  end ;
+  if i <> j then result := result + copy(S, 1 + j, i - j);
+  result:= result + Quote;
 end ;
 
 {   AnsiExtractQuotedStr returns a copy of Src with quote characters
@@ -750,16 +763,15 @@ end ;
 {-- copy/pasted DIRECTLY from freepascal sources ------------------------------}
 { ansistrings! if using shortstrings use strings.pp unit included with fpc }
 function StrPLCopy(Dest: PChar; Source: string; MaxLen: SizeUInt): PChar;
-var Count: SizeUInt;
+var cnt: SizeUInt;
 begin
   result := Dest;
   if (Result <> Nil) and (MaxLen <> 0) then
   begin
-    Count := Length(Source);
-    if Count > MaxLen then
-      Count := MaxLen;
-    StrMove(Dest, PChar(Source), Count);
-    CharArray(result^)[Count] := #0;  { terminate ! }
+    cnt := Length(Source);
+    if cnt > MaxLen then cnt := MaxLen;
+    StrMove(Dest, PChar(Source), cnt);
+    CharArray(result^)[cnt] := #0;  { terminate ! }
   end ;
 end ;
 
@@ -995,33 +1007,28 @@ end ;
     S1 > S2  > 0
     S1 = S2  = 0     }
 function CompareStr(const S1, S2: string): Integer;
-var count, count1, count2: integer;
+var cnt, cnt1, cnt2: integer;
 begin
   result := 0;
-  Count1 := Length(S1);
-  Count2 := Length(S2);
-  if Count1>Count2 then
-    Count:=Count2
-  else
-    Count:=Count1;
-  result := CompareMemRange(Pointer(S1),Pointer(S2), Count);
-  if result=0 then
-    result:=Count1-Count2;
+  cnt1 := Length(S1);
+  cnt2 := Length(S2);
+  if cnt1>cnt2 then cnt:= cnt2 else cnt:= cnt1;
+  result := CompareMemRange(Pointer(S1),Pointer(S2), cnt);
+  if result=0 then result:= cnt1-cnt2;
 end;
 
 
 function StrCopy(Dest, Source:PChar): PChar;
-var
- counter : SizeInt;
+var cnt : SizeInt;
 Begin
- counter := 0;
- while Source[counter] <> #0 do
+ cnt := 0;
+ while Source[cnt] <> #0 do
  begin
-   Dest[counter] := char(Source[counter]);
-   Inc(counter);
+   Dest[cnt] := char(Source[cnt]);
+   Inc(cnt);
  end;
  { terminate the string }
- Dest[counter] := #0;
+ Dest[cnt] := #0;
  StrCopy := Dest;
 end;
 
@@ -1029,120 +1036,113 @@ function StrECopy(Dest, Source: PChar): PChar;
 { Equivalent to the following:                                          }
 {  strcopy(Dest,Source);                                                }
 {  StrECopy := StrEnd(Dest);                                            }
-var
- counter : SizeInt;
+var cnt : SizeInt;
 Begin
- counter := 0;
- while Source[counter] <> #0 do
+ cnt := 0;
+ while Source[cnt] <> #0 do
  begin
-   Dest[counter] := char(Source[counter]);
-   Inc(counter);
+   Dest[cnt] := char(Source[cnt]);
+   Inc(cnt);
  end;
  { terminate the string }
- Dest[counter] := #0;
- StrECopy:=@(Dest[counter]);
+ Dest[cnt] := #0;
+ StrECopy:=@(Dest[cnt]);
 end;
 
 function StrLCopy(Dest,Source: PChar; MaxLen: SizeInt): PChar;
-var
- counter: SizeInt;
+var cnt: SizeInt;
 Begin
- counter := 0;
+ cnt := 0;
  { To be compatible with BP, on a null string, put two nulls }
  If Source[0] = #0 then
  Begin
    Dest[0]:=Source[0];
-   Inc(counter);
+   Inc(cnt);
  end;
- while (Source[counter] <> #0)  and (counter < MaxLen) do
+ while (Source[cnt] <> #0)  and (cnt < MaxLen) do
  Begin
-    Dest[counter] := char(Source[counter]);
-    Inc(counter);
+    Dest[cnt] := char(Source[cnt]);
+    Inc(cnt);
  end;
  { terminate the string }
- Dest[counter] := #0;
+ Dest[cnt] := #0;
  StrLCopy := Dest;
 end;
 
 Function StrEnd(P: PChar): PChar;
-var
-counter: SizeInt;
+var cnt: SizeInt;
 begin
- counter := 0;
- while P[counter] <> #0 do
-    Inc(counter);
- StrEnd := @(P[Counter]);
+ cnt := 0;
+ while P[cnt] <> #0 do inc(cnt);
+ StrEnd := @(P[cnt]);
 end;
 
 function StrComp(Str1, Str2 : PChar): SizeInt;
-var
-counter: SizeInt;
+var cnt: SizeInt;
 Begin
-  counter := 0;
- While str1[counter] = str2[counter] do
- Begin
-   if (str2[counter] = #0) or (str1[counter] = #0) then
-      break;
-   Inc(counter);
+ cnt:= 0;
+ while str1[cnt] = str2[cnt] do begin
+   if (str2[cnt] = #0) or (str1[cnt] = #0) then break;
+   inc(cnt);
  end;
- StrComp := ord(str1[counter]) - ord(str2[counter]);
+ StrComp := ord(str1[cnt]) - ord(str2[cnt]);
 end;
 
 function StrLComp(Str1, Str2 : PChar; L: SizeInt): SizeInt;
 var
-counter: SizeInt;
+cnt: SizeInt;
 c1, c2: char;
 Begin
-  counter := 0;
+  cnt := 0;
  if L = 0 then
  begin
    StrLComp := 0;
    exit;
  end;
  Repeat
-   c1 := str1[counter];
-   c2 := str2[counter];
+   c1 := str1[cnt];
+   c2 := str2[cnt];
    if (c1 = #0) or (c2 = #0) then break;
-   Inc(counter);
-Until (c1 <> c2) or (counter >= L);
+   Inc(cnt);
+Until (c1 <> c2) or (cnt >= L);
  StrLComp := ord(c1) - ord(c2);
 end; 
 
 function StrIComp(Str1, Str2 : PChar): SizeInt;
 var
-counter: SizeInt;
+cnt: SizeInt;
 c1, c2: char;
 Begin
-  counter := 0;
-  c1 := upcase(str1[counter]);
-  c2 := upcase(str2[counter]);
+  cnt := 0;
+  c1 := upcase(str1[cnt]);
+  c2 := upcase(str2[cnt]);
  While c1 = c2 do
  Begin
    if (c1 = #0) or (c2 = #0) then break;
-   Inc(counter);
-   c1 := upcase(str1[counter]);
-   c2 := upcase(str2[counter]);
+   Inc(cnt);
+   c1 := upcase(str1[cnt]);
+   c2 := upcase(str2[cnt]);
 end;
  StrIComp := ord(c1) - ord(c2);
 end; 
 
 function StrLIComp(Str1, Str2 : PChar; L: SizeInt): SizeInt;
 var
-counter: SizeInt;
+cnt: SizeInt;
 c1, c2: char;
 Begin
-  counter := 0;
+  cnt := 0;
  if L = 0 then
  begin
    StrLIComp := 0;
    exit;
  end;
  Repeat
-   c1 := upcase(str1[counter]);
-   c2 := upcase(str2[counter]);
+   c1 := upcase(str1[cnt]);
+   c2 := upcase(str2[cnt]);
    if (c1 = #0) or (c2 = #0) then break;
-   Inc(counter);
-Until (c1 <> c2) or (counter >= L);
+   Inc(cnt);
+Until (c1 <> c2) or (cnt >= L);
  StrLIComp := ord(c1) - ord(c2);
 end; 
 
@@ -1199,28 +1199,28 @@ end;
 
 function StrUpper(P: PChar): PChar;
 var
-counter: SizeInt;
+cnt: SizeInt;
 begin
- counter := 0;
- while (P[counter] <> #0) do
+ cnt := 0;
+ while (P[cnt] <> #0) do
  begin
-   if P[Counter] in [#97..#122,#128..#255] then
-      P[counter] := Upcase(P[counter]);
-   Inc(counter);
+   if P[cnt] in [#97..#122,#128..#255] then
+      P[cnt] := Upcase(P[cnt]);
+   Inc(cnt);
  end;
  StrUpper := P;
 end; 
 
 function StrLower(P: PChar): PChar;
 var
-counter: SizeInt;
+cnt: SizeInt;
 begin
- counter := 0;
- while (P[counter] <> #0) do
+ cnt := 0;
+ while (P[cnt] <> #0) do
  begin
-   if P[counter] in [#65..#90] then
-      P[Counter] := chr(ord(P[Counter]) + 32);
-   Inc(counter);
+   if P[cnt] in [#65..#90] then
+      P[cnt] := chr(ord(P[cnt]) + 32);
+   Inc(cnt);
  end;
  StrLower := P;
 end; 
