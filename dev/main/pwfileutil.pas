@@ -86,6 +86,8 @@ function DirExists(const dir: astr): boolean;
 function GetFileAttributes(Dir: astr): dword;
 {$endif}
 
+procedure Sleep(milliseconds: Cardinal);
+
 function ExecuteProcess(const path: astr; const ComLine: astr):integer;
 function ExecuteProcess(const path: astr; const ComLine: array of astr):integer;
 
@@ -93,8 +95,6 @@ function ExecuteProcess(const path: astr; const ComLine: array of astr):integer;
 function FileExists_plain(const fname: astr): bln;
 function FileExists_read(const fname: astr): bln;
 function FileExists_readwrite(const fname: astr): bln;
-
-procedure Sleep(milliseconds: Cardinal);
 
 
 const DirSeparators : set of char = ['/','\'];
@@ -120,131 +120,17 @@ begin
   readln;
 end;
 
-{$ifdef unix}
-
-  procedure Sleep(milliseconds: Cardinal);
-  var timeout,timeoutresult : TTimespec;
-  begin
-    timeout.tv_sec:=milliseconds div 1000;
-    timeout.tv_nsec:=1000*1000*(milliseconds mod 1000);
-    fpnanosleep(@timeout,@timeoutresult);
-  end;
-
-
-  { TODO: return error as OUT param }
-  function ExecuteProcess(Const Path: astr; Const ComLine: astr):integer;
-  var
-    pid    : longint;
-    CommandLine: astr;
-    cmdline2 : ppchar;
-  //  e      : EOSError;
-  Begin
-    { always surround the name of the application by quotes
-      so that long filenames will always be accepted. But don't
-      do it if there are already double quotes!
-    }
-     cmdline2:=nil;
-     if Comline<>'' Then
-       begin
-         CommandLine:=ComLine;
-         { Make an unique copy because stringtoppchar modifies the string }
-         UniqueString(CommandLine);
-         cmdline2:= StringtoPPChar(CommandLine,1);
-         cmdline2^:= pchar(Path);
-       end
-     else
-       begin
-         getmem(cmdline2,2*sizeof(pchar));
-         cmdline2^:=pchar(Path);
-         cmdline2[1]:=nil;
-       end;
-  //  {$ifdef USE_VFORK}
-  //  pid:=fpvFork;
-  //  {$else USE_VFORK}
-    pid:=fpFork;
-  //  {$endif USE_VFORK}
-    if pid=0 then
-     begin
-     {The child does the actual exec, and then exits}
-  //    {$ifdef FPC_USE_FPEXEC}
-        fpexecv(pchar(Path),Cmdline2);
-  //    {$else}
-  //      Execl(CommandLine);
-  //    {$endif}
-       { If the execve fails, we return an exitvalue of 127, to let it be known}
-       fpExit(127);
-     end
-    else
-     if pid=-1 then         {Fork failed}
-     begin
-  //      e:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,-1]);
-  //      e.ErrorCode:=-1;
-  //      raise e;
-          exit;
-          // TODO: return error as OUT param
-     end;
-
-    { We're in the parent, let's wait. }
-    result:=WaitProcess(pid); // WaitPid and result-convert
-
-  //  {$ifdef FPC_USE_FPEXEC}
-    if Comline<>'' Then
-      freemem(cmdline2);
-  //  {$endif}
-
-    if (result<0) or (result=127) then begin
-  //    E:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,result]);
-  //    E.ErrorCode:=result;
-  //    Raise E;
-        exit;
-        // TODO: return error as OUT param
-    end;
-  End;
-
-
-  function ExecuteProcess(Const Path: astr; Const ComLine: array Of astr):integer;
-  var pid    : longint;
-     //  e : EOSError;
-  Begin
-    pid:=fpFork;
-    if pid=0 then begin
-       {The child does the actual exec, and then exits}
-        fpexecl(Path,Comline);
-       { If the execve fails, we return an exitvalue of 127, to let it be known}
-       fpExit(127);
-    end else if pid=-1 then         {Fork failed}
-    begin
-      //e:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,-1]);
-      //e.ErrorCode:=-1;
-      //raise e;
-      exit;
-    end;
-
-    { We're in the parent, let's wait. }
-    result:=WaitProcess(pid); // WaitPid and result-convert
-
-    if (result<0) or (result=127) then begin
-      //    E:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,result]);
-      //    E.ErrorCode:=result;
-      //    raise E;
-      exit;
-    end;
-  end;
-
-{$endif unix}
-
 {$ifdef windows}
+  procedure Sleep(milliseconds: Cardinal);
+  begin
+    windows.sleep(milliseconds);
+  end;
 
-procedure Sleep(milliseconds: Cardinal);
-begin
-  windows.sleep(milliseconds);
-end;
-
-function GetFileAttributes(dir: astr): dword;
-begin
-  result:=GetFileAttributesA(PChar(dir));
-end;
-
+  function GetFileAttributes(dir: astr): dword;
+  begin
+    result:=GetFileAttributesA(PChar(dir));
+  end;
+{$endif}
 
 {  By JKP and L505 (license: public domain) }
 function OpenFile(var F: TFileOfChar; const fname: astr; mode: char): boolean;
@@ -389,6 +275,119 @@ end;
 
 { BEGIN: FROM FPC SYSUTILS }
 
+{$ifdef unix}
+
+  procedure Sleep(milliseconds: Cardinal);
+  var timeout,timeoutresult : TTimespec;
+  begin
+    timeout.tv_sec:=milliseconds div 1000;
+    timeout.tv_nsec:=1000*1000*(milliseconds mod 1000);
+    fpnanosleep(@timeout,@timeoutresult);
+  end;
+
+
+  { TODO: return error as OUT param }
+  function ExecuteProcess(Const Path: astr; Const ComLine: astr):integer;
+  var
+    pid    : longint;
+    CommandLine: astr;
+    cmdline2 : ppchar;
+  //  e      : EOSError;
+  Begin
+    { always surround the name of the application by quotes
+      so that long filenames will always be accepted. But don't
+      do it if there are already double quotes!
+    }
+     cmdline2:=nil;
+     if Comline<>'' Then
+       begin
+         CommandLine:=ComLine;
+         { Make an unique copy because stringtoppchar modifies the string }
+         UniqueString(CommandLine);
+         cmdline2:= StringtoPPChar(CommandLine,1);
+         cmdline2^:= pchar(Path);
+       end
+     else
+       begin
+         getmem(cmdline2,2*sizeof(pchar));
+         cmdline2^:=pchar(Path);
+         cmdline2[1]:=nil;
+       end;
+  //  {$ifdef USE_VFORK}
+  //  pid:=fpvFork;
+  //  {$else USE_VFORK}
+    pid:=fpFork;
+  //  {$endif USE_VFORK}
+    if pid=0 then
+     begin
+     {The child does the actual exec, and then exits}
+  //    {$ifdef FPC_USE_FPEXEC}
+        fpexecv(pchar(Path),Cmdline2);
+  //    {$else}
+  //      Execl(CommandLine);
+  //    {$endif}
+       { If the execve fails, we return an exitvalue of 127, to let it be known}
+       fpExit(127);
+     end
+    else
+     if pid=-1 then         {Fork failed}
+     begin
+  //      e:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,-1]);
+  //      e.ErrorCode:=-1;
+  //      raise e;
+          exit;
+          // TODO: return error as OUT param 
+     end;
+
+    { We're in the parent, let's wait. }
+    result:=WaitProcess(pid); // WaitPid and result-convert
+
+  //  {$ifdef FPC_USE_FPEXEC}
+    if Comline <> '' then freemem(cmdline2);
+  //  {$endif}
+
+    if (result<0) or (result=127) then begin
+  //    E:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,result]);
+  //    E.ErrorCode:=result;
+  //    Raise E;
+        exit;
+        // TODO: return error as OUT param
+    end;
+  End;
+
+
+  function ExecuteProcess(Const Path: astr; Const ComLine: array Of astr):integer;
+  var pid    : longint;
+     //  e : EOSError;
+  Begin
+    pid:=fpFork;
+    if pid=0 then begin
+       {The child does the actual exec, and then exits}
+        fpexecl(Path,Comline);
+       { If the execve fails, we return an exitvalue of 127, to let it be known}
+       fpExit(127);
+    end else if pid=-1 then         {Fork failed}
+    begin
+      //e:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,-1]);
+      //e.ErrorCode:=-1;
+      //raise e;
+      exit;
+    end;
+
+    { We're in the parent, let's wait. }
+    result:=WaitProcess(pid); // WaitPid and result-convert
+
+    if (result<0) or (result=127) then begin
+      //    E:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,result]);
+      //    E.ErrorCode:=result;
+      //    raise E;
+      exit;
+    end;
+  end;
+
+{$endif unix}
+
+{$ifdef windows}
 { todo: return OUT param for error code }
 function ExecuteProcess(Const Path: astr; Const ComLine: astr):integer;
 var
