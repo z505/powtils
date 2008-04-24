@@ -1,43 +1,73 @@
 { Modified March 2008 by Lars Olson. Aservia (web server).
   Based on nYume Server }
-
-
-Program aservia;
-{$mode Delphi}
-{$SMARTLINK ON}
-{$LONGSTRINGS ON}
-
+program aservia; {$ifdef fpc}{$mode delphi}{$H+}{$endif}
 uses
   {$ifdef unix}cthreads, baseunix, unix,{$endif} 
   {$ifdef windows}windows,{$endif}
   zserver, cfgfile, pwfileutil, pwstrutil, pwtypes, shell;
 
-{$Include lang.inc}
+{$include lang.inc}
 
 // NOTE: MUST BE 1.0 SINCE IT DOESN'T SUPPORT ALL 1.1 FEATURES YET
 const HTTP_VERSION = 'HTTP/1.0';
-
+      ERR_404_MSG  = '404 File not found';
+      ERR_403_MSG  = '403 Access denied';
+      DOC_ROOT     = 'DOCUMENT_ROOT';
+      SCRIPT_NAME  = 'SCRIPT_NAME';
+      REQ_METHOD   = 'REQUEST_METHOD';
+      QUERY_STRING = 'QUERY_STRING';
+      SERV_SOFT    = 'SERVER_SOFTWARE';
+      REMOTE_ADDR  = 'REMOTE_ADDR';
 var
   server   : TzServer;
-  str1     : string;
+  str1     : astr;
   critical : TRTLCriticalSection;
   fl       : text;
   mimecfg, vhostcfg: TCfgFile;  
-  logflname: string;
-  filedir  : string;
-  ip       : string;
+  logflname: astr;
+  filedir  : astr;
+  ip       : astr;
   port     : word;
   handle   : cardinal;
   newlog   : boolean;
-  defaultfl: string;
-  error404 : string;
-  error403 : string;
-  blacklist: array of string;
+  idxpg: astr; // default index page
+  error404 : astr;
+  error403 : astr;
+  blacklist: array of astr;
   needStopServer: boolean = false;
+
+{ debugging to console }
+procedure dbugln(s: astr); overload;
+begin
+  writeln('DEBUG: ', s);
+end;
+
+procedure dbugln(s1, s2: astr); overload;
+begin
+  dbugln(s1+s2);
+end;
+
+procedure DeleteTrailingHttpVersion(var s: string);
+var found: integer;
+
+  procedure removestr;
+  begin
+    if found > 0 then delete(s, found, (length(s)-found) +1);  
+  end;
+
+begin
+  found:= pos(' HTTP/1.', s);
+  removestr;
+  found:= pos(' HTTP/2.', s);   // future proof 
+  removestr;
+  found:= pos(' HTTP/3.', s);   // future proof 
+  removestr;
+end;
+
 
 { user commands to stop server with keyboard at console }
 function needStop(p: pointer): longint;
-var s: string;
+var s: astr;
 begin
   s:= '';
   repeat
@@ -49,86 +79,93 @@ begin
   Result := 0;
 end;
   
-function parceRequest(req: string): string;
+function parceRequest(req: astr): astr;
+  { wrapper for pos() }
+  function found(sub, instr: astr): bln;
+  begin
+    result:= false;
+    if pos(sub, instr) <> 0 then result:= true;
+  end;
+
 var
-  strings: array of string;
-  postd  : string;
-  i      : integer;
+  strings: array of astr; 
+  postd: astr; 
+  i: integer;
 begin
   Result := '';
   SetLength(strings, 0);
-
-  i := pos(#13#10, req);
+  i:= pos(#13#10, req);
   while i <> 0 do begin
     SetLength(strings, Length(strings) + 1);
     strings[Length(strings) - 1] := copy(req, 1, i - 1);
-    delete(req, 1, i + 1);
-    i := pos(#13#10, req);
+    delete(req, 1, i+1);
+    i:= pos(#13#10, req);
   end;
 
   if Length(strings) > 0 then
-  for i := 0 to Length(strings) - 1 do
+  for i:= 0 to Length(strings) - 1 do
   begin
-    if pos('GET ', strings[i]) <> 0 then begin
-      Result := strings[i];
-      delete(Result, 1, 4);
-      addenv('REQUEST_METHOD', 'GET');
+    if found('GET ', strings[i]) then begin
+      result:= strings[i];
+      // trim first 'GET ' part
+      delete(result, 1, 4);
+      addenv(REQ_METHOD, 'GET');
     end
-    else if pos('POST ', strings[i]) <> 0 then
+    else if found('POST ', strings[i]) then
     begin
-      Result := strings[i];
-      delete(Result, 1, 5);
+      result:= strings[i];
+      // trim first 'POST ' part
+      delete(result, 1, 5);
       filedir := '';
       postd := copy(req, pos(#13#10#13#10, req), length(req));
       postd := StringReplace(postd, '&', ';', [rfReplaceAll]);
       {$ifdef mswindows}postd := StringReplace(postd, '%', '%%', [rfReplaceAll]);{$endif}
-      addenv('QUERY_STRING', postd);
-      addenv('REQUEST_METHOD', 'POST');
-    end
-    else if pos('User-Agent:', strings[i]) <> 0 then begin
+      addenv(QUERY_STRING, postd);
+      addenv(REQ_METHOD, 'POST');
+    end else if found('User-Agent:', strings[i]) then begin
       delete(strings[i], 1, 12);
       addEnv('HTTP_USER_AGENT', strings[i]);
-    end else if pos('Host:', strings[i]) <> 0 then begin
+    end else if found('Host:', strings[i]) then begin
       delete(strings[i], 1, 6);
       if pos(':', strings[i]) <> 0 then
         strings[i] := copy(strings[i], 1, pos(':', strings[i]) - 1);
       addEnv('HTTP_HOST', strings[i]);
       filedir := strings[i];
-    end else if pos('Referer:', strings[i]) <> 0 then begin
+    end else if found('Referer:', strings[i]) then begin
       delete(strings[i], 1, 9);
       addEnv('HTTP_REFERER', strings[i]);
     end;
   end;
 
-  Result := StringReplace(Result, ' '+HTTP_VERSION, '', [rfIgnoreCase]);
-  if (Result = '') or (Result[Length(Result)] = '/') then Result += defaultfl;
+  DeleteTrailingHttpVersion(result);
+  if (result = '') or (result[Length(Result)] = '/') then result += idxpg;
 end;
   
-function gettype(filename: string): string;
-var ext  : string;
-    def  : string;
+function gettype(fname: astr): astr;
+var ext  : astr;
+    def  : astr;
 begin
   def:= mimecfg.getOption('default', 'application/force-download');;
-  ext:= LowerCase(ExtractFileExt(filename));
+  ext:= LowerCase(ExtractFileExt(fname));
   delete(ext, 1, 1);
   Result := mimecfg.getOption(ext, def);
 end;
   
-function getfile(filename: string; errcode: string = '200 OK'; 
-                 query: string = ''): string;
+function getfile(fname: astr; errcode: astr = '200 OK'; 
+                 query: astr = ''): astr;
 var
   fl   : file;
-  buf  : string;
+  buf  : astr;
   count: integer;
-  filetype  : string;
-  parameters: string = '';
+  filetype  : astr;
+  parameters: astr = '';
 begin
-  filetype := gettype(filename);
+  filetype := gettype(fname);
   if filetype <> 'execute/cgi' then
   begin
     SetLength(buf, 4096);
     Result := '';
-    Assign(fl, filename);
+    Assign(fl, fname);
     Reset(fl, 1);
     Result := HTTP_VERSION+' ' + errcode + #13#10 + 
               str_server + #13#10 +
@@ -155,14 +192,36 @@ begin
    {$endif}
     parameters := StringReplace(parameters, '&', ';', [rfReplaceAll]);
     Result := HTTP_VERSION+' '+errcode+#13#10 
-              + command(filename + ' "' + parameters + '"');
+              + command(fname + ' "' + parameters + '"');
   end;
 end;  
 
 function request(p: pointer): longint;
-var filename, name, ip: string;
-    i       : integer;
-    deny    : boolean;
+var path: astr;
+
+  function SlashDots: bln;
+  begin
+    result:= false;
+    if pos('/../', ExtractRelativepath(filedir, path)) <> 0 then result:= true; 
+  end;
+
+var
+  deny: boolean;
+
+  procedure Log;
+  begin
+   {$I-}
+    Assign(fl, logflname); Append(fl);
+    if IOResult <> 0 then Rewrite(fl);
+    writeln(fl, str_requestfrom, ip, '; '{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
+    writeln(fl, str1);
+    if deny then writeln(fl, str_denied);
+    close(fl);
+   {$I+}
+  end;
+
+var fname, name, ip: astr;
+    i: integer;
 begin
   deny:= false;
   EnterCriticalSection(critical);
@@ -173,54 +232,53 @@ begin
     writeln(str_request{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
     writeln(str1);
     ip:= server.getip(longint(p^));
-    addEnv('REMOTE_ADDR', ip);
-    addEnv('SERVER_SOFTWARE', str_server);
-    i := 0;
+    addEnv(REMOTE_ADDR, ip);
+    addEnv(SERV_SOFT, str_server);
+    i:= 0;
     while (not deny) and (i < Length(blacklist)) do begin
       if ip = blacklist[i] then begin deny := true; writeln(str_denied); end;
       inc(i);
     end;
 
-    if deny then server.swrite(getfile(error403, '403 Access denied')) else
+    if deny then server.swrite(getfile(error403, ERR_403_MSG)) else
     if str1 <> '' then
     begin
-      filename := parceRequest(str1);
-      if (filedir = '') or (filedir = ip) then
-        filedir := vhostcfg.getOption('default', '')
-      else
-        filedir := vhostcfg.getOption(filedir, vhostcfg.getOption('default', ''));
+      fname := parceRequest(str1);
+      if (filedir = '') or (filedir = ip) then 
+        filedir:= vhostcfg.getOption('default', '')
+      else begin
+        filedir:= vhostcfg.getOption(filedir, vhostcfg.getOption('default', ''));
+        filedir:= ExcludeTrailingPathDelimiter(filedir);
+      end;
+      addEnv(DOC_ROOT, filedir);
+      name:= fname;
+      dbugln('name: ', name);
+      if pos('?',fname) > 0 then name:= copy(fname,1,pos('?',fname) - 1);
 
-      addEnv('DOCUMENT_ROOT', filedir);
-      name := filename;
-      if pos('?',filename) > 0 then 
-        name:= copy(filename,1,pos('?',filename) - 1);
+      path:= filedir + name; 
+      xpath(path);
+      if (not FileThere(path)) and DirExists(path) then name:= name+'/'+idxpg;
+      addEnv(SCRIPT_NAME, name);
 
-      if (not FileThere(filedir + name, fmDefault)) 
-         and DirectoryExists(filedir + name) 
-      then name += '/' + defaultfl;
-
-      addEnv('SCRIPT_NAME', name);
-
-      if FileThere(filedir + name, fmDefault) 
-         and (pos('/../', ExtractRelativepath(filedir, filedir + name)) <> 0) 
-      then begin
-        server.swrite(getfile(error403, '403 Access denied'));
-        deny:= true;
-      end else begin 
-        if FileThere(filedir + name, fmDefault) then
-          server.swrite(getfile(filedir + name, '200 OK', filename))
-        else
-          server.swrite(getfile(error404, '404 File not found'));
+      path:= filedir + name;
+      xpath(path);
+      dbugln('path: ', path);
+      if FileThere(path) then begin
+        if SlashDots then begin
+          server.swrite(getfile(error403, ERR_403_MSG));
+          deny:= true;
+        end else 
+          server.swrite(getfile(path, '200 OK', fname))
+      end else begin
+        server.swrite(getfile(error404, ERR_404_MSG));
+        dbugln('404//////////');
+        dbugln(FileError);
+        writeln('debug:', ioresult);
       end;
     end;
-   {$I-}
-    Assign(fl, logflname); Append(fl);
-    if IOResult <> 0 then Rewrite(fl);
-    writeln(fl, str_requestfrom, ip, '; '{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
-    writeln(fl, str1);
-    if deny then writeln(fl, str_denied);
-    close(fl);
-   {$I+}
+
+    Log;
+
   finally
     server.Disconnect(longint(p^));
     LeaveCriticalSection(critical);
@@ -261,22 +319,22 @@ begin
   DoneCriticalSection(critical);
 end;
 
-procedure Err(const msg: string);
+procedure Err(const msg: astr);
 begin
   writeln(msg);
 end;
 
 procedure CreateCfgAndServer;
 
-  procedure SetupOtherCfg;
+  procedure SetupMainCfg;
   var othercfg: TCfgFile;
   begin
-    othercfg := TCfgFile.create('config.cfg');
+    othercfg:= TCfgFile.create('config.cfg');
       ip        := othercfg.getOption('ip',        '127.0.0.1');
       port      := othercfg.getOption('port',      80);
       newlog    := othercfg.getOption('deletelog', false);
       logflname := othercfg.getOption('logfile',   'connections.log');
-      defaultfl := othercfg.getOption('index',     'index.html');
+      idxpg     := othercfg.getOption('index',     'index.html');
       error404  := othercfg.getOption('error404',  'error404.html');
       error403  := othercfg.getOption('error403',  'error403.html');
     othercfg.free; othercfg:= nil;
@@ -287,12 +345,13 @@ procedure CreateCfgAndServer;
   end;
 
 begin
-  SetupOtherCfg;
-  mimecfg := TCfgFile.create('mime.cfg');
-  vhostcfg := TCfgFile.create('vhost.cfg');
-  server := TzServer.Create;
+  SetupMainCfg;
+  mimecfg:= TCfgFile.create('mime.cfg');
+  vhostcfg:= TCfgFile.create('vhost.cfg');
+  server:= TzServer.Create;
 end;
 
+{ cleanup }
 procedure FreeCfgAndServer;
 begin
   vhostcfg.Free; vhostcfg:= nil;
@@ -315,6 +374,7 @@ begin
   FreeCfgAndServer; Halt;
 end;
 
+{ initiates logs, runs thread loop }
 procedure RunServer;
 var inited: boolean;
 begin

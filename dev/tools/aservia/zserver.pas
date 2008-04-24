@@ -1,32 +1,8 @@
-{ Modified March 2008 by Lars Olson. Aservia (web server).
-  Based on nYume Server 
+{ Alexander N Zubakov  All Rights Reserved
 
-+-----------------------------------------------+------------+
- Модуль zserver 1.1                            | 17.02.2006 
-+-----------------------------------------------+------------+
- Описание:                                                  
-   В модуле содержится класс для создания сервера на основе 
-   TCP соединений                                           
-                                                            
- Использование:                                             
-   Модуль предназначен для коммерческого и некоммерческого  
-   использования.                                           
-   Вы имеете право использовать и/или модифицировать модуль 
-   по своему усмотрению. Вы не имеете права распространять  
-   этот модуль в измененном виде.                           
-                                                            
- Автор:                                      
-   Alexander N Zubakov                       
-                                             
- © 2006 Alexander N Zubakov (original author)
- © 2008 Lars Olson (modifications)
- All Rights Reserved                                      
-+------------------------------------------------------------+
-}
-unit zserver;
-{$mode Delphi}
-{$SMARTLINK ON}
-{$LONGSTRINGS ON}
+  Modified March 2008 by Lars Olson. Aservia (web server).
+  Based on nYume Server }
+unit zserver; {$ifdef fpc}{$mode delphi}{$H+}{$endif}
 interface
 uses
   Sockets;
