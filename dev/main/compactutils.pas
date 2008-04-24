@@ -537,7 +537,7 @@ end;
 procedure TObj.Add2AutoFree(Obj: PObj);
 begin
   if fAutoFree = nil then fAutoFree := NewList;
-  fAutoFree.Insert( 0, Obj );
+  fAutoFree.Insert(0, Obj);
   fAutoFree.Insert( 0, Pointer( @TObj.Free ) );
 end;
 
@@ -718,10 +718,10 @@ end;
 procedure TList.Insert(Idx: Integer; Value: Pointer);
 begin
   Assert( (Idx >= 0) and (Idx <= Count), 'List index out of bounds' );
-  Add( nil );
+  Add(nil);
   if fCount > Idx then
-     Move( FItems[ Idx ], FItems[ Idx + 1 ], (fCount - Idx - 1) * Sizeof( Pointer ) );
-  FItems[ Idx ] := Value;
+     Move(FItems[Idx], FItems[Idx+1], (fCount - Idx - 1) * Sizeof(Pointer) );
+  FItems[Idx] := Value;
 end;
 
 procedure TList.MoveItem(OldIdx, NewIdx: Integer);
@@ -787,7 +787,7 @@ end;
 function TStrList.Add(const S: string): integer;
 begin
   Result := fCount;
-  Insert( Result, S );
+  Insert(Result, S);
 end;
 
 procedure TStrList.AddStrings(Strings: PStrList);
@@ -848,8 +848,8 @@ begin
   Size := 0;
   for I := 0 to fCount - 1 do Inc(Size, StrLen( PChar(fList.fItems[I]) ) + 2);
   SetString(Result, nil, Size);
-  P := Pointer(Result);
-   for I := 0 to Count - 1 do
+  P:= Pointer(Result);
+   for I:= 0 to Count - 1 do
    begin
      Len := StrLen(PChar(fList.fItems[I]));
      if (Len > 0) then begin
@@ -866,14 +866,14 @@ end;
 function TStrList.IndexOf(const S: string): integer;
 begin
   for Result := 0 to fCount - 1 do
-    if (S = PChar( fList.Items[Result] )) then Exit;
+    if (S = PChar( fList.Items[Result] )) then exit;
   Result := -1;
 end;
 
 function TStrList.IndexOf_NoCase(const S: string): integer;
 begin
   for Result := 0 to fCount - 1 do
-    if StrComp_NoCase( PChar( S ), PChar( fList.Items[Result] ) ) = 0 then Exit;
+    if StrComp_NoCase(PChar(S), PChar(fList.Items[Result]) ) = 0 then exit;
   Result := -1;
 end;
 
@@ -881,7 +881,7 @@ end;
 function TStrList.IndexOfStrL_NoCase(s: PChar; L: Integer): integer;
 begin
   for Result := 0 to fCount - 1 do
-    if (StrLen( PChar( fList.fItems[ Result ] ) ) = DWORD( L )) and
+    if (StrLen( PChar(fList.fItems[Result]) ) = DWORD(L)) and
        (StrLComp_NoCase(S, PChar( fList.fItems[ Result ] ), L ) = 0) then Exit;
   Result := -1;
 end;
@@ -889,7 +889,7 @@ end;
 function TStrList.Find(const S: String; var Index: Integer): Boolean;
 var L, H, I, C: Integer;
 begin
-  Result := FALSE;
+  Result:= FALSE;
   L := 0;
   H := FCount - 1;
   while L <= H do
@@ -899,7 +899,7 @@ begin
     if C < 0 then L := I + 1 else
     begin
       H := I - 1;
-      if C = 0 then  begin
+      if C = 0 then begin
         Result := TRUE;
         L := I;
         //break;
@@ -914,13 +914,13 @@ procedure TStrList.Insert(Idx: integer; const S: string);
 var Mem: PChar;
     L: Integer;
 begin
-  if fList = nil then fList := NewList;
-  L := Length( S ) + 1;
-  GetMem( Mem, L );
+  if fList = nil then fList:= NewList;
+  L:= Length(S) + 1;
+  GetMem(Mem, L);
   Mem[0] := #0;
   if L > 1 then System.Move( S[1], Mem[0], L );
-  fList.Insert( Idx, Mem );
-  Inc( fCount );
+  fList.Insert(Idx, Mem);
+  Inc(fCount);
 end;
 
 {$IFDEF UNIX}
@@ -988,30 +988,29 @@ begin
 end;
 
 procedure TStrList.SetText(const S: string; Append2List: boolean);
-var P, TheLast : PChar;
-    L, I : Integer;
+var P, TheLast : PChar; L, I : Integer;
 
   procedure AddTextBuf(Src: PChar; Len: DWORD);
-  var OldTextBuf, P: PChar;
-      I : Integer;
+  var OldTextBuf, P: PChar; I : Integer;
   begin
     if Src <> nil then
     begin
       OldTextBuf := fTextBuf;
-      GetMem( fTextBuf, fTextSiz + Len );
+      GetMem(fTextBuf, fTextSiz + Len);
       if fTextSiz <> 0 then
       begin
         System.Move( OldTextBuf^, fTextBuf^, fTextSiz );
-        for I := 0 to fCount - 1 do begin
-          P := fList.fItems[ I ];
-          if (DWORD( P ) >= DWORD( OldTextBuf )) and
-             (DWORD( P ) < DWORD( OldTextBuf ) + fTextSiz) then
-            fList.fItems[ I ] := Pointer( DWORD( P ) - DWORD( OldTextBuf ) + DWORD( fTextBuf ) );
+        for I:= 0 to fCount - 1 do begin
+          P:= fList.fItems[I];
+          if (DWORD(P) >= DWORD(OldTextBuf)) and
+             (DWORD(P) < DWORD(OldTextBuf) + fTextSiz) 
+          then
+            fList.fItems[I]:= Pointer(DWORD(P) - DWORD(OldTextBuf) + DWORD(fTextBuf) );
         end;
-        FreeMem( OldTextBuf );
+        FreeMem(OldTextBuf);
       end;
-      System.Move( Src^, fTextBuf[ fTextSiz ], Len );
-      Inc( fTextSiz, Len );
+      System.Move(Src^, fTextBuf[fTextSiz], Len);
+      Inc(fTextSiz, Len);
     end;
   end;
 
@@ -1082,7 +1081,7 @@ end;
 
 function TStrList.Last: String;
 begin
-  if Count = 0 then Result := '' else Result := Items[ Count - 1 ];
+  if Count = 0 then Result:= '' else Result:= Items[ Count - 1 ];
 end;
 
 function TStrList.IndexOfName(AName: string): Integer;
@@ -1120,10 +1119,7 @@ procedure TStrList.SetValue(const AName, Value: string);
 var I: Integer;
 begin
   I := IndexOfName(AName);
-  if i=-1 then 
-    Add( AName + fNameDelim + Value ) 
-  else 
-    Items[i] := AName + fNameDelim + Value;
+  if i=-1 then Add(AName+fNameDelim+Value) else Items[i]:= AName+fNameDelim+Value;
 end;
 
 function TStrList.GetLineName(Idx: Integer): string;
