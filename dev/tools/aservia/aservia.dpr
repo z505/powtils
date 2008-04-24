@@ -252,7 +252,7 @@ begin
       end;
       addEnv(DOC_ROOT, filedir);
       name:= fname;
-      dbugln('name: ', name);
+      //      dbugln('name: ', name);
       if pos('?',fname) > 0 then name:= copy(fname,1,pos('?',fname) - 1);
 
       path:= filedir + name; 
@@ -262,7 +262,7 @@ begin
 
       path:= filedir + name;
       xpath(path);
-      dbugln('path: ', path);
+      //      dbugln('path: ', path);
       if FileThere(path) then begin
         if SlashDots then begin
           server.swrite(getfile(error403, ERR_403_MSG));
@@ -271,9 +271,6 @@ begin
           server.swrite(getfile(path, '200 OK', fname))
       end else begin
         server.swrite(getfile(error404, ERR_404_MSG));
-        dbugln('404//////////');
-        dbugln(FileError);
-        writeln('debug:', ioresult);
       end;
     end;
 
