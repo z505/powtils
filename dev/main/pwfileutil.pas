@@ -733,9 +733,7 @@ begin
   assign(fh, fname);
   reset(fh);
  {$I+}
-  //writeln('DEBUG : ioresult fileexistsplain: ', ioresult);
   if ioresult = 0 then begin 
-    writeln('DEBUG : fileexistsplain OKAY');
     result:= true; 
     close(fh); 
   end;
