@@ -8,7 +8,7 @@
   obfusticated and embedded SQL code in a program.
 
   Any programming language can access the Simple Storage Direct database,
-  usually  using a SSD dll dynamically, or by using static code if a static
+  usually  using a SDS dll dynamically, or by using static code if a static
   implentation or object file  has been written for the language.
 
   Note:
@@ -328,12 +328,10 @@ end;
 
 // Reads table column data
 function ReadCols(var fh: text; fields: longword): TSDSCols;
-var
-  i: longword;
+var i: longword;
 begin
   // read all fields including ID
-  for i := 0 to fields - 1 do
-  begin
+  for i := 0 to fields - 1 do begin
     SetLength(result, i + 1);
     readln(fh, result[i].name);
     readln(fh, result[i].dtype);
@@ -358,12 +356,10 @@ end;
 *)
 // Writes table column data
 procedure WriteCols(var fh: text; cols: TSDSCols);
-var
-  i: longword;
+var i: longword;
 begin
   // write column names
-  for i:= 0 to length(cols) - 1 do
-  begin
+  for i:= 0 to length(cols) - 1 do begin
     writeln(fh, cols[i].name);
     writeln(fh, cols[i].dtype);
   end;
@@ -397,8 +393,7 @@ begin
   tmpcols[0].name:= 'id';
   tmpcols[0].dtype:= dINT;
   // now main columns
-  for i:= 1 to length(cols^) do
-  begin
+  for i:= 1 to length(cols^) do begin
     tmpcols[i].name:= cols^[i-1].name;
     tmpcols[i].dtype:= cols^[i-1].dtype;
   end;
@@ -456,8 +451,7 @@ var
   fk: word;
 begin
   result := 0;
-  if not FileExists_plain(FromFile) then
-  begin
+  if not FileExists_plain(FromFile) then begin
     SDSerror('CreateTable: file does not exist');
     exit;
   end;
@@ -478,8 +472,7 @@ var
   fk: word;
 begin
   result := 0;
-  if not FileExists_plain(FromFile) then
-  begin
+  if not FileExists_plain(FromFile) then begin
     SDSerror('GetLastID: file does not exist');
     exit;
   end;
@@ -500,8 +493,7 @@ var
   fk: word;
 begin
   result := 0;
-  if not FileExists_plain(FromFile) then
-  begin
+  if not FileExists_plain(FromFile) then begin
     SDSerror('CountRows: file does not exist');
     exit;
   end;
@@ -542,8 +534,7 @@ var
   i: integer;
 begin
   result:=  nil;
-  if not FileExists_plain(FromFile) then
-  begin
+  if not FileExists_plain(FromFile) then begin
     SDSerror('GetColumnNames: file does not exist');
     exit;
   end;
@@ -554,8 +545,7 @@ begin
   SetLength(result, hdr.fields);
   cols:= ReadCols(fh, hdr.fields);
   // convert col names to row
-  for i:= 0 to length(cols) - 1 do
-    result[i]:= cols[i].name;
+  for i:= 0 to length(cols) - 1 do result[i]:= cols[i].name;
   close(fh);
   FileUnmarkRead(FromFile, fk);
 end;
@@ -573,8 +563,7 @@ var
 begin
   // Initializing, locking
   result := 0;
-  if not FileExists_plain(FileName) then
-  begin
+  if not FileExists_plain(FileName) then begin
     sdserror('InsertRow: file does not exist: ' + FileName);
     exit;
   end;
@@ -593,15 +582,13 @@ begin
   cols := ReadCols(fh, hdr.fields);
   WriteCols(fhn, cols);
   // Copying table contents
-  while not eof(fh) do
-  begin
+  while not eof(fh) do begin
     readln(fh, buff);
     writeln(fhn, buff);
   end;
   // Converting fields and values into a single row
   SetLength(tmprow, hdr.fields);
-  for i:= 0 to length(Fields^) - 1 do
-  begin
+  for i:= 0 to length(Fields^) - 1 do begin
     // time right now converted to string
     if uppercase(Fields^[i]) = 'NOW' then
     begin
@@ -642,8 +629,7 @@ var
   buff: string;
 begin
 
-  if not FileExists_plain(FileName) then
-  begin
+  if not FileExists_plain(FileName) then begin
     sdserror('InsertRow: file does not exist: ' + FileName);
     exit;
   end;
@@ -669,8 +655,7 @@ begin
   WriteCols(result.tmpfile, result.cols); // Copy cols to tmpfile, they stay unmodified
 
   { Copy existing table rows to tmpfile, they stay unmodified }
-  while not eof(result.dbfile) do
-  begin
+  while not eof(result.dbfile) do begin
     readln(result.dbfile, buff);
     writeln(result.tmpfile, buff);
   end;
@@ -703,8 +688,7 @@ begin
       else
         tmprow[i+1] := Fields[i];
       end;
-    end else
-    begin
+    end else begin
       tmprow[i+1] := Fields[i]; // i + 1 row [0] filled in with ID below
 //      sdserror(tmprow[i+1] {+ '  ' + Fields[i]});
     end;
@@ -849,8 +833,7 @@ var
 begin
   result := 0;
   field:= 0;
-  if not FileExists_plain(FromFile) then
-  begin
+  if not FileExists_plain(FromFile) then begin
     sdserror('MatchedRows: file does not exist');
     exit;
   end;
@@ -862,11 +845,9 @@ begin
   cols := ReadCols(fh, hdr.fields);
   for cnt := 0 to (hdr.fields - 1) do
     if cols[cnt].name = where then field := cnt;
-  while not eof(fh) do
-  begin
+  while not eof(fh) do begin
     row := ReadRow(fh, hdr.fields);
-    if row[field] = equals then
-      inc(result);
+    if row[field] = equals then inc(result);
   end;
   close(fh);
   FileUnmarkRead(FromFile, fk);
@@ -884,8 +865,7 @@ var
 begin
   result:= nil;
   field:= 0;
-  if not FileExists_plain(FromFile) then
-  begin
+  if not FileExists_plain(FromFile) then begin
     sdserror('SelectRow: file does not exist');
     exit;
   end;
@@ -898,11 +878,9 @@ begin
   for cnt := 0 to (hdr.fields - 1) do
     if cols[cnt].name = where then field:= cnt;
   SetLength(row, hdr.fields);
-  while not eof(fh) do
-  begin
+  while not eof(fh) do begin
     row := ReadRow(fh, hdr.fields);
-    if row[field] = equals then
-    begin
+    if row[field] = equals then begin
       result:= row;
       break;
     end;
@@ -924,8 +902,7 @@ begin
   result:= '';
   whr:= 0;
   col:= 0;
-  if not FileExists_plain(FromFile) then
-  begin
+  if not FileExists_plain(FromFile) then begin
     sdserror('SelectField: file does not exist');
     exit;
   end;
@@ -937,13 +914,11 @@ begin
   cols:= Readcols(fh, hdr.fields);
   for cnt:= 0 to (hdr.fields - 1) do
   begin
-    if cols[cnt].name = field then
-    begin
+    if cols[cnt].name = field then begin
       col:= cnt;
 //      writeln('debug: col: ', col);
     end;
-    if cols[cnt].name = where then
-    begin
+    if cols[cnt].name = where then begin
       whr:= cnt;
 //      writeln('debug: whr: ', whr);
     end;
@@ -953,8 +928,7 @@ begin
   while not eof(fh) do
   begin
     row:= ReadRow(fh, hdr.fields);
-    if row[whr] = equals then
-    begin
+    if row[whr] = equals then begin
       result:= row[col];
       break;
     end;
@@ -976,8 +950,7 @@ var
 begin
   result:= 0;
   field:= 0;
-  if not FileExists_plain(FileName) then
-  begin
+  if not FileExists_plain(FileName) then begin
     sdserror('UpdateRow: file does not exist');
     exit;
   end;
@@ -1005,15 +978,12 @@ begin
     if tmprow[field] = equals then
     begin
       // incoming row^ has no id, move it into a array prepeneding the ID in [0]
-      for i:= 0 to length(row^)-1 do
-      begin
-        idrow[i+1]:= row^[i];
-      end;
+      for i:= 0 to length(row^)-1 do idrow[i+1]:= row^[i];
       idrow[0] := tmprow[0]; // prepend ID to old id from sds file
       WriteRow(fhn, idrow);
       inc(result);
-    end
-    else WriteRow(fhn, tmprow);
+    end else 
+      WriteRow(fhn, tmprow);
   end;
   close(fh);
   close(fhn);
@@ -1038,8 +1008,7 @@ var
 begin
   result:= 0;
   field:= 0;
-  if not FileExists_plain(FileName) then
-  begin
+  if not FileExists_plain(FileName) then begin
     sdserror('UpdateFieldByValue: file does not exist');
     exit;
   end;
@@ -1057,11 +1026,9 @@ begin
   WriteCols(fhn, cols);
   // row data
   SetLength(row, hdr.fields);
-  while not eof(fh) do
-  begin
+  while not eof(fh) do begin
     row := ReadRow(fh, hdr.fields);
-    if row[field] = equals then
-    begin
+    if row[field] = equals then begin
       row[field] := setval;
       inc(result);
     end;
@@ -1086,8 +1053,7 @@ begin
   result := 0;
   another:= 0;
   field:= 0;
-  if not FileExists_plain(FileName) then
-  begin
+  if not FileExists_plain(FileName) then begin
     sdserror('UpdateField: file does not exist');
     exit;
   end;
@@ -1099,18 +1065,15 @@ begin
   hdr:= ReadHeader(fh);
   WriteHeader(fhn, hdr);
   cols:= ReadCols(fh, hdr.fields);
-  for cnt:= 0 to (hdr.fields - 1) do
-  begin
+  for cnt:= 0 to (hdr.fields - 1) do begin
     if cols[cnt].name = where then another:= cnt;
     if cols[cnt].name = setfield then field:= cnt;
   end;
   WriteCols(fhn, Cols);
   SetLength(row, hdr.fields);
-  while not eof(fh) do
-  begin
+  while not eof(fh) do begin
     row:= ReadRow(fh, hdr.fields);
-    if row[another] = equals then
-    begin
+    if row[another] = equals then begin
       row[field]:= toval;
       inc(result);
     end;
@@ -1127,23 +1090,19 @@ end;
 function DeleteRow(FromFile, where, equals: string): longint;
 var
   fh, fhn: text;
-  cnt,
-  field,
-  matches: longint;
+  cnt, field, matches: longint;
   row: TSDSRow;
   hdr: TSDSHeader;
   cols: TSDSCols;
 begin
   result:= 0;
   field:= 0;
-  if not FileExists_plain(FromFile) then
-  begin
+  if not FileExists_plain(FromFile) then begin
     SdsError('DeleteRow: file does not exist.');
     exit;
   end;
   matches := MatchedRows(FromFile, where, equals);
-  if matches = 0 then
-  begin
+  if matches = 0 then begin
     SdsError('DeleteRow: no matches found.');
     exit;
   end;
@@ -1159,18 +1118,14 @@ begin
   hdr.rows:= hdr.rows - matches;
   // read column data
   cols:= ReadCols(fh, hdr.fields);
-  for cnt:= 0 to (hdr.fields - 1) do
+  for cnt:= 0 to (hdr.fields - 1) do 
     if cols[cnt].name = where then field := cnt;
   WriteHeader(fhn, hdr);
   WriteCols(fhn, cols);
-  while not eof(fh) do
-  begin
+  while not eof(fh) do begin
     row:= ReadRow(fh, hdr.fields);
     //writeln('DEBUG: DELETEROW: ROW: ', row[field]);
-    if row[field] = equals then
-      inc(result)
-    else
-      WriteRow(fhn, row);
+    if row[field] = equals then inc(result) else WriteRow(fhn, row);
   end;
 
   close(fh);
@@ -1191,8 +1146,7 @@ var
 begin
   result := false;
   readcnt:= 0;
-  if not FileExists_plain(FromFile) then
-  begin
+  if not FileExists_plain(FromFile) then begin
     sdserror('DeleteRow: file does not exist');
     exit;
   end;
@@ -1201,8 +1155,7 @@ begin
   reset(fh);
   hdr:= ReadHeader(fh);
   // can't delete non existing row
-  if hdr.rows < RowIdx then
-  begin
+  if hdr.rows < RowIdx then begin
     result:= false;
     close(fh);
     FileUnmarkWrite(FromFile);
@@ -1217,8 +1170,7 @@ begin
   // read column data
   cols:= ReadCols(fh, hdr.fields);
   WriteCols(fhn, cols);
-  while not eof(fh) do
-  begin
+  while not eof(fh) do begin
     row:= ReadRow(fh, hdr.fields);
     inc(readcnt);
     // row found or not
@@ -1244,8 +1196,7 @@ var
 begin
   result:= nil;
   field:= 0;
-  if not FileExists_plain(FromFile) then
-  begin
+  if not FileExists_plain(FromFile) then begin
     sdserror('SelectAll: file does not exist');
     exit;
   end;
@@ -1263,8 +1214,7 @@ begin
   while not eof(fh) do
   begin
     row:= ReadRow(fh, hdr.fields);
-    if row[field] = equals then
-    begin
+    if row[field] = equals then begin
       SetLength(result, length(result) + 1);
       result[rows]:= row;
 //      writeln('DEBUG: SELECTALL: ',  row[field]);
@@ -1285,8 +1235,7 @@ var
   fk: word;
 begin
   result:= nil;
-  if not FileExists_plain(FromFile) then
-  begin
+  if not FileExists_plain(FromFile) then begin
     sdserror('SelectWhole: file does not exist');
     exit;
   end;
@@ -1299,8 +1248,7 @@ begin
   // skip past column info
   readcols(fh, hdr.fields);
   // read field info
-  for cnt:= 0 to (hdr.fields - 1) do
-  begin
+  for cnt:= 0 to (hdr.fields - 1) do begin
     row:= ReadRow(fh, hdr.fields);
     result[cnt]:= row;
   end;
@@ -1326,8 +1274,7 @@ var
  fh: text;
 begin
   result:= false;
-  if not FileExists_plain(FileName) then
-  begin
+  if not FileExists_plain(FileName) then begin
     sdserror('DeleteTable: file does not exist');
     exit;
   end;
