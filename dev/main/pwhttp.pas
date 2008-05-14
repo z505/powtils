@@ -1,10 +1,10 @@
 {*******************************************************************************
-                           PSP/PWU HTTP Connections
+                           Powtils HTTP Unit
 ********************************************************************************
 
- HTTP get/post for connecting to external websites
+ For connecting, getting, or posting data to external websites
 
- Authors/Credits: Trustmaster (Vladimir Sibirov), L505 (Lars)
+ Authors/Credits: Trustmaster (Vladimir Sibirov), L505 (Lars Olson)
  License: Artistic
    
 
@@ -13,21 +13,21 @@ unit pwhttp;
 {$IFDEF FPC}{$MODE OBJFPC}{$H+}
   {$IFDEF EXTRA_SECURE}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
   {$IFDEF WINDOWS}
-    //{$IF (fpc_version=2) and (fpc_release<2)} {$STOP compilers less than version 2.2.0 had sockets bugs on Win32 so this HTTP unit is not supported.. use at own risk} {$endif}
+    {$IF (fpc_version=2) and (fpc_release<2)} {$STOP PROBLEM - compilers less than version 2.2.0 had sockets bugs on Win32. It is not recommended that you use this HTTP unit unless you upgrade compilers.} {$endif}
   {$ENDIF}
 {$ENDIF}
 {$IFNDEF FPC}{$DEFINE SYSUTILS_ON}{$ENDIF}
 interface
 
-{============================= PUBLIC TYPES ===================================}
+{------------------ PUBLIC TYPES ---------------------------------------------}
 
 // data hiding: see httpconnection further below for implementation 
 type HTTPConnection = pointer;
 
-// http 1.1 must check for CHUNK encoding. We don't yet, so use http 1.0
+// http 1.1 may demand CHUNK encoding. We don't yet, so set to http 1.0
 const HTTP_VERSION = 'HTTP/1.0' ;
 
-{===================== PUBLIC FUNCTIONS ========================}
+{------------------ PUBLIC FUNCTIONS -----------------------------------------}
 procedure debugproc(s: string);
 var debugln: procedure(s: string) = {$IFDEF FPC}@{$ENDIF}debugproc; // user can change for custom debugging
 
@@ -52,13 +52,11 @@ implementation
 
 uses 
   {$IFDEF SYSUTILS_ON}Sysutils{$ELSE}CompactSysUtils{$ENDIF},
-  pwhostname, 
-  sockets,
-  pwsubstr;
+  pwhostname, sockets, pwsubstr;
 
 const DEFAULT_ACCEPT = 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5';
       DEFAULT_CHARSET = 'windows-1252, iso-8859-1;q=0.6, *;q=0.1';
-      DEFAULT_USER_AGENT = 'PWU HTTP Module';
+      DEFAULT_USER_AGENT = 'Powtils HTTP Unit';
 
 {============================= PRIVATE FUNCTIONS ==============================}
 
@@ -80,7 +78,7 @@ begin
 end;
 
 // can't do SSL or FTP yet 
-function BadHttpFound(var s: string): boolean;
+function BadUrlTypeFound(var s: string): boolean;
 begin        
   result:= false;
   if length(s) < 1 then exit; 
@@ -92,7 +90,7 @@ end;
 procedure AddTrailSlash(var s: string);
 begin
   if length(s) < 1 then exit; 
-  if pos(s, '/') = 0 then s:= s + '/';
+  if s[length(s)] <> '/' then s:= s + '/';
 end;
 
 // prepare http address: trim http:// and add trailing slash if needed 
@@ -132,7 +130,7 @@ procedure HttpClose(cp: HTTPConnection);
 var 
   conn: PHTTPConnection;
 begin
-  conn := PHTTPConnection(cp);
+  conn:= PHTTPConnection(cp);
   close(conn^.sin);
   close(conn^.sout);
   CloseSocket(conn^.sock);
@@ -148,8 +146,8 @@ var conn: PHTTPConnection;
   begin
     ReqLen:= length(conn^.request);
     SetLength(conn^.request, ReqLen + 1);
-    conn^.request[ReqLen].name := name;
-    conn^.request[ReqLen].value := value;
+    conn^.request[ReqLen].name:= name;
+    conn^.request[ReqLen].value:= value;
   end;
 
 var addr: TInetSockAddr;
@@ -161,13 +159,13 @@ var addr: TInetSockAddr;
   procedure ParseAddress;
   var p: longint;
   begin
-    p := pos(':', tmpurl);
+    p:= pos(':', tmpurl);
     if p > 0 then
     begin
       // Split by :
       server:= copy(tmpurl, 1, p - 1);
       val(copy(tmpurl, p + 1, length(tmpurl) - p), port);
-      addr := InetResolve(server, port);
+      addr:= InetResolve(server, port);
     end else begin 
       addr:= InetResolve(tmpurl, 80);
       server:= tmpurl;
@@ -221,22 +219,22 @@ function HttpCopy(const source, dest: string): boolean;
 var fh: text;
     data: string;
 begin
-  result := false;
-  data := HttpGet(source);
+  result:= false;
+  data:= HttpGet(source);
   if data = '' then exit;
   assign(fh, dest);         
   rewrite(fh);
   write(fh, data);
   close(fh);
-  result := true;
+  result:= true;
 end;
 
 { Checks if Response document is at enf of file }
 function HttpEof(cp: HTTPConnection): boolean;
 var conn: PHTTPConnection;
 begin
-  conn := PHTTPConnection(cp);
-  result := eof(conn^.sin);
+  conn:= PHTTPConnection(cp);
+  result:= eof(conn^.sin);
 end;
 
 { Returns a string containing the file represented by URL
@@ -245,8 +243,8 @@ end;
   Get prams must be URLEncoded 
   
   ERROR CODES: in string format
-  '-4 err' : tried to get HTTPS or FTP, not supported, only HTTP
-  '-3 err' : 200, 301. 302, or 303 response not received
+  '-4 err' : HTTPS or FTP not supported, only HTTP
+  '-3 err' : 200, 301, 302, or 303 response not received
   '-2 err' : connect error
   '-1 err' : address from inet resolve not valid }
 function HttpGet1(const url, agent: string): string;
@@ -255,8 +253,7 @@ var response: word;
   function ValidResponse: boolean;
   begin
     result:= false;
-    if (response=200) or (response=301) or (response=302) or (response=303) then 
-      result:= true;
+    case response of 200,301,302,303: result:= true; end;
   end;
 
 var sIn, sOut: text;                                    
@@ -280,8 +277,8 @@ var redir: boolean;
       readln(sIn, temp);
       if upcase(copy(temp, 1, 8)) = 'LOCATION' then
       begin
-        loc := substrireplace(temp, 'Location: ', '');
-        redir := true;
+        loc:= substrireplace(temp, 'Location: ', '');
+        redir:= true;
       end;
     until temp = '';
   end;
@@ -296,10 +293,10 @@ var uri, tmpurl, host: string;
   var slashpos: integer;
   begin
     slashpos:= pos('/', tmpurl);
-    host := copy(tmpurl, 1, slashpos - 1);                     
-    uri := copy(tmpurl, pos('/', tmpurl), length(tmpurl) - slashpos + 1); 
-    if uri = '' then uri := '/';
-    p := pos(':', host);
+    host:= copy(tmpurl, 1, slashpos - 1);                     
+    uri:= copy(tmpurl, pos('/', tmpurl), length(tmpurl) - slashpos + 1); 
+    if uri = '' then uri:= '/';
+    p:= pos(':', host);
     if p > 0 then
     begin
       // Splitting by :
@@ -325,29 +322,23 @@ var uri, tmpurl, host: string;
 var 
   c: char;
   readsize, // data bigger than 4GB may have issues, could use int64 but web files are not usually this big
-  tmpbuflen: integer; 
+  buflen: integer; 
 
 const BUF_GROWBY = 512;  
       BUF_INITSIZE = 16384;
 begin
   // Init
-  result := '';
-
+  result:= '';
   tmpurl:= url;
-  if BadHttpFound(tmpurl) then         
-  begin 
-    result:= '-4 err'; 
-    exit; 
-  end;      
-  // get rid of http:// and localhost or site.com converted to localhost/ or site.com/ 
+  if BadUrlTypeFound(tmpurl) then begin result:= '-4 err'; exit; end;      
+  // get rid of http:// and site.com convertd to site.com/ 
   PrepHttpAddress(tmpurl);     
   ParseUrl;
   // Check address validity
   if addr.addr <= 0 then begin result:= '-1 err'; exit; end;
   // open connection
-  sock := socket(AF_INET, SOCK_STREAM, 0);
-  if not connect(sock, addr, sIn, sout) then 
-  begin 
+  sock:= socket(AF_INET, SOCK_STREAM, 0);
+  if not connect(sock, addr, sIn, sout) then begin 
     result:= '-2 err'; 
     exit; 
   end;
@@ -359,8 +350,7 @@ begin
   // process first line
   readln(sIn, temp);
   val(copy(temp, 10, 3), response);
-  if not ValidResponse then 
-  begin
+  if not ValidResponse then begin
     result:= '-3 err: ' + temp;
     CloseConnect;
     exit;    
@@ -368,23 +358,21 @@ begin
 
   ProcessHeaders;
 
-  if redir then
-  begin
+  if redir then begin
     // Redirected
     CloseConnect;
-    result := HttpGet1(loc, agent);
+    result:= HttpGet1(loc, agent);
   end else
   begin
     readsize:= 0;
     setlength(result, BUF_INITSIZE);  // set initial buffer to optimize 
     // Getting contents
-    while not eof(sin) do
-    begin
+    while not eof(sin) do begin
       read(sIn, c);
       inc(readsize);
-      tmpbuflen:= length(result);
+      buflen:= length(result);
       // grow buffer only if needed
-      if tmpbuflen < readsize then SetLength(result, tmpbuflen + BUF_GROWBY);
+      if buflen < readsize then SetLength(result, buflen + BUF_GROWBY);
       result[readsize]:= c;
     end;
     setlength(result, readsize); // set string to proper total size read
@@ -403,13 +391,12 @@ function HttpGetHeader(cp: HTTPConnection; const name: string): string;
 var conn: PHTTPConnection;
     i: longword;
 begin
-  conn := PHTTPConnection(cp);
-  result := '';
+  conn:= PHTTPConnection(cp);
+  result:= '';
   if length(conn^.response) > 0 then
-  for i := 0 to length(conn^.response) - 1 do 
-    if upcase(conn^.response[i].name) = upcase(name) then
-    begin
-      result := conn^.response[i].value;
+  for i:= 0 to length(conn^.response) - 1 do 
+    if upcase(conn^.response[i].name) = upcase(name) then begin
+      result:= conn^.response[i].value;
       break;
     end;
 end;
@@ -418,8 +405,8 @@ end;
 function HttpRead(cp: HTTPConnection): char;
 var conn: PHTTPConnection;
 begin
-  conn := PHTTPConnection(cp);
-  result := #0;
+  conn:= PHTTPConnection(cp);
+  result:= #0;
   if not eof(conn^.sin) then read(conn^.sin, result);
 end;
 
@@ -427,8 +414,8 @@ end;
 function HttpReadLn(cp: HTTPConnection): string;
 var conn: PHTTPConnection;
 begin
-  conn := PHTTPConnection(cp);
-  result := '';
+  conn:= PHTTPConnection(cp);
+  result:= '';
   if not eof(conn^.sin) then readln(conn^.sin, result);
 end;
 
@@ -444,7 +431,7 @@ var conn: PHTTPConnection;
     reqlen:= length(conn^.request);
     // then headers 
     if reqlen > 0 then  
-      for i := 0 to reqlen - 1 do 
+      for i:= 0 to reqlen - 1 do 
         writeln(conn^.sout, conn^.request[i].name + ': ' + conn^.request[i].value);
     writeln(conn^.sout); // must be empty line
     // send POST data
@@ -477,12 +464,12 @@ var conn: PHTTPConnection;
       if buff <> '' then begin
         resplen:= length(conn^.response);
         SetLength(conn^.response, resplen + 1);
-        nv := SubstrSplit(buff, ':');
-        conn^.response[resplen].name := strtrim(nv[0]);
-        conn^.response[resplen].value := strtrim(nv[1]);
+        nv:= SubstrSplit(buff, ':');
+        conn^.response[resplen].name:= strtrim(nv[0]);
+        conn^.response[resplen].value:= strtrim(nv[1]);
       end;
     until (buff = '') or eof(conn^.sin);
-    if copy(conn^.code, 10, 3) = '200' then result := true;
+    if copy(conn^.code, 10, 3) = '200' then result:= true;
 //    writeln('DEBUG ' + conn^.code);
   end;
 
@@ -490,14 +477,14 @@ var i, rlen: longword;
 
 begin
   result:= false;
-  conn := PHTTPConnection(cp);
+  conn:= PHTTPConnection(cp);
   SendRequest;
   ReadInput;
   rlen:= length(conn^.response);
   if rlen > 0 then
-  for i := 0 to rlen - 1 do begin
+  for i:= 0 to rlen - 1 do begin
     if upcase(conn^.response[i].name) = 'LOCATION' then begin
-      conn^.uri := conn^.response[i].value;
+      conn^.uri:= conn^.response[i].value;
       // writeln('DEBUG ' + conn^.response[i].value);
 
       // user will have reconnect himself 
@@ -512,9 +499,9 @@ function HttpResponseInfo(cp: HTTPConnection; var final_url, message: string): w
 var conn: PHTTPConnection;
 begin
   result:= 0;
-  conn := PHTTPConnection(cp);
-  final_url := conn^.uri;
-  message := conn^.code;
+  conn:= PHTTPConnection(cp);
+  final_url:= conn^.uri;
+  message:= conn^.code;
   val(copy(conn^.code, 1, 3), result);
 end;
 
@@ -523,20 +510,19 @@ procedure HttpSetHeader(cp: HTTPConnection; const name, value: string);
 var conn: PHTTPConnection;
     reqlen, i: longint;
 begin
-  conn := PHTTPConnection(cp);
+  conn:= PHTTPConnection(cp);
   reqlen:= length(conn^.request);
   // Changing value if already set
   if reqlen > 0 then
-  for i := 0 to reqlen - 1 do 
-    if upcase(conn^.request[i].name) = upcase(name) then
-    begin
-      conn^.request[i].value := value;
+  for i:= 0 to reqlen - 1 do 
+    if upcase(conn^.request[i].name) = upcase(name) then begin
+      conn^.request[i].value:= value;
       exit;
     end;
   // Or set new header
   SetLength(conn^.request,  reqlen + 1);
-  conn^.request[reqlen].name := name;
-  conn^.request[reqlen].value := value;
+  conn^.request[reqlen].name:= name;
+  conn^.request[reqlen].value:= value;
 end;
 
 // Sets client Requst header from 'Name: Value' string
@@ -545,23 +531,23 @@ var conn: PHTTPConnection;
     i: longword;
     nv: StrArray;
 begin
-  conn := PHTTPConnection(cp);
+  conn:= PHTTPConnection(cp);
   // Splitting into name=value pair
-  nv := substrsplit(header, ':');
+  nv:= substrsplit(header, ':');
   if length(nv) <> 2 then exit;
-  nv[0] := strtrim(nv[0]);
-  nv[1] := strtrim(nv[1]);
+  nv[0]:= strtrim(nv[0]);
+  nv[1]:= strtrim(nv[1]);
   // Changing value if already set
   if length(conn^.request) > 0 then
-  for i := 0 to length(conn^.request) - 1 do if upcase(conn^.request[i].name) = upcase(nv[0]) then
-  begin
-    conn^.request[i].value := nv[1];
-    exit;
-  end;
+  for i:= 0 to length(conn^.request) - 1 do 
+    if upcase(conn^.request[i].name) = upcase(nv[0]) then begin
+      conn^.request[i].value:= nv[1];
+      exit;
+    end;
   // Or setting new header
   SetLength(conn^.request, length(conn^.request) + 1);
-  conn^.request[length(conn^.request) - 1].name := nv[0];
-  conn^.request[length(conn^.request) - 1].value := nv[1];
+  conn^.request[length(conn^.request) - 1].name:= nv[0];
+  conn^.request[length(conn^.request) - 1].value:= nv[1];
 end;
 
 // Sets client Request data (for POST method)
@@ -572,22 +558,22 @@ var conn: PHTTPConnection;
     i: longword;
     reqlen: integer;
 begin
-  conn := PHTTPConnection(cp);
-  conn^.post := data;
+  conn:= PHTTPConnection(cp);
+  conn^.post:= data;
   str(length(data), len);
   reqlen:= length(conn^.request);
   // Changing value if already set
   if reqlen > 0 then
-  for i := 0 to reqlen - 1 do 
+  for i:= 0 to reqlen - 1 do 
     if upcase(conn^.request[i].name) = upcase('Content-Length') then
     begin
-      conn^.request[i].value := len;
+      conn^.request[i].value:= len;
       exit;
     end;
   // Or set new header
   SetLength(conn^.request, reqlen + 1);
-  conn^.request[reqlen].name := 'Content-Length';
-  conn^.request[reqlen].value := len;
+  conn^.request[reqlen].name:= 'Content-Length';
+  conn^.request[reqlen].value:= len;
 end;
 
 end.
