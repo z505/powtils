@@ -8,9 +8,10 @@ uses
 
 {$include lang.inc}
 
-// NOTE: MUST BE 1.0 SINCE IT DOESN'T SUPPORT ALL 1.1 FEATURES YET
+// NOTE: MUST BE HTTP/1.0 - DOESN'T SUPPORT 1.1 CHUNK ENCODING, ETC.
 const HTTP_VERSION = 'HTTP/1.0';
-      ERR_404_MSG  = '404 File not found';
+
+const ERR_404_MSG  = '404 File not found';
       ERR_403_MSG  = '403 Access denied';
       DOC_ROOT     = 'DOCUMENT_ROOT';
       SCRIPT_NAME  = 'SCRIPT_NAME';
@@ -145,10 +146,10 @@ function gettype(fname: astr): astr;
 var ext  : astr;
     def  : astr;
 begin
-  def:= mimecfg.getOption('default', 'application/force-download');;
+  def:= mimecfg.getOpt('default', 'application/force-download');;
   ext:= LowerCase(ExtractFileExt(fname));
   delete(ext, 1, 1);
-  Result := mimecfg.getOption(ext, def);
+  Result := mimecfg.getOpt(ext, def);
 end;
   
 function getfile(fname: astr; errcode: astr = '200 OK'; 
@@ -245,24 +246,20 @@ begin
     begin
       fname := parceRequest(str1);
       if (filedir = '') or (filedir = ip) then 
-        filedir:= vhostcfg.getOption('default', '')
+        filedir:= vhostcfg.getOpt('default', '')
       else begin
-        filedir:= vhostcfg.getOption(filedir, vhostcfg.getOption('default', ''));
+        filedir:= vhostcfg.getOpt(filedir, vhostcfg.getOpt('default', ''));
         filedir:= ExcludeTrailingPathDelimiter(filedir);
       end;
       addEnv(DOC_ROOT, filedir);
       name:= fname;
-      //      dbugln('name: ', name);
       if pos('?',fname) > 0 then name:= copy(fname,1,pos('?',fname) - 1);
-
       path:= filedir + name; 
       xpath(path);
       if (not FileThere(path)) and DirExists(path) then name:= name+'/'+idxpg;
       addEnv(SCRIPT_NAME, name);
-
       path:= filedir + name;
-      xpath(path);
-      //      dbugln('path: ', path);
+      xpath(path); // cross platform slashes
       if FileThere(path) then begin
         if SlashDots then begin
           server.swrite(getfile(error403, ERR_403_MSG));
@@ -316,33 +313,38 @@ begin
   DoneCriticalSection(critical);
 end;
 
-procedure Err(const msg: astr);
+procedure ErrLn(const msg: astr); overload;
 begin
   writeln(msg);
 end;
 
-procedure CreateCfgAndServer;
+procedure ErrLn; overload;
+begin
+  ErrLn('');
+end;
 
-  procedure SetupMainCfg;
+procedure CreateCfgAndServer;
+  { retreive configuration file info, or use defaults if not avail }
+  procedure GetMainCfg;
   var othercfg: TCfgFile;
   begin
     othercfg:= TCfgFile.create('config.cfg');
-      ip        := othercfg.getOption('ip',        '127.0.0.1');
-      port      := othercfg.getOption('port',      80);
-      newlog    := othercfg.getOption('deletelog', false);
-      logflname := othercfg.getOption('logfile',   'connections.log');
-      idxpg     := othercfg.getOption('index',     'index.html');
-      error404  := othercfg.getOption('error404',  'error404.html');
-      error403  := othercfg.getOption('error403',  'error403.html');
+      ip        := othercfg.getOpt('ip',        '127.0.0.1');
+      port      := othercfg.getOpt('port',      80);
+      newlog    := othercfg.getOpt('deletelog', false);
+      logflname := othercfg.getOpt('logfile',   'connections.log');
+      idxpg     := othercfg.getOpt('index',     'index.html');
+      error404  := othercfg.getOpt('error404',  'error404.html');
+      error403  := othercfg.getOpt('error403',  'error403.html');
     othercfg.free; othercfg:= nil;
 
     othercfg:= TCfgFile.create('blacklist.cfg');
-      blacklist:= othercfg.getAllOptions;
+      blacklist:= othercfg.getAllOpts;
     othercfg.free; othercfg:= nil;
   end;
 
 begin
-  SetupMainCfg;
+  GetMainCfg;
   mimecfg:= TCfgFile.create('mime.cfg');
   vhostcfg:= TCfgFile.create('vhost.cfg');
   server:= TzServer.Create;
@@ -358,14 +360,15 @@ end;
 
 procedure ErrCantConnect;
 begin
-  Err(LF+'Can''t connect to address or port.'+ LF+
-      'The ip:port you are using is '+ip+':'+inttostr(port)+ LF+
-      'Tip: make sure another server is not running.'+ LF+
-      'Error # '+ {$ifdef windows}inttostr(GetLastError){$endif}
-                   {$ifdef unix}inttostr(fpGetErrNo){$endif}
+  ErrLn;
+  ErrLn('Can''t connect to address or port.');
+  ErrLn('The ip:port you are using is '+ip+':'+inttostr(port));
+  ErrLn('Tip: make sure another server is not running.');
+  ErrLn('Error # '+ {$ifdef windows}inttostr(GetLastError){$endif}
+                    {$ifdef unix}inttostr(fpGetErrNo){$endif}
   ); 
-  // Ugly inline ifdef above due to FPC bug, cannot wrap in another function 
-  // with fpc 2.2.0. See http://bugs.freepascal.org/view.php?id=10205
+  { Ugly inline ifdef above due to FPC bug, can't wrap in another func with 
+    fpc 2.2.0. See http://bugs.freepascal.org/view.php?id=10205 }
 
   // cleanup, then kill
   FreeCfgAndServer; Halt;
