@@ -1,12 +1,19 @@
-{ fpmake and fpcmake not serving my simple needs. These build utilities are 
-  born, so that there are no ugly GNU make files (ugliest fucking cow shit I've 
-  seen) for building projects automatically.
+{ Useful for automating and building demos, projects, etc. Fpmake and fpcmake 
+  are not serving my simple needs. These build utilities are born due to my 
+  hatred toward GNU Make files (ugliest f*cking cow sh*t ever seen by man).
 
-  Useful for automating and building demos, tests, units, demos, projects, etc.
+  NOTE: these build utils don't always take advantage of "reusing" compiled
+  global PPU files as some "Make" utilties do. I've had "PPU Hell" and 
+  "PPU conflicts" when trying to reuse global PPU files (and some projects 
+  require regenerating .PAS sources with DEFINES and include file issues. Fpc 
+  has bugs too). Compilations may be slower if local copies of ppu units are 
+  generated - but I've rarely found super fast compilations to be that great
+  useful compared to say "CORRECT compilations" that reduce headaches.
  
   Authors: L505
            http://z505.com
 
+  License: NRCOL (public domain)
 }
 
 unit pwbuildutil; {$mode objfpc} {$H+} {$R+}
@@ -18,12 +25,7 @@ uses
   arrayfuncs;
 
 type 
-//  astr = ansistring;
-//  AstrArray = array of astr;
-//  bln = boolean;
                                                
-
-
   TFpcOptions = record
     Name: str15;   // group name
     Dir,              // working directory
@@ -236,7 +238,7 @@ begin
   WriteSeparator1;
   writeln('HELP: build <group> <flag>');
   writeln;
-  writeln('  Groups:');
+  writeln('  Custom Groups:');
   if VisibleGroups = nil then HaltErr('Build author must set visible bulid groups.');
   ShowLns(VisibleGroups);
   writeln('  General Groups:');
