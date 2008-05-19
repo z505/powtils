@@ -249,12 +249,17 @@ begin
   ShowLns(Defgroups);
   writeln('  Flags:');
   ShowLns(DefFlags);
+  writeln;
   writeln('Example: build default     (the usual build)');
   writeln('         build df          (alias for default, short & easy)');
-  writeln('         build all         (compiles all custom builds, defines)');
+  writeln('         build all         (compile all builds, defines, may take long)');
   writeln('         build all clean   (just delete .ppu/.a and other junk)');
   writeln('         build all rebuild (clean first, then build project)');
   writeln('         build foobar      (user defined build)');
+  writeln('         build df clean       (etc.)');
+  writeln('         build df rebuild     (etc.)');
+  writeln('         build foobar clean   (etc.)');
+  writeln('         build foobar rebuild (etc.)');
   WriteSeparator1;
   Halt;
 end;
