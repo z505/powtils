@@ -415,20 +415,19 @@ begin
   AstrArrayReset(opts.intern.defines);
 end;
 
-{ delete .PPU/.A files a.k.a. "unit crap". }
+{ delete .PPU/.A files a.k.a. "unit crap" }
 procedure CleanUnitCrap(const path: astr);
-const
-  masks: array [1..5] of string[5]
-    = ('*.ppu', '*.dcu','*.a', '*.res','*.o');
-var
-  i: int32;
+const masks: array [1..5] of string[5]
+        = ('*.ppu', '*.dcu','*.a', '*.res','*.o');
+var i, problems: int32;
 begin
+  problems:= 0;
   noteln('Removing files from dir: ' + path);
   for i:= low(masks) to high(masks) do begin
     { warn if deletion of all files unsucessful }
-    if not DelFiles(path, masks[i]) then
-      WarnLn('did not delete at least 1 file in '+path);
+    if not DelFiles(path, masks[i]) then inc(problems);
   end;
+  if problems > 0 then WarnLn('did not delete at least 1 file in '+path);
 end;
 
 { makes options Record into a string like '-Fu/path -oProg' }
