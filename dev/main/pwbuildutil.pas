@@ -4,7 +4,7 @@
 
   Notes: 
     - df is an alias for "default" for quick command line typing
-    - "unit crap" and ".crap/" directory coined by Lars Olson for .ppu/.a files
+    - ".crap/" directory coined by Lars Olson for .ppu/.a files
     -
 
   NOTE: these build utils don't always take advantage of "reusing" compiled
@@ -154,7 +154,7 @@ begin noteln('quit early: ' + s); halt;
 end;
 
 { overloaded }
-procedure HaltErr(s: astr; i: int);
+procedure HaltErr(s: astr; i: int32);
 var tmp: astr = '';
 begin str(i, tmp); noteln('quit early: ' + s + tmp); halt;
 end;
@@ -227,15 +227,13 @@ end;
 { console help }      
 procedure ShowHelp;
 
-  procedure Ln(s: string);
-  begin
-    writeln('    ', s);
+  procedure IndentedLn(s: string);
+  begin writeln('    ', s);
   end;
 
   procedure ShowLns(a: array of str15);
   var i: int32;
-  begin
-    for i:= low(a) to high(a) do Ln(a[i]);
+  begin for i:= low(a) to high(a) do IndentedLn(a[i]);
   end;
 
 begin
@@ -251,6 +249,12 @@ begin
   ShowLns(Defgroups);
   writeln('  Flags:');
   ShowLns(DefFlags);
+  writeln('Example: build default     (the usual build)');
+  writeln('         build df          (alias for default, short & easy)');
+  writeln('         build all         (compiles all custom builds, defines)');
+  writeln('         build all clean   (just delete .ppu/.a and other junk)');
+  writeln('         build all rebuild (clean first, then build project)');
+  writeln('         build foobar      (user defined build)');
   WriteSeparator1;
   Halt;
 end;
