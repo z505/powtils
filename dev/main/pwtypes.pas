@@ -6,10 +6,12 @@ interface
 
 type
   // Below aliases reduce verbose line noise in long procedure declarations.
-  // This goes against pascal's verbosity heritage, but extremely long 
+  // This goes against pascal's "verbosity" heritage, but extremely long 
   // declarations, (esp. ones with CONST and VAR in them) span far too wide
-  // to remain redable. AStr is also safer than abstract "string" type with 
-  // regards to {$H+} not being on due to a bug or programmer mistake
+  // across screens to remain readable. "AStr" is also safer than abstract 
+  // "string" type, since {$H+} or {$LONGSTRINGS ON} programmer errors or
+  // forgotten directives can cause horrible confusing software errors/bugs
+
   astr = ansistring;
   // fast strings, power of 2 (premature optimization ;-( )
   str15 = string[15]; // 16-1 (16 based)
@@ -19,8 +21,10 @@ type
   str15array = array of str15;
   str31array = array of str31;
   ShortstrArray = array of shortstring;
-  num  = longint;
-  bln = boolean;
+  num  = longint;    // deprecated
+  bln = boolean;     // deprecated
+  int32 = longint;   // int32 better than more vague "longint", also keeps long procedure declarations readable and shorter
+  boo = boolean;     // keeps long procedure declarations readable 
 
 
 const // platform specific directory slash (old Mac not supported)
@@ -88,22 +92,6 @@ const
   MAX_PATH={System.}MaxPathLen;
 {$ENDIF}
 
-
-const
-  // lower case string constants
-  L_OUTPUT_BUFFERING   = 'output_buffering';
-  L_OUTPUT_COMPRESSION = 'output_compression';
-  L_HEADER_CHARSET     = 'header_charset';
-  L_ERROR_REPORTING    = 'error_reporting';
-  L_ERROR_HALT         = 'error_halt';
-  L_UPLOAD_MAX_SIZE    = 'upload_max_size';
-  L_SESSION_PATH       = 'session_path';
-  L_SESSION_LIFE_TIME  = 'session_life_time';
-
-  // upper case string constants
-  U_HEADERS_SENT = 'HEADERS_SENT';
-  U_ERRORS = 'ERRORS';
-  U_FALSE = 'FALSE';
 
 implementation
 

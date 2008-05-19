@@ -2,6 +2,11 @@
   are not serving my simple needs. These build utilities are born due to my 
   hatred toward GNU Make files (ugliest f*cking cow sh*t ever seen by man).
 
+  Notes: 
+    - df is an alias for "default" for quick command line typing
+    - "unit crap" and ".crap/" directory coined by Lars Olson for .ppu/.a files
+    -
+
   NOTE: these build utils don't always take advantage of "reusing" compiled
   global PPU files as some "Make" utilties do. I've had "PPU Hell" and 
   "PPU conflicts" when trying to reuse global PPU files (and some projects 
@@ -36,7 +41,7 @@ type
     Compile,
     Rebuild,
     CleanBeforeRebuild,
-    IgnoreErr: bln;   // ignore compiler errors
+    IgnoreErr: boo;   // ignore compiler errors
     Extra: astr;                 
     FpcVersion: astr;
     intern: record    // private, not for interface user to worry about
@@ -54,23 +59,23 @@ procedure HaltErr(const s: astr);
 
 procedure Init(out opts: TFpcOptions);
 
-function GetProgTargetDir(groupidx: num): string;
+function GetProgTargetDir(groupidx: int32): string;
 
-function Compile(const srcunit, opts, fpversion: astr; IgnoreErr: bln): num;
-function Compile(const srcunit: astr; var opts: TFpcOptions): num;
-function Compile(const srcunit, opts, fpversion: astr): num;
-function Compile(const srcunit, opts: astr): num;
+function Compile(const srcunit, opts, fpversion: astr; IgnoreErr: boo): int32;
+function Compile(const srcunit: astr; var opts: TFpcOptions): int32;
+function Compile(const srcunit, opts, fpversion: astr): int32;
+function Compile(const srcunit, opts: astr): int32;
 
-procedure CompileMany(var paths: TPaths; var opts: TFpcOptions; ShowSeparator: bln);
+procedure CompileMany(var paths: TPaths; var opts: TFpcOptions; ShowSeparator: boo);
 procedure CompileMany(var paths: TPaths; var opts: TFpcOptions);
 
 procedure ShowOpts(var opts: TFpcOptions);
 
-function Build(const srcunit, opts, fpversion: astr; IgnoreErr: bln): num;
-function Build(const srcunit, opts, fpversion: astr): num;
+function Build(const srcunit, opts, fpversion: astr; IgnoreErr: boo): int32;
+function Build(const srcunit, opts, fpversion: astr): int32;
 
-function RunCmd(const path, comline: astr): num;
-function RunCmd(const path: astr; const comline: array of astr): num;
+function RunCmd(const path, comline: astr): int32;
+function RunCmd(const path: astr; const comline: array of astr): int32;
 
 procedure AddUnitPath(var opts: TFpcOptions; s: astr);
 procedure AddIncPath(var opts: TFpcOptions; s: astr);
@@ -107,7 +112,6 @@ implementation
 uses
   strutils, sysutils, pwfileutil, pwfputil;
 
-
 type
   TGroup = record
     paths: TPaths;
@@ -120,8 +124,7 @@ var // all build groups
   Groups: TGroups = nil;
   VisibleGroups: str15array = nil;
 
-
-function GetProgTargetDir(groupidx: num): astr;
+function GetProgTargetDir(groupidx: int32): astr;
 begin
   result:= '';
   if length(Groups)-1 < groupidx then exit;
@@ -133,24 +136,27 @@ begin
   if length(names) > 0 then VisibleGroups:= AssignArray(names);
 end;
 
-procedure noteln(const s: string);
+{ display simple message }
+procedure NoteLn(const s: string);
 begin
   writeln('Note: ', s);
 end;
 
-{ halt program with polite message }
-procedure HaltErr(const s: astr);
+{ warn with polite message (no halt) }
+procedure WarnLn(const s: string);
 begin
-  noteln('quit early: ' + s);
-  halt;
+  writeln('Warning: ', s);
 end;
 
-procedure HaltErr(s: astr; i: num);
+{ halt program with polite message }
+procedure HaltErr(const s: astr);
+begin noteln('quit early: ' + s); halt;
+end;
+
+{ overloaded }
+procedure HaltErr(s: astr; i: int);
 var tmp: astr = '';
-begin
-  str(i, tmp);
-  noteln('quit early: ' + s + tmp);
-  halt;
+begin str(i, tmp); noteln('quit early: ' + s + tmp); halt;
 end;
 
 procedure WriteSeparator;
@@ -170,7 +176,7 @@ begin
   result:= paramstr(1);
 end;
 
-// default groups to compile such as: all, default (df)
+// default groups to compile such as: all, default ("df" just an alias)
 type eDefgroups =
   (dtDefault,  dtDf,  dtAll);
 
@@ -227,7 +233,7 @@ procedure ShowHelp;
   end;
 
   procedure ShowLns(a: array of str15);
-  var i: num;
+  var i: int32;
   begin
     for i:= low(a) to high(a) do Ln(a[i]);
   end;
@@ -259,7 +265,7 @@ end;
 
 
 function AllGroupNames: str15array;
-var i: num;
+var i: int32;
 begin
   if length(groups) < 1 then exit;
   setlength(result, length(groups));
@@ -273,8 +279,8 @@ procedure CheckGroups;
   
   procedure FindGroups;
   var i1: eDefgroups;
-      i2: num;
-      found: num;
+      i2: int32;
+      found: int32;
   begin
     found:= 0;
     // find default (df), all
@@ -295,7 +301,7 @@ end;
 
 
 procedure Run;
-var i: num;
+var i: int32;
 begin
   Checkgroups;
   if length(groups) < 1 then HaltErr('groups array has zero registered');
@@ -306,7 +312,7 @@ end;
 
 { add a group of files to be compiled with options }
 procedure CreateGroup(paths: TPaths; opts: TFpcOptions);
-var oldlen: num;
+var oldlen: int32;
 begin
   if opts.Name = '' then HaltErr('Must specify a name for each group.');
   oldlen:= length(groups);
@@ -317,7 +323,7 @@ end;
 
 
 procedure AstrArrayAdd(var a: AstrArray; s: string);
-var len: num;
+var len: int32;
 begin      
   if s = '' then exit;
   len:= length(a);
@@ -400,17 +406,19 @@ begin
   AstrArrayReset(opts.intern.defines);
 end;
 
+{ delete .PPU/.A files a.k.a. "unit crap". }
 procedure CleanUnitCrap(const path: astr);
 const
   masks: array [1..5] of string[5]
     = ('*.ppu', '*.dcu','*.a', '*.res','*.o');
 var
-  i: num;
+  i: int32;
 begin
   noteln('Removing files from dir: ' + path);
   for i:= low(masks) to high(masks) do begin
+    { warn if deletion of all files unsucessful }
     if not DelFiles(path, masks[i]) then
-      HaltErr('did not delete at least 1 file in '+path);
+      WarnLn('did not delete at least 1 file in '+path);
   end;
 end;
 
@@ -515,7 +523,7 @@ end;
 { adds trailing slash if not already there 
   TODO: move function to pwdirutil/strwrap1/pwfileutil/}
 procedure ForceTrailSlash(var path: astr);
-var len: num;
+var len: int32;
 begin
   len:= length(path); 
   if len < 1 then exit;
@@ -547,7 +555,7 @@ begin
 end;
 
 { compile program with options string }
-function Compile(const srcunit, opts, fpversion: astr; IgnoreErr: bln): num;
+function Compile(const srcunit, opts, fpversion: astr; IgnoreErr: boo): int32;
 begin
   result:= ExecuteProcess(GetFpcFullPath(), SrcUnit+' '+opts);
   if (result<>0) and (not IgnoreErr) then
@@ -555,19 +563,19 @@ begin
 end;
 
 { other }
-function Compile(const srcunit, opts, fpversion: astr): num;
+function Compile(const srcunit, opts, fpversion: astr): int32;
 begin
   result:= Compile(srcunit, opts, fpversion, false);
 end;
 
 { other }
-function Compile(const srcunit, opts: astr): num;
+function Compile(const srcunit, opts: astr): int32;
 begin
   result:= Compile(srcunit, opts, FpcVersion(), false);
 end;
 
 { compile program with options in a record }
-function Compile(const srcunit: astr; var opts: TFpcOptions): num;
+function Compile(const srcunit: astr; var opts: TFpcOptions): int32;
 var madeopts: astr;
     path: astr;
 begin
@@ -578,8 +586,8 @@ begin
   result:= Compile(path, madeopts, opts.FpcVersion, opts.IgnoreErr);
 end;
 
-procedure CompileMany(var paths: TPaths; var opts: TFpcOptions; ShowSeparator: bln);
-var i: num;
+procedure CompileMany(var paths: TPaths; var opts: TFpcOptions; ShowSeparator: boo);
+var i: int32;
 begin
   if paths.count < 1 then exit;
   writeln('>>>>>> PROCESSING GROUP ', opts.Name, ' >>>>>>');
@@ -596,35 +604,33 @@ begin
 end;
 
 { same as compile but forces fpc build -B }
-function Build(const srcunit, opts, fpversion: astr; IgnoreErr: bln): num;
+function Build(const srcunit, opts, fpversion: astr; IgnoreErr: boo): int32;
 begin
   result:= Compile(srcunit, '-B ' + opts, fpversion, IgnoreErr);
 end;
 
 { default }
-function Build(const srcunit, opts, fpversion: astr): num;
+function Build(const srcunit, opts, fpversion: astr): int32;
 begin
   result:= Build(srcunit, opts, fpversion, false);
 end;
 
 { simple way to run a command }
-function RunCmd(const path, comline: astr): num;
+function RunCmd(const path, comline: astr): int32;
 begin
   result:= ExecuteProcess(path, comline);
 end;
 
 { overloaded with array }
-function RunCmd(const path: string; const comline: array of astr): num;
+function RunCmd(const path: string; const comline: array of astr): int32;
 begin
   result:= ExecuteProcess(path, comline);
 end;
 
 end.
 
-
 (*
-
-function compile(const srcunit: astr; const opts: TFpcOptions): num;
+function compile(const srcunit: astr; const opts: TFpcOptions): int32;
 var allopts: astr = '';
 
   procedure AddOpts(const opts: astr);
