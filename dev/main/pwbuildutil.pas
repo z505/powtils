@@ -5,7 +5,7 @@
   Notes: 
     - df is an alias for "default" for quick command line typing
     - ".crap/" directory coined by Lars Olson for .ppu/.a files
-    -
+    - CleanBeforeRebuild can be set to force
 
   NOTE: these build utils don't always take advantage of "reusing" compiled
   global PPU files as some "Make" utilties do. I've had "PPU Hell" and 
@@ -176,30 +176,24 @@ begin
   result:= paramstr(1);
 end;
 
-// default groups to compile such as: all, default ("df" just an alias)
-type eDefgroups =
-  (dtDefault,  dtDf,  dtAll);
+// default groups to compile such as: all, default, df (alias for default)
+type eDefGroups = (gDefault,  gDf,  gAll);
 
-// flags such as clean, rebuild, 
-type eDefFlags =
-  (dtRebuild,  dtClean);
+// default flags such as clean, rebuild, 
+type eDefFlags = (fRebuild,  fClean);
 
-const defgroups: array [eDefgroups] of str15 =
-  ('default', 'df', 'all');
-
-const defflags: array [eDefFlags] of str15 =
-  ('rebuild', 'clean');
+const defgroups: array [eDefgroups] of str15 = ('default', 'df', 'all');
+      defflags: array [eDefFlags] of str15 = ('rebuild', 'clean');
 
 function Flag: astr;
-begin
-  result:= paramstr(2);
+begin result:= paramstr(2);
 end;
 
 { checks if we are running a full "rebuild" }
 function Rebuilding: boolean;
 begin
   result:= false;                          
-  if flag = defflags[dtRebuild] then result:= true;
+  if flag = defflags[fRebuild] then result:= true;
 end;
 
 { checks if we are running an "all" build }
@@ -213,15 +207,15 @@ end;
 function Cleaning: boolean;
 begin
   result:= false;
-  if flag = defflags[dtClean] then result:= true;
+  if flag = defflags[fClean] then result:= true;
 end;
 
 { checks if we are running "default" build }
 function DoingDefault: boolean;
 begin
   result:= false;
-  if group = defgroups[dtDefault] then result:= true;
-  if group = defgroups[dtDf] then result:= true;
+  if group = defgroups[gDefault] then result:= true;
+  if group = defgroups[gDf] then result:= true;
 end;
 
 { console help }      
@@ -355,8 +349,10 @@ begin
     FpcVersion:= pwfputil.FpcVersion();
     Rebuild:= rebuilding();
     // if rebuilding or cleaning then CleanBeforeRebuild
-    if (Rebuild) or (cleaning) then CleanBeforeRebuild:= true 
-      else CleanBeforeRebuild:= false;
+    if (Rebuild) or (cleaning) then 
+      CleanBeforeRebuild:= true 
+    else 
+      CleanBeforeRebuild:= false;
     // only compile if we are not cleaning
     Compile:= not cleaning;
 
@@ -376,17 +372,6 @@ begin
   AstrArrayAdd(opts.intern.unitpaths, s);
 end;
 
-
-procedure ResetExtraOpts(var opts: TFpcOptions);
-begin
-  opts.extra:= '';
-end;
-
-procedure ResetUnitPaths(var opts: TFpcOptions);
-begin
-  AstrArrayReset(opts.intern.unitpaths);
-end;
-
 { adds an -Fi path }
 procedure AddIncPath(var opts: TFpcOptions; s: astr);
 begin
@@ -399,6 +384,16 @@ begin
   opts.extra:= opts.extra + ' ' + s;
 end;
 
+
+procedure ResetExtraOpts(var opts: TFpcOptions);
+begin
+  opts.extra:= '';
+end;
+
+procedure ResetUnitPaths(var opts: TFpcOptions);
+begin
+  AstrArrayReset(opts.intern.unitpaths);
+end;
 
 procedure ResetIncPaths(var opts: TFpcOptions);
 begin
@@ -417,8 +412,8 @@ end;
 
 { delete .PPU/.A files a.k.a. "unit crap" }
 procedure CleanUnitCrap(const path: astr);
-const masks: array [1..5] of string[5]
-        = ('*.ppu', '*.dcu','*.a', '*.res','*.o');
+const 
+  masks: array [1..5] of string[5] = ('*.ppu', '*.dcu','*.a', '*.res','*.o');
 var i, problems: int32;
 begin
   problems:= 0;
@@ -483,9 +478,7 @@ begin
 
   if opts.crapdir <> '' then begin
     targdir:= opts.dir + opts.crapdir + FpcTargetDir();
-    if opts.CleanBeforeRebuild then begin
-      CleanUnitCrap(targdir);
-    end;
+    if opts.CleanBeforeRebuild then CleanUnitCrap(targdir);
     opts.intern.craptargetdir:= targdir;
     ForceDir(targdir);
   end;
