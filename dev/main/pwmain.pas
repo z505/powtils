@@ -49,12 +49,11 @@ uses
 const FUTURE_COOKIE  = 'Mon, 01 Dec 2099 12:00:00 GMT'; //must be many years ahead
       EXPIRED_COOKIE = 'Mon, 01 Jan 2001 12:00:00 GMT'; //must be many years behind
 
-
+// todo
 //type TSecurity = (sUnsafe, sTrim);
 // for GetCgiVar_S function security parameter
       SECURE_OFF = 0;
       SECURE_ON = 2;
-      SECURE_FILTER = 3;
 
       CASE_SENSITIVE = false;
       CASE_IGNORE = true;
@@ -83,17 +82,17 @@ function Ucase(const s: astr): astr;
 // note: function names changed to 'post' in 1.7.X rather than old CGI
 function CountPostVars: longword;
 function GetPostVar(const name: astr): astr; overload;
-function GetPostVar(const name: astr; filter: TFilterFunc): astr; overload;
-function GetPostVar_S(const name: astr; Security: int32): astr;
-function GetPostVar_SF(const name: astr; Security: int32): astr;
+function GetPostVar(const name: astr; vfilter: TFilterFunc): astr; overload;
+function GetPostVar_S(const name: astr; security: byte): astr;
+function GetPostVar_SF(const name: astr; security: byte): astr;
 function GetPostVarAsFloat(const name: astr): double;
 function GetPostVarAsInt(const name: astr): int32;
 function GetPostVar_SafeHTML(const name: astr): astr;
 function FetchPostVarName(idx: longword): astr;
 function FetchPostVarVal(idx: longword): astr; overload;
-function FetchPostVarVal(idx: longword; filter: TFilterFunc): astr; overload;
-function FetchPostVarName_S(idx: longword; Security: int32): astr;
-function FetchPostVarVal_S(idx: longword; Security: int32): astr;
+function FetchPostVarVal(idx: longword; vfilter: TFilterFunc): astr; overload;
+function FetchPostVarName_S(idx: longword; security: byte): astr;
+function FetchPostVarVal_S(idx: longword; security: byte): astr;
 function IsPostVar(const name: astr): boo;
 
 { TODO get cgi var based on a valid set of characters such as A..Z, 1..9, a..z
@@ -105,8 +104,8 @@ function IsPostVar(const name: astr): boo;
 { Abstract for Posts (cgi vars), Vars (macros), and Cookies }
 function CountAny: longword;
 function GetAny(const name: astr): astr; overload;
-function GetAny(const name: astr; filter: TFilterFunc): astr; overload;
-function GetAny_S(const name: astr; Security: int32): astr;
+function GetAny(const name: astr; vfilter: TFilterFunc): astr; overload;
+function GetAny_S(const name: astr; security: byte): astr;
 function GetAnyAsFloat(const name: astr): double;
 function GetAnyAsInt(const name: astr): int32;
 function IsAny(const name: astr): byte;
@@ -115,9 +114,9 @@ function IsAny(const name: astr): byte;
 function CountCookies: longword;
 function FetchCookieName(idx: longword): astr;
 function FetchCookieVal(idx: longword): astr; overload;
-function FetchCookieVal(idx: longword; filter: TFilterFunc): astr; overload;
+function FetchCookieVal(idx: longword; cfilter: TFilterFunc): astr; overload;
 function GetCookie(const name: astr): astr; overload;
-function GetCookie(const name: astr; filter: TFilterFunc): astr; overload;
+function GetCookie(const name: astr; cfilter: TFilterFunc): astr; overload;
 function GetCookieAsFloat(const name: astr): double;
 function GetCookieAsInt(const name: astr): int32;
 function IsCookie(const name: astr): boo;
@@ -136,11 +135,11 @@ function UnsetCookieEx(const name, path, domain: astr): boo;
 
 { Filtering Functions }
 function FilterHtml(const input: astr): astr;
-function FilterHtml_S(const input: astr; security: int32): astr;
+function FilterHtml_S(const input: astr; security: byte): astr;
 function TrimBadChars(const input: astr): astr;
 function TrimBadFile(const input: astr): astr;
 function TrimBadDir(const input: astr): astr;
-function TrimBad_S(const input: astr; security: int32): astr;
+function TrimBad_S(const input: astr; security: byte): astr;
 
 { TODO
     function IsBadFile(const input: astr): boo;
@@ -157,16 +156,21 @@ function UnsetHeader(const name: astr): boo;
 function PutHeader(const header: astr): boo;
 
 { Output/Write Functions }
-procedure Out(const s: astr);
-procedure OutLn(const s: astr);
-procedure OutA(args: array of const);
-procedure OutF(const s: astr);
-procedure OutLnF(const s: astr);
-procedure OutFF(const s: astr);
-procedure OutF_FI(const s: astr; HTMLFilter: boo);
-procedure OutLnFF(const s: astr);
-procedure OutLnF_FI(const s: astr; HTMLFilter: boo);
+procedure out(const s: astr);
+procedure outln(const s: astr); overload;
+procedure outln; overload;
+procedure outa(args: array of const);
+procedure outlna(args: array of const);
 
+procedure outf(const s: astr);
+procedure outf(const s: astr; vfilter: TFilterFunc); overload;
+
+procedure outff(const s: astr); 
+
+procedure outlnf(const s: astr); overload;
+procedure outlnf(const s: astr; vfilter: TFilterFunc); overload;
+
+procedure outlnff(const s: astr);
 
 function FileOut(const fname: astr): errcode;
 function ResourceOut(const fname: astr): errcode;
@@ -174,20 +178,18 @@ procedure BufferOut(Const buff; len: LongWord);
 
 function TemplateOut(const fname: astr; HtmlFilter: boo): errcode; overload;
 function TemplateOut(const fname: astr): errcode; overload;
-function TemplateOut(const fname: astr; filter: TFilterFunc): errcode; overload;
+function TemplateOut(const fname: astr; vfilter: TFilterFunc): errcode; overload;
 function TemplateOut1(const fname: astr; HtmlFilter: boo): errcode; overload;
 function TemplateRaw(const fname: astr): errcode;
 
 { fmt stands for format, to not conflict with sysutils Format() function }
 function Fmt(const s: astr): astr; overload;
-function Fmt(const s: astr; filter: TFilterFunc): astr; overload;
-procedure FmtOut(const s: astr); overload;
-procedure FmtOut(const s: astr; filter: TFilterFunc); overload;
+function Fmt(const s: astr; vfilter: TFilterFunc): astr; overload;
 
 function FmtFilter(const s: astr): astr;
 
 function Fmt_SF(const s: astr; HTMLFilter: boo; 
-                FilterSecurity, TrimSecurity: int32): astr; 
+                FilterSecurity, TrimSecurity: byte): astr; 
 
 
 { RTI Functions }
@@ -213,10 +215,10 @@ function SaveUpfile(const name, fname: astr): boo;
 function CountVars: longword;
 function FetchVarName(idx: longword): astr;
 function FetchVarVal(idx: longword): astr; overload;
-function FetchVarVal(idx: longword; filter: TFilterFunc): astr; overload;
+function FetchVarVal(idx: longword; vfilter: TFilterFunc): astr; overload;
 function GetVar(const name: astr): astr; overload;
-function GetVar(const name: astr; filter: TFilterFunc): astr; overload;
-function GetVar_S(const name: astr; security: int32): astr;
+function GetVar(const name: astr; vfilter: TFilterFunc): astr; overload;
+function GetVar_S(const name: astr; security: byte): astr;
 function GetVarAsFloat(const name: astr): double;
 function GetVarAsInt(const name: astr): int32;
 procedure SetVar(const name, value: astr);
@@ -245,8 +247,8 @@ procedure ThrowWarn(const s: astr);
 const // obsolete backwards compatibility
   CountCgiVars: function: longword = {$ifdef FPC}@{$endif}countpostvars;
   GetCgiVar: function(const name: astr): astr = {$ifdef FPC}@{$endif}getpostvar;
-  GetCgiVar_S: function(const name: astr; Security: int32): astr = {$ifdef FPC}@{$endif}getpostvar_s;
-  GetCgiVar_SF: function(const name: astr; Security: int32): astr= {$ifdef FPC}@{$endif}getpostvar_sf;
+  GetCgiVar_S: function(const name: astr; security: byte): astr = {$ifdef FPC}@{$endif}getpostvar_s;
+  GetCgiVar_SF: function(const name: astr; security: byte): astr= {$ifdef FPC}@{$endif}getpostvar_sf;
   IsCgiVar: function(const name: astr): boo= {$ifdef FPC}@{$endif}ispostvar;
   GetCgiVarAsFloat: function(const name: astr): double= {$ifdef FPC}@{$endif}getpostvarasfloat;
   GetCgiVarAsInt: function(const name: astr): int32= {$ifdef FPC}@{$endif}getpostvarasint;
@@ -255,44 +257,42 @@ const // obsolete backwards compatibility
   FetchCgiVarVal: function(idx: longword): astr= {$ifdef FPC}@{$endif}fetchpostvarval;
   FetchCgiVarValue: function(idx: longword): astr= {$ifdef FPC}@{$endif}fetchpostvarval;
 
-  FetchCgiVarName_S: function(idx: longword; Security: int32): astr= {$ifdef FPC}@{$endif}fetchpostvarname_s;
-  FetchCgiVarVal_S: function(idx: longword; Security: int32): astr= {$ifdef FPC}@{$endif}fetchpostvarval_s;
-  FetchCgiVarValue_S: function(idx: longword; Security: int32): astr= {$ifdef FPC}@{$endif}fetchpostvarval_s;
+  FetchCgiVarName_S: function(idx: longword; security: byte): astr= {$ifdef FPC}@{$endif}fetchpostvarname_s;
+  FetchCgiVarVal_S: function(idx: longword; security: byte): astr= {$ifdef FPC}@{$endif}fetchpostvarval_s;
+  FetchCgiVarValue_S: function(idx: longword; security: byte): astr= {$ifdef FPC}@{$endif}fetchpostvarval_s;
   
   ThrowWebError: procedure(const s: astr)                                       = {$IFDEF FPC}@{$ENDIF}ThrowErr;
   WebFileOut: function(const fname: astr): errcode                              = {$IFDEF FPC}@{$ENDIF}fileout;
   WebResourceOut: function(const fname: astr): errcode                          = {$IFDEF FPC}@{$ENDIF}resourceout;
   WebBufferOut: procedure(Const Buff; BuffLength : LongWord)                    = {$IFDEF FPC}@{$ENDIF}bufferout;
   WebTemplateOut: function(const fname: astr;
-                           HTMLFilter: boo): errcode                      = {$IFDEF FPC}@{$ENDIF}templateout;
+                           HTMLFilter: boo): errcode                            = {$IFDEF FPC}@{$ENDIF}templateout;
   WebTemplateRaw: function(const fname: astr): errcode                          = {$IFDEF FPC}@{$ENDIF}templateraw;
   WebFormat: function(const s: astr): astr                                      = {$IFDEF FPC}@{$ENDIF}fmt;
   WebFormatAndFilter: function(const s: astr): astr                             = {$IFDEF FPC}@{$ENDIF}fmtfilter;
   WebFormat_SF: function(const s: astr;
                          HtmlFilter: boo;
                          Security,
-                         TrimSecurity: int32): astr                           = {$IFDEF FPC}@{$ENDIF}fmt_SF;
+                         TrimSecurity: byte): astr                              = {$IFDEF FPC}@{$ENDIF}fmt_SF;
   CountWebVars: function: longword                                              = {$IFDEF FPC}@{$ENDIF}CountVars;
   FetchWebVarName: function(idx: longword): astr                                = {$IFDEF FPC}@{$ENDIF}FetchVarName;
   FetchWebVarValue: function(idx: longword): astr                               = {$IFDEF FPC}@{$ENDIF}FetchVarVal;
   GetWebVar: function(const name: astr): astr                                   = {$IFDEF FPC}@{$ENDIF}GetAny;
-  GetWebVar_S: function(const name: astr; Security: int32): astr              = {$IFDEF FPC}@{$ENDIF}GetAny_S;
+  GetWebVar_S: function(const name: astr; security: byte): astr                 = {$IFDEF FPC}@{$ENDIF}GetAny_S;
   GetWebVarAsFloat: function(const name: astr): double                          = {$IFDEF FPC}@{$ENDIF}GetAnyAsFloat;
-  GetWebVarAsInt: function(const name: astr): int32                           = {$IFDEF FPC}@{$ENDIF}GetAnyAsInt;
+  GetWebVarAsInt: function(const name: astr): int32                             = {$IFDEF FPC}@{$ENDIF}GetAnyAsInt;
   SetWebVar: procedure(const name, value: astr)                                 = {$IFDEF FPC}@{$ENDIF}SetVar;
   SetWebVarAsFloat: procedure(const name: astr; value: double)                  = {$IFDEF FPC}@{$ENDIF}SetVarAsFloat;
-  SetWebVarAsInt: procedure(const name: astr; value: int32)                   = {$IFDEF FPC}@{$ENDIF}SetVarAsInt;
+  SetWebVarAsInt: procedure(const name: astr; value: int32)                     = {$IFDEF FPC}@{$ENDIF}SetVarAsInt;
   IsWebVar: function(const name: astr): byte                                    = {$IFDEF FPC}@{$ENDIF}IsAny;
   UnsetWebVar: procedure (const name: astr)                                     = {$IFDEF FPC}@{$ENDIF}UnsetVar;
   Webwrite: procedure(const s: astr)                                            = {$IFDEF FPC}@{$ENDIF}out;
   WebwriteA: procedure(args: array of const)                                    = {$IFDEF FPC}@{$ENDIF}outa;
   WebwriteF: procedure(const s: astr)                                           = {$IFDEF FPC}@{$ENDIF}outf;
   WebwriteFF: procedure(const s: astr)                                          = {$IFDEF FPC}@{$ENDIF}outff;
-  WebwriteF_Fi: procedure(const s: astr; HTMLFilter: boo)                 = {$IFDEF FPC}@{$ENDIF}outf_fi;
   WebwriteLn: procedure(const s: astr)                                          = {$IFDEF FPC}@{$ENDIF}outln;
   WebwriteLnF: procedure(const s: astr)                                         = {$IFDEF FPC}@{$ENDIF}outlnf;
   WebwriteLnFF: procedure(const s: astr)                                        = {$IFDEF FPC}@{$ENDIF}outlnff;
-  WebwriteLnF_Fi: procedure(const s: astr; HTMLFilter: boo )              = {$IFDEF FPC}@{$ENDIF}outlnf_fi;
   CountWebHeaders: function: longword                                           = {$IFDEF FPC}@{$ENDIF}CountHeaders;
   FetchWebHeaderName: function(idx: longword): astr                             = {$IFDEF FPC}@{$ENDIF}FetchHeaderName;
   FetchWebHeaderVal: function(idx: longword): astr                              = {$IFDEF FPC}@{$ENDIF}FetchHeaderVal;
@@ -321,15 +321,14 @@ var headers_sent: boo = false;
 {-----------------------------------------------------------------------------}
 { FOR PLUGIN UNITS - TYPICAL USERS CAN IGNORE THIS PUBLIC INTERFACE           }
 {-----------------------------------------------------------------------------}
-// more advanced developers use this part of the interface to extend Powtils
-// such as custom session units (mysql, firebird addons instead of SDS) and
-// any functions in this section are not for a typical Powtils coder
+{ Advanced developers use this interface to extend Powtils. i.e. custom session 
+  units (mysql, firebird addons instead of SDS). Any functions in this section 
+  are not for a typical developer
+}
 
 type
   // variable structure
-  TWebVar = record
-    name, value: astr;
-  end;
+  TWebVar = record name, value: astr; end;
   TWebVars = array of TWebVar;
 
   TSessUpdate = function: boo;
@@ -376,9 +375,13 @@ uses
   end;
 {$ENDIF}
 
-var
-  // flags
+
+var { flags } 
   plugin_init_called: boo = false;
+  cook_initialized: boo = false;      // cookie
+  error_reporting, error_halt: boo;   // config 
+  {$IFDEF GZIP_ON}output_buffering, output_compression: boo;{$ENDIF} // output
+ 
 
 type
   // file structure
@@ -407,25 +410,13 @@ var
   cook, // cookie data
   hdr,  // headers
   rti,  // run time information
-  vars  // all web data
-  : TWebVars;
+  vars  // macrovar data
+      : TWebVars;
 
-  conf: TWebCfgVars;    // configuration data
-
+  conf   : TWebCfgVars;    // configuration data
   upfiles: TWebUpFiles; // file uploads storage
 
-  // config flags
-  error_reporting, error_halt: boo;
- {$IFDEF GZIP_ON}
-  output_buffering, output_compression : boo; // Output flags
- {$ENDIF}
-
-  // init flags
-  cook_initialized: boo = false;
-
- {$IFDEF GZIP_ON}
-  outbuff: PSmartBuffer = nil;
- {$ENDIF}
+  {$IFDEF GZIP_ON}outbuff: PSmartBuffer = nil;{$ENDIF}
 
 const
   // lower case string constants
@@ -484,8 +475,8 @@ function unsetenv(const name: pchar): int32; cdecl; external 'c' name 'unsetenv'
   {$ENDIF PWUDEBUG}
 {$ENDIF DBUG_ON}
 
-{ allows a READLN to be called in offling console, but not on the web. Useful
-  for debugging at the console and keeping the window open }
+{ allows a READLN to be called in offline console, but not on the web. Useful
+  for keeping the console window open at the end of program output }
 procedure OffReadln;
 begin
   if SERV.DocRoot() = '' then readln;
@@ -519,9 +510,8 @@ procedure InitHeaders;
 procedure InitBufAndHeaders;
 begin
  {$IFDEF GZIP_ON}
-  if (output_buffering) and (output_compression) then
-    if OutBuff = nil then
-      OutBuff := new(PSmartBuffer, DynamicBuffer(8192));
+  if (output_buffering) and (output_compression) then if OutBuff = nil then
+    OutBuff := new(PSmartBuffer, DynamicBuffer(8192));
  {$ENDIF}
   InitHeaders;
 end;
@@ -533,7 +523,7 @@ var i: longword;
 begin
   result:= 0.0;
   if length(w) = 0 then exit;
-  for i:= 0 to length(w) - 1 do if w[i].name = name then begin
+  for i:= low(w) to high(w) do if w[i].name = name then begin
     val(w[i].value, result);
     break;
   end;
@@ -545,7 +535,7 @@ var i: longword;
 begin
   result:= 0;
   if length(w) = 0 then exit;
-  for i:= 0 to length(w) - 1 do if w[i].name = name then begin
+  for i:= low(w) to high(w) do if w[i].name = name then begin
     val(w[i].value, result);
     break;
   end;
@@ -555,8 +545,7 @@ end;
 procedure OutLnNoHeaders(const s: astr);
 begin
  {$IFDEF GZIP_ON}
-  if output_buffering then
-  begin
+  if output_buffering then begin
     // Append str to buffer
     OutBuff^.AppendStr(S);
     OutBuff^.AppendLineFeed;
@@ -564,7 +553,6 @@ begin
  {$ENDIF}
     NativeWriteLn(s);
 end;
-
 
 { append single new value to WebVariables array i.e. hdr[], sess[],  cook[] }
 procedure AddWebVar(var webv: TWebVars; const name, value: astr);
@@ -612,14 +600,14 @@ end;
 
 { updates value if name exists in list, returns false if no update }
 function UpdateWebVar(var webv: TWebVars; const name, value: astr; upcased: boo): boo;
-var i, len: longword;
+var i: longword;
 begin
   result:= false;
-  len:= length(webv);
-  if len > 0 then for i:= 0 to len - 1 do 
+  if length(webv) < 1 then exit;
+  for i:= low(webv) to high(webv) do 
   begin
-    if upcased then // case Insensitive NAME
-    begin
+    // case Insensitive NAME
+    if upcased then begin
       if Ucase(webv[i].name) = Ucase(name) then begin 
         webv[i].value:= value;
         result:= true;
@@ -650,12 +638,10 @@ begin
   result:= AddWebCfgVar(name, value);
 end;
 
-
 function iUpdateWebVar(var webv: TWebVars; const name, value: astr; upcased: boo): boo;
 begin
   result:= UpdateWebVar(webv, name, value, upcased);
 end;
-
 
 (*
 { updates value if name exists in list, adds one if it doesn't }
@@ -755,7 +741,6 @@ procedure InitCook;
     end;
   end;
 
-
 begin
   // only once
   if cook_initialized then exit;
@@ -776,9 +761,8 @@ begin
   if not plugin_init_called then ErrWithHeader(MISSING_INIT_CALL_OR_UNIT);
   if {$IFNDEF FPC}@{$ENDIF}CustomSessUpdate <> nil then CustomSessUpdate;
   // write headers to stdout
-  if length(hdr) > 0 then
-    for i:= 0 to length(hdr) - 1 do
-      NativeWriteLn(hdr[i].name + ': ' + hdr[i].value);
+  if length(hdr) > 0 then for i:= low(hdr) to high(hdr) do
+    NativeWriteLn(hdr[i].name + ': ' + hdr[i].value);
 
   NativeWriteLn;
   // Update RTI
@@ -790,9 +774,10 @@ end;
 
 
 {$IFDEF GZIP_ON}
- // flush output buffer
+ { flush output buffer }
  function FlushBuffer: boo;
- begin {$IFDEF DBUG_ON}debugln('FlushBuffer begin');{$ENDIF}
+ begin 
+   {$IFDEF DBUG_ON}debugln('FlushBuffer begin');{$ENDIF}
    result:= false;
    if not headers_sent then SendHeaders;
    OutBuff^.Flush;
@@ -817,7 +802,8 @@ var
     inc(i);
   end;
 
-begin {$IFDEF DBUG_ON}debugln('AppendCgiVars begin');{$ENDIF}
+begin 
+  {$IFDEF DBUG_ON}debugln('AppendCgiVars begin');{$ENDIF}
   // Init
   result:= false;
   i:= 1;
@@ -871,13 +857,13 @@ begin {$IFDEF DBUG_ON} debugln('MP_FormSplit begin');{$ENDIF}
     if ptr <> 0 then begin
       // Not last item
       SetLength(form^, length(form^) + 1);
-      form^[length(form^) - 1]:= copy(data^, 1, ptr - 2);
+      form^[high(form^)]:= copy(data^, 1, ptr - 2);
       // Cut this item and next boundary
       delete(data^, 1, ptr + len2 - 1);
     end else begin
       // Last item
       SetLength(form^, length(form^) + 1);
-      form^[length(form^) - 1]:= copy(data^, 1, len-1);
+      form^[high(form^)]:= copy(data^, 1, len-1);
       break;
     end;
   end;
@@ -909,20 +895,15 @@ end;
 { Multipart: splits string by space. Max. result = 6 strings. }
 function MP_SplitLine(line: astr): TMp_Line;
 var
-  cnt, elem, len: int32;
+  i, cnt, elem, len: int32;
   s: astr;
   quoted: boo;
+
 begin {$IFDEF DBUG_ON} debugln('MP_SplitLine begin...');{$ENDIF}
-  result[1]:= '';
-  result[2]:= '';
-  result[3]:= '';
-  result[4]:= '';
-  result[5]:= '';
-  result[6]:= '';
+  for i:= 1 to 6 do result[i]:= '';
   elem:= 1;
   len:= length(line);
   quoted:= false;
-
   for cnt:= 1 to len do
   begin
     s:= copy(line, cnt, 1);
@@ -937,7 +918,6 @@ begin {$IFDEF DBUG_ON} debugln('MP_SplitLine begin...');{$ENDIF}
   {$IFDEF DBUG_ON} debugln('MP_SplitLine end ');{$ENDIF}
 end;
 
-
 { Multipart: extracts data boundary from content-type string }
 function MP_GetBoundary(const content_type: astr): astr;
 var len: int32;
@@ -947,7 +927,6 @@ begin {$IFDEF DBUG_ON} debugln('MP_GetBoundry begin');{$ENDIF}
   if substrpos(result, '"') = 1 then result:= copy(result, 2, length(result) - 2);
   {$IFDEF DBUG_ON} debugln('MP_GetBoundry end');{$ENDIF}
 end;
-
 
 { Multipart: put cgi vars }
 procedure MP_PutCGIVars(data: PString; const content_type: astr);
@@ -960,7 +939,7 @@ begin {$IFDEF DBUG_ON} debugln('MP_PutCGIVars begin');{$ENDIF}
   New(form);
   boundary:= MP_GetBoundary(content_type);
   MP_FormSplit(data, boundary, form);
-  for cnt:= 0 to (length(form^) - 1) do
+  for cnt:= low(form^) to high(form^) do
   begin
     ptr:= 1;
     len:= length(form^[cnt]);
@@ -974,11 +953,11 @@ begin {$IFDEF DBUG_ON} debugln('MP_PutCGIVars begin');{$ENDIF}
     begin
       // It is a file
       SetLength(UpFiles, length(UpFiles) + 1);
-      UpIdx:= length(UpFiles) - 1;
+      UpIdx:= high(UpFiles);
       UpFiles[UpIdx].name:= line[4];
       UpFiles[UpIdx].filename:= line[6];
       {$IFDEF DBUG_ON} debugln('Upload name var: ' +UpFiles[UpIdx].name);
-                          debugln('Upload filename: ' + UpFiles[UpIdx].filename);
+                       debugln('Upload filename: ' + UpFiles[UpIdx].filename);
       {$ENDIF}
 
       // Getting content type
@@ -1072,17 +1051,17 @@ end;
 
 {..............................................................................}
 
-  { iFunction prefixed with "i" means internal. They are for addon/extension 
+  { iFunction (prefixed with 'i') means internal. They are for addon/extension 
     units. PUBLIC, but regular API users  SHOULD NOT USE THEM  }
 
   procedure iAddWebVar(var webv: TWebVars; const name, value: astr);
   begin
-   AddWebVar(webv, name, value);
+    AddWebVar(webv, name, value);
   end;
 
   procedure iSetRTI(const name, value: astr);
   begin
-   SetRTI(name, value);
+    SetRTI(name, value);
   end;
 
   { Check session plugin unit is setup properly }
@@ -1152,7 +1131,7 @@ var i: longword;
 begin
   result:= false;
   if length(conf) > 0 then begin
-    for i:= 0 to length(conf) - 1 do if conf[i].name = name then begin
+    for i:= low(conf) to high(conf) do if conf[i].name = name then begin
       result:= true;
       break;
     end;
@@ -1179,19 +1158,19 @@ function SetCfgVar(const name, value: astr): boo;
                    ckOutputBuffering, ckOutputCompression, ckSessionPath,
                    ckSessionLifetime, ckUploadMaxSize);
   { makes case statement possible for strings }
-  function CfgKind(const f: astr): TCfgKind;
+  function CfgKind(const s: astr): TCfgKind;
   begin
     result:= ckOther;
-    if f = L_HEADER_CHARSET then result:= ckHeaderCharset else if
-       f = L_ERROR_REPORTING then result:= ckErrorReporting else if
-       f = L_ERROR_HALT then result:= ckErrorHalt else if
+    if s = L_HEADER_CHARSET then result:= ckHeaderCharset else if
+       s = L_ERROR_REPORTING then result:= ckErrorReporting else if
+       s = L_ERROR_HALT then result:= ckErrorHalt else if
       {$IFDEF GZIP_ON}
-       f = L_OUTPUT_BUFFERING then result:= ckOutputBuffering else if
-       f = L_OUTPUT_COMPRESSION then result:= ckOutputCompression else if
+       s = L_OUTPUT_BUFFERING then result:= ckOutputBuffering else if
+       s = L_OUTPUT_COMPRESSION then result:= ckOutputCompression else if
       {$ENDIF}
-       f = L_SESSION_PATH then result:= ckSessionPath else if
-       f = L_SESSION_LIFE_TIME then result:= ckSessionLifetime else if
-       f = L_UPLOAD_MAX_SIZE then result:= ckUploadMaxSize 
+       s = L_SESSION_PATH then result:= ckSessionPath else if
+       s = L_SESSION_LIFE_TIME then result:= ckSessionLifetime else if
+       s = L_UPLOAD_MAX_SIZE then result:= ckUploadMaxSize 
     {end};
   end;
 
@@ -1254,13 +1233,12 @@ function GetCfgVar(const name: astr): astr;
 var i: longword;
 begin
   result:= '';
-  if length(conf) > 0 then begin
-    for i:= 0 to length(conf) - 1 do if Ucase(conf[i].name) = Ucase(name) then
-    begin
+  if length(conf) < 1 then exit;
+  for i:= low(conf) to high(conf) do 
+    if Ucase(conf[i].name) = Ucase(name) then begin
       result:= conf[i].value;
       break;
     end;
-  end;
 end;
 
 
@@ -1324,7 +1302,7 @@ end;
     For future consideration
   Secure Level 2:
     Filtering of malicious input variable injection characters. *)
-function FilterHtml_S(const input: astr; security: int32): astr;
+function FilterHtml_S(const input: astr; security: byte): astr;
 begin
   
   if security = SECURE_ON then
@@ -1362,10 +1340,10 @@ begin
 end;
 
 { security 0 and custom user filter applied }
-function FetchPostVarVal(idx: longword; filter: TFilterFunc): astr;
+function FetchPostVarVal(idx: longword; vfilter: TFilterFunc): astr;
 begin
   result:= FetchPostVarVal_S(idx, SECURE_OFF);
-  if assigned(filter) then result:= filter(result);
+  if assigned(vfilter) then result:= vfilter(result);
 end;
 
 { for DLL }
@@ -1375,13 +1353,13 @@ begin
 end;
 
 { for DLL }
-function FetchPostVarVal2(idx: longword; filter: TFilterFunc): astr;
+function FetchPostVarVal2(idx: longword; vfilter: TFilterFunc): astr;
 begin
-  result:= FetchPostVarVal2(idx, filter);
+  result:= FetchPostVarVal2(idx, vfilter);
 end;
 
 { Indexed access to Twebvars name, security specifiable }
-function FetchTWebVarName_S(const w: TWebVars; idx: longword; security: int32): astr;
+function FetchTWebVarName_S(const w: TWebVars; idx: longword; security: byte): astr;
 begin
   if (idx < longword(length(w))) and (length(w) > 0) then
   begin
@@ -1394,7 +1372,7 @@ begin
 end;
 
 { Indexed access to Twebvars value, security specifiable }
-function FetchTWebVarVal_S(const w: TWebVars; idx: longword; security: int32): astr;
+function FetchTWebVarVal_S(const w: TWebVars; idx: longword; security: byte): astr;
 begin
   if (idx < longword(length(w))) and (length(w) > 0) then
   begin
@@ -1407,13 +1385,13 @@ begin
 end;
 
 { Indexed access to cgi variable name, security specifiable }
-function FetchPostVarName_S(idx: longword; security: int32): astr;
+function FetchPostVarName_S(idx: longword; security: byte): astr;
 begin
   result:= FetchTWebVarName_S(cgi, idx, security);
 end;
 
 { Indexed access to cgi variable value, security specifiable }
-function FetchPostVarVal_S(idx: longword; security: int32): astr;
+function FetchPostVarVal_S(idx: longword; security: byte): astr;
 begin
   result:= FetchTWebVarVal_S(cgi, idx, security);
 end;
@@ -1433,10 +1411,10 @@ begin
   result:= FetchTWebvarVal_S(cook, idx, SECURE_OFF);
 end;
 
-function FetchCookieVal(idx: longword; filter: TFilterFunc): astr;
+function FetchCookieVal(idx: longword; cfilter: TFilterFunc): astr;
 begin
   result:= FetchCookieVal(idx);
-  if assigned(filter) then result:= filter(result);
+  if assigned(cfilter) then result:= cfilter(result);
 end;
 
 { Indexed access to header }
@@ -1490,10 +1468,10 @@ begin
   result:= FetchTWebVarVal_S(vars, idx, SECURE_OFF);
 end;
 
-function FetchVarVal(idx: longword; filter: TFilterFunc): astr;
+function FetchVarVal(idx: longword; vfilter: TFilterFunc): astr;
 begin
   result:= FetchVarVal(idx);
-  if assigned(filter) then result:= filter(result);
+  if assigned(vfilter) then result:= vfilter(result);
 end;
 
 { Fmt_SF offers the ability to specify security levels and filter
@@ -1507,16 +1485,16 @@ end;
   at 0, because there is no filter security setting that applies.
 
   The trim security is ignored and should set at 0 when
-  HTMLFIlter = true,  because we can't trim the special characters
+  HTMLFilter = true,  because we can't trim the special characters
   and then try to replace them after (they would already be trimmed).
   i.e. we have to use one or the other, either replace or trim input.}
 
-function Fmt_SF(const s: astr; HTMLFilter: boo; FilterSecurity, TrimSecurity: int32): astr;
+function Fmt_SF(const s: astr; usefilter: boo; 
+                FilterSecurity, Trimsecurity: byte; vfilter: TFilterFunc): astr;
 const
   ID_CHARS = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_';
 var
-  i,
-  len: longword;
+  i, len: longword;
   lex: astr;
 
   { appends char to result string }
@@ -1542,6 +1520,18 @@ var
     inc(i);
   end;
 
+  { evaluate macrovar to current lex }
+  procedure VarToLex;
+  begin
+    if usefilter then begin
+      case FilterSecurity of
+        SECURE_OFF: lex:= GetVar_S(lex, SECURE_OFF); 
+        SECURE_ON: lex:= GetVar(lex, {$IFNDEF FPC}@{$ENDIF}vfilter); // apply macrovar filter
+      end;
+    end else
+      lex:= GetVar_S(lex, TrimSecurity);
+  end;
+
 begin
   // Init
   i:= 1;
@@ -1552,8 +1542,7 @@ begin
   while i <= len do
   begin
     // Normal concat until chars of our attention
-    while (i <= len) and (s[i] <> '$') and (s[i] <> '{') 
-      do AddToResult;
+    while (i <= len) and (s[i] <> '$') and (s[i] <> '{') do AddToResult;
     // If encountered an indication char
     if (i <= len) and (s[i] = '$') then
     begin
@@ -1566,15 +1555,7 @@ begin
         inc(i);
         lex:= '';
         while (i <= len) and (substrpos(ID_CHARS, s[i]) > 0) do AddToLex;
-        // Evaluating and adding
-        if HTMLFilter = true then begin
-          case FilterSecurity of
-            SECURE_OFF: lex:= GetVar_S(lex, SECURE_OFF); //must use GetVar security level off here since we are implementing our own security with filterHTML.
-            SECURE_ON: lex:= GetVar(lex, {$IFDEF FPC}@{$ENDIF}FilterHTML); // apply html filter
-          end;
-        end else begin
-          lex:= GetVar_S(lex, TrimSecurity);
-        end;
+        VarToLex;
         result:= result + lex;
       end;
     end else
@@ -1583,43 +1564,36 @@ begin
         // {$varname}?
         // Check if escaped or for pattern match
         if ((i - 1) > 0) and (s[i - 1] = '\') then AddToResult
-          else
         // at end of line?
-        if i = len then AddToResult
-          else
-        // if not found then continue on
-        if ((i + 1) < len) and (s[i + 1] <> '$') then AddToResult
-          else
-        begin
+        else if i = len then AddToResult
+        // if not found, continue on
+        else if ((i + 1) < len) and (s[i + 1] <> '$') then AddToResult
+        else begin
           // There MUST be } or curly braces should be escaped
           // Getting var name till }
           i:= i + 2;
           lex:= '';
           while (i <= len) and (s[i] <> '}') do AddToLex;
           inc(i);
-          // Evaluating and adding
-          if HTMLFilter = true then
-          begin
-            case FilterSecurity of
-              SECURE_OFF: lex:= GetVar_S(lex, SECURE_OFF); 
-              SECURE_ON: lex:= GetVar(lex, {$IFDEF FPC}@{$ENDIF}FilterHtml); // apply html filter
-            end;
-          end else
-          begin
-            lex:= GetVar_S(lex, TrimSecurity);
-          end;
+          VarToLex;
           result:= result + lex;
         end;
       end;
   end;
 end;
 
+{ overloaded with default macrovar filter }
+function Fmt_SF(const s: astr; HTMLFilter: boo; FilterSecurity, TrimSecurity: byte): astr;
+begin
+  result:= Fmt_SF(s, HTMLFilter, FilterSecurity, TrimSecurity, {$ifdef fpc}@{$endif}FilterHtml);
+end;
+
+
 { $macrovars replaced with ones set via SetVar, applies custom html filter to 
   macrovars being formatted, returns formatted result string}
-function Fmt(const s: astr; filter: TFilterFunc): astr;
+function Fmt(const s: astr; vfilter: TFilterFunc): astr;
 begin
-  result:= Fmt_SF(s, true, SECURE_OFF, SECURE_OFF);
-  if assigned(filter) then result:= filter(result);
+  result:= Fmt_SF(s, true, SECURE_ON, SECURE_OFF, vfilter);
 end;
 
 { Formats a string replacing variables as if they were macros.
@@ -1647,22 +1621,6 @@ begin
   result:= fmt(s, {$IFDEF FPC}@{$ENDIF}FilterHtml);
 end;
 
-{ same as Fmt() but outputs it to browser instead of returning string }
-procedure FmtOut(const s: astr);
-var tmp: astr;
-begin
-  tmp:= Fmt(s);
-  out(tmp);
-end;
-
-{ overloaded, custom filter applied to macrovars }
-procedure FmtOut(const s: astr; filter: TFilterFunc);
-var tmp: astr;
-begin
-  tmp:= Fmt(s, filter);
-  out(tmp);
-end;
-
 { Returns value of CGI (GET/POST) variable. This also means your URL variables.
 
   Default Security level is 2. Use the _S suffix function if you do not need
@@ -1673,16 +1631,16 @@ begin
 end;
 
 { security 0, with custom user filter in place }
-function GetPostVar(const name: astr; filter: TFilterFunc): astr;
+function GetPostVar(const name: astr; vfilter: TFilterFunc): astr;
 begin
   result:= GetPostVar_S(name, SECURE_OFF);  
-  if assigned(filter) then result:= filter(result);
+  if assigned(vfilter) then result:= vfilter(result);
 end;
 
 { for DLL }
-function GetPostVar1(const name: astr; filter: TFilterFunc): astr;
+function GetPostVar1(const name: astr; vfilter: TFilterFunc): astr;
 begin
-  result:= GetPostVar(name, filter);
+  result:= GetPostVar(name, vfilter);
 end;
 
 { for DLL }
@@ -1696,7 +1654,7 @@ var i: longword;
 begin
   result:= '';
   if length(cgi) = 0 then exit;
-  for i:= 0 to length(cgi) - 1 do if cgi[i].name = name then begin
+  for i:= low(cgi) to high(cgi) do if cgi[i].name = name then begin
     result:= cgi[i].value; 
     exit;
   end;
@@ -1704,7 +1662,7 @@ end;
 
 
 (* Old way
-function GetPostVar_S(const name: string; security: int32): astr;
+function GetPostVar_S(const name: string; security: byte): astr;
 var
   i: longword;
 begin
@@ -1735,14 +1693,14 @@ end;
 
   Security 0: does not automatically trim. use this when you want to implement
               your own filtering, such as when using FilterHTML
-  Security 2: trims (deletes) special (malicious) characters}
-function GetPostVar_S(const name: astr; security: int32): astr;
+  Security 2: zeros out malicious characters}
+function GetPostVar_S(const name: astr; security: byte): astr;
 begin
   result:= GetPostVar_Unsafe(name);
   case security of
     // trim malicous characters
     SECURE_ON: result:= TrimBadChars(result);
-    //perform NO trim, raw result
+    // perform NO trim, raw result
     SECURE_OFF: result:= result; 
   end;
 end;
@@ -1765,8 +1723,7 @@ var i: longword;
 begin
   result:= '';
   if length(w) < 1 then exit;
-  for i:= 0 to length(w) - 1 do if w[i].name = name then
-  begin
+  for i:= low(w) to high(w) do if w[i].name = name then begin
     result:= w[i].value;
     break;
   end;
@@ -1779,10 +1736,10 @@ begin
   result:= GetTWebVarVal(cook, name);
 end;
 
-function GetCookie(const name: astr; filter: TFilterFunc): astr;
+function GetCookie(const name: astr; cfilter: TFilterFunc): astr;
 begin
   result:= GetCookie(name);
-    if assigned(filter) then result:= filter(result);
+    if assigned(cfilter) then result:= cfilter(result);
 end;
 
 { Returns value of a cookie as double precision float
@@ -1834,7 +1791,7 @@ var i: longword;
 begin
   result:= '';
   if length(UpFiles) = 0 then exit;
-  for i:= 0 to length(UpFiles) - 1 do if UpFiles[i].name = name then begin
+  for i:= low(UpFiles) to high(UpFiles) do if UpFiles[i].name = name then begin
     result:= UpFiles[i].filename;
     break;
   end;
@@ -1846,7 +1803,7 @@ var i: longword;
 begin
   result:= 0;
   if length(UpFiles) = 0 then exit;
-  for i:= 0 to length(UpFiles) - 1 do if UpFiles[i].name = name then begin
+  for i:= low(UpFiles) to high(UpFiles) do if UpFiles[i].name = name then begin
     result:= UpFiles[i].size;
     break;
   end;
@@ -1859,7 +1816,7 @@ var i: longword;
 begin
   result:= '';
   if length(UpFiles) = 0 then exit;
-  for i:= 0 to length(UpFiles) - 1 do if UpFiles[i].name = name then begin
+  for i:= low(UpFiles) to high(UpFiles) do if UpFiles[i].name = name then begin
     result:= UpFiles[i].content_type;
     break;
   end;
@@ -1874,25 +1831,18 @@ end;
 
    Security level 2:
      Trims (deletes) malicious characters from variable *)
-function GetVar_S(const name: astr; security: int32): astr;
+function GetVar_S(const name: astr; security: byte): astr;
 var i: longword;
 begin
   result:= '';
   // look in vars
   if length(vars) > 0 then
-    for i:= 0 to length(vars) - 1 do if vars[i].name = name then
-    begin
+    for i:= low(vars) to high(vars) do if vars[i].name = name then begin
       case security of 
-        SECURE_OFF: begin
-          result:= vars[i].value;
-          exit;
-        end;
-        SECURE_ON: begin
-          result:= TrimBadCHars(vars[i].value);
-          exit;
-        end;
-      end;{case}
-    end;{loop}
+        SECURE_OFF: begin result:= vars[i].value; exit; end;
+        SECURE_ON:  begin result:= TrimBadChars(vars[i].value); exit; end;
+      end;
+    end;
 end;
 
 
@@ -1903,10 +1853,10 @@ begin
   result:= GetVar_S(name, SECURE_ON);
 end;
 
-function GetVar(const name: astr; filter: TFilterFunc): astr;
+function GetVar(const name: astr; vfilter: TFilterFunc): astr;
 begin
   result:= GetVar_S(name, SECURE_OFF);
-  if assigned(filter) then result:= filter(result);
+  if assigned(vfilter) then result:= vfilter(result);
 end;
 
 function GetAny(const name: astr): astr;
@@ -1915,10 +1865,10 @@ begin
 end;
 
 { security 0, with custom user filter in place }
-function GetAny(const name: astr; filter: TFilterFunc): astr;
+function GetAny(const name: astr; vfilter: TFilterFunc): astr;
 begin
   result:= GetAny_S(name, SECURE_OFF);  
-  if assigned(filter) then result:= filter(result);
+  if assigned(vfilter) then result:= vfilter(result);
 end;
 
 (*
@@ -1932,23 +1882,16 @@ end;
  Security level 2:
    Filters malicious characters from variable into safe html equivalents
 *)
-function GetPostVar_SF(const name: astr; security: int32): astr;
+function GetPostVar_SF(const name: astr; security: byte): astr;
 var i: longword;
 begin
   result:= '';
   // look in cgi vars
   if length(cgi) > 0 then
-    for i:= 0 to length(cgi) - 1 do if cgi[i].name = name then
-    begin
+    for i:= low(cgi) to high(cgi) do if cgi[i].name = name then begin
       case security of
-        SECURE_OFF: begin
-          result:= cgi[i].value;
-          exit;
-        end;
-        SECURE_ON: begin
-          result:= FilterHtml(cgi[i].value);
-          exit;
-        end;
+        SECURE_OFF: begin result:= cgi[i].value; exit; end;
+        SECURE_ON:  begin result:= FilterHtml(cgi[i].value); exit; end;
       end;
     end;
 end;
@@ -1959,27 +1902,20 @@ begin
 end;
 
 
-// look in vars (macros), cgi (posted), and cookies
-function GetAny_S(const name: astr; security: int32): astr;
+{ look in macrovars, posted vars, cookie vars }
+function GetAny_S(const name: astr; security: byte): astr;
   
   function Check(const w: TWebVars): astr;
   var i: longword;
   begin
     result:= '';
-    if length(w) > 0 then
-      for i:= 0 to length(w) - 1 do if w[i].name = name then
-      begin
-        case security of 
-          SECURE_OFF: begin
-            result:= w[i].value;
-            exit;
-          end;
-          SECURE_ON: begin
-            result:= TrimBadChars(w[i].value);
-            exit;
-          end;
-        end;
+    if length(w) < 1 then exit; 
+    for i:= low(w) to high(w) do if w[i].name = name then begin
+      case security of 
+        SECURE_OFF: begin result:= w[i].value; exit; end;
+        SECURE_ON:  begin result:= TrimBadChars(w[i].value); exit; end;
       end;
+    end;
   end;
 
 begin
@@ -1989,24 +1925,25 @@ begin
   if result = '' then result:= Check(cook);
 end;
 
-
-{ Returns value of any web variable as float (double precision) }
+{ Return value of macrovar as float (double precision) }
 function GetVarAsFloat(const name: astr): double;
 begin
   val(GetVar(name), result);
 end;
 
+{ Return float value of any macrovar, posted var, or cookie }
 function GetAnyAsFloat(const name: astr): double;
 begin
   val(GetAny(name), result);
 end;
 
-{ Returns value of any web variable as integer }
+{ Return integer value of any macrovar }
 function GetVarAsInt(const name: astr): int32;
 begin
   val(GetVar(name), result);
 end;
 
+{ Return integer value of any macrovar, posted var, or cookie }
 function GetAnyAsInt(const name: astr): int32;
 begin
   val(GetAny(name), result);
@@ -2018,14 +1955,12 @@ var i: longword;
 begin
   result:= false;
   if length(cgi) > 0 then begin
-    for i:= 0 to length(cgi) - 1 do if cgi[i].name = name then
-    begin
+    for i:= low(cgi) to high(cgi) do if cgi[i].name = name then begin
       result:= true;
       break;
     end;
   end;
 end;
-
 
 { Tells whether a cookie is assigned }
 function IsCookie(const name: astr): boo;
@@ -2033,14 +1968,12 @@ var i: longword;
 begin
   result:= false;
   if length(cook) > 0 then begin
-    for i:= 0 to length(cook) - 1 do if cook[i].name = name then
-    begin
+    for i:= low(cook) to high(cook) do if cook[i].name = name then begin
       result:= true;
       break;
     end;
   end;
 end;
-
 
 { Tells if a header is assigned }
 function IsHeader(const name: astr): boo;
@@ -2048,10 +1981,8 @@ var i: longword;
 begin
   result:= false;
   if length(hdr) = 0 then exit;
-  for i:= 0 to length(hdr) - 1 do if Ucase(hdr[i].name) = Ucase(name) then
-  begin
-    result:= true;
-    break;
+  for i:= low(hdr) to high(hdr) do if Ucase(hdr[i].name) = Ucase(name) then
+  begin result:= true; break;
   end;
 end;
 
@@ -2061,9 +1992,8 @@ var i: longword;
 begin
   result:= false;
   if length(rti) > 0 then
-    for i:= 0 to length(rti) - 1 do if rti[i].name = name then begin
-      result:= true;
-      break;
+    for i:= low(rti) to high(rti) do if rti[i].name = name then 
+    begin result:= true; break;
     end;
 end;
 
@@ -2073,9 +2003,8 @@ var i: longword;
 begin
   result:= false;
   if length(UpFiles) = 0 then exit;
-  for i:= 0 to length(UpFiles) - 1 do if UpFiles[i].name = name then begin
-    result:= true;
-    break;
+  for i:= low(UpFiles) to high(UpFiles) do if UpFiles[i].name = name then 
+  begin result:= true; break;
   end;
 end;
 
@@ -2085,13 +2014,12 @@ begin
   result:= 0;
   // look in vars
   if length(vars) > 0 then
-    for i:= 0 to length(vars) - 1 do if vars[i].name = name then begin
-      result:= 1;
-      break;
+    for i:= low(vars) to high(vars) do if vars[i].name = name then 
+    begin result:= 1; break;
     end;
 end;
 
-{ Tells if any web var exists (macro, cookie, POST/GET, etc) 
+{ Tells if any web var exists (macro, cookie, posted, etc) 
   NOTE: Backwards compatibility issue: DOES NOT CHECK SESSIONS IN 1.7.X }
 function IsAny(const name: astr): byte;
 var i: longword;
@@ -2099,21 +2027,18 @@ begin
   result:= 0;
   // look in vars
   if length(vars) > 0 then
-    for i:= 0 to length(vars) - 1 do if vars[i].name = name then begin
-      result:= 1;
-      exit;
+    for i:= low(vars) to high(vars) do if vars[i].name = name then 
+    begin result:= 1; exit;
     end;
   // look in cookies
   if length(cook) > 0 then
-    for i:= 0 to length(cook) - 1 do if cook[i].name = name then begin
-      result:= 3;
-      exit;
+    for i:= low(cook) to high(cook) do if cook[i].name = name then 
+    begin result:= 3; exit;
     end;
   // look in cgi vars
   if length(cgi) > 0 then
-    for i:= 0 to length(cgi) - 1 do if cgi[i].name = name then begin
-      result:= 4;
-      exit;
+    for i:= low(cgi) to high(cgi) do if cgi[i].name = name then 
+    begin result:= 4; exit;
     end;
 end;
 
@@ -2121,8 +2046,8 @@ end;
 function LineEndToBR(const s: astr): astr;
 begin
   result:= s;
-  if substrexists(result, #13+#10) then
-    result:= substrreplace(result, #13+#10, HTM_BREAK);
+  if substrexists(result, #13#10) then 
+    result:= substrreplace(result, #13#10, HTM_BREAK);
   if substrexists(result, #10) then
     result:= substrreplace(result, #10, HTM_BREAK);
 end;
@@ -2145,11 +2070,11 @@ end;
 procedure outa(args: array of const);
 var i: int32;  
 begin  
-  if high(Args)<0 then 
+  if high(Args) < 0 then 
     out('')  
-  else
+  else 
   begin
-    for i:=0 to high(Args) do  
+    for i:= low(Args) to high(Args) do  
     begin  
       case Args[i].vtype of  
         vtinteger   : out(pwstrutil.inttostr(args[i].vinteger));  
@@ -2166,22 +2091,26 @@ begin
   end;
 end;
 
-{ Formatted output with $MacroVars.  As opposed to OutFF, this function replaces
-  malicious characters with zeros. It does not replace them with html 
-  equivilents. F stands for "formatted" }
-procedure outf(const s: astr);
+procedure outlna(args: array of const);
 begin
-  OutF_fi(s, FILTER_OFF);
+  outa(args);
+  outln;
 end;
 
-{ Powers the OutF and OutFF functions
-  With specifiable filter option for malicious input. If FilterTheHTML is true
-  then the malicious input and special characters are replaced with HTML
-  equivalents. If false, the malious chars are replaced with zeros. If zeroing
-  or filtering is not desired, see Format_SF }
-procedure outf_fi(const s: astr; HTMLFilter: boo);
+{ Formatted output with $MacroVars. As opposed to OutFF, this function replaces
+  malicious characters with zeros. It does not replace them with html entities.
+  F stands for "formatted" }
+procedure outf(const s: astr);
 begin
-  if HTMLFilter = true then out(FmtFilter(s)) else out(Fmt(s));
+  out(Fmt(s));
+end;
+
+{ overloaded, custom filter applied to macrovars }
+procedure outf(const s: astr; vfilter: TFilterFunc);
+var tmp: astr;
+begin
+  tmp:= Fmt(s, vfilter);
+  out(tmp);
 end;
 
 { Formatted output with $MacroVars. As opposed to OutF, this function filters 
@@ -2189,9 +2118,8 @@ end;
   them out.  FF stands for "format & filter". }
 procedure outff(const s: astr);
 begin
-  OutF_fi(s, FILTER_ON);
+  out(FmtFilter(s));
 end;
-
 
 { Plain output with line feed (no html break, just CRLF) }
 procedure outln(const s: astr);
@@ -2199,12 +2127,23 @@ begin
   out(s + CGI_CRLF);
 end;
 
-(* Formatted writeln, outputs $variables that exist from setwebvar. 
-   Trims malicious attempts by deleting special characters. F stands 
-   for "Formatted". *)
+procedure outln;
+begin
+  outln('');
+end;
+
+{ Formatted outln, outputs $macrovars that exist from SetVar 
+  Zeros out malicious chars. F stands  for "Formatted". }
 procedure outlnf(const s: astr);
 begin
-  OutLnF_fi(s, false);
+  outln(fmt(s));
+end;
+
+{ overloaded, custom filter applied to macrovars }
+procedure outlnf(const s: astr; vfilter: TFilterFunc);
+begin
+  outf(s, vfilter);
+  outln;
 end;
 
 { Formatted and filtered writeln, outputs variables like macros,
@@ -2213,20 +2152,8 @@ end;
   FF stands for "Formatted and Filtered" }
 procedure outlnff(const s: astr);
 begin
-  OutLnF_Fi(s, true);
-end;
-
-
-(* powers the WebWriteLnF and WebWriteLnFF functions, and is to be used for
-   more control when webwritelnf and webwritelnff are too limiting.
-   If HTMLFilter option is on, then the template is filtered first and
-   special characters are replaced with HTML equivilents.
-   F stands for "Formatted", while _Fi stands for "Filter input options" *)
-procedure outlnf_fi(const s: astr; HTMLFilter: boo );
-var tmp: astr;
-begin
-  if HTMLFilter = true then tmp:= FmtFilter(s) else tmp:= Fmt(s);
-  OutLn(tmp);
+  outff(s);
+  outln;
 end;
 
 function NoHeadSentNorBuffering: boo;
@@ -2265,9 +2192,9 @@ end;
 
 { Binary Buffer Output...UNTYPED }
 procedure BufferOut(const buff; len: LongWord);
-var P : Pointer;
+var P: pointer;
 begin
-  P := @Buff;
+  P:= @Buff;
   if NoHeadSentNorBuffering then SendHeaders;
   WriteBuff(P, len);
 end;
@@ -2299,7 +2226,7 @@ end;
 
 
 { with custom filter func set by user for security on each macro var }
-function TemplateOut(const fname: astr; filter: TFilterFunc): errcode;
+function TemplateOut(const fname: astr; vfilter: TFilterFunc): errcode;
 var fh: text;
     s: astr;
 begin
@@ -2314,9 +2241,10 @@ begin
   
   while not eof(fh) do begin
     readln(fh, s);
-    s:= Fmt(s, filter); // apply custom filter to any template macro vars
+    s:= Fmt(s, vfilter); // apply custom filter to any template macro vars
     OutLnNoHeaders(s);
   end;
+
   close(fh);
   result:= OK;
 end;
@@ -2330,14 +2258,13 @@ end;
 
 { Formatted file output (macro $variables). If HTMLFilter is true, then any 
   malicious characters from the incoming variables, are replaced with html 
-  equivalents. If false, malicious characters are trimmed (deleted).
+  entities. If false, malicious characters are trimmed (deleted).
 
   i.e. if an incoming variable $EditInput contains malicious characters, they
-  are either trimmed or they are filtered. The actual TEMPLATE itself is not 
-  filtered or trimmed of malicious input, just variables being used in the 
-  template. Template files are dynamic text files. Anything dynamic in text 
-  file format is less secure, just like a PHP script is less secure than static 
-  html.}
+  are either trimmed or they are filtered. The actual TEMPLATE html itself is 
+  not filtered or trimmed, just variables being used via SetVar. Template files 
+  are dynamic text files. Anything dynamic in text file format is less secure, 
+  just like a PHP script is less secure than static html.}
 function TemplateOut(const fname: astr; HtmlFilter: boo): errcode; 
 begin
   if HtmlFilter = true then 
@@ -2346,25 +2273,21 @@ begin
     result:= TemplateOut(fname, nil);   
 end;
 
-
 { for DLL exporting }
 function TemplateOut1(const fname: astr; HtmlFilter: boo): errcode; 
 begin
   result:= TemplateOut(fname, htmlfilter);
 end;
 
-
-
 { Raw template output. Similar to TemplateOut but NO filtering or trimming
   is perfomed on the macro vars.
 
   Insecure, only use when you wish to output raw HTML. People can inject
-  javascript and other stuff into URL variables if you use RAW template}
+  javascript into URL variables }
 function TemplateRaw(const fname: astr): errcode;
 begin
   result:= TemplateOut(fname, nil);
 end;
-
 
 { Sets HTTP header like 'Name: Value' }
 function PutHeader(const header: astr): boo;
@@ -2385,7 +2308,7 @@ begin
   nv[1]:= strtrim(nv[1]);
   // Change value if already set
   if length(hdr) > 0 then
-  for i:= 0 to length(hdr) - 1 do if Ucase(hdr[i].name) = Ucase(nv[0]) then
+  for i:= low(hdr) to high(hdr) do if Ucase(hdr[i].name) = Ucase(nv[0]) then
   begin
     hdr[i].value:= nv[1];
     exit;
@@ -2393,20 +2316,17 @@ begin
   // Add new header
   AddWebVar(hdr, nv[0], nv[1]);
   result:= true;
-  
 end;
-
 
 { Generate random string of alphanumeric + '_' char, specify string length }
 function RandomStr(len: int32): astr;
 const PW_CHARS = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
 var i: longword;
 begin
+  result:= '';
+  if len < 1 then exit;
   setlength(result, len);
-  for i:= 1 to len do begin
-    randomize;
-    result[i]:= PW_CHARS[random(62) + 1];
-  end;
+  for i:= 1 to len do begin randomize; result[i]:= PW_CHARS[random(62)+1]; end;
 end;
 
 
@@ -2514,7 +2434,6 @@ begin
   result:= SetCookieEx(name, s, path, domain, expiry);
 end;
 
-
 { Sets an extended cookie as integer }
 function SetCookieAsIntEx(const name: astr; value: int32; const path, domain, expiry: astr): boo;
 var s: astr;
@@ -2528,7 +2447,6 @@ function SetHeader(const name, value: astr): boo;
 begin
   {$IFDEF DBUG_ON}debugln('SetHeader begin'); {$ENDIF}
   result:= false;
-  // Check headers
   if headers_sent then begin
     ThrowErr('Can''t set header, headers already sent');
     {$IFDEF DBUG_ON} debugln('SetHeader exit 1'); {$ENDIF}
@@ -2536,7 +2454,6 @@ begin
   end;
   // Change value if already exist or add new if not exist
   if not UpdateWebVar(hdr, name, value, CASE_IGNORE) then begin
-    // add new
     AddWebVar(hdr, name, value);
     result:= true;
   end;
@@ -2562,8 +2479,7 @@ begin
   SetVar(name, s);
 end;
 
-
-{ Assigns PWU variable as integer }
+{ Assigns macrovar as integer }
 procedure SetVarAsInt(const name: astr; value: int32);
 var s: astr;
 begin
@@ -2602,7 +2518,6 @@ begin  {$IFDEF DBUG_ON} debugln('ThrowMsg begin'); {$ENDIF}
   // Done
  {$IFDEF DBUG_ON} debugln('ThrowMsg end'); {$ENDIF}
 end;
-
 
 { Throws err if error reporting is on in config settings }
 procedure ThrowErr(const s: astr);
@@ -2739,9 +2654,9 @@ end;
   Define security level
     SECURE_ON:  Trims bad (malicious) characters
     OTHERS: future consideration}
-function TrimBad_S(const input: astr; security: int32): astr;
+function TrimBad_S(const input: astr; security: byte): astr;
 begin
- {$IFDEF DBUG_ON} debugln('TrimBad_S begin'); {$ENDIF}
+  {$IFDEF DBUG_ON}debugln('TrimBad_S begin');{$ENDIF}
   result:= '';
   if security = SECURE_ON then
   begin
@@ -2784,7 +2699,7 @@ begin
 end;
 
 
-{ Unset cookie extended }
+{ extended }
 function UnsetCookieEx(const name, path, domain: astr): boo;
 var
   tmp: TWebVars;
@@ -2802,10 +2717,9 @@ begin  {$IFDEF DBUG_ON} debugln('UnsetCookieEx begin'); {$ENDIF}
   // First removing from the list
   SetLength(tmp, 0);
   if length(cook) > 0 then
-  for i:= 0 to length(cook) - 1 do if cook[i].name <> name then
-  begin
+  for i:= low(cook) to high(cook) do if cook[i].name <> name then begin
     SetLength(tmp, length(tmp) + 1);
-    tmp[length(tmp) - 1]:= cook[i];
+    tmp[high(tmp)]:= cook[i];
   end;
   // Swap
   cook:= tmp;
@@ -2830,8 +2744,7 @@ begin
   {$IFDEF DBUG_ON}debugln('UnsetHeader begin');{$ENDIF}
   result:= false;
   // Check
-  if headers_sent then
-  begin
+  if headers_sent then begin
     ThrowErr('UnsetHeader: no effect, header already sent');
     {$IFDEF DBUG_ON}debugln('UnsetHeader exit');{$ENDIF}
     exit;
@@ -2839,19 +2752,19 @@ begin
   // first remove from list
   SetLength(tmp, 0);
   if length(hdr) > 0 then
-  for i:= 0 to length(hdr) - 1 do if Ucase(hdr[i].name) <> Ucase(name) then
-  begin
-    SetLength(tmp, length(tmp) + 1);
-    tmp[length(tmp) - 1]:= hdr[i];
-  end;
+    for i:= low(hdr) to high(hdr) do if Ucase(hdr[i].name) <> Ucase(name) then 
+    begin
+      SetLength(tmp, length(tmp)+1);
+      tmp[high(tmp)]:= hdr[i];
+    end;
   // Swap
   hdr:= tmp;
   result:= true;
- {$IFDEF DBUG_ON}debugln('UnsetHeader end');{$ENDIF}
+  {$IFDEF DBUG_ON}debugln('UnsetHeader end');{$ENDIF}
 end;
 
 
-{ Removes web variable from list }
+{ Removes macrovar from list }
 procedure UnsetVar(const name: astr);
 var
   tmp: TWebVars;
@@ -2859,12 +2772,12 @@ var
 {$I begin_unsetvar.inc}
   SetLength(tmp, 0);
   if length(vars) > 0 then
-  for i:= 0 to length(vars) - 1 do
-    if Ucase(vars[i].name) <> Ucase(name) then
-    begin
-      SetLength(tmp, length(tmp) + 1);
-      tmp[length(tmp) - 1]:= vars[i];
-    end;
+    for i:= low(vars) to high(vars) do 
+      if Ucase(vars[i].name) <> Ucase(name) then
+      begin
+        SetLength(tmp, length(tmp) + 1);
+        tmp[high(tmp)]:= vars[i];
+      end;
   // Swap
   vars:= tmp;
 {$I end_unsetvar.inc}
@@ -2876,11 +2789,9 @@ var i, len: longword;
 begin
   result:= '';
   len:= length(s);
-  if len > 0 then
-  begin
+  if len > 0 then begin
     SetLength(result, len);
-    for i:= 1 to len do
-      result[i]:= chr(ord(s[i]) xor key);
+    for i:= 1 to len do result[i]:= chr(ord(s[i]) xor key);
   end;
 end;
 
