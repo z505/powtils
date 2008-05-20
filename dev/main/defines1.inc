@@ -6,6 +6,7 @@
 
 {$ifdef FPC} 
   {$mode objfpc}{$H+}
+  {$PACKENUM 1} // byte sized enumerations
 {$endif}
 
 {$ifdef EXTRA_SECURE}
