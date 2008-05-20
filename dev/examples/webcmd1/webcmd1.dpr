@@ -2,7 +2,7 @@
   have shell/ssh/telnet access available
 
   Notes:
-    -tested on linux, not on MS Windows
+    -tested on linux, some testing on MS Windows
 
   Author: 
     Lars (L505
@@ -47,6 +47,11 @@ end;
  end;
 {$endif}
 
+function ExecCmd(const cmd: astr): int32;
+begin
+ {$ifdef unix}   result:= fpSystem(cmd);{$endif} 
+ {$ifdef windows}result:= executeprocess(GetCmdPath(cmd), GetCmdArgs(cmd));{$endif}
+end;
 
 procedure RunAndShowCmd(const cmd: astr);
 var err: int32;
@@ -54,8 +59,8 @@ begin
   out('<hr style="border-style: solid; border-width: 1px;">');
   out('Output of command: <b>'+ cmd + '</b>');
   outln('<textarea style="width:100%; font-size:0.9em;" ROWS=40>');
-  {$ifdef unix}   err:= fpSystem(cmd);{$endif} //ls -l *.pp
-  {$ifdef windows}err:= executeprocess(GetCmdPath(cmd), GetCmdArgs(cmd));{$endif}
+  // execute command such as // ls/mv/cp/tar etc.
+  err:= ExecCmd(cmd);
   outln(  '-------------------------------------------------------------------------');
   outln(  'WEBCMD NOTE: command exited with status: ' + inttostr(err));
   outln('</textarea>');
@@ -68,21 +73,12 @@ begin
 end;
 
 type THtmForm = record cmd: astr; end;
-
 var HtmForm: THtmForm;
 
 { get incoming cmd and params }
 procedure GetPostedVars;
-  { server document root full path is useful as a special macro }
-  procedure FilterMacroVar(var s: astr);
-  begin
-    s:= SubstrReplace(s, '{$DOCROOT}', SERV.DocRoot() );
-    s:= SubstrReplace(s, '$DOCROOT', SERV.DocRoot() );
-  end;
-
 begin
   HtmForm.cmd:= GetCgiVar_S('ed1', 0);
-  FilterMacroVar(HtmForm.cmd);
 end;
 
 { process command, notify it was attempted }
@@ -93,8 +89,15 @@ begin
 end;
 
 procedure Setup;
+  { server document root full path is useful as a special macro }
+  procedure ExpandDocRootMacro(var s: astr);
+  begin
+    s:= SubstrReplace(s, '{$DOCROOT}', SERV.DocRoot() );
+    s:= SubstrReplace(s, '$DOCROOT', SERV.DocRoot() );
+  end;
 begin
   GetPostedVars;
+  ExpandDocRootMacro(HtmForm.cmd);
   // setup $remembercmd macro var for later use with OutF or TemplateOut
   SetVar('remembercmd', HtmForm.cmd);
 end;
