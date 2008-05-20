@@ -22,7 +22,7 @@ end;
 { show input form, with any special chars formated/filtered to html entities }
 procedure JotForm;
 begin
-  FmtOut(
+  OutF(
         '<FORM METHOD=POST ACTION="">' +
             '<b>Web Command</b> (i.e. ls, pwd, mv, cp, zip, tar)' +
             '<i>Tip: {$DOCROOT} or $DOCROOT refers to DOCUMENT_ROOT</i><br />' +
