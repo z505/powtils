@@ -16,19 +16,20 @@ procedure StartPage;
 begin
   webwrite(
     '<html>' +
-      '<body>');
+      '<body style="font-family: verdana, arial, sans-serif;">');
 end;
 
-{ show input form by default }
+{ show input form, with any special chars formated/filtered to html entities }
 procedure JotForm;
 begin
-  outf(
+  FmtOut(
         '<FORM METHOD=POST ACTION="">' +
-            '<b>Web Command</b> (eg. ls, pwd, mv, cp, zip, unzip): <br>' +
+            '<b>Web Command</b> (i.e. ls, pwd, mv, cp, zip, tar)' +
+            '<i>Tip: {$DOCROOT} or $DOCROOT refers to DOCUMENT_ROOT</i><br />' +
             '<INPUT TYPE=text NAME=ed1 value="$remembercmd" style="width:100%;"><br>' +
             '<INPUT TYPE=hidden name=form1posted value=yes>' +
             '<INPUT TYPE=submit VALUE=run>' +
-        '</FORM>');
+        '</FORM>', @FilterHtml);
 end;
 
 procedure Notify;

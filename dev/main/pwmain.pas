@@ -87,7 +87,7 @@ function GetPostVar(const name: astr; filter: TFilterFunc): astr; overload;
 function GetPostVar_S(const name: astr; Security: int32): astr;
 function GetPostVar_SF(const name: astr; Security: int32): astr;
 function GetPostVarAsFloat(const name: astr): double;
-function GetPostVarAsInt(const name: astr): longint;
+function GetPostVarAsInt(const name: astr): int32;
 function GetPostVar_SafeHTML(const name: astr): astr;
 function FetchPostVarName(idx: longword): astr;
 function FetchPostVarVal(idx: longword): astr; overload;
@@ -108,7 +108,7 @@ function GetAny(const name: astr): astr; overload;
 function GetAny(const name: astr; filter: TFilterFunc): astr; overload;
 function GetAny_S(const name: astr; Security: int32): astr;
 function GetAnyAsFloat(const name: astr): double;
-function GetAnyAsInt(const name: astr): longint;
+function GetAnyAsInt(const name: astr): int32;
 function IsAny(const name: astr): byte;
 
 { Cookie Functions }
@@ -119,14 +119,14 @@ function FetchCookieVal(idx: longword; filter: TFilterFunc): astr; overload;
 function GetCookie(const name: astr): astr; overload;
 function GetCookie(const name: astr; filter: TFilterFunc): astr; overload;
 function GetCookieAsFloat(const name: astr): double;
-function GetCookieAsInt(const name: astr): longint;
+function GetCookieAsInt(const name: astr): int32;
 function IsCookie(const name: astr): boo;
 function SetCookie(const name, value: astr): boo;
 function SetCookieAsFloat(const name: astr; value: double): boo;
-function SetCookieAsInt(const name: astr; value: longint): boo;
+function SetCookieAsInt(const name: astr; value: int32): boo;
 function SetCookieEx(const name, value, path, domain, expiry: astr): boo;
 function SetCookieAsFloatEx(const name: astr; value: double; const path, domain, expiry: astr): boo;
-function SetCookieAsIntEx(const name: astr; value: longint; const path, domain, expiry: astr): boo;
+function SetCookieAsIntEx(const name: astr; value: int32; const path, domain, expiry: astr): boo;
 function UnsetCookie(const name: astr): boo;
 function UnsetCookieEx(const name, path, domain: astr): boo;
 
@@ -181,6 +181,9 @@ function TemplateRaw(const fname: astr): errcode;
 { fmt stands for format, to not conflict with sysutils Format() function }
 function Fmt(const s: astr): astr; overload;
 function Fmt(const s: astr; filter: TFilterFunc): astr; overload;
+procedure FmtOut(const s: astr); overload;
+procedure FmtOut(const s: astr; filter: TFilterFunc); overload;
+
 function FmtFilter(const s: astr): astr;
 
 function Fmt_SF(const s: astr; HTMLFilter: boo; 
@@ -193,14 +196,14 @@ function FetchRtiName(idx: longword): astr;
 function FetchRtiVal(idx: longword): astr;
 function GetRti(const name: astr): astr;
 function GetRtiAsFloat(const name: astr): double;
-function GetRtiAsInt(const name: astr): longint;
+function GetRtiAsInt(const name: astr): int32;
 function IsRti(const name: astr): boo;
 procedure SetRTI(const name, value: astr); 
 
 { Upload File Functions }
 function FetchUpfileName(idx: longword): astr;
 function GetUpfileName(const name: astr): astr;
-function GetUpfileSize(const name: astr): longint;
+function GetUpfileSize(const name: astr): int32;
 function GetUpfileType(const name: astr): astr;
 function CountUpfiles: longword;
 function IsUpfile(const name: astr): boo;
@@ -215,16 +218,16 @@ function GetVar(const name: astr): astr; overload;
 function GetVar(const name: astr; filter: TFilterFunc): astr; overload;
 function GetVar_S(const name: astr; security: int32): astr;
 function GetVarAsFloat(const name: astr): double;
-function GetVarAsInt(const name: astr): longint;
+function GetVarAsInt(const name: astr): int32;
 procedure SetVar(const name, value: astr);
 procedure SetVarAsFloat(const name: astr; value: double);
-procedure SetVarAsInt(const name: astr; value: longint);
+procedure SetVarAsInt(const name: astr; value: int32);
 function IsVar(const name: astr): byte;
 procedure UnsetVar(const name: astr);
 
 { Utility/Tools Functions }
 function LineEndToBR(const s: astr): astr;
-function RandomStr(len: longint): astr;
+function RandomStr(len: int32): astr;
 function XorCrypt(const s: astr; key: byte): astr;
 
 { Config Functions }
@@ -246,7 +249,7 @@ const // obsolete backwards compatibility
   GetCgiVar_SF: function(const name: astr; Security: int32): astr= {$ifdef FPC}@{$endif}getpostvar_sf;
   IsCgiVar: function(const name: astr): boo= {$ifdef FPC}@{$endif}ispostvar;
   GetCgiVarAsFloat: function(const name: astr): double= {$ifdef FPC}@{$endif}getpostvarasfloat;
-  GetCgiVarAsInt: function(const name: astr): longint= {$ifdef FPC}@{$endif}getpostvarasint;
+  GetCgiVarAsInt: function(const name: astr): int32= {$ifdef FPC}@{$endif}getpostvarasint;
   GetCgiVar_SafeHTML: function(const name: astr): astr= {$ifdef FPC}@{$endif}getpostvar_safehtml;
   FetchCgiVarName: function(idx: longword): astr= {$ifdef FPC}@{$endif}fetchpostvarname;
   FetchCgiVarVal: function(idx: longword): astr= {$ifdef FPC}@{$endif}fetchpostvarval;
@@ -275,10 +278,10 @@ const // obsolete backwards compatibility
   GetWebVar: function(const name: astr): astr                                   = {$IFDEF FPC}@{$ENDIF}GetAny;
   GetWebVar_S: function(const name: astr; Security: int32): astr              = {$IFDEF FPC}@{$ENDIF}GetAny_S;
   GetWebVarAsFloat: function(const name: astr): double                          = {$IFDEF FPC}@{$ENDIF}GetAnyAsFloat;
-  GetWebVarAsInt: function(const name: astr): longint                           = {$IFDEF FPC}@{$ENDIF}GetAnyAsInt;
+  GetWebVarAsInt: function(const name: astr): int32                           = {$IFDEF FPC}@{$ENDIF}GetAnyAsInt;
   SetWebVar: procedure(const name, value: astr)                                 = {$IFDEF FPC}@{$ENDIF}SetVar;
   SetWebVarAsFloat: procedure(const name: astr; value: double)                  = {$IFDEF FPC}@{$ENDIF}SetVarAsFloat;
-  SetWebVarAsInt: procedure(const name: astr; value: longint)                   = {$IFDEF FPC}@{$ENDIF}SetVarAsInt;
+  SetWebVarAsInt: procedure(const name: astr; value: int32)                   = {$IFDEF FPC}@{$ENDIF}SetVarAsInt;
   IsWebVar: function(const name: astr): byte                                    = {$IFDEF FPC}@{$ENDIF}IsAny;
   UnsetWebVar: procedure (const name: astr)                                     = {$IFDEF FPC}@{$ENDIF}UnsetVar;
   Webwrite: procedure(const s: astr)                                            = {$IFDEF FPC}@{$ENDIF}out;
@@ -365,7 +368,7 @@ uses
 
 {$IFDEF DBUG_ON}
   // var debugt: text; // Debug output file (for localhost single visitor testing only!)
-  var debugt: longint; 
+  var debugt: int32; 
 
   procedure debugln(s: astr);
   begin
@@ -381,7 +384,7 @@ type
   // file structure
   TWebUpFile = record
     name, filename, data, content_type: astr;
-    size: longint;
+    size: int32;
   end;
 
   // uploaded files
@@ -449,8 +452,8 @@ var
   environ: ppchar; cvar; external;
 
 function getenv(const name: PChar): PChar; cdecl; external 'c' name 'getenv';
-function setenv(const name, value: pchar; replace: longint): longint; cdecl; external 'c' name 'setenv';
-function unsetenv(const name: pchar): longint; cdecl; external 'c' name 'unsetenv';
+function setenv(const name, value: pchar; replace: int32): int32; cdecl; external 'c' name 'setenv';
+function unsetenv(const name: pchar): int32; cdecl; external 'c' name 'unsetenv';
 {$ENDIF}  *)
 {------------------------------------------------------------------------------}
 
@@ -537,7 +540,7 @@ begin
 end;
 
 { abstract private }
-function GetTWebvarAsInt(const w: TWebVars; const name: astr): longint;
+function GetTWebvarAsInt(const w: TWebVars; const name: astr): int32;
 var i: longword;
 begin
   result:= 0;
@@ -852,7 +855,7 @@ end;
   form into items }
 procedure MP_FormSplit(var data: PString; const boundary: astr; var form: PMp_Form);
 var separator: astr;
-    ptr, len, len2: longint;
+    ptr, len, len2: int32;
 begin {$IFDEF DBUG_ON} debugln('MP_FormSplit begin');{$ENDIF}
   separator:= '--' + boundary + #13 + #10;
   len2:= length(separator);
@@ -883,7 +886,7 @@ end;
 
 
 { Multipart: Extracts current line beginning from ptr and ending with #13#10 }
-function MP_GetLine(data: PString; var ptr: longint): astr;
+function MP_GetLine(data: PString; var ptr: int32): astr;
 var s: astr;
 begin {$IFDEF DBUG_ON} debugln('MP_GetLine begin');{$ENDIF}
   result:= '';
@@ -948,7 +951,7 @@ end;
 
 { Multipart: put cgi vars }
 procedure MP_PutCGIVars(data: PString; const content_type: astr);
-var cnt, ptr, tmp, len, dpos: longint;
+var cnt, ptr, tmp, len, dpos: int32;
     buff, boundary: astr;
     line: TMp_Line;
     form: PMp_Form;
@@ -1611,7 +1614,8 @@ begin
   end;
 end;
 
-{ applies a custom html filter to web vars being formatted }
+{ $macrovars replaced with ones set via SetVar, applies custom html filter to 
+  macrovars being formatted, returns formatted result string}
 function Fmt(const s: astr; filter: TFilterFunc): astr;
 begin
   result:= Fmt_SF(s, true, SECURE_OFF, SECURE_OFF);
@@ -1641,6 +1645,22 @@ end;
 function FmtFilter(const s: astr): astr;
 begin
   result:= fmt(s, {$IFDEF FPC}@{$ENDIF}FilterHtml);
+end;
+
+{ same as Fmt() but outputs it to browser instead of returning string }
+procedure FmtOut(const s: astr);
+var tmp: astr;
+begin
+  tmp:= Fmt(s);
+  out(tmp);
+end;
+
+{ overloaded, custom filter applied to macrovars }
+procedure FmtOut(const s: astr; filter: TFilterFunc);
+var tmp: astr;
+begin
+  tmp:= Fmt(s, filter);
+  out(tmp);
 end;
 
 { Returns value of CGI (GET/POST) variable. This also means your URL variables.
@@ -1735,7 +1755,7 @@ begin
 end;
 
 { Returns value of CGI (GET/POST) variable as int32 }
-function GetPostVarAsInt(const name: astr): longint;
+function GetPostVarAsInt(const name: astr): int32;
 begin
   result:= GetTWebvarAsInt(cgi, name);
 end;
@@ -1774,7 +1794,7 @@ end;
 
 { Returns value of a cookie as integer
   todo: research if security levels can be implemented }
-function GetCookieAsInt(const name: astr): longint;
+function GetCookieAsInt(const name: astr): int32;
 begin
   result:= GetTWebvarAsInt(cook, name);
 end;
@@ -1802,7 +1822,7 @@ end;
 
 { Returns value of RTI variable as integer
   todo: research if security levels can be implemented }
-function GetRtiAsInt(const name: astr): longint;
+function GetRtiAsInt(const name: astr): int32;
 begin
   result:= GetTWebvarAsInt(rti, name);
 end;
@@ -1821,7 +1841,7 @@ begin
 end;
 
 { Returns size of the uploaded file }
-function GetUpFileSize(const name: astr): longint;
+function GetUpFileSize(const name: astr): int32;
 var i: longword;
 begin
   result:= 0;
@@ -1982,12 +2002,12 @@ begin
 end;
 
 { Returns value of any web variable as integer }
-function GetVarAsInt(const name: astr): longint;
+function GetVarAsInt(const name: astr): int32;
 begin
   val(GetVar(name), result);
 end;
 
-function GetAnyAsInt(const name: astr): longint;
+function GetAnyAsInt(const name: astr): int32;
 begin
   val(GetAny(name), result);
 end;
@@ -2123,7 +2143,7 @@ end;
 
 { Output several arguments at once, multiple types allowed }
 procedure outa(args: array of const);
-var i: longint;  
+var i: int32;  
 begin  
   if high(Args)<0 then 
     out('')  
@@ -2146,10 +2166,9 @@ begin
   end;
 end;
 
-{ PWU-formatted output $MacroVariables.  As opposed to OutFF, this
-  function trims (deletes) malicious characters. It does not replace them with
-  html equivilents. F suffix stands for "formatted"
-  Default security level: 2, trim }
+{ Formatted output with $MacroVars.  As opposed to OutFF, this function replaces
+  malicious characters with zeros. It does not replace them with html 
+  equivilents. F stands for "formatted" }
 procedure outf(const s: astr);
 begin
   OutF_fi(s, FILTER_OFF);
@@ -2158,17 +2177,16 @@ end;
 { Powers the OutF and OutFF functions
   With specifiable filter option for malicious input. If FilterTheHTML is true
   then the malicious input and special characters are replaced with HTML
-  equivilents. If false, the malious input is trimmed (deleted). If you don't
-  want trimming or filtering at all, see Format_SF. }
+  equivalents. If false, the malious chars are replaced with zeros. If zeroing
+  or filtering is not desired, see Format_SF }
 procedure outf_fi(const s: astr; HTMLFilter: boo);
 begin
   if HTMLFilter = true then out(FmtFilter(s)) else out(Fmt(s));
 end;
 
-{ PWU-formatted output $MacroVariables. As opposed to OutF, this function
-  fiters and replaces malicious characters with HTML equivilents, rather
-  than deleting them.  FF suffix stands for "format and filter".
-  Default security level: 2, filter }
+{ Formatted output with $MacroVars. As opposed to OutF, this function filters 
+  and replaces malicious characters with HTML equivilents, rather than zeroing
+  them out.  FF stands for "format & filter". }
 procedure outff(const s: astr);
 begin
   OutF_fi(s, FILTER_ON);
@@ -2320,7 +2338,7 @@ end;
   template. Template files are dynamic text files. Anything dynamic in text 
   file format is less secure, just like a PHP script is less secure than static 
   html.}
-function TemplateOut(const fname: astr; HtmlFilter: boo): errcode; {overload;}
+function TemplateOut(const fname: astr; HtmlFilter: boo): errcode; 
 begin
   if HtmlFilter = true then 
     result:= TemplateOut(fname, {$ifdef FPC}@{$endif}FilterHTML) 
@@ -2330,7 +2348,7 @@ end;
 
 
 { for DLL exporting }
-function TemplateOut1(const fname: astr; HtmlFilter: boo): errcode; overload;
+function TemplateOut1(const fname: astr; HtmlFilter: boo): errcode; 
 begin
   result:= TemplateOut(fname, htmlfilter);
 end;
@@ -2380,7 +2398,7 @@ end;
 
 
 { Generate random string of alphanumeric + '_' char, specify string length }
-function RandomStr(len: longint): astr;
+function RandomStr(len: int32): astr;
 const PW_CHARS = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
 var i: longword;
 begin
@@ -2449,7 +2467,7 @@ end;
 
 
 { Set cookie as integer }
-function SetCookieAsInt(const name: astr; value: longint): boo;
+function SetCookieAsInt(const name: astr; value: int32): boo;
 var s: astr;
 begin
   str(value, s);
@@ -2546,7 +2564,7 @@ end;
 
 
 { Assigns PWU variable as integer }
-procedure SetVarAsInt(const name: astr; value: longint);
+procedure SetVarAsInt(const name: astr; value: int32);
 var s: astr;
 begin
   str(value, s);
@@ -2557,7 +2575,7 @@ type TThrowType = (ttError, ttWarn);
 
 { Abstract for throwerr and throwwarn }
 procedure ThrowMsg(const msg: astr; const style: TThrowType);
-var i: longint;
+var i: int32;
     s: astr;
 begin  {$IFDEF DBUG_ON} debugln('ThrowMsg begin'); {$ENDIF}
   // Increase ERRORS RTI
