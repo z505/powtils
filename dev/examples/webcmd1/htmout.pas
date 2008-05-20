@@ -22,14 +22,14 @@ end;
 { show input form, with any special chars formated/filtered to html entities }
 procedure JotForm;
 begin
-  OutF(
+  Out(
         '<FORM METHOD=POST ACTION="">' +
-            '<b>Web Command</b> (i.e. ls, pwd, mv, cp, zip, tar)' +
-            '<i>Tip: {$DOCROOT} or $DOCROOT refers to DOCUMENT_ROOT</i><br />' +
-            '<INPUT TYPE=text NAME=ed1 value="$remembercmd" style="width:100%;"><br>' +
-            '<INPUT TYPE=hidden name=form1posted value=yes>' +
+            '<b>Web Command</b> (i.e. ls, pwd, mv, cp, zip, tar) ' +
+            '<small><i>Tip: {$DOCROOT} or $DOCROOT refers to DOCUMENT_ROOT</i></small><br />');
+  OutF(     '<INPUT TYPE=text NAME=ed1 value="$remembercmd" style="width:100%;"><br>', @FilterHtml);
+  Out(      '<INPUT TYPE=hidden name=form1posted value=yes>' +
             '<INPUT TYPE=submit VALUE=run>' +
-        '</FORM>', @FilterHtml);
+        '</FORM>');
 end;
 
 procedure Notify;
