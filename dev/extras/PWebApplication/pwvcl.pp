@@ -137,13 +137,15 @@ Type
 
   TWebLoginController = Class
   Private
-    fView : TWebLoginBox;
     Function GetLogin: String;
     Function GetState: Boolean;
+  Protected
+    fView : TWebLoginBox;
   Public
     Constructor Create(aView : TWebLoginBox);
     Function Login: Boolean; Virtual; Abstract;
     Function Logout: Boolean; Virtual; Abstract;
+    Function Change(NewPass : String): Boolean; Virtual; Abstract;
   Published
     Property LoginName : String Read GetLogin;
     Property Logged : Boolean Read GetState;
@@ -536,7 +538,7 @@ End;
 Procedure TWebLoginBox.DefaultLoginErr;
 Begin
   Error := True;
-  ErrorValue := 'Login not sucessfull.';
+  ErrorValue := 'Login or logout not sucessfull.';
 End;
 
 Procedure TWebLoginBox.UponLogin;
@@ -594,13 +596,41 @@ Begin
   End;
 End;
 
+Procedure TWebLoginBox.ChangeLoginData(Action : TTokenList; Depth : LongWord);
+Begin
+  If Assigned(fLoginMan) Then
+  Else
+  Begin
+    Error := True;
+    ErrorValue := 'No Login Manager associated.';
+  End;
+End;
+
+Procedure TWebLoginBox.SubmitChange(Action : TTokenList; Depth : LongWord);
+Begin
+  If Assigned(fLoginMan) Then
+    If fLoginMan.Logged Then
+    Else
+    Begin
+      Error := True;
+      ErrorValue := 'You are not allowed to do this.<br>You need to login first.';
+    End
+  Else
+  Begin
+    Error := True;
+    ErrorValue := 'No Login Manager associated.';
+  End;
+End;
+
 Constructor TWebLoginBox.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Tmpl, Owner);
   OnSubmit := Self.UponLogin;
   WhiteList('Login', ccCGIString);
   WhiteList('Password', ccCGIString);
-  Actions['logout'] := Self.Logout;
+  Actions['logout']       := Self.Logout;
+  Actions['change']       := Self.ChangeLoginData;
+  Actions['submitchange'] := Self.SubmitChange;
 End;
 
 End.
