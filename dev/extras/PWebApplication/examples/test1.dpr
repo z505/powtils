@@ -14,17 +14,18 @@ Uses
   WebApplication,
   WebTemplate,
   PWVCL,
-  NoLoginController;
+  PWEXT;
 
 Var
-  LoginMan : TNoLoginController;
+  LoginMan : TWebTextFileLoginController;
   Dialog1  : TWebLoginBox;
 
 Begin
   SelfReference := 'test1' {$IFDEF WINDOWS} + '.exe'{$ENDIF};
   Root := TWebComponent.Create('root', 'test1', Nil);
   Dialog1 := TWebLoginBox.Create('dialog1', 'dialog', Root);
-  LoginMan := TNoLoginController.Create(Dialog1);
+  LoginMan := TWebTextFileLoginController.Create(Dialog1);
+  LoginMan.Passwords := './users.dat';
   With Dialog1 Do
   Begin
     Caption         := 'Authentication';
