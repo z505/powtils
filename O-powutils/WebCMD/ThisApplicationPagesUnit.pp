@@ -39,17 +39,14 @@ function GetAppropriatePageByPageName (PageName: String): TResidentPageBase;
 implementation
 
 uses
-  LoginPageUnit, MainPageUnit;
+  Page1ResidentUnit;
 
 
 function GetAppropriatePageByPageName (PageName: String): TResidentPageBase;
 begin
-  PageName:= UpperCase (PageName);
 
-  if PageName= 'LOGINPAGE.PSP' then
-    Result:= TLoginPage.Create
-  else if PageName= 'MAINPAGE.PSP' then
-    Result:= TMainPage.Create
+  if PageName= 'INDEXPAGE.PSP' then
+    Result:= TMyWebPage1.Create
   else
     raise EpageNotFound.Create (PageName);
   

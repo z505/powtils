@@ -86,7 +86,7 @@ type
                 Version: String= '1.0'; PageHost: String= '';
                 PagePath: String= ''; Indent: Boolean= False);
 
-    procedure Free; virtual;
+    destructor Destroy; override;
     procedure Flush;
 
   end;
@@ -140,18 +140,33 @@ end;
 procedure TResidentPageBase.WriteToPipe (const S: String);
 const
   NewLine: String= #10#10;
-
+(*$I+*)
+  BufText: String= '';
+(*$I-*)
 begin
   if HeaderCanBeSent then
-    WriteHeaders;
-
-  if 0< Self.Buffer.Count then
-    WriteBuffer;
-
-  if (S<> '') and HeaderCanBeSent then
   begin
-    HeaderCanBeSent:= False;
+    BufText:= Header.Text;
+    FpWrite (FPipeHandle, BufText [1], Length (BufText));
     FpWrite (FPipeHandle, NewLine [1], 2);
+    Header.Clear;
+    HeaderCanBeSent:= False;
+
+  end;
+
+  if HeaderCanBeSent then
+  begin
+    FpWrite (FPipeHandle, NewLine [1], 2);
+    HeaderCanBeSent:= False;
+    
+  end;
+    
+  if Buffer.Count<> 0 then
+  begin
+    BufText:= Buffer.Text;
+    Buffer.Clear;
+
+    FpWrite (FPipeHandle, BufText [1], Length (BufText));
 
   end;
   
@@ -270,6 +285,9 @@ begin
   FIndent:= Indent;
   
   FXMLRoot:= TXMLNode.Create (ThisPageName);
+{  Header.AddHeader (TWebHeader.Create ('', '<?xml version="'+ Version+ '" encoding="'+ Encoding+ '" ?>'));
+  Header.AddHeader (TWebHeader.Create ('', '<?xml-stylesheet href="'+ XSLPath+ '" type= "text/xsl" ?>'));
+}
   Buffer.Add ('<?xml version="'+ Version+ '" encoding="'+ Encoding+ '" ?>');
   Buffer.Add ('<?xml-stylesheet href="'+ XSLPath+ '" type= "text/xsl" ?>');
 
@@ -286,12 +304,12 @@ begin
 
 end;
 
-procedure TXMLResidentPageBase.Free;
+destructor TXMLResidentPageBase.Destroy;
 begin
   Flush;
   FXMLRoot.Free;
   
-  inherited Free;
+  inherited;
   
 end;
 

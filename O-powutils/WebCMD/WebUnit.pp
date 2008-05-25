@@ -505,14 +505,15 @@ var
 begin
   S:= Buffer.Text;
   Buffers.Clear;
-  WriteProcedure (S);
+
   if S<> '' then
   begin
-    WriteProcedure (#10);
-    WriteProcedure (#10);
+    WriteProcedure (#10#10);
     FHeaderCanBeSent:= False;
     
   end;
+
+  WriteProcedure (S);
 
 
 end;
@@ -731,10 +732,6 @@ begin
   // Initialize the main headers since now that there aren't any above errors
   FHeaders.Init (FEnvironment, FConfiguration, FContentType);
 
-  // Load all available data
-  if not GetWebData then//??!!
-    ThrowWebError ('Failed to recieve data from webserver');
-
 end;
 
 //This constructor is called by a ResientPageBaseUnit
@@ -786,7 +783,8 @@ begin
     HaltOnError:= False;
 
   // Initialize the main headers since now that there aren't any above errors
-  FHeaders.Init (FEnvironment, FConfiguration, FContentType);
+//  if ContType<> ctTextXML then
+    FHeaders.Init (FEnvironment, FConfiguration, FContentType);
   
 end;
 
@@ -1110,7 +1108,7 @@ var
   ContentTypeValue: String;
   
 begin
-  HeaderVar:= TWebHeader.Create ('X-Powered-By', 'PWU/' + PWU_VERSION);
+  HeaderVar:= TWebHeader.Create ('<Powered-By', 'OPWU/' + PWU_VERSION+ '>');
   Self.AddHeader (HeaderVar);
 
   ContentTypeValue:= ' text/';
@@ -1136,6 +1134,7 @@ begin
   end;
  {$ENDIF GZIP_ENABLED}
 }
+
 end;
 
 procedure TWebHeaderCollection.Clear;
