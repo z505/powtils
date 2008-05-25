@@ -28,7 +28,7 @@ type
 
   TThreadCollection= class (TBaseCollection)
   private
-    function GetResidentThread(Index: Integer): TResidentPageExcecuteThread;
+    function GetResidentThread (Index: Integer): TResidentPageExcecuteThread;
 
   public
     property ResidentThread [Index: Integer]: TResidentPageExcecuteThread
@@ -104,15 +104,27 @@ begin
   // MsgParamters must be (PageName) (OutputPipeName) (Get/Put Variable)
       PageInstance:= GetAppropriatePageByPageName (UpperCase (MsgParameter.Argument [0]));
 
+      WriteLn ('MsgParameter.Count= ', MsgParameter.Count);
       if 2< MsgParameter.Count then
+      begin
+        WriteLn (MsgParameter.Argument [2]);
         PageInstance.CgiVars.LoadFromString (MsgParameter.Argument [2]);
+        
+      end;
 
       if NewRequest.CookieStr<> '' then
         PageInstance.Cookies.LoadFromString (NewRequest.CookieStr);
 
   // Set the pipename in which the current page should write its output
       PageInstance.PipeFileName:= MsgParameter.Argument [1];
-      PageInstance.MyDispatch;
+      try
+        PageInstance.MyDispatch;
+      except
+        on e: Exception do
+          WriteLn (e.Message);
+          
+      end;
+      
       PageInstance.Free;
 
     end;

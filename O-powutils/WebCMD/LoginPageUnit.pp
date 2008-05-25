@@ -10,7 +10,7 @@ type
 
   { TLoginPage }
 
-  TLoginPage= class (TResidentPageBase)
+  TLoginPage= class (TXMLResidentPageBase)
   public
     constructor Create;
 
@@ -26,13 +26,12 @@ uses
 
 constructor TLoginPage.Create;
 begin
-  inherited Create ('LoginPage', ctTextHTML, 'localhost', '/cgi-bin/WebCMD/LoginPage');
+  inherited Create ('http://127.0.0.1/WebCMD/LoginPage.xsl', 'LoginPage');
 
 end;
 
 procedure TLoginPage.MyDispatch;
 begin
-  WriteProcedure (GlobalObjContainer.FileStringCollection.FileString [0].DataInFile.Text);
 
 end;
 

@@ -23,11 +23,11 @@ type
   private
     FFileName: String;
     FFileID: String;
-    FDataInFile: String;
+    FDataInFile: TStringList;
     
   public
     property FileID: String read FFileID;
-    property DataInFile: String read FDataInFile;
+    property DataInFile: TStringList read FDataInFile;
     
     constructor Create (FileName, FileIdentifier: String);
     procedure Free;
@@ -117,31 +117,19 @@ end;
 
 constructor TFileString.Create (FileName, FileIdentifier: String);
 var
-  InputFile: TextFile;
-  Str: String;
+  InputStream: TFileStream;
   
 begin
   inherited Create;
   
   FFileName:= FileName;
   FFileID:= FileIdentifier;
-  FDataInFile:= '';
 
   if FileExists (FileName) then
   begin
-    AssignFile (InputFile, FileName);
-    Reset (InputFile);
+    FDataInFile:= TStringList.Create;
+    FDataInFile.LoadFromFile (FileName);
 
-
-    while not Eof (InputFile) do
-    begin
-      ReadLn (InputFile, Str);
-      FDataInFile:= FDataInFile+ Str+ #10;
-
-    end;
-
-    CloseFile (InputFile);
-    
   end
   else
     raise EFileNotFound.Create (FileName);
@@ -151,7 +139,7 @@ end;
 
 procedure TFileString.Free;
 begin
-  FDataInFile:= '';
+  FDataInFile.Free;
   
   inherited;
   
