@@ -31,17 +31,25 @@ begin
 end;
 
 procedure TMainPage.MyDispatch;
+  function LoginPassed (UserName, Password: String): Boolean;
+  begin
+    Result:= UserName= 'Amir';
+    
+  end;
+  
 var
  UserName, Password: String;
  
 begin
-  UserName:= CgiVars.CgiVarByName ['UserName'].ToString;
-  WriteLn (UserName);
-  Password:= CgiVars.CgiVarByName ['Password'].ToString;
-  WriteLn (Password);
 
-  WriteProcedure (UserName+ ' : '+ Password);
-  
+  UserName:= CgiVars.CgiVarValueByName ['UserName'];
+  Password:= CgiVars.CgiVarValueByName ['Password'];
+
+  if LoginPassed (UserName, Password) then
+    WriteProcedure (UserName+ ' : '+ Password)
+  else
+    Header.AddHeader (TWebHeader.Create ('LOCATION', 'LoginPage?Retry=1'));
+    
 end;
 
 end.

@@ -1,4 +1,7 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+<xsl:template match="/">
 <HTML>
   <HEAD>
     <TITLE>WebCMD Application Login Page</TITLE>
@@ -11,7 +14,7 @@
       <TR>
        <TD align="center">
         <CENTER>
-         <img src="WebCMDICON.jpg" alt="WebCMD Application Logo" height="74" width="138">
+         <IMG src="WebCMDICON.jpg" alt="WebCMD Application Logo" height="74" width="138"/>
          <BR/>
          <SMALL>WebCMD 1.1<BR/>
            By Amir Aavani <BR/></SMALL>
@@ -24,21 +27,21 @@
               <TBODY>
                <TR>
                 <TD align="right" width="30%">Username:</TD>
-                <TD align="left" width="*"> <INPUT name="UserName" value="" type="text"></TD>
+                <TD align="left" width="*"> <INPUT name="UserName" value="" type="text"/></TD>
                </TR>
                <TR>
                 <TD align="right" width="30%">Password:</TD>
-                <TD align="left" width="*"><INPUT name="Password" type="password"></TD>
+                <TD align="left" width="*"><INPUT name="Password" type="password"/></TD>
                </TR>
                <TR>
-                <TD align="right" width="30%"><input type="checkbox" name="RememberUserName" checked></TD>
+                <TD align="right" width="30%"><INPUT type="checkbox" name="RememberUserName" /></TD>
                 <TD align="left" width="*">Remeber my username</TD>
                </TR>
               </TBODY>
              </TABLE>
             </TD>
            </TR>
-           <TR><TD align="left"><CENTER><INPUT name="SubmitBtn" value="Login" type="submit" onclick="submit ();"></CENTER></TD></TR>
+           <TR><TD align="left"><CENTER><INPUT name="SubmitBtn" value="Login" type="submit" onclick="submit ();"/></CENTER></TD></TR>
           </TBODY>
          </TABLE>
         </CENTER>
@@ -49,3 +52,6 @@
   </FORM>
  </BODY>
 </HTML>
+</xsl:template>
+
+</xsl:stylesheet>
