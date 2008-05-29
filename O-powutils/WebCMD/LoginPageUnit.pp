@@ -20,19 +20,21 @@ type
 
 implementation
 uses
-  ThisProjectGlobalUnit;
+  ThisProjectGlobalUnit, XMLNode, AttributeUnit;
   
   { TLoginPage }
 
 constructor TLoginPage.Create;
 begin
-  inherited Create ('http://127.0.0.1/WebCMD/LoginPage.xsl', 'LoginPage');
+  inherited Create ('../../WebCMD/LoginPage.xsl', 'LoginPage');
 
 end;
 
 procedure TLoginPage.MyDispatch;
 begin
-
+  if CgiVars.CgiVarValueByName ['Retry']<> '' then
+    FXMLRoot.AddAttribute ('RetryMode', 'True');
+    
 end;
 
 end.

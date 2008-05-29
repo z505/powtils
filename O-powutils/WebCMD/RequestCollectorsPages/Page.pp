@@ -16,8 +16,8 @@ type
   Web_TVariables = array of Web_TVariable;
 
 const
-  PipesPath: String= '/var/www/cgi-bin/Test/Pipes/';//Apache's user should be able to read and write on this dir. (The last char must be an slash)
-  MainPipeName: String= '/var/www/cgi-bin/Test/MainPipeForTest';
+  PipesPath: String= '/var/www/cgi-bin/WebCMD/Pipes/';//Apache's user should be able to read and write on this dir. (The last char must be an slash)
+  MainPipeName: String= '/var/www/cgi-bin/WebCMD/MainPipe4WebCMD';
   TempPipeLen: Integer= 10;
   PageName: String= 'INDEXPAGE.PSP';
 
