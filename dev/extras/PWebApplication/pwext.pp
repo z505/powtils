@@ -24,8 +24,6 @@ Type
     Property Passwords: String Read fPasswordFile Write fPasswordFile;
   End;
 
-  TWebTextFileLoginEntry = 
-
 Implementation
 
 Function TWebTextFileLoginController.Login: Boolean;

@@ -596,32 +596,6 @@ Begin
   End;
 End;
 
-Procedure TWebLoginBox.ChangeLoginData(Action : TTokenList; Depth : LongWord);
-Begin
-  If Assigned(fLoginMan) Then
-  Else
-  Begin
-    Error := True;
-    ErrorValue := 'No Login Manager associated.';
-  End;
-End;
-
-Procedure TWebLoginBox.SubmitChange(Action : TTokenList; Depth : LongWord);
-Begin
-  If Assigned(fLoginMan) Then
-    If fLoginMan.Logged Then
-    Else
-    Begin
-      Error := True;
-      ErrorValue := 'You are not allowed to do this.<br>You need to login first.';
-    End
-  Else
-  Begin
-    Error := True;
-    ErrorValue := 'No Login Manager associated.';
-  End;
-End;
-
 Constructor TWebLoginBox.Create(Name, Tmpl : String; Owner : TWebComponent);
 Begin
   Inherited Create(Name, Tmpl, Owner);
@@ -629,8 +603,6 @@ Begin
   WhiteList('Login', ccCGIString);
   WhiteList('Password', ccCGIString);
   Actions['logout']       := Self.Logout;
-  Actions['change']       := Self.ChangeLoginData;
-  Actions['submitchange'] := Self.SubmitChange;
 End;
 
 End.
