@@ -372,7 +372,7 @@ procedure CreateGroup(paths: TPaths; g: TGroup);
 begin CreateGroup(g, paths);
 end;
 
-procedure AddItem(var a: AStrRay; s: string);
+procedure AddItem(var a: AstrRay; s: string);
 var len: int32;
 begin      
   if s = '' then exit;
