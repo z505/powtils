@@ -53,7 +53,7 @@ type
     priv: record      // private, not for interface user to worry about
       defines,                                                          
       incpaths, 
-      unitpaths: AstrArray;
+      unitpaths: AstrRay;
       craptargetdir: astr;   // i.e. /.crap/i386-win32/
       progtargetdir: astr;   // i.e. /bin/i386-win32/
     end;
@@ -115,7 +115,7 @@ function doingdefault: boolean;
 procedure CreateGroup(paths: TPaths; g: TGroup);
 procedure Run;
 
-procedure SetVisibleGroups(const names: str15array);
+procedure SetVisibleGroups(const names: str15ray);
 
 (* Todo: 
     -zip (tar, winzip, etc) functions
@@ -137,7 +137,7 @@ type
 
 var // all build groups 
   Pail: TPail = nil;
-  VisibleGroups: str15array = nil;
+  VisibleGroups: str15ray = nil;
 
 function GetProgTargetDir(groupidx: int32): astr;
 begin
@@ -146,7 +146,7 @@ begin
   result:= Pail[groupidx].group.priv.progtargetdir;
 end;
 
-procedure SetVisibleGroups(const names: str15array);
+procedure SetVisibleGroups(const names: str15ray);
 begin
   if length(names) > 0 then VisibleGroups:= AssignArray(names);
 end;
@@ -305,7 +305,7 @@ begin
   ShowHelp;
 end;
 
-function AllGroupNames: str15array;
+function AllGroupNames: str15ray;
 var i: int32;
 begin
   if length(pail) < 1 then exit;
@@ -364,8 +364,7 @@ begin
   pail[oldlen].group:= g;
 end;
 
-
-procedure AstrArrayAdd(var a: AstrArray; s: string);
+procedure AddItem(var a: AStrRay; s: string);
 var len: int32;
 begin      
   if s = '' then exit;
@@ -374,7 +373,7 @@ begin
   a[len]:= s;
 end;
 
-procedure AstrArrayReset(var a: AstrArray);
+procedure clear(var a: AstrRay);
 begin
   setlength(a, 0);
 end;
@@ -399,7 +398,7 @@ end;
 { add an -Fu path }
 procedure AddUnitPath(var g: TGroup; s: astr);
 begin
-  AstrArrayAdd(g.priv.unitpaths, s);
+  AddItem(g.priv.unitpaths, s);
 end;
 
 { multiple at once! :-) }
@@ -411,7 +410,7 @@ end;
 { add an -Fi path }
 procedure AddIncPath(var g: TGroup; s: astr);
 begin
-  AstrArrayAdd(g.priv.incpaths, s);
+  AddItem(g.priv.incpaths, s);
 end;
 
 { multiple at once! :-) }
@@ -435,7 +434,7 @@ end;
 { adds -dSOMEDEFINE }
 procedure AddDefine(var g: TGroup; s: astr);
 begin
-  AstrArrayAdd(g.priv.defines, s);
+  AddItem(g.priv.defines, s);
 end;
 
 { multiple at once! :-) }
@@ -452,17 +451,17 @@ end;
 
 procedure ResetUnitPaths(var g: TGroup);
 begin
-  AstrArrayReset(g.priv.unitpaths);
+  clear(g.priv.unitpaths);
 end;
 
 procedure ResetIncPaths(var g: TGroup);
 begin
-  AstrArrayReset(g.priv.incpaths);
+  clear(g.priv.incpaths);
 end;
 
 procedure ResetDefines(var g: TGroup);
 begin
-  AstrArrayReset(g.priv.defines);
+  clear(g.priv.defines);
 end;
 { ............................................................................}
 
@@ -487,18 +486,16 @@ function MakeOpts(var g: TGroup): string;
 var allopts: astr = '';
 
   procedure AddSimpleOpts(const opt: astr);
-  begin
-    allopts:= allopts+' '+opt;
+  begin allopts:= allopts+' '+opt;
   end;
 
   procedure AddOpts(const prefix, opt: astr);
-  begin
-    if length(opt) > 0 then allopts:= allopts+' '+prefix+opt;
+  begin if length(opt) > 0 then allopts:= allopts+' '+prefix+opt;
   end;
 
   procedure AddStrArrayOpts;
 
-    procedure Add(prefix: astr; a: AstrArray);
+    procedure Add(prefix: astr; a: AstrRay);
     var i: int32;
     begin
       if length(a) > 0 then
@@ -513,14 +510,13 @@ var allopts: astr = '';
   end;
 
   procedure AddTrailSlash(var path: string);
-  begin
-    path:= IncludeTrailingPathDelimiter(path);
+  begin path:= IncludeTrailingPathDelimiter(path);
   end;
 
   procedure AddTrailSlashes;
   begin
-    AddTrailSlash(g.Dir);
-    AddTrailSlash(g.CrapDir);
+    AddTrailSlash(g.Dir); 
+    AddTrailSlash(g.CrapDir); 
     AddTrailSlash(g.ProgBinDir);
   end;
 
@@ -591,8 +587,7 @@ end;
 procedure GetFpcPath(var fpcpath: astr);
 var found: astr;
 begin
-  if (fpcpath = '') then
-  begin
+  if (fpcpath = '') then begin
     fpcpath:= 'fpc';
     found:= FileSearch(fpcpath, GetEnvironmentVariable('PATH'));
     if (found <> '') then fpcpath:= found;
@@ -613,10 +608,10 @@ end;
 
 { compile program with options string }
 function Compile(const srcunit, opts, fpversion: astr; IgnoreErr: boo): int32;
+const ERR1 = 'compiler returned error: ';
 begin
   result:= ExecuteProcess(GetFpcFullPath(), SrcUnit+' '+opts);
-  if (result<>0) and (not IgnoreErr) then
-    HaltErr('compiler returned error: ', result);
+  if (result<>0) and (not IgnoreErr) then HaltErr(ERR1, result);
 end;
 
 { other }
@@ -700,7 +695,7 @@ var allopts: astr = '';
 
   procedure AddStrArrayOpts;
 
-    procedure Add(prefix: astr; arr: AstrArray);
+    procedure Add(prefix: astr; arr: AstrRay);
     var i: longword;
     begin
     if length(arr) > 0 then

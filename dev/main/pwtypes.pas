@@ -9,23 +9,29 @@ type
   // This goes against pascal's "verbosity" heritage, but extremely long 
   // declarations, (esp. ones with CONST and VAR in them) span far too wide
   // across screens to remain readable. "AStr" is also safer than abstract 
-  // "string" type, since {$H+} or {$LONGSTRINGS ON} programmer errors or
-  // forgotten directives can cause horrible confusing software errors/bugs
+  // "string" type, since {$H+} or {$LONGSTRINGS ON} forgotten directives can 
+  // cause confusing software bugs
 
   astr = ansistring;
   // fast strings, power of 2 (premature optimization ;-( )
   str15 = string[15]; // 16-1 (16 based)
   str31 = string[31]; // 32-1 (32 based)
   TStrArray = array of string; // obsolete -> AstrArray is better
-  AstrArray = array of astr;
-  str15array = array of str15;
-  str31array = array of str31;
-  ShortstrArray = array of shortstring;
-  num  = longint;    // deprecated
-  bln = boolean;     // deprecated
-  int32 = longint;   // int32 better than more vague "longint", also keeps long procedure declarations readable and shorter
-  boo = boolean;     // keeps long procedure declarations readable 
+  AstrArray = array of astr;   // deprecated, use "AstrRay"
+  AstrRay = array of astr;
+  str15ray = array of str15;
+  str31ray = array of str31;          
+  str255ray = array of shortstring;
+  int32 = longint;   // less vague than "longint", keeps declarations shorter
+  boo = boolean;     // keeps procedure declarations shorter and readable 
 
+ {----------------- DEPRECATED -----------------------------------------------}
+  num  = longint;                       // use int32
+  bln = boolean;                        // use boo
+  str15array = array of str15;          // use str15ray 
+  str31array = array of str31;          // use str31ray
+  ShortstrArray = array of shortstring; // use str255ray
+ {----------------------------------------------------------------------------}
 
 const // platform specific directory slash (old Mac not supported)
   {$ifdef UNIX}SLASH = '/';{$endif}
@@ -40,8 +46,7 @@ const
   // default program extension
   EXT={$IFDEF WINDOWS}'.exe'{$ENDIF} {$IFDEF UNIX}''{$ENDIF};
 
-{$IFNDEF FPC} // delphi compatability
-
+{$IFNDEF FPC} // delphi compatibility
   const
     DirectorySeparator = SLASH;  // TODO:  delphi VERSION check & KYLIX compat
     PathDelim = DirectorySeparator;
