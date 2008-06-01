@@ -37,8 +37,7 @@ uses
   arrayfuncs;
 
 type 
-  // this may change to more generic "TGroupOptions" or "TCompilerOptions in future if more compilers supported                                             
-  TFpcOptions = record
+  TGroup = record
     Name: str15;        // group name
     Dir,                // working directory
     Crapdir,            // subdir for .o/.a/.ppu files (relative to working dir)
@@ -51,7 +50,7 @@ type
     IgnoreErr: boo;     // ignore compiler errors
     Extra: astr;                 
     FpcVersion: astr;
-    intern: record      // private, not for interface user to worry about
+    priv: record      // private, not for interface user to worry about
       defines,                                                          
       incpaths, 
       unitpaths: AstrArray;
@@ -59,24 +58,27 @@ type
       progtargetdir: astr;   // i.e. /bin/i386-win32/
     end;
   end;
+ 
+  // deprecated, backwards compatible
+  TFpcOptions = TGroup;
 
 
 procedure NoteLn(const s: string);
 procedure HaltErr(const s: astr);
 
-procedure Init(out opts: TFpcOptions);
+procedure Init(out g: TGroup);
 
 function GetProgTargetDir(groupidx: int32): string;
 
 function Compile(const srcunit, opts, fpversion: astr; IgnoreErr: boo): int32;
-function Compile(const srcunit: astr; var opts: TFpcOptions): int32;
+function Compile(const srcunit: astr; var g: TGroup): int32;
 function Compile(const srcunit, opts, fpversion: astr): int32;
 function Compile(const srcunit, opts: astr): int32;
 
-procedure CompileMany(var paths: TPaths; var opts: TFpcOptions; ShowSeparator: boo);
-procedure CompileMany(var paths: TPaths; var opts: TFpcOptions);
+procedure CompileMany(var paths: TPaths; var g: TGroup; ShowSeparator: boo);
+procedure CompileMany(var paths: TPaths; var g: TGroup);
 
-procedure ShowOpts(var opts: TFpcOptions);
+procedure ShowOpts(var g: TGroup);
 
 function Build(const srcunit, opts, fpversion: astr; IgnoreErr: boo): int32;
 function Build(const srcunit, opts, fpversion: astr): int32;
@@ -84,15 +86,22 @@ function Build(const srcunit, opts, fpversion: astr): int32;
 function RunCmd(const path, comline: astr): int32;
 function RunCmd(const path: astr; const comline: array of astr): int32;
 
-procedure AddUnitPath(var opts: TFpcOptions; s: astr);
-procedure AddIncPath(var opts: TFpcOptions; s: astr);
-procedure AddDefine(var opts: TFpcOptions; s: astr);
-procedure AddExtraOpt(var opts: TFpcOptions; s: astr);
+procedure AddUnitPath(var g: TGroup; s: astr);
+procedure AddUnitPaths(var g: TGroup; a: array of astr);
 
-procedure ResetUnitPaths(var opts: TFpcOptions);
-procedure ResetIncPaths(var opts: TFpcOptions);
-procedure ResetDefines(var opts: TFpcOptions);
-procedure ResetExtraOpts(var opts: TFpcOptions);
+procedure AddIncPath(var g: TGroup; s: astr);
+procedure AddIncPaths(var g: TGroup; a: array of astr);
+
+procedure AddDefine(var g: TGroup; s: astr);
+procedure AddDefines(var g: TGroup; a: array of astr);
+
+procedure AddExtraOpt(var g: TGroup; s: astr);
+procedure AddExtraOpts(var g: TGroup; a: array of astr);
+
+procedure ResetUnitPaths(var g: TGroup);
+procedure ResetIncPaths(var g: TGroup);
+procedure ResetDefines(var g: TGroup);
+procedure ResetExtraOpts(var g: TGroup);
 
 procedure WriteSeparator;
 procedure WriteSeparator1;
@@ -103,7 +112,7 @@ function DoingAll: boolean;
 function Cleaning: boolean;
 function doingdefault: boolean;
 
-procedure CreateGroup(paths: TPaths; opts: TFpcOptions);
+procedure CreateGroup(paths: TPaths; g: TGroup);
 procedure Run;
 
 procedure SetVisibleGroups(const names: str15array);
@@ -117,23 +126,24 @@ procedure SetVisibleGroups(const names: str15array);
 implementation
 uses strutils, sysutils, pwfileutil, pwfputil;
 
+// pail: contains group settings, and corresponding file paths to compile
 type
-  TGroup = record
+  TPailItem = record
     paths: TPaths;
-    opts: TFpcOptions;
+    group: TGroup;
   end;
 
-  TGroups = array of TGroup;
+  TPail = array of TPailItem;
 
 var // all build groups 
-  Groups: TGroups = nil;
+  Pail: TPail = nil;
   VisibleGroups: str15array = nil;
 
 function GetProgTargetDir(groupidx: int32): astr;
 begin
   result:= '';
-  if length(Groups)-1 < groupidx then exit;
-  result:= Groups[groupidx].opts.intern.progtargetdir;
+  if length(Pail)-1 < groupidx then exit;
+  result:= Pail[groupidx].group.priv.progtargetdir;
 end;
 
 procedure SetVisibleGroups(const names: str15array);
@@ -298,9 +308,9 @@ end;
 function AllGroupNames: str15array;
 var i: int32;
 begin
-  if length(groups) < 1 then exit;
-  setlength(result, length(groups));
-  for i:= low(groups) to high(groups) do result[i]:= groups[i].opts.name;
+  if length(pail) < 1 then exit;
+  setlength(result, length(pail));
+  for i:= low(pail) to high(pail) do result[i]:= pail[i].group.name;
 end;
 
 { ensures targets are setup right }
@@ -316,8 +326,8 @@ procedure CheckGroups;
     for i1:= low(defgroups) to high(defgroups) do begin
       if group() = defgroups[i1] then inc(found);
     end;
-    for i2:= low(groups) to high(groups) do begin
-      if groups[i2].opts.name = group() then inc(found);
+    for i2:= low(pail) to high(pail) do begin
+      if pail[i2].group.name = group() then inc(found);
     end;
     if found < 1 then ShowMissingGroupHelp;
   end;
@@ -337,21 +347,21 @@ procedure Run;
 var i: int32;
 begin
   Checkgroups;
-  if length(groups) < 1 then HaltErr('groups array has zero registered');
-  for i:= low(groups) to high (groups) do begin
-    CompileMany(groups[i].paths, groups[i].Opts);
+  if length(pail) < 1 then HaltErr('Zero groups in pail available!');
+  for i:= low(pail) to high (pail) do begin
+    CompileMany(pail[i].paths, pail[i].group);
   end;
 end;
 
 { add a group of files to be compiled with options }
-procedure CreateGroup(paths: TPaths; opts: TFpcOptions);
+procedure CreateGroup(paths: TPaths; g: TGroup);
 var oldlen: int32;
 begin
-  if opts.Name = '' then HaltErr('Must specify a name for each group.');
-  oldlen:= length(groups);
-  setlength(groups, oldlen+1);
-  groups[oldlen].paths:= paths;
-  groups[oldlen].opts:= opts;
+  if g.Name = '' then HaltErr('Must specify a name for each group.');
+  oldlen:= length(pail);
+  setlength(pail, oldlen+1);
+  pail[oldlen].paths:= paths;
+  pail[oldlen].group:= g;
 end;
 
 
@@ -370,75 +380,89 @@ begin
 end;
 
 { must call this to ensure Record is initialized }
-procedure Init(out opts: TFpcOptions);
+procedure Init(out g: TGroup);
+const cleared: TGroup = ();
 begin
-  with opts do begin
-    SmartStrip:= false; IgnoreErr:= false;  Extra:= ''; CrapDir:= '.crap';  
-    ProgBinFile:= ''; ProgBinDir:= ''; Name:= ''; Dir:= '';
+  g:= cleared;
+  with g do begin
+    CrapDir:= '.crap';  
     // default version is current compiler of this unit
     FpcVersion:= pwfputil.FpcVersion();
     Rebuild:= rebuilding();
     // if rebuilding or cleaning then CleanBeforeRebuild
-    if (Rebuild) or (cleaning) then 
-      CleanBeforeRebuild:= true 
-    else 
-      CleanBeforeRebuild:= false;
+    CleanBeforeRebuild:= (rebuild) or (cleaning);
     // only compile if we are not cleaning
     Compile:= not cleaning;
-
-    with intern do begin
-      setlength(defines, 0);
-      setlength(incpaths, 0);
-      setlength(unitpaths, 0);
-      craptargetdir:= '';
-      progtargetdir:= '';
-    end;
   end;
 end;
 
-{ adds an -Fu path }
-procedure AddUnitPath(var opts: TFpcOptions; s: astr);
+{ add an -Fu path }
+procedure AddUnitPath(var g: TGroup; s: astr);
 begin
-  AstrArrayAdd(opts.intern.unitpaths, s);
+  AstrArrayAdd(g.priv.unitpaths, s);
 end;
 
-{ adds an -Fi path }
-procedure AddIncPath(var opts: TFpcOptions; s: astr);
+{ multiple at once! :-) }
+procedure AddUnitPaths(var g: TGroup; a: array of astr); var i: int32;
 begin
-  AstrArrayAdd(opts.intern.incpaths, s);
+  for i:= low(a) to high(a) do AddUnitPath(g, a[i]);
+end;
+
+{ add an -Fi path }
+procedure AddIncPath(var g: TGroup; s: astr);
+begin
+  AstrArrayAdd(g.priv.incpaths, s);
+end;
+
+{ multiple at once! :-) }
+procedure AddIncPaths(var g: TGroup; a: array of astr); var i: int32;
+begin
+  for i:= low(a) to high(a) do AddIncPath(g, a[i]);
 end;
 
 { adds extra compiler option,  i.e. -Sd  -Whatever  -blah }
-procedure AddExtraOpt(var opts: TFpcOptions; s: astr);
+procedure AddExtraOpt(var g: TGroup; s: astr);
 begin
-  opts.extra:= opts.extra + ' ' + s;
+  g.extra:= g.extra + ' ' + s;
+end;
+
+{ multiple at once! :-) }
+procedure AddExtraOpts(var g: TGroup; a: array of astr); var i: int32;
+begin
+  for i:= low(a) to high(a) do AddExtraOpt(g, a[i]);
 end;
 
 { adds -dSOMEDEFINE }
-procedure AddDefine(var opts: TFpcOptions; s: astr);
+procedure AddDefine(var g: TGroup; s: astr);
 begin
-  AstrArrayAdd(opts.intern.defines, s);
+  AstrArrayAdd(g.priv.defines, s);
+end;
+
+{ multiple at once! :-) }
+procedure AddDefines(var g: TGroup; a: array of astr); var i: int32;
+begin
+  for i:= low(a) to high(a) do AddDefine(g, a[i]);
 end;
 
 { ... reset settings in record ...............................................}
-procedure ResetExtraOpts(var opts: TFpcOptions);
+procedure ResetExtraOpts(var g: TGroup);
 begin
-  opts.extra:= '';
+  g.extra:= '';
 end;
 
-procedure ResetUnitPaths(var opts: TFpcOptions);
+procedure ResetUnitPaths(var g: TGroup);
 begin
-  AstrArrayReset(opts.intern.unitpaths);
+  AstrArrayReset(g.priv.unitpaths);
 end;
 
-procedure ResetIncPaths(var opts: TFpcOptions);
+procedure ResetIncPaths(var g: TGroup);
 begin
-  AstrArrayReset(opts.intern.incpaths);
+  AstrArrayReset(g.priv.incpaths);
 end;
 
-procedure ResetDefines(var opts: TFpcOptions);
+procedure ResetDefines(var g: TGroup);
 begin
-  AstrArrayReset(opts.intern.defines);
+  AstrArrayReset(g.priv.defines);
 end;
 { ............................................................................}
 
@@ -459,7 +483,7 @@ begin
 end;
 
 { makes options Record into a string like '-Fu/path -oProg' }
-function MakeOpts(var opts: TFpcOptions): string;
+function MakeOpts(var g: TGroup): string;
 var allopts: astr = '';
 
   procedure AddSimpleOpts(const opt: astr);
@@ -483,9 +507,9 @@ var allopts: astr = '';
     end;
 
   begin
-     Add('-d', opts.intern.defines);
-     Add('-Fi', opts.intern.incpaths);
-     Add('-Fu', opts.intern.unitpaths);
+     Add('-d', g.priv.defines);
+     Add('-Fi', g.priv.incpaths);
+     Add('-Fu', g.priv.unitpaths);
   end;
 
   procedure AddTrailSlash(var path: string);
@@ -495,9 +519,9 @@ var allopts: astr = '';
 
   procedure AddTrailSlashes;
   begin
-    AddTrailSlash(opts.Dir);
-    AddTrailSlash(opts.CrapDir);
-    AddTrailSlash(opts.ProgBinDir);
+    AddTrailSlash(g.Dir);
+    AddTrailSlash(g.CrapDir);
+    AddTrailSlash(g.ProgBinDir);
   end;
 
 var targdir: string;
@@ -506,34 +530,34 @@ begin
   targdir:= '';
   AddTrailSlashes;
   AddStrArrayOpts;                            
-  if opts.smartstrip then AddSimpleOpts('-XX -CX -Xs');
-  if opts.rebuild then AddSimpleOpts('-B');
+  if g.smartstrip then AddSimpleOpts('-XX -CX -Xs');
+  if g.rebuild then AddSimpleOpts('-B');
 
-  if opts.crapdir <> '' then begin
-    targdir:= opts.dir + opts.crapdir + FpcTargetDir();
-    if opts.CleanBeforeRebuild then CleanUnitCrap(targdir);
-    opts.intern.craptargetdir:= targdir;
+  if g.crapdir <> '' then begin
+    targdir:= g.dir + g.crapdir + FpcTargetDir();
+    if g.CleanBeforeRebuild then CleanUnitCrap(targdir);
+    g.priv.craptargetdir:= targdir;
     ForceDir(targdir);
   end;
 
   targdir:= '';                                 
-  if opts.progbindir <> '' then begin
-    targdir:= opts.dir + opts.progbindir + FpcTargetDir();
-    opts.intern.progtargetdir:= targdir;
+  if g.progbindir <> '' then begin
+    targdir:= g.dir + g.progbindir + FpcTargetDir();
+    g.priv.progtargetdir:= targdir;
     if not ForceDir(targdir) then HaltErr('error creating folder: '+targdir); 
   end;
 
-  AddOpts('-FU', opts.intern.craptargetdir);
-  AddOpts('-FE', opts.intern.progtargetdir);
-  AddOpts('-o', opts.progbinfile);
-  AddSimpleOpts(opts.extra);
+  AddOpts('-FU', g.priv.craptargetdir);
+  AddOpts('-FE', g.priv.progtargetdir);
+  AddOpts('-o', g.progbinfile);
+  AddSimpleOpts(g.extra);
   result:= allopts;
 end;
 
 { writes Record options to screen as a string }
-procedure ShowOpts(var opts: TFpcOptions);
+procedure ShowOpts(var g: TGroup);
 begin
-  writeln(makeopts(opts));
+  writeln(makeopts(g));
 end;
 
 { todo: windows ../units }
@@ -608,35 +632,35 @@ begin
 end;
 
 { compile program with options in a record }
-function Compile(const srcunit: astr; var opts: TFpcOptions): int32;
+function Compile(const srcunit: astr; var g: TGroup): int32;
 var madeopts: astr;
     path: astr;
 begin
-  madeopts:= makeopts(opts);
-  if not opts.Compile then exit; // just clean or do other tasks
-  path:= opts.dir+srcunit;
+  madeopts:= makeopts(g);
+  if not g.Compile then exit; // just clean or do other tasks
+  path:= g.dir+srcunit;
   writeln('>>> COMPILING: ', path);
-  result:= Compile(path, madeopts, opts.FpcVersion, opts.IgnoreErr);
+  result:= Compile(path, madeopts, g.FpcVersion, g.IgnoreErr);
 end;
 
-procedure CompileMany(var paths: TPaths; var opts: TFpcOptions; ShowSeparator: boo);
+procedure CompileMany(var paths: TPaths; var g: TGroup; ShowSeparator: boo);
 var i: int32;
 begin
   if paths.count < 1 then exit;
   WriteSeparator1;
-  writeln('----- PROCESSING GROUP: ', opts.Name, ' -----');
+  writeln('----- PROCESSING GROUP: ', g.Name, ' -----');
   WriteSeparator1;
   for i:= low(paths.items) to high(paths.items) do begin
-    opts.dir:= paths.items[i].path;
-    Compile(paths.items[i].fname, opts);
+    g.dir:= paths.items[i].path;
+    Compile(paths.items[i].fname, g);
     if ShowSeparator then WriteSeparator1; // shows ----------- lines
   end;
   WriteDoneSeparator; // finishing separator :o)
 end;
 
-procedure CompileMany(var paths: TPaths; var opts: TFpcOptions);
+procedure CompileMany(var paths: TPaths; var g: TGroup);
 begin
-  CompileMany(paths, opts, true);
+  CompileMany(paths, g, true);
 end;
 
 { same as compile but forces fpc build -B }
@@ -666,7 +690,7 @@ end;
 end.
 
 (*
-function compile(const srcunit: astr; const opts: TFpcOptions): int32;
+function compile(const srcunit: astr; const g: TGroup): int32;
 var allopts: astr = '';
 
   procedure AddOpts(const opts: astr);
@@ -691,7 +715,7 @@ var allopts: astr = '';
   end;
 
 begin
-  if not opts.intern.inited then halterr('"opts" record must be inited before using');
+  if not opts.priv.inited then halterr('"opts" record must be inited before using');
   AddStrArrayOpts;
   if opts.smartstrip then AddOpts('-XX -CX -Xs');
   if opts.build then AddOpts('-B');
@@ -702,9 +726,9 @@ begin
 end;
 
 
-procedure CheckIfOptsInited(const opts: TFpcOptions);
+procedure CheckIfOptsInited(const g: TGroup);
 begin
-  if not opts.intern.inited then 
+  if not opts.priv.inited then 
     HaltErr('"opts" record must be inited before using');
 end;
 *)
