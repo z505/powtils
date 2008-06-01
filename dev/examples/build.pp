@@ -21,52 +21,52 @@ const
 
 
 procedure BuildExamples(var Paths: TPaths);
-var o: TFpcOptions;
+var g: TGroup;
     all: boolean;
     curgroup: astr;
 begin
-  Init(o);
-  o.smartstrip:= true;
-  AddUnitPath(o, '../main/');
-  AddUnitPath(o, 'code-pastie/hiliter/');
+  Init(g);
+  g.smartstrip:= true;
+  AddUnitPath(g, '../main/');
+  AddUnitPath(g, 'code-pastie/hiliter/');
 
   all:= doingall();
 
   if (all) or (doingdefault) then begin
-    o.ProgBinDir:= 'bin';
-    o.Name:= 'default';
-    CreateGroup(paths, o);
+    g.ProgBinDir:= 'bin';
+    g.Name:= 'default';
+    CreateGroup(g, paths);
   end;
 
   // now build other copies of the program with custom DEFINES
   curgroup:= names[tGzipOn];
   if (all) or (group = curgroup) then begin
-    AddDefine(o, 'GZIP_ON'); 
-    o.Name:= curgroup;
-    o.ProgBinDir:= 'bin-'+curgroup; 
-    o.Rebuild:= true;
-    CreateGroup(Paths,  o);
+    AddDefine(g, 'GZIP_ON'); 
+    g.Name:= curgroup;
+    g.ProgBinDir:= 'bin-'+curgroup; 
+    g.Rebuild:= true;
+    CreateGroup(g, Paths);
   end;
 
   curgroup:= names[tGzipSysutilsOn];
   if (all) or (group = curgroup) then begin
-    ResetDefines(o);
-    AddDefine(o, 'GZIP_ON'); 
-    AddDefine(o, 'SYSUTILS_ON');
-    o.Name:= curgroup;
-    o.ProgBinDir:= 'bin-'+curgroup; 
-    o.Rebuild:= true;
-    CreateGroup(Paths,  o);
+    ResetDefines(g);
+    AddDefine(g, 'GZIP_ON'); 
+    AddDefine(g, 'SYSUTILS_ON');
+    g.Name:= curgroup;
+    g.ProgBinDir:= 'bin-'+curgroup; 
+    g.Rebuild:= true;
+    CreateGroup(g, Paths);
   end;
 
   curgroup:= names[tSysutilsOn];
   if (all) or (group = curgroup) then begin
-    ResetDefines(o);
-    AddDefine(o, 'SYSUTILS_ON');
-    o.ProgBinDir:= 'bin-'+curgroup; 
-    o.Name:= curgroup;
-    o.Rebuild:= true;
-    CreateGroup(Paths,  o);
+    ResetDefines(g);
+    AddDefine(g, 'SYSUTILS_ON');
+    g.ProgBinDir:= 'bin-'+curgroup; 
+    g.Name:= curgroup;
+    g.Rebuild:= true;
+    CreateGroup(Paths,  g);
   end;
 
   Run();
