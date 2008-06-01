@@ -17,14 +17,12 @@ const names: array [NameCount] of str15 = ('none');
 var g: TGroup;
 
 procedure BuildExamples(var Paths: TPaths);
-var all: boolean;
 begin
   Init(g);
   g.smartstrip:= true;
   AddUnitPath(g, '../../main/');
   AddExtraOpt(g, '-Sd'); // mode delphi
-  all:= doingall();
-  if (all) or (doingdefault) then begin
+  if (doingAll) or (doingDefault) then begin
     g.ProgBinDir:= 'bin';
     g.Name:= 'default';
     CreateGroup(g, paths);
