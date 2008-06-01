@@ -112,7 +112,10 @@ function DoingAll: boolean;
 function Cleaning: boolean;
 function doingdefault: boolean;
 
-procedure CreateGroup(paths: TPaths; g: TGroup);
+
+procedure CreateGroup(g: TGroup; paths: TPaths);
+procedure CreateGroup(paths: TPaths; g: TGroup); // deprecated
+
 procedure Run;
 
 procedure SetVisibleGroups(const names: str15ray);
@@ -354,7 +357,7 @@ begin
 end;
 
 { add a group of files to be compiled with options }
-procedure CreateGroup(paths: TPaths; g: TGroup);
+procedure CreateGroup(g: TGroup; paths: TPaths);
 var oldlen: int32;
 begin
   if g.Name = '' then HaltErr('Must specify a name for each group.');
@@ -362,6 +365,11 @@ begin
   setlength(pail, oldlen+1);
   pail[oldlen].paths:= paths;
   pail[oldlen].group:= g;
+end;
+
+{ old deprecated function with wrong order of params }
+procedure CreateGroup(paths: TPaths; g: TGroup);
+begin CreateGroup(g, paths);
 end;
 
 procedure AddItem(var a: AStrRay; s: string);
