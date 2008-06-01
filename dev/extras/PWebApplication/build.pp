@@ -12,22 +12,22 @@ uses
   pwdirutil in '../../main/pwdirutil.pas',
   pwbuildutil in '../../main/pwbuildutil.pas';
 
-type eNames = (tNone);
-const names: array [eNames] of str15 = ('none');
-var o: TFpcOptions;
+type NameCount = (tNone);
+const names: array [NameCount] of str15 = ('none');
+var g: TGroup;
 
 procedure BuildExamples(var Paths: TPaths);
 var all: boolean;
 begin
-  Init(o);
-  o.smartstrip:= true;
-  AddUnitPath(o, '../../main/');
-  AddExtraOpt(o, '-Sd'); // mode delphi
+  Init(g);
+  g.smartstrip:= true;
+  AddUnitPath(g, '../../main/');
+  AddExtraOpt(g, '-Sd'); // mode delphi
   all:= doingall();
   if (all) or (doingdefault) then begin
-    o.ProgBinDir:= 'bin';
-    o.Name:= 'default';
-    CreateGroup(paths, o);
+    g.ProgBinDir:= 'bin';
+    g.Name:= 'default';
+    CreateGroup(g, paths);
   end;
   Run();
 end;
