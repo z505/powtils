@@ -45,8 +45,8 @@ procedure Build;
 var Paths: TPaths;
 begin
   // get all .DPR files to compile
-  GetSubdirFiles('./', '*.dpr', Paths);
-  if Paths.count < 1 then HaltErr('Path problem getting example *.DPR files');
+  Paths:= GetSubdirFiles('./', '*.dpr');
+  if Paths.count < 1 then HaltErr('Can''t find any *.DPR files');
   BuildExamples(Paths);
 end;
 
