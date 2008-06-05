@@ -214,7 +214,8 @@ type
                          TWebConfigurationCollection; PageContentType: TContentType);
 
     procedure Clear;
-    procedure AddHeader (NewHeader: TWebHeader);
+    procedure AddHeader (NewHeader: TWebHeader); overload;
+    procedure AddHearer (Str: String); overload;
     
   end;
 
@@ -783,7 +784,6 @@ begin
     HaltOnError:= False;
 
   // Initialize the main headers since now that there aren't any above errors
-//  if ContType<> ctTextXML then
     FHeaders.Init (FEnvironment, FConfiguration, FContentType);
   
 end;
@@ -1160,6 +1160,11 @@ procedure TWebHeaderCollection.AddHeader (NewHeader: TWebHeader);
 begin
   inherited Add (NewHeader);
   
+end;
+
+procedure TWebHeaderCollection.AddHearer (Str: String);
+begin
+
 end;
 
 {==============================================================================}

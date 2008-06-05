@@ -42,7 +42,7 @@ interface
 uses
   Classes, SysUtils, CollectionUnit, ThreadingUnit,
   ResidentPageBaseUnit, CustApp, WebUnit, RequestsQueue,
-  BaseUnix;
+  BaseUnix, SessionManagerUnit;
 
 type
   EConfigFileNotFound= class (Exception);
@@ -66,8 +66,10 @@ type
     FRestartInterval: Integer;
     FMainPipeFileName: String;
     FOnNewRequest: TOnNewRequestArrived;
+    FSessionManger: TAbstractSessionManager;
     FTempPipeFilePath: String;
     FRemainedToRestart: Integer;
+    FUsingSessionManger: Boolean;
     FWebConfiguration: TWebConfigurationCollection;
     
     MainPipeFileHandle: cInt;
@@ -85,6 +87,8 @@ type
     property NumberOfActiveThread: Integer read FNumberOfActiveThread;
     property RequestQueueSize: Integer read FRequestQueueSize;
     property WebConfiguration: TWebConfigurationCollection read FWebConfiguration;
+    property UsingSessionManger: Boolean read FUsingSessionManger;
+    property SessionManger: TAbstractSessionManager read FSessionManger;
 
   public
   
@@ -423,6 +427,11 @@ constructor TResident.Create (AOwner: TComponent);
     ReadLn (ConfigFileHandle);
     ReadLn (ConfigFileHandle, TempInt);
     FRequestQueueSize:= TempInt;
+
+    ReadLn (ConfigFileHandle);
+    ReadLn (ConfigFileHandle, TempString);
+    TempString:= Trim (TempString);
+    FUsingSessionManger:= UpperCase (TempString)= 'TRUE';
 
     CloseFile (ConfigFileHandle);
 

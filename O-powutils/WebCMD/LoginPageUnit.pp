@@ -33,7 +33,7 @@ end;
 procedure TLoginPage.MyDispatch;
 begin
   if CgiVars.CgiVarValueByName ['Retry']<> '' then
-    FXMLRoot.AddAttribute ('RetryMode', 'True');
+    FXMLRoot.AddAttribute ('RetryMode', 'true');
     
 end;
 
