@@ -8,7 +8,7 @@
   </HEAD>
   
  <BODY alink="#0000cc" bgcolor="#ffffff" link="#0000cc" text="#000000" vlink="#0000cc">
-  <FORM action="MainPage.cgi" method="get">
+  <FORM action="MainPage" method="get">
    <TABLE bgcolor="#ffffff" border="1" cellpadding="0" cellspacing="0" width="100%">
      <TBODY>
       <TR>
@@ -20,7 +20,12 @@
            By Amir Aavani <BR/></SMALL>
          <TABLE bgcolor="#ffffff" border="1" width="350">
           <TBODY>
+           <xsl:if test= "not (LoginPage/@RetryMode)">
            <TR><TD align="center" bgcolor="#dcdcdc"><B>Login</B></TD></TR>
+           </xsl:if>
+           <xsl:if test= "LoginPage/@RetryMode">
+            <TR><TD align="center" bgcolor="#dcdcdc"><FONT color= "red"><B>Login Failed</B></FONT></TD></TR>
+           </xsl:if>
            <TR>
             <TD align="left" bgcolor="#ffffff">
              <TABLE align="center" bgcolor="#ffffff" border="0" width="100%">

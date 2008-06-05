@@ -36,10 +36,8 @@ var
 begin
   inherited Create;
   
-{
-  FileString:= TFileString.Create ('Files/WelComePage.html', 'WelComePage');//
+  FileString:= TFileString.Create ('HTML Templates/LoginPage.html', 'LoginPage');
   FileStringCollection.AddFileString (FileString);
-}
 
 end;
 

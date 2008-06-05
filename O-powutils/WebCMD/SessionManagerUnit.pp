@@ -14,6 +14,7 @@ type
   EVariableNotFoundInSession= class (Exception)
   public
     constructor Create;
+    
   end;
   
   { ESessionNotFound }
@@ -21,21 +22,17 @@ type
   ESessionNotFound= class (Exception)
   public
     constructor Create;
+    
   end;
   
   { TVariable }
 
-  TVariable= class (TObject)
+  TVariable= class (TNameValue)
   private
-    FName: String;
-    FValue: String;
-
     procedure UpdateValue (NewVal: String);
+    
   public
-    property Name: String read FName;
-    property Value: String read FValue;
-
-    constructor Create (VarName, VarValue: String);
+    constructor _Create (VarName, VarValue: String);
 
   end;
 
@@ -164,16 +161,13 @@ end;
 
 procedure TVariable.UpdateValue (NewVal: String);
 begin
-  FValue:= NewVal;
+  FValue:= TObject (NewVal);
   
 end;
 
-constructor TVariable.Create (VarName, VarValue: String);
+constructor TVariable._Create (VarName, VarValue: String);
 begin
-  inherited Create;
-  
-  FValue:= VarValue;
-  FName:= VarName;
+  inherited Create (VarName, TObject (VarValue));
   
 end;
 
@@ -237,7 +231,7 @@ end;
 
 procedure TSession.AddVariable (Name, Value: String);
 begin
-  Add (TVariable.Create (UpperCase (Name), Value));
+  Add (TVariable._Create (UpperCase (Name), Value));
   
 end;
 
