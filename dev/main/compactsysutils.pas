@@ -308,7 +308,7 @@ function strcopy(dest,source : pchar) : pchar;
 function strecopy(dest,source : pchar) : pchar;
 function strlcopy(dest,source : pchar;maxlen : sizeint) : pchar;
 function strend(p : pchar) : pchar;
-function strcomp(str1,str2 : pchar) : longint;
+function strcomp(str1,str2 : pchar) : sizeint;
 function strlcomp(str1,str2 : pchar;l : sizeint) : sizeint;
 function stricomp(str1,str2 : pchar) : sizeint;
 function strlicomp(str1,str2 : pchar;l : sizeint) : sizeint;
