@@ -1,8 +1,7 @@
 unit pwerrors; {$ifdef fpc}{$mode objfpc}{$h+}{$endif}
 
 interface
-uses 
-  pwtypes;
+uses pwtypes;
   
 type
   errcode = word; // incase we have more than 255 errors, word allows plenty
