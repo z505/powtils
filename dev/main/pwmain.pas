@@ -423,7 +423,7 @@ var i: int32;
   headers_sent:= true;
   setRti(U_HEADERS_SENT, 'TRUE');
   result:= true;
-{e}                                                                             {$ifdef dbug_on}SendHeaders E{$endif} end;
+{e}                                                                             {$ifdef dbug_on}SendHeaders_E{$endif} end;
 
 
 type TThrowType = (ttError, ttWarn);
@@ -1254,14 +1254,12 @@ end;
 
 { Indexed access to gGetPost variable name, security specifiable }
 function FetchPostVarName_S(idx: int32; security: byte): astr;
-begin
-  result:= FetchTWebVarName_S(gGetPost, idx, security);
+begin result:= FetchTWebVarName_S(gGetPost, idx, security);
 end;
 
 { Indexed access to gGetPost variable value, security specifiable }
 function FetchPostVarVal_S(idx: int32; security: byte): astr;
-begin
-  result:= FetchTWebVarVal_S(gGetPost, idx, security);
+begin result:= FetchTWebVarVal_S(gGetPost, idx, security);
 end;
 
 { Indexed access to cookie variable }
@@ -1354,11 +1352,9 @@ end;
   i.e. we have to use one or the other, either replace or trim input.}
 
 function Fmt_SF(const s: astr; usefilter: boo; FilterSecurity, Trimsecurity: byte; vfilter: TFilterFunc): astr;
-const
-  ID_CHARS = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_';
-var
-  i, len: int32;
-  lex: astr;
+const ID_CHARS = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_';
+var i, len: int32;
+    lex: astr;
 
   { appends char to result string }
   procedure AddToResult;
@@ -1447,16 +1443,14 @@ end;
 
 { overloaded with default macrovar filter }
 function Fmt_SF(const s: astr; HTMLFilter: boo; FilterSecurity, TrimSecurity: byte): astr;
-begin
-  result:= Fmt_SF(s, HTMLFilter, FilterSecurity, TrimSecurity, {$ifdef fpc}@{$endif}FilterHtml);
+begin result:= Fmt_SF(s, HTMLFilter, FilterSecurity, TrimSecurity, {$ifdef fpc}@{$endif}FilterHtml);
 end;
 
 
 { $macrovars replaced with ones set via SetVar, applies custom html filter to 
   macrovars being formatted, returns formatted result string}
 function Fmt(const s: astr; vfilter: TFilterFunc): astr;
-begin
-  result:= Fmt_SF(s, true, SECURE_ON, SECURE_OFF, vfilter);
+begin result:= Fmt_SF(s, true, SECURE_ON, SECURE_OFF, vfilter);
 end;
 
 { Formats a string replacing variables as if they were macros.
@@ -1489,8 +1483,7 @@ end;
   Default Security level is 2. Use the _S suffix function if you do not need
   high filtering security, or you wish to implment your own filters }
 function GetPostVar(const name: astr): astr;
-begin
-  result:= GetPostVar_S(name, SECURE_ON);
+begin result:= GetPostVar_S(name, SECURE_ON);
 end;
 
 { security 0, with custom user filter in place }
@@ -1502,14 +1495,12 @@ end;
 
 { for DLL }
 function GetPostVar1(const name: astr; vfilter: TFilterFunc): astr;
-begin
-  result:= GetPostVar(name, vfilter);
+begin result:= GetPostVar(name, vfilter);
 end;
 
 { for DLL }
 function GetPostVar2(const name: astr): astr;
-begin
-  result:= GetPostVar(name);
+begin result:= GetPostVar(name);
 end;
 
 function GetPostVar_Unsafe(const name: astr): astr;
@@ -1926,59 +1917,47 @@ begin
   end;
 end;
 
-procedure outlna(args: array of const);
-begin
-  outa(args);
-  outln;
+procedure outlna(args: array of const); 
+begin outa(args); outln; 
 end;
 
 { Formatted output with $MacroVars. As opposed to OutFF, this function replaces
   malicious characters with zeros. It does not replace them with html entities.
   F stands for "formatted" }
-procedure outf(const s: astr);
-begin
-  out(Fmt(s));
+procedure outf(const s: astr); 
+begin out(fmt(s)); 
 end;
 
 { overloaded, custom filter applied to macrovars }
 procedure outf(const s: astr; vfilter: TFilterFunc);
-var tmp: astr;
-begin
-  tmp:= Fmt(s, vfilter);
-  out(tmp);
+begin out(fmt(s, vfilter));
 end;
 
 { Formatted output with $MacroVars. As opposed to OutF, this function filters 
   and replaces malicious characters with HTML equivilents, rather than zeroing
   them out.  FF stands for "format & filter". }
-procedure outff(const s: astr);
-begin
-  out(FmtFilter(s));
+procedure outff(const s: astr); 
+begin out(FmtFilter(s)); 
 end;
 
 { Plain output with line feed (no html break, just CRLF) }
-procedure outln(const s: astr);
-begin
-  out(s + CGI_CRLF);
+procedure outln(const s: astr); 
+begin out(s + CGI_CRLF); 
 end;
 
-procedure outln;
-begin
-  outln('');
+procedure outln; 
+begin outln('');
 end;
 
 { Formatted outln, outputs $macrovars that exist from SetVar 
   Zeros out malicious chars. F stands  for "Formatted". }
 procedure outlnf(const s: astr);
-begin
-  outln(fmt(s));
+begin outln(fmt(s));
 end;
 
 { overloaded, custom filter applied to macrovars }
 procedure outlnf(const s: astr; vfilter: TFilterFunc);
-begin
-  outf(s, vfilter);
-  outln;
+begin outf(s, vfilter); outln;
 end;
 
 { Formatted and filtered writeln, outputs variables like macros,
@@ -1986,9 +1965,7 @@ end;
   malicious attempts by filtering HTML special characters.
   FF stands for "Formatted and Filtered" }
 procedure outlnff(const s: astr);
-begin
-  outff(s);
-  outln;
+begin outff(s); outln;
 end;
 
 function NoHeadSentNorBuffering: boo;
@@ -2085,8 +2062,7 @@ end;
 
 { default templateout, applies html filter }
 function TemplateOut(const fname: astr): errcode;
-begin
-  result:= TemplateOut(fname, true);
+begin result:= TemplateOut(fname, true);
 end;
 
 { Formatted file output (macro $variables). If HTMLFilter true, then malicious 
@@ -2108,8 +2084,7 @@ end;
 
 { for DLL exporting }
 function TemplateOut1(const fname: astr; HtmlFilter: boo): errcode; 
-begin
-  result:= TemplateOut(fname, htmlfilter);
+begin result:= TemplateOut(fname, htmlfilter);
 end;
 
 { Raw template output. Similar to TemplateOut but NO filtering or trimming
@@ -2118,8 +2093,7 @@ end;
   Insecure, only use when you wish to output raw HTML. People can inject
   javascript into URL variables }
 function TemplateRaw(const fname: astr): errcode;
-begin
-  result:= TemplateOut(fname, nil);
+begin result:= TemplateOut(fname, nil);
 end;
 
 { Sets HTTP header like 'Name: Value' }
@@ -2319,7 +2293,7 @@ begin
 end;
 
 { Throws warning }
-procedure ThrowWarn(const s: astr);
+procedure throwWarn(const s: astr);
 begin
   ThrowMsg(s, ttWarn);
 end;
@@ -2332,9 +2306,16 @@ end;
         as &gt; &quot;
 
  Default security level: 2 }
-function TrimBadChars(const input: astr): astr;
+function trimBadChars(const input: astr): astr;
 begin
   result:= TrimBad_S(input, SECURE_ON);
+end;
+
+type  TCharSet = set of char;
+procedure zeroOutChars(var s: astr; badchars: TCharSet); var i: int32;
+begin
+  if length(s) < 1 then exit;
+  for i:= 1 to length(s) do if s[i] in badchars then s[i]:= '0'; 
 end;
 
 
@@ -2343,16 +2324,15 @@ end;
   Replaces invalid character with ZERO, to help report malicious attempts. If 
   you see ZERO's in your files on FTP you know someone has been effing around 
   with your server trying to get into your system using special characters.  }
-function TrimBadFile(const input: astr): astr;
+function trimBadFile(const input: astr): astr;
 
   { first character in file name must be alphanumeric (no hyphen, space, etc) }
-  procedure FirstCharTrim;
+  procedure firstCharTrim;
   begin
     if not (result[1] in ['a'..'z','A'..'Z','0'..'9','_','.'])
       then result[1]:= '0';
   end;
 
-  procedure ZeroOut;
   const badchars =[
                    #0,     // NULL
                   '/',     // slashes NOT okay. local directory only!
@@ -2369,25 +2349,16 @@ function TrimBadFile(const input: astr): astr;
                    ';'     // semicolon not used in files normally
                  ];
 
-  begin
-  end;
 
 {b}                                                                             begin{$ifdef dbug_on}TrimBadFile_B; {$endif}
   if length(input) < 1 then exit;
   //    . Dot is okay
   //    ~ Squiggly  character is okay for filenames
   result:= input;
-  ZeroOut;
-  FirstCharTrim;
+  zeroOutChars(result, badchars);
+  firstCharTrim;
 {e}                                                                             {$ifdef dbug_on}TrimBadFile_E; {$endif}end;
 
-type  TCharSet = set of char;
-
-procedure ZeroOutChars(var s: astr; badchars: TCharSet); var i: int32;
-begin
-  if length(s) < 1 then exit;
-  for i:= 1 to length(s) do if s[i] in badchars then s[i]:= '0'; 
-end;
 
 { Trims all bad, unsecure characters from a string that is being used
   for a directory. For example, if you are opening a directory or file and
