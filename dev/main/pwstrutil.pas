@@ -6,9 +6,7 @@
 unit pwstrutil; {$I defines1.inc}
 
 interface
-
-uses
-  pwtypes;
+uses pwtypes;
 
 type
   TReplaceFlags = set of (rfReplaceAll, rfIgnoreCase);
@@ -167,8 +165,7 @@ begin
       begin
         if (Precision = -1) Or (Precision > 15) then Precision := 15;
         TooSmall := (Abs(Value) < 0.00001) and (Value>0.0);
-        if Not TooSmall then
-        begin
+        if not TooSmall then begin
           Str(Value:digits:precision, result);
           P := Pos('.', result);
           if P<>0 then result[P] := DecimalSeparator;

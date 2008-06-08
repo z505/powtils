@@ -13,7 +13,7 @@ unit pwdebugplugin;
 {$i defines1.inc}
 
 interface
-uses pwtypes, sysutils;
+uses pwtypes, pwfileutil;
 
 {$ifdef DBUG_ON}
 
