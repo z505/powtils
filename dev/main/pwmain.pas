@@ -20,9 +20,9 @@
  Verbose Debugging 
 --------------------------------------------------------------------------------
  Many procedures in this unit start with {b} and end with {e}. This means debug 
- info is hidden to the right of those markers past the righthand 80 col marker. 
- This keeps code to the left of the 80 column marker easy to read, without 
- IFDEF's causing ugly line noise in the algorithms. 
+ info is hidden to the right of those markers past the 80 col marker. This 
+ keeps code to the left of the 80 column marker easy to read, without IFDEF's 
+ causing ugly line noise in the algorithms. 
   
  Debugging conventions are as follows in major procedures of this unit:
    SomeFunc_B;  --> Begin of SomeFunc
@@ -200,7 +200,8 @@ function fmt(const s: astr; vfilter: TFilterFunc): astr; overload;
 
 function fmtFilter(const s: astr): astr;
 
-function fmt_SF(const s: astr; HTMLFilter: boo; FilterSecurity, TrimSecurity: byte): astr; 
+function fmt_SF(const s: astr; usefilter: boo; FilterSecurity, Trimsecurity: byte; vfilter: TFilterFunc): astr;
+
 
 { RTI Functions }
 function countRtiVars: longword;
@@ -400,7 +401,7 @@ begin if SERV.DocRoot() = '' then begin flush(output); readln; end;
 end;
 
 procedure ThrowNoFileErr(const fname: astr);
-begin ThrowErr('reading file: ' + fname);
+begin throwErr('reading file: ' + fname);
 end;           
 
 { Send HTTP headers }
@@ -535,11 +536,11 @@ begin
 end;
 
 function cfgVarToBool(const s: astr): boo;
-begin if GetCfgVar(s) = 'on' then result:= true else result:= false;
+begin if getCfgVar(s) = 'on' then result:= true else result:= false;
 end;
 
 { merge program flags to config settings }
-procedure MergeFlagsToCfg;
+procedure mergeFlagsToCfg;
 begin
  {$ifdef gzip_on}
   out_buffering:= CfgVarToBool(L_OUTPUT_BUFFERING);
@@ -550,7 +551,7 @@ begin
 end;
 
 { append single new value to WebConfiguration array i.e. gConf[] }
-function AddWebCfgVar(const name, value: astr): boo;
+function addWebCfgVar(const name, value: astr): boo;
 begin
   result:= false;
  {$ifndef gzip_on} // not applicable if gzip off
@@ -561,7 +562,7 @@ begin
 end;
 
 { updates value if name exists in list, returns false if no update }
-function UpdateWebVar(var w: TWebVars; const name, value: astr; upcased: boo): boo;
+function updateWebVar(var w: TWebVars; const name, value: astr; upcased: boo): boo;
 var i: int32;
 begin
   result:= false;
@@ -583,7 +584,7 @@ begin
 end;
 
 { updates value if name exists in list, returns false if no update }
-function UpdateWebCfgVar(const name, value: astr; upcased: boo): boo;
+function updateWebCfgVar(const name, value: astr; upcased: boo): boo;
 begin
   result:= false;
   {$ifndef gzip_on}if IsGzipFlag(name) then exit;{$endif}
@@ -610,7 +611,7 @@ end;
 *)
 
 { updates value if name exists in list, adds one if it doesn't }
-procedure PutWebCfgVar(const name, value: astr; upcased: boo);
+procedure putWebCfgVar(const name, value: astr; upcased: boo);
 var updated: boo; 
 {b}                                                                             begin {$ifdef dbug_on}PutWebCfgVar_B;{$endif}
   updated:= UpdateWebCfgVar(name, value, upcased);
@@ -618,7 +619,7 @@ var updated: boo;
 {e}                                                                             {$ifdef dbug_on}PutWebCfgVar_E;{$endif}end;
 
 { init default RTI definitions on startup }
-procedure InitRti; 
+procedure initRti; 
 {b}                                                                             begin {$ifdef dbug_on}InitRTI_B;{$endif}
   setlength(gRti, 2);
   gRti[0].name:=  U_HEADERS_SENT; gRti[0].value:= U_FALSE;
@@ -626,7 +627,7 @@ procedure InitRti;
 {e}                                                                             {$ifdef dbug_on}InitRTI_E;{$endif}end;
 
 { Defaults if not using config file plugin unit }
-procedure DefaultCfgInit; 
+procedure defaultCfgInit; 
 {b}                                                                             begin {$ifdef dbug_on}DefaultCfgInit_B;{$endif}
   AddWebCfgVar(L_HEADER_CHARSET, 'iso-8859-1');
   AddWebCfgVar(L_ERROR_REPORTING, 'on');
@@ -638,15 +639,15 @@ procedure DefaultCfgInit;
  {$endif}
 {e}                                                                             {$ifdef dbug_on}DefaultCfgInit_E;{$endif}end;
 
-procedure InitCook;
+procedure initCook;
 
-  procedure PutCookies;
+  procedure putCookies;
 
     { Dump into gCook[] var }
-    procedure PutCookieVars(const data: astr);
+    procedure putCookieVars(const data: astr);
     var i, len: int32; lex, name, value: astr;
 
-     procedure AddToLex;
+     procedure addToLex;
      begin 
        setlength(lex, length(lex) + 1); lex[length(lex)]:= data[i]; inc(i);
      end;
@@ -726,17 +727,17 @@ var
   // Parse 
   while (i <= len) do
   begin
-    // New item
+    // new item
     setlength(gGetPost, cnt+1);
-    // Get name
+    // get name
     lex:= '';
-    while (i <= len) and (data[i] <> '=') do AddToLex;
-    gGetPost[cnt].name:= UrlDecode(lex);
+    while (i <= len) and (data[i] <> '=') do addToLex;
+    gGetPost[cnt].name:= urlDecode(lex);
     inc(i);
     // Get value
     lex:= '';
     while (i <= len) and (data[i] <> '&') do AddToLex;
-    gGetPost[cnt].value:= UrlDecode(lex);
+    gGetPost[cnt].value:= urlDecode(lex);
     inc(i); inc(cnt);
   end;
   result:= true;
@@ -752,14 +753,14 @@ var separator: astr;
   separator:= '--' + boundary + #13 + #10;
   len2:= length(separator);
   // Cut off last boundary
-  len:= substrpos(data^, '--' + boundary + '--');
+  len:= substrPos(data^, '--' + boundary + '--');
   data^:= copy(data^, 1, len-1);
   // Cut off first boundary
   delete(data^, 1, len2);
   while len > 0 do
   begin
     len:= length(data^);
-    ptr:= substrpos(data^, separator);
+    ptr:= substrPos(data^, separator);
     if ptr <> 0 then begin
       // Not last item
       setlength(form^, length(form^) + 1);
@@ -776,12 +777,12 @@ var separator: astr;
 {e}                                                                             {$ifdef dbug_on}MP_FormSplit_E;{$endif}end;
 
 { Multipart: Extracts current line beginning from ptr and ending with #13#10 }
-function MP_GetLine(data: PString; var ptr: int32): astr;
+function MP_getLine(data: PString; var ptr: int32): astr;
 var s: astr; 
 {b}                                                                             begin {$ifdef dbug_on}MP_GetLine_B;{$endif}
   result:= '';                                                                  
   if data = nil then begin 
-    {$ifdef dbug_on}MP_GetLine_data_nil_X1{$endif}
+    {$ifdef dbug_on}MP_getLine_data_nil_X1{$endif}
     exit;
   end;
   
@@ -796,7 +797,7 @@ var s: astr;
 
 
 { Multipart: splits string by space. Max. result = 6 strings. }
-function MP_SplitLine(line: astr): TMp_Line;
+function MP_splitLine(line: astr): TMp_Line;
 var i, cnt, elem, len: int32;
     s: astr;
     quoted: boo;
@@ -819,7 +820,7 @@ var i, cnt, elem, len: int32;
 {e}                                                                             {$ifdef dbug_on}MP_SplitLine_E;{$endif}end;
 
 { Multipart: extracts data boundary from content-type string }
-function MP_GetBoundary(const content_type: astr): astr;
+function MP_getBoundary(const content_type: astr): astr;
 var len: int32;
 {b}                                                                             begin{$ifdef dbug_on}MP_GetBoundry_B;{$endif}
   len:= substrpos(Content_Type, '=');
@@ -828,7 +829,7 @@ var len: int32;
 {e}                                                                             {$ifdef dbug_on}MP_GetBoundry_E;{$endif}end;
 
 { Multipart: put get/post vars }
-procedure MP_PutGpVars(data: PString; const content_type: astr);
+procedure MP_putGpVars(data: PString; const content_type: astr);
 var cnt, ptr, tmp, len, dpos: int32;
     buff, boundary: astr;
     line: TMp_Line;
@@ -836,17 +837,17 @@ var cnt, ptr, tmp, len, dpos: int32;
     UpIdx: int32; // current index to UpFile array
 {b}                                                                             begin {$ifdef dbug_on}MP_PutGpVars_B;{$endif}
   New(form);
-  boundary:= MP_GetBoundary(content_type);
-  MP_FormSplit(data, boundary, form);
+  boundary:= MP_getBoundary(content_type);
+  MP_formSplit(data, boundary, form);
   for cnt:= low(form^) to high(form^) do
   begin
     ptr:= 1;
     len:= length(form^[cnt]);
-    dpos:= substrpos(form^[cnt], #13 + #10 + #13 + #10) + 4;
+    dpos:= substrPos(form^[cnt], #13 + #10 + #13 + #10) + 4;
     // Getting first line
-    buff:= MP_GetLine(@(form^[cnt]), ptr);
+    buff:= MP_getLine(@(form^[cnt]), ptr);
     // Splitting into words
-    line:= MP_SplitLine(buff);
+    line:= MP_splitLine(buff);
     // Is it file or variable?
     if substrpos(buff, 'filename') <> 0 then
     begin
@@ -860,14 +861,14 @@ var cnt, ptr, tmp, len, dpos: int32;
       {$endif}
 
       // Getting content type
-      buff:= MP_GetLine(@(form^[cnt]), ptr);
-      line:= MP_SplitLine(buff);
-      gUpFiles[UpIdx].content_type:= line[2];
+      buff:= MP_getLine(@(form^[cnt]), ptr);
+      line:= MP_splitLine(buff);
+      gUpFiles[upIdx].content_type:= line[2];
       // Getting value till the end
-      gUpFiles[UpIdx].size:= len - dpos;
+      gUpFiles[upIdx].size:= len - dpos;
       
       // *** Make sure we have enough room to use MOVE *** (equivalent to GetMem);
-      setlength(gUpFiles[UpIdx].data, gUpFiles[UpIdx].size);
+      setlength(gUpFiles[upIdx].data, gUpFiles[UpIdx].size);
       
       // NO LONGER NEEDED *** gUpFiles[UpIdx].data:= copy(form^[cnt], dpos, gUpFiles[UpIdx].size);
        // ** Tonys Code     
@@ -887,7 +888,7 @@ var cnt, ptr, tmp, len, dpos: int32;
 
 
 { Get/set url query string, get/post etc. }
-procedure InitWebData;
+procedure initWebData;
 
   procedure PutQueryString;
   var s: astr;
@@ -1352,8 +1353,7 @@ end;
   and then try to replace them after (they would already be trimmed).
   i.e. we have to use one or the other, either replace or trim input.}
 
-function Fmt_SF(const s: astr; usefilter: boo; 
-                FilterSecurity, Trimsecurity: byte; vfilter: TFilterFunc): astr;
+function Fmt_SF(const s: astr; usefilter: boo; FilterSecurity, Trimsecurity: byte; vfilter: TFilterFunc): astr;
 const
   ID_CHARS = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_';
 var
@@ -2620,5 +2620,3 @@ initialization
 finalization
   LocalFini;
 end.
-
-
