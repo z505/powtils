@@ -71,7 +71,7 @@ end;
 // if no page was specified, display default simple error
 procedure NoPastiePage;
 begin
-  // note: could change to WebTemplateOut
+  // note: could change to templateout
   out(  '<title>Code Pastie</title>');
   out('</head>');
   out( BLACK_BODY);
@@ -90,7 +90,7 @@ procedure CheckPageNames;
 begin
   if length(GotPg) > 4 then // pastie ID's can only be 4 characters long
   begin
-    webwriteln('Page name too long, or too many pasties in our database.' + ' Please make page name shorter or ask administrator to delete some pasties.');
+    outln('Page name too long, or too many pasties in our database.' + ' Please make page name shorter or ask administrator to delete some pasties.');
     halt;
   end;
 
@@ -100,24 +100,23 @@ procedure CheckIfEditable;
 
   procedure NoEditAllowed;
   begin
-    webwrite('<p>');
-    webwrite('You can''t edit the "main" page, and you can''t edit the "show new pasties" page.' + ' Sorry! Please edit pasties with a specific ID.');
+    out('<p>');
+    out('You can''t edit the "main" page, and you can''t edit the "show new pasties" page.' + ' Sorry! Please edit pasties with a specific ID.');
     halt;
   end;
 
 begin
-  if (lowercase(GotPg)) = 'main' then // can't edit main page
-    NoEditAllowed;
+  // can't edit the "main" page
+  if (lowercase(GotPg)) = 'main' then NoEditAllowed;
 
-  if (lowercase(GotPg)) = 'new' then // can't edit main page
-    NoEditAllowed;
+  // can't edit the "show new items" page
+  if (lowercase(GotPg)) = 'new' then NoEditAllowed;
 end;
 
 function IsShowNew: boolean;
 begin
   result:= false;
-  if (lowercase(GotPg)) = 'new' then 
-  begin
+  if (lowercase(GotPg)) = 'new' then begin
     ShowNewPasties;
     result:= true;
   end;
@@ -176,7 +175,7 @@ procedure WriteEdPage;
   end;
 
 begin
-  if GetCgiVar('ed') = 'yes' then // the signal to edit a page
+  if getPostVar('ed') = 'yes' then // the signal to edit a page
   begin
     // only pages that are editable, i.e. main page not 
     CheckIfEditable;
@@ -186,25 +185,25 @@ begin
     StartPostForm;
     WriteFormWidgets;
     EndForm;
-    webwrite('<hr>');
+    out('<hr>');
   end;
 end;
 
 procedure WriteTopHeader;
 begin
-  webwriteln('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">');
-  webwrite('<html>');
-  webwrite('<head>');
+  outln('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">');
+  out('<html>');
+  out('<head>');
 end;
 
 procedure VerifyPass;
 begin
-  GotPw:= GetCgiVar('pw');
+  GotPw:= getPostVar('pw');
   // verify posted password
   if GotPw <> PWRD then 
   begin
-    webwriteln('Brian Kernigoon says: password wrong! Try again or I''ll slap you with a C!');
-    webwriteln('<br>*applause*');
+    outln('Brian Kernigoon says: password wrong! Try again or I''ll slap you with a C!');
+    outln('<br>*applause*');
     halt; {wrong password, exit}
   end;
 end;
@@ -243,7 +242,7 @@ procedure WriteFileContent;
     end;
 
   begin
-    if  GetCgiVar('command') = 'newpage' then 
+    if  getPostVar('command') = 'newpage' then 
     begin
       VerifyPass;
       TryCreateFile(MakePgFname);
@@ -289,7 +288,7 @@ end;
 
 function curpastiefile: astr;
 begin
-  result:= getcgivar('viewcss');
+  result:= getPostVar('viewcss');
   if result = '' then HaltErr('no pastie ID specified');
   result:= PASTIE_DIR + result + PASTIE_EXT; xpath(result);
 end;
@@ -350,9 +349,9 @@ procedure ShowPastie;
   { check password first }
   procedure CheckPass;
   begin
-    if GetCgiVar('ed') = 'update' then
+    if getPostVar('ed') = 'update' then
     begin
-      if IsCgiVar('pw') then
+      if isPostVar('pw') then
         VerifyPass
       else //password not found, maybe user trying to edit page maliciously
       begin
@@ -369,13 +368,13 @@ procedure ShowPastie;
       pgname:= lowercase(pgname); // UNIX case sensitivity sucks
     end;
   begin
-    if IsCgiVar('ed') then
+    if isPostVar('ed') then
     begin
       // check signal for page update
-      if GetCgiVar('ed') = 'update' then 
+      if getPostVar('ed') = 'update' then 
       begin
         {get the page content from edit box that was updated...}
-        edit1.text:= GetCgiVar_S('ed1', 0); // unsecure, security set to zero because this is a private code pastie allowing any java script injections or null characters or other bad, well, shit
+        edit1.text:= getPostVar_S('ed1', 0); // unsecure, security set to zero because this is a private code pastie allowing any java script injections or null characters or other bad, well, shit
         FileA:= edit1.Text;
         CorrectPgToSave(GotPg);
         StringToFile(MakePgFname, FileA);
@@ -385,8 +384,8 @@ procedure ShowPastie;
 
 
 begin
-  GotPg:= GetCgiVar_S('p', 0);  // retrieve p variable unfiltered unsecure
-  GotPg:= TrimBadChars_file(GotPg); //replace any BAD CHARACTERS from the file name (local directory safety ../ )
+  GotPg:= getPostVar_S('p', 0);  // retrieve p variable unfiltered unsecure
+  GotPg:= TrimBadFile(GotPg); //replace any BAD CHARACTERS from the file name (local directory safety ../ )
 
   // incase a bad page
   if GotPg = '' then NoPastiePage;

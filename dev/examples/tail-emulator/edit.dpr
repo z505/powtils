@@ -32,31 +32,31 @@ begin
   begin
     Edit1_Lines:= GetCGIVar_SafeHTML('Edit1');
     StrSaveFile(WatchFile, Edit1_Lines);
-    webwriteln('File has been saved. Use your back button to edit again.');
+    outln('File has been saved. Use your back button to edit again.');
     halt;
   end;
 
   //no edit text updates, must be just loading the page with plans to edit
-  if IsCgiVar('update') = false then
-    SetWebVar('Edit1_Text', StrLoadFile(WatchFile));
+  if ispostvar('update') = false then
+    setVar('Edit1_Text', StrLoadFile(WatchFile));
 
-  WebFileOut('htm/EditPage_header.htm');
-  WebWrite('<br />');
+  fileOut('htm/EditPage_header.htm');
+  out('<br />');
 
   DecodeTime(Time, hh, mm, ss, ms);
   CurrentTime:= format('<b>Time:</b> %d:%d:%d',[hh,mm,ss,ms]);
-  WebWrite('<b>Date:</b> ' + DateToStr(Date) + ' &nbsp; &nbsp;' + CurrentTime );
-  WebWrite(' &nbsp; &nbsp; <i>You can edit the test file being watched by EmuTail</i>' );
-  webwriteln('<hr>');
+  out('<b>Date:</b> ' + DateToStr(Date) + ' &nbsp; &nbsp;' + CurrentTime );
+  out(' &nbsp; &nbsp; <i>You can edit the test file being watched by EmuTail</i>' );
+  outln('<hr>');
   if FileExists(WatchFile) = false then
   begin
-    webwrite('File does not exist: ' + WatchFile);
+    out('File does not exist: ' + WatchFile);
     halt;
   end;
 
 
-  WebTemplateOut('htm/EditPage.htm', false);
-  WebFileOut('htm/footer.htm');
+  templateOut('htm/EditPage.htm', false);
+  fileOut('htm/footer.htm');
 
 end.
 

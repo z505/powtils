@@ -14,7 +14,7 @@ uses
 
 procedure StartPage;
 begin
-  webwrite(
+  out(
     '<html>' +
       '<body style="font-family: verdana, arial, sans-serif;">');
 end;
@@ -34,12 +34,12 @@ end;
 
 procedure Notify;
 begin
-  webwrite('<br>Note: command attempted! Results of your command should be above.');
+  out('<br>Note: command attempted! Results of your command should be above.');
 end;
 
 procedure EndPage;
 begin
-  webwrite(
+  out(
       '</body>' +
     '</html>');
 end;

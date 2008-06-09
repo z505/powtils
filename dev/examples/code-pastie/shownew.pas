@@ -41,10 +41,10 @@ end;
 
 procedure FlushWebBrowser;
 begin
-  webwrite('<small>');
-  webwrite('<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
-  webwrite('</small>');
-  webwrite('<br>');
+  out('<small>');
+  out('<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+  out('</small>');
+  out('<br>');
 end;
 
 procedure ShowNewPasties;
