@@ -69,7 +69,7 @@ end;
 function FormPosted: boo;
 begin
   result:= false;
-  if IsCgiVar('form1posted') then result:= true;
+  if isPostVar('form1posted') then result:= true;
 end;
 
 type THtmForm = record cmd: astr; end;

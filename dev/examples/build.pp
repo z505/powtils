@@ -77,11 +77,11 @@ var Paths: TPaths;
 
 begin
   // visible for HELP command
-  SetVisibleGroups(names);
+  setVisibleGroups(names);
   // get all .DPR files to compile
-  GetDirFiles('./', '*.dpr', Paths);
+  getSubdirFiles('./', '*.dpr', Paths);
   if Paths.count < 1 then HaltErr('Path problem getting example *.DPR files');
-  BuildExamples(Paths);
+  buildExamples(Paths);
 end.
 
 

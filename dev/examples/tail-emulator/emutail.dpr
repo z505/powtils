@@ -64,10 +64,10 @@ begin
   OldFileSize:= GetFileSize(WatchFile);
 
   // record the file size
-  SetSess('OldFileSize', IntToStr(OldFileSize));
+  setSess('OldFileSize', IntToStr(OldFileSize));
 
-  WebFileOut('htm/header.htm');
-  WebWrite('<br />');
+  fileOut('htm/header.htm');
+  out('<br />');
 
   showlines:= GetCGIVar('showlines');
   if showlines = '' then
@@ -77,59 +77,58 @@ begin
 
   DecodeTime(Time, hh, mm, ss, ms);
   CurrentTime:= format('<b>Time:</b> %d:%d:%d',[hh,mm,ss,ms]);
-  WebWrite('<b>Date:</b> ' + DateToStr(Date) + ' &nbsp; &nbsp;' + CurrentTime );
-  WebWrite(' &nbsp; &nbsp; <i>Showing last <b>' + showlines + '</b> lines of file</i>' );
-  webwriteln('<hr>');
-  if FileExists(WatchFile) = false then
-  begin
-    webwrite('File does not exist: ' + WatchFile);
+  out('<b>Date:</b> ' + DateToStr(Date) + ' &nbsp; &nbsp;' + CurrentTime );
+  out(' &nbsp; &nbsp; <i>Showing last <b>' + showlines + '</b> lines of file</i>' );
+  out('<hr>');
+  if FileExists(WatchFile) = false then begin
+    out('File does not exist: ' + WatchFile);
     halt;
   end;
 
 { //if the user wants to see all the lines
   if ShowLines = 'all' then
   begin
-     webwriteln('<pre>');
+     outln('<pre>');
      webfileout(WatchFile);
-     webwriteln('</pre>');
+     outln('</pre>');
   end else
 }
 
   if (FileSizeChanged = true) then
   begin
-    webwriteln('Notices: <font color=red>File changed!</font> <br /><br />');
-    webwriteln('<table bgcolor=#B4B4B4 width=100% cellpadding=4>');
-    webwriteln(  '<tr>');
-    webwriteln(    '<td><font face="courier new" size=2>');
+    outln('Notices: <font color=red>File changed!</font> <br /><br />');
+    outln('<table bgcolor=#B4B4B4 width=100% cellpadding=4>');
+    outln(  '<tr>');
+    outln(    '<td><font face="courier new" size=2>');
     LastLines:= GetLastLns(WatchFile, strtoint(showlines) );
     //convert carriage returns into HTML breaks
     LastLines:= LineEndToBR(LastLines);
-    webwriteln(LastLines);
-    webwriteln(    '</font></td>');
-    webwriteln(  '</tr>');
-    webwriteln('</table>');
+    outln(LastLines);
+    outln(    '</font></td>');
+    outln(  '</tr>');
+    outln('</table>');
   end else
   begin
-    webwriteln('Notices: (none)<br /><br />');
-    webwriteln('<table bgcolor=#B4B4B4 width=100% cellpadding=4>');
-    webwriteln(  '<tr>');
-    webwriteln(    '<td><font face="courier new" size=2>');
+    outln('Notices: (none)<br /><br />');
+    outln('<table bgcolor=#B4B4B4 width=100% cellpadding=4>');
+    outln(  '<tr>');
+    outln(    '<td><font face="courier new" size=2>');
     LastLines:= GetLastLns(WatchFile, strtoint(showlines) );
     LastLines:= LineEndToBR(LastLines);
-    webwriteln(LastLines);
-    webwriteln(    '</font></td>');
-    webwriteln(  '</tr>');
-    webwriteln('</table>');
+    outln(LastLines);
+    outln(    '</font></td>');
+    outln(  '</tr>');
+    outln('</table>');
   end;
 
 
 
-  WebWriteln('<br />');
-  WebWriteln('<hr>');
+  outln('<br />');
+  outln('<hr>');
 
 
 
-  WebFileOut('htm/footer.htm');
+  fileOut('htm/footer.htm');
 
 end.
 
