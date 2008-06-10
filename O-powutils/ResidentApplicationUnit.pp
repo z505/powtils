@@ -42,7 +42,7 @@ interface
 uses
   Classes, SysUtils, CollectionUnit, ThreadingUnit,
   ResidentPageBaseUnit, CustApp, WebUnit, RequestsQueue,
-  BaseUnix;
+  BaseUnix, SessionManagerUnit;
 
 type
   EConfigFileNotFound= class (Exception);
@@ -66,8 +66,10 @@ type
     FRestartInterval: Integer;
     FMainPipeFileName: String;
     FOnNewRequest: TOnNewRequestArrived;
+    FSessionManger: TAbstractSessionManager;
     FTempPipeFilePath: String;
     FRemainedToRestart: Integer;
+    FUsingSessionManger: Boolean;
     FWebConfiguration: TWebConfigurationCollection;
     
     MainPipeFileHandle: cInt;
@@ -85,6 +87,8 @@ type
     property NumberOfActiveThread: Integer read FNumberOfActiveThread;
     property RequestQueueSize: Integer read FRequestQueueSize;
     property WebConfiguration: TWebConfigurationCollection read FWebConfiguration;
+    property UsingSessionManger: Boolean read FUsingSessionManger;
+    property SessionManger: TAbstractSessionManager read FSessionManger;
 
   public
   
@@ -401,35 +405,58 @@ constructor TResident.Create (AOwner: TComponent);
     AssignFile (ConfigFileHandle, 'PSP.conf');
     Reset (ConfigFileHandle);
 
-    ReadLn (ConfigFileHandle);
-    ReadLn (ConfigFileHandle, TempString);
-    MainPipeFileName:= TempString;
+
+    while not Eof (ConfigFileHandle) do
+    begin
+      ReadLn (ConfigFileHandle, TempString);
+      TempString:= Trim (TempString);
+      
+      if (TempString<> '') and
+        ((Length (TempString)= 0) or (TempString [1]<> '#')) then
+      begin
+        TempInt:= Pos (':', TempString);
+        WebConfiguration.AddWebConfiguration (TWebConfiguration.Create (
+          Copy (TempString, 1, TempInt- 1),
+          Copy (TempString, TempInt+ 1, Length (TempString)- TempInt)));
+          
+      end;
+      
+    end;
+    CloseFile (ConfigFileHandle);
     
+    MainPipeFileName:= WebConfiguration.ConfigurationByName ['MainPipeFileName'].Value;
     if not FileExists (FMainPipeFileName) then
       raise EMainPipeNotFound.Create (FMainPipeFileName);
       
-    ReadLn (ConfigFileHandle);
-    ReadLn (ConfigFileHandle, TempInt);
-//    RestartInterval:= TempInt;
+    TempPipeFilePath:= WebConfiguration.ConfigurationByName ['TemproraryPipesPath'].Value;
+    FNumberOfActiveThread:= StrToInt (WebConfiguration.ConfigurationByName ['MaximumNumberofActiveThreads'].Value);
+    FRequestQueueSize:= StrToInt (WebConfiguration.ConfigurationByName ['MaximumSizeofRequestQueue'].Value);
+    
+    FRestartInterval:= -1;
+    FUsingSessionManger:= False;
+    try
+      FRestartInterval:= StrToInt (WebConfiguration.ConfigurationByName ['RestartInterval'].Value);
+      
+    except
+    
+    end;
 
-    ReadLn (ConfigFileHandle);
-    ReadLn (ConfigFileHandle, TempString);
-    TempPipeFilePath:= TempString;
+    try
+      FUsingSessionManger:= UpperCase (WebConfiguration.ConfigurationByName ['SessionManager'].Value)= 'TRUE';
 
-    ReadLn (ConfigFileHandle);
-    ReadLn (ConfigFileHandle, TempInt);
-    FNumberOfActiveThread:= TempInt;
+    except
 
-    ReadLn (ConfigFileHandle);
-    ReadLn (ConfigFileHandle, TempInt);
-    FRequestQueueSize:= TempInt;
+    end;
 
-    CloseFile (ConfigFileHandle);
+    if UsingSessionManger then
+      FSessionManger:= TSessionID string;
 
   end;
 
 begin
   inherited Create (AOwner);
+  
+  FWebConfiguration:= TWebConfigurationCollection.Create;
 
   ReadConfigFileInfo;
 
