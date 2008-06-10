@@ -214,7 +214,8 @@ type
                          TWebConfigurationCollection; PageContentType: TContentType);
 
     procedure Clear;
-    procedure AddHeader (NewHeader: TWebHeader);
+    procedure AddHeader (NewHeader: TWebHeader); overload;
+    procedure AddHearer (Str: String); overload;
     
   end;
 
@@ -1159,6 +1160,11 @@ procedure TWebHeaderCollection.AddHeader (NewHeader: TWebHeader);
 begin
   inherited Add (NewHeader);
   
+end;
+
+procedure TWebHeaderCollection.AddHearer (Str: String);
+begin
+
 end;
 
 {==============================================================================}
