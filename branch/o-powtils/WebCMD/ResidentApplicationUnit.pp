@@ -1,0 +1,457 @@
+{
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+                    OPSP 1.1 ResidentApplicationUnit
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+--------------------------------------------------------------------------------
+ Resident Application Unit
+--------------------------------------------------------------------------------
+
+ OPSP 1.2
+ ---------
+
+  [30/JAN/2006 - Amir]
+   - This unit contains the classes, variables which is need for a Resident application.
+   , we mean that this application will be used on non-CGI mode (in which
+   on every request all the allocation must be done). This unit doesn't need to be changed
+   when one wants to develop an application. The only change which must be done is in the
+   "ThisApplicationPagesUnit" unit.
+
+  [16/MAR/2007 - Amir]
+   - A big change in TResident.ExecuteInThread:
+      In the previous version, I tried to use AssignFile and Reset to handle the
+      reading from pipe. But, there was a risk of missing a request. Now, it uses
+      the FpOpen and FpRead.
+
+  [28/APR/2008 - Amir]
+   - A big change in TResident.ExecuteInThread:
+      In the previous version, I tried to use AssignFile and Reset to handle the
+      reading from pipe. But, there was a risk of missing a request. Now, it uses
+      the FpOpen and FpRead.
+
+}
+
+unit ResidentApplicationUnit;
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils, CollectionUnit, ThreadingUnit,
+  ResidentPageBaseUnit, CustApp, WebUnit, RequestsQueue,
+  BaseUnix, SessionManagerUnit;
+
+type
+  EConfigFileNotFound= class (Exception);
+
+  { EMainPipeNotFound }
+
+  EMainPipeNotFound= class (Exception)
+    constructor Create (Name: String);
+    
+  end;
+  
+  TOnNewRequestArrived= procedure (Sender: TObject; ResidentPage: TResidentPageBase) of object;
+  
+  { TResident }
+  
+  TResident= class (TCustomApplication)
+  private
+    FBeforeRestart: TNotifyEvent;
+    FNumberOfActiveThread: Integer;
+    FRequestQueueSize: Integer;
+    FRestartInterval: Integer;
+    FMainPipeFileName: String;
+    FOnNewRequest: TOnNewRequestArrived;
+    FSessionManger: TAbstractSessionManager;
+    FTempPipeFilePath: String;
+    FRemainedToRestart: Integer;
+    FUsingSessionManger: Boolean;
+    FWebConfiguration: TWebConfigurationCollection;
+    
+    MainPipeFileHandle: cInt;
+
+    procedure SetMainPipeFileName (const AValue: String);
+    procedure SetRestartInterval (const AValue: Integer);
+    
+  published
+    property MainPipeFileName: String read FMainPipeFileName write SetMainPipeFileName ;
+    property TempPipeFilePath: String read FTempPipeFilePath write FTempPipeFilePath;
+    property OnNewPageRequest: TOnNewRequestArrived read FOnNewRequest write FOnNewRequest;
+    property BeforeRestart: TNotifyEvent read FBeforeRestart write FBeforeRestart;
+//    property RestartInterval: Integer read FRestartInterval write SetRestartInterval;
+    property RemainedToRestart: Integer read FRemainedToRestart;
+    property NumberOfActiveThread: Integer read FNumberOfActiveThread;
+    property RequestQueueSize: Integer read FRequestQueueSize;
+    property WebConfiguration: TWebConfigurationCollection read FWebConfiguration;
+    property UsingSessionManger: Boolean read FUsingSessionManger;
+    property SessionManger: TAbstractSessionManager read FSessionManger;
+
+  public
+  
+    procedure Execute;
+    procedure ExecuteInThread;
+  
+    constructor Create (AOwner : TComponent);
+    
+  end;
+
+  { TParameter }
+
+  TParameter= class (TStringList)
+  private
+    function GetArgument (Index: Integer): String;
+    
+  public
+    property Argument [Index: Integer]: String read GetArgument;
+
+    constructor Create (Str: String); overload;
+
+  end;
+
+
+implementation
+uses
+  ThisApplicationPagesUnit, URLEnc;
+  
+{ TParameter }
+
+function TParameter.GetArgument (Index: Integer): String;
+begin
+  Result:= Strings [Index];
+  
+end;
+
+constructor TParameter.Create (Str: String);
+const
+  ParameterSeprator: String= #$FF;
+  
+var
+  i, Position: Integer;
+  Ptr: PString;
+  
+begin
+  inherited Create;
+  
+  Str:= TrimLeft (Str)+ ' ';
+
+  while Str<> '' do
+  begin
+    Position:= Pos (ParameterSeprator, Str);
+    
+    if Position<> 0 then
+    begin
+      Self.Add (Copy (Str, 1, Position- 1));
+      System.Delete (Str, 1, Position);
+      Str:= TrimLeft (Str);
+      
+    end
+    else
+    begin
+      Self.Add (Str);
+      Break;
+      
+    end;
+    
+  end;
+
+end;
+
+{ TResident }
+
+procedure TResident.SetMainPipeFileName (const AValue: String);
+begin
+  FMainPipeFileName:= AValue;
+  
+end;
+
+procedure TResident.SetRestartInterval (const AValue: Integer);
+begin
+
+  FRestartInterval:= AValue;
+  FRemainedToRestart:= AValue;
+  
+end;
+
+procedure TResident.Execute;
+{
+var
+  MessageStr: String;
+  MsgParamenter: TParameter;
+  CookieString: String;
+  CgiVar: TCgiVariableCollection;
+  CurrentPage: TResidentPageBase;
+  ReqCon: Integer;
+  SegmentedString: String;
+  StringIsComplete: Boolean;
+}
+begin
+  raise ENotImplementedYet.Create ('It is not complete');
+{
+  MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
+  ReqCon:= 0;
+  SegmentedString:= '';
+  StringIsComplete:= False;
+
+  while True do
+  begin
+
+    ReadLn (MainPipeFileHandle, MessageStr);
+(*$IFDEF DEBUG_MODE*)
+    WriteLn ('MessageStr=', MessageStr);
+(*$ENDIF*)
+
+    if MessageStr= '' then
+    begin
+      while MessageStr= '' do
+      begin
+        Reset (MainPipeFileHandle);
+        ReadLn (MainPipeFileHandle, MessageStr);
+
+      end;
+
+    end;
+
+    ReadLn (MainPipeFileHandle, CookieString);
+
+(*$IFDEF DEBUG_MODE*)
+    WriteLn ('CookieString=', CookieString);
+(*$ENDIF*)
+
+    MsgParamenter:= TParameter.Create (MessageStr);
+
+    if MsgParamenter.ArgumentCount<= 1 then// Invalid parameters
+    begin
+      MsgParamenter.Free;
+      Continue;//raise ...
+
+    end
+    else // request is in correct form
+    begin
+
+// Get a new instance of PageName Handler
+// This procedure is defined in ThisApplicationPagesUnit.pas
+      CurrentPage:= GetAppropriatePageByPageName (UpperCase (MsgParamenter.Argument [0]));
+
+// Request paramters must be (PageName) (OutputPipeName) (Get/Put Variable)
+      if MsgParamenter.ArgumentCount= 3 then
+        CurrentPage.CgiVars.LoadFromString (MsgParamenter.Argument [2]);
+
+//Loading Cookies Parameter.
+      CurrentPage.Cookies.LoadFromString (CookieString);
+
+// Set the pipename in which the current page should write its output
+      CurrentPage.PipeFileName:= MsgParamenter.Argument [1];
+
+// Excecure OnNewRequest event
+      if Assigned (FOnNewRequest) then
+        FOnNewRequest (Self, CurrentPage);
+
+      CurrentPage.MyDispatch;
+
+// Free the objects memory
+      CurrentPage.Free;
+
+      MsgParamenter.Free;
+      CgiVar.Free;
+
+// check to see if it is time to restart the application
+      Dec (FRemainedToRestart);
+      if FRemainedToRestart= 0 then
+        Break;
+
+    end;
+
+  end;
+
+  CloseFile (MainPipeFileHandle);
+}
+
+end;
+
+{
+}
+procedure TResident.ExecuteInThread;
+const
+  NumOfCharsReadInEachTurn= 1000;
+  EndOfRequestChar= #$FD;
+  
+var
+  ThreadPool: TThreadPool;
+  RequestQueue: TCircularRequestsQueue;
+  NewRequest: TRequest;
+  i, ReqCon, EndOfCurrentRequest,
+  BufferLen: Integer;
+  Buffer: AnsiString;
+  BufferPtr: PChar;
+  StringIsComplete: Boolean;
+  SegmentedString: String;
+
+begin
+
+  RequestQueue:= TCircularRequestsQueue.Create (FRequestQueueSize);
+  ThreadPool:= TThreadPool.Create (RequestQueue, FNumberOfActiveThread);
+
+  ThreadPool.Execute;
+
+  MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
+  
+  ReqCon:= 0;
+  SegmentedString:= '';
+  StringIsComplete:= False;
+  
+  Buffer:= '';
+  for i:= 1 to NumOfCharsReadInEachTurn+ 1 do
+    Buffer:= Buffer+ ' ';
+  BufferLen:= 0;
+
+  while True do
+  begin
+    try
+
+      if BufferLen= 0 then
+      begin
+        BufferLen:= FpRead (MainPipeFileHandle, Buffer [1], NumOfCharsReadInEachTurn);
+
+        if BufferLen<= 0 then
+        begin
+          FpClose (MainPipeFileHandle);
+          MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
+          
+          Continue;
+
+        end;
+
+        BufferPtr:= @Buffer [1];
+
+      end;
+
+      EndOfCurrentRequest:= Pos (EndOfRequestChar, BufferPtr);
+      if EndOfCurrentRequest<> 0 then
+      begin
+        for i:= 1 to EndOfCurrentRequest- 1 do
+        begin
+          SegmentedString:= SegmentedString+ BufferPtr^;
+          Inc (BufferPtr);
+
+        end;
+        Inc (BufferPtr);// To Ignore #FD
+        Dec (BufferLen, EndOfCurrentRequest);
+        StringIsComplete:= True;
+
+      end
+      else
+      begin
+        SegmentedString:= SegmentedString+ Buffer;
+        Buffer:= '';
+        BufferLen:= 0;
+        
+      end;
+      
+      if StringIsComplete then
+      begin
+
+        NewRequest:= TRequest.Create (SegmentedString);
+        RequestQueue.Insert (NewRequest);
+        Inc (ReqCon);
+        WriteLn (ReqCon, ':NewRequest.Parameters=', NewRequest.Parameters);
+        StringIsComplete:= False;
+        SegmentedString:= '';
+
+      end;
+
+
+    except
+      on e: EQueueIsFull do
+        WriteLn ('Queue is Full Happened!');
+
+    end;
+
+  end;
+  
+  FpClose (MainPipeFileHandle);
+  RequestQueue.Free;
+  ThreadPool.Free;
+
+end;
+
+{
+  Create the application. ReadConfigFileInfo reads the config file parameters
+  such as MainPipename, NumberofActiveThread and QueueSize.
+  
+  Note that RestartInterval is not implemented yet. My goal was to restart the
+   application after a number of specific executaion, which is a great help specially
+   about memory leak. But till now, I can't find any way to do this.
+}
+constructor TResident.Create (AOwner: TComponent);
+
+{
+  The configfilename must be PSP.conf and be in the same path as the application.
+}
+
+  procedure ReadConfigFileInfo;
+  var
+    ConfigFileHandle: TextFile;
+    TempInt: Integer;
+    TempString: String;
+    
+  begin
+    if not FileExists ('PSP.conf') then
+      EConfigFileNotFound.Create ('Config File not found!');
+
+    AssignFile (ConfigFileHandle, 'PSP.conf');
+    Reset (ConfigFileHandle);
+
+    ReadLn (ConfigFileHandle);
+    ReadLn (ConfigFileHandle, TempString);
+    MainPipeFileName:= TempString;
+    
+    if not FileExists (FMainPipeFileName) then
+      raise EMainPipeNotFound.Create (FMainPipeFileName);
+      
+    ReadLn (ConfigFileHandle);
+    ReadLn (ConfigFileHandle, TempInt);
+//    RestartInterval:= TempInt;
+
+    ReadLn (ConfigFileHandle);
+    ReadLn (ConfigFileHandle, TempString);
+    TempPipeFilePath:= TempString;
+
+    ReadLn (ConfigFileHandle);
+    ReadLn (ConfigFileHandle, TempInt);
+    FNumberOfActiveThread:= TempInt;
+
+    ReadLn (ConfigFileHandle);
+    ReadLn (ConfigFileHandle, TempInt);
+    FRequestQueueSize:= TempInt;
+
+    ReadLn (ConfigFileHandle);
+    ReadLn (ConfigFileHandle, TempString);
+    TempString:= Trim (TempString);
+    FUsingSessionManger:= UpperCase (TempString)= 'TRUE';
+
+    CloseFile (ConfigFileHandle);
+
+  end;
+
+begin
+  inherited Create (AOwner);
+
+  ReadConfigFileInfo;
+
+
+end;
+
+{ EMainPipeNotFound }
+
+constructor EMainPipeNotFound.Create(Name: String);
+begin
+  inherited Create ('No pipe with Name= '+ Name+ ' Found!');
+  
+end;
+
+end.
+

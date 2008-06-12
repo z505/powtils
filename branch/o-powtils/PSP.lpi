@@ -1,0 +1,374 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <PathDelim Value="/"/>
+    <Version Value="6"/>
+    <General>
+      <Flags>
+        <AlwaysBuild Value="False"/>
+      </Flags>
+      <MainUnit Value="0"/>
+      <IconPath Value="./"/>
+      <TargetFileExt Value=""/>
+      <ActiveEditorIndexAtStart Value="0"/>
+    </General>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <CommandLineParams Value=">Output.txt"/>
+        <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+        <Display Use="True"/>
+      </local>
+    </RunParams>
+    <Units Count="36">
+      <Unit0>
+        <Filename Value="PSP.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PSP"/>
+        <CursorPos X="21" Y="18"/>
+        <TopLine Value="4"/>
+        <UsageCount Value="211"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="PipeWrapperUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PipeWrapperUnit"/>
+        <CursorPos X="1" Y="37"/>
+        <TopLine Value="9"/>
+        <UsageCount Value="211"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="ResidentApplicationUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ResidentApplicationUnit"/>
+        <CursorPos X="1" Y="357"/>
+        <TopLine Value="344"/>
+        <UsageCount Value="211"/>
+        <Bookmarks Count="1">
+          <Item0 X="1" Y="356" ID="1"/>
+        </Bookmarks>
+      </Unit2>
+      <Unit3>
+        <Filename Value="Page1ResidentUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Page1ResidentUnit"/>
+        <CursorPos X="49" Y="56"/>
+        <TopLine Value="28"/>
+        <UsageCount Value="211"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="BaseClassUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BaseClassUnit"/>
+        <CursorPos X="34" Y="28"/>
+        <TopLine Value="20"/>
+        <UsageCount Value="210"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="CollectionBaseUnit.pp"/>
+        <UnitName Value="CollectionBaseUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="200"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="CollectionUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="CollectionUnit"/>
+        <CursorPos X="34" Y="196"/>
+        <TopLine Value="178"/>
+        <UsageCount Value="210"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="WebUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="WebUnit"/>
+        <CursorPos X="14" Y="29"/>
+        <TopLine Value="11"/>
+        <UsageCount Value="208"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="pwu.pp"/>
+        <UnitName Value="pwu"/>
+        <CursorPos X="1" Y="3548"/>
+        <TopLine Value="3530"/>
+        <UsageCount Value="37"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="ResidentPageBaseUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ResidentPageBaseUnit"/>
+        <CursorPos X="15" Y="40"/>
+        <TopLine Value="36"/>
+        <UsageCount Value="200"/>
+        <Bookmarks Count="1">
+          <Item0 X="1" Y="196" ID="3"/>
+        </Bookmarks>
+      </Unit9>
+      <Unit10>
+        <Filename Value="Page2ResidentUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Page2ResidentUnit"/>
+        <CursorPos X="21" Y="48"/>
+        <TopLine Value="34"/>
+        <UsageCount Value="214"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="ThisApplicationPagesUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ThisApplicationPagesUnit"/>
+        <CursorPos X="25" Y="47"/>
+        <TopLine Value="36"/>
+        <UsageCount Value="207"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="substrings.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SubStrings"/>
+        <CursorPos X="9" Y="588"/>
+        <TopLine Value="584"/>
+        <UsageCount Value="204"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="URLEnc.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="URLEnc"/>
+        <CursorPos X="34" Y="23"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="207"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="SessionManagerUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SessionManagerUnit"/>
+        <CursorPos X="1" Y="130"/>
+        <TopLine Value="129"/>
+        <UsageCount Value="200"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="WebStringUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="WebStringUnit"/>
+        <CursorPos X="1" Y="23"/>
+        <TopLine Value="9"/>
+        <UsageCount Value="256"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="RequestsQueue.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="RequestsQueue"/>
+        <CursorPos X="14" Y="205"/>
+        <TopLine Value="191"/>
+        <UsageCount Value="250"/>
+        <Bookmarks Count="1">
+          <Item0 X="1" Y="229" ID="2"/>
+        </Bookmarks>
+      </Unit16>
+      <Unit17>
+        <Filename Value="XML Handler/XMLNode.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="XMLNode"/>
+        <CursorPos X="1" Y="244"/>
+        <TopLine Value="236"/>
+        <UsageCount Value="202"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="XML Handler/AttributeUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="AttributeUnit"/>
+        <CursorPos X="13" Y="59"/>
+        <TopLine Value="45"/>
+        <UsageCount Value="202"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="PSP.conf"/>
+        <CursorPos X="29" Y="6"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="22"/>
+        <SyntaxHighlighter Value="None"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="ThreadingUnit.pp"/>
+        <UnitName Value="ThreadingUnit"/>
+        <CursorPos X="19" Y="86"/>
+        <TopLine Value="67"/>
+        <UsageCount Value="100"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="ThisProjectGlobalUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ThisProjectGlobalUnit"/>
+        <CursorPos X="1" Y="47"/>
+        <TopLine Value="21"/>
+        <UsageCount Value="176"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="../psp-1.6.x-devel/main/pwumain.pas"/>
+        <UnitName Value="pwumain"/>
+        <CursorPos X="1" Y="673"/>
+        <TopLine Value="670"/>
+        <UsageCount Value="69"/>
+        <Bookmarks Count="1">
+          <Item0 X="1" Y="673" ID="2"/>
+        </Bookmarks>
+      </Unit22>
+      <Unit23>
+        <Filename Value="FileStringsUnit.pp"/>
+        <UnitName Value="FileStringsUnit"/>
+        <CursorPos X="32" Y="8"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="ExceptionUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ExceptionUnit"/>
+        <CursorPos X="43" Y="14"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="39"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="/usr/share/fpcsrc/rtl/inc/objpas.inc"/>
+        <CursorPos X="1" Y="45"/>
+        <TopLine Value="30"/>
+        <UsageCount Value="10"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="/usr/share/fpcsrc/rtl/i386/i386.inc"/>
+        <CursorPos X="1" Y="1288"/>
+        <TopLine Value="1274"/>
+        <UsageCount Value="9"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="/usr/share/fpcsrc/rtl/objpas/classes/stringl.inc"/>
+        <CursorPos X="1" Y="918"/>
+        <TopLine Value="904"/>
+        <UsageCount Value="9"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="/usr/share/fpcsrc/rtl/objpas/sysutils/sysstr.inc"/>
+        <CursorPos X="1" Y="706"/>
+        <TopLine Value="692"/>
+        <UsageCount Value="9"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="/usr/share/fpcsrc/rtl/inc/objpash.inc"/>
+        <CursorPos X="23" Y="147"/>
+        <TopLine Value="133"/>
+        <UsageCount Value="9"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="/usr/share/fpcsrc/rtl/inc/except.inc"/>
+        <CursorPos X="34" Y="201"/>
+        <TopLine Value="188"/>
+        <UsageCount Value="10"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="GlobalUnit.pp"/>
+        <UnitName Value="GlobalUnit"/>
+        <CursorPos X="31" Y="40"/>
+        <TopLine Value="26"/>
+        <UsageCount Value="10"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="/usr/share/fpcsrc/rtl/inc/system.inc"/>
+        <CursorPos X="1" Y="576"/>
+        <TopLine Value="562"/>
+        <UsageCount Value="10"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="/usr/share/fpcsrc/rtl/inc/systemh.inc"/>
+        <CursorPos X="11" Y="653"/>
+        <TopLine Value="639"/>
+        <UsageCount Value="9"/>
+      </Unit33>
+      <Unit34>
+        <Filename Value="/usr/share/fpcsrc/rtl/darwin/i386/sighnd.inc"/>
+        <CursorPos X="25" Y="45"/>
+        <TopLine Value="24"/>
+        <UsageCount Value="10"/>
+      </Unit34>
+      <Unit35>
+        <Filename Value="WebCMD.lpr"/>
+        <UnitName Value="PSP"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="0"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit35>
+    </Units>
+    <JumpHistory Count="0" HistoryIndex="-1"/>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="5"/>
+    <SearchPaths>
+      <OtherUnitFiles Value="Pages/;Extra/;XML Handler/"/>
+    </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <DelphiCompat Value="True"/>
+      </SyntaxOptions>
+    </Parsing>
+    <CodeGeneration>
+      <Generate Value="Faster"/>
+    </CodeGeneration>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <BreakPoints Count="4">
+      <Item1>
+        <Source Value="ResidentApplicationUnit.pp"/>
+        <Line Value="344"/>
+      </Item1>
+      <Item2>
+        <Source Value="WebUnit.pp"/>
+        <Line Value="698"/>
+      </Item2>
+      <Item3>
+        <Source Value="WebUnit.pp"/>
+        <Line Value="511"/>
+      </Item3>
+      <Item4>
+        <Source Value="RequestsQueue.pp"/>
+        <Line Value="229"/>
+      </Item4>
+    </BreakPoints>
+    <Watches Count="3">
+      <Item1>
+        <Expression Value="Str"/>
+      </Item1>
+      <Item2>
+        <Expression Value="Self"/>
+      </Item2>
+      <Item3>
+        <Expression Value="FSize"/>
+      </Item3>
+    </Watches>
+    <Exceptions Count="5">
+      <Item1>
+        <Name Value="ECodetoolError"/>
+      </Item1>
+      <Item2>
+        <Name Value="EFOpenError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EVariableNotFound"/>
+      </Item3>
+      <Item4>
+        <Name Value="EQueueIsEmpty"/>
+      </Item4>
+      <Item5>
+        <Name Value="ENameNotFound"/>
+      </Item5>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
