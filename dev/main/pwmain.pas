@@ -294,6 +294,17 @@ function iCustomCfgUnitSet: boo;
 // END OF INTERNAL DECLARATIONS
 {-----------------------------------------------------------------------------}
 
+
+// Backwards compatibility
+const 
+  getCgiVar: function (const name: astr): astr                                  = {$ifdef fpc}@{$endif}getPostVar;
+  getCgiVar_S: function(const name: astr; security: byte): astr                 = {$ifdef fpc}@{$endif}getPostVar_S;
+  getCgiVar_SF: function(const name: astr; security: byte): astr                = {$ifdef fpc}@{$endif}getPostVar_SF;
+  getCgiVarAsFloat: function(const name: astr): double                          = {$ifdef fpc}@{$endif}getPostVarAsFloat;   
+  getCgiVarAsInt: function(const name: astr): int32                             = {$ifdef fpc}@{$endif}getPostVarAsInt;   
+  getCgiVar_SafeHTML: function(const name: astr): astr                          = {$ifdef fpc}@{$endif}getPostVar_SafeHTML;   
+
+
 {=============================================================================}
  implementation
 {=============================================================================}
@@ -1045,27 +1056,27 @@ function SetCfgVar(const name, value: astr): boo;
        s = L_UPLOAD_MAX_SIZE then result:= ckUploadMaxSize;
   end;
 
-  procedure BeforeExit1; 
+  procedure Leave1; 
   begin ThrowWarn('header charset can''t be set after headers sent');           {$ifdef dbug_on}SetCfgVar_X1;{$endif}
   end;
 
-  procedure BeforeExit2;
+  procedure Leave2;
   begin ThrowWarn('output compression needs output_buffering on');              {$ifdef dbug_on}SetCfgVar_X2;{$endif}
   end;
 
-  procedure BeforeExit3;
+  procedure Leave3;
   begin ThrowWarn('output compression can''t be unset after headers sent');     {$ifdef dbug_on}SetCfgVar_X3{$endif}
   end;
 
-  procedure BeforeExit4;
+  procedure Leave4;
   begin ThrowWarn('sess path/lifetime can''t be set after headers sent');       {$ifdef dbug_on}SetCfgVar_X4{$endif}
   end;
 
-  procedure BeforeExit5;
+  procedure Leave5;
   begin ThrowWarn('upload max size can''t be set after headers sent');          {$ifdef dbug_on}SetCfgVar_X5;{$endif}
   end;    
 
-  procedure BeforeExit6;
+  procedure Leave6;
   begin ThrowWarn('sess cfg can''t be set without session unit');               {$ifdef dbug_on}SetCfgVar_X6;{$endif}
   end;
 
@@ -1075,11 +1086,12 @@ function SetCfgVar(const name, value: astr): boo;
   // set flags
   case CfgKind(name) of
     ckHeaderCharset: 
-      if headers_sent then begin BeforeExit1; exit; end;
+      if headers_sent then begin Leave1; exit; end;
     ckErrorReporting:  SetFlag(error_reporting, value);
     ckErrorHalt: SetFlag(error_halt,value);
    {$ifdef gzip_on}
-    ckOutputBuffering: begin
+    ckOutputBuffering: 
+    begin
       // set flags and apply checks
       if FlagOn(value) then out_buffering:= true
       else begin
@@ -1087,24 +1099,26 @@ function SetCfgVar(const name, value: astr): boo;
         out_buffering:= false;
       end;
     end;
-    ckOutputCompression: begin
+    ckOutputCompression: 
+    begin
       // Setting internal flag and applying checks
       if FlagOn(value) then begin
-        if headers_sent then begin BeforeExit3; exit; end;
-        if not out_buffering then begin BeforeExit2; exit; end;
+        if headers_sent then begin Leave3; exit; end;
+        if not out_buffering then begin Leave2; exit; end;
         out_compression:= true;
       end else begin
-        if headers_sent then begin BeforeExit3; exit; end;
+        if headers_sent then begin Leave3; exit; end;
         if out_compression then UnsetHeader('Content-Encoding');
         out_compression:= false;
       end;
     end;
    {$endif} 
-    ckSessionPath, ckSessionLifetime: begin
-      if not(iCustomSessUnitSet) then begin BeforeExit6; exit; end;
-      if headers_sent then begin BeforeExit4; exit; end;
+    ckSessionPath, ckSessionLifetime: 
+    begin
+      if not(iCustomSessUnitSet) then begin Leave6; exit; end;
+      if headers_sent then begin Leave4; exit; end;
     end; 
-    ckUploadMaxSize: if headers_sent then begin BeforeExit5; exit; end;
+    ckUploadMaxSize: if headers_sent then begin Leave5; exit; end;
   end; {case}
   
   PutWebCfgVar(name, value, CASE_IGNORE);
@@ -1115,7 +1129,7 @@ function SetCfgVar(const name, value: astr): boo;
 
 { Returns value of configuration variable. Case insensitive NAME search.
   todo: research if security levels can be implemented }
-function GetCfgVar(const name: astr): astr;
+function getCfgVar(const name: astr): astr;
 var i: int32;
 begin
   result:= '';
@@ -1128,37 +1142,37 @@ begin
 end;
 
 { Returns number of elements in the get/post var list }
-function CountPostVars: longword;
+function countPostVars: longword;
 begin result:= length(gGetPost);
 end;
 
 { Returns number of cookie variables }
-function CountCookies: longword;
+function countCookies: longword;
 begin result:= length(gCook);
 end;
 
 { Returns number of set headers }
-function CountHeaders: longword;
+function countHeaders: longword;
 begin result:= length(gHdr);
 end;
 
 { Returns number of Run-Time Information variables }
-function CountRTIVars: longword;
+function countRtiVars: longword;
 begin result:= length(gRti);
 end;
 
 { Returns number of files uploaded }
-function CountUpFiles: longword;
+function countUpFiles: longword;
 begin result:= length(gUpFiles);
 end;
 
 { Returns number of all web (macro) variables }
-function CountVars: longword;
+function countVars: longword;
 begin result:= length(gVar);
 end;
 
 { Returns number of any macro, cookie, or gGetPost variables }
-function CountAny: longword;
+function countAny: longword;
 begin result:= length(gVar) + length(gCook) + length(gGetPost);
 end;
 
@@ -1166,7 +1180,7 @@ end;
   guestook or forum for example.
 
   Default security level: 2 }
-function FilterHtml(const input: astr): astr;
+function filterHtml(const input: astr): astr;
 begin result:= FilterHtml_S(input, SECURE_ON);
 end;
 
@@ -1176,7 +1190,7 @@ end;
     For future consideration
   Secure Level 2:
     Filtering of malicious input variable injection characters. *)
-function FilterHtml_S(const input: astr; security: byte): astr;
+function filterHtml_S(const input: astr; security: byte): astr;
 begin
   if security = SECURE_ON then
   begin
@@ -1201,34 +1215,34 @@ begin
 end;
 
 { Indexed access to gGetPost variable }
-function FetchPostVarName(idx: int32): astr;
+function fetchPostVarName(idx: int32): astr;
 begin result:= FetchPostVarName_S(idx, SECURE_ON);
 end;
 
 { Indexed access to gGetPost variable }
-function FetchPostVarVal(idx: int32): astr;
+function fetchPostVarVal(idx: int32): astr;
 begin result:= FetchPostVarVal_S(idx, SECURE_ON);
 end;
 
 { security 0 and custom user filter applied }
-function FetchPostVarVal(idx: int32; vfilter: TFilterFunc): astr;
+function fetchPostVarVal(idx: int32; vfilter: TFilterFunc): astr;
 begin
   result:= FetchPostVarVal_S(idx, SECURE_OFF);
   if assigned(vfilter) then result:= vfilter(result);
 end;
 
 { for DLL }
-function FetchPostVarVal1(idx: int32): astr;
+function fetchPostVarVal1(idx: int32): astr;
 begin result:= FetchPostVarVal(idx);
 end;
 
 { for DLL }
-function FetchPostVarVal2(idx: int32; vfilter: TFilterFunc): astr;
+function fetchPostVarVal2(idx: int32; vfilter: TFilterFunc): astr;
 begin result:= FetchPostVarVal2(idx, vfilter);
 end;
 
 { Indexed access to Twebvars name, security specifiable }
-function FetchTWebVarName_S(const w: TWebVars; idx: int32; security: byte): astr;
+function fetchTWebVarName_S(const w: TWebVars; idx: int32; security: byte): astr;
 begin
   if (idx >= 0) and (length(w) > 0) then begin
     case Security of 
@@ -1240,7 +1254,7 @@ begin
 end;
 
 { Indexed access to Twebvars value, security specifiable }
-function FetchTWebVarVal_S(const w: TWebVars; idx: int32; security: byte): astr;
+function fetchTWebVarVal_S(const w: TWebVars; idx: int32; security: byte): astr;
 begin
   if (idx >= 0) and (length(w) > 0) then
   begin
@@ -1253,17 +1267,17 @@ begin
 end;
 
 { Indexed access to gGetPost variable name, security specifiable }
-function FetchPostVarName_S(idx: int32; security: byte): astr;
+function fetchPostVarName_S(idx: int32; security: byte): astr;
 begin result:= FetchTWebVarName_S(gGetPost, idx, security);
 end;
 
 { Indexed access to gGetPost variable value, security specifiable }
-function FetchPostVarVal_S(idx: int32; security: byte): astr;
+function fetchPostVarVal_S(idx: int32; security: byte): astr;
 begin result:= FetchTWebVarVal_S(gGetPost, idx, security);
 end;
 
 { Indexed access to cookie variable }
-function FetchCookieName(idx: int32): astr;
+function fetchCookieName(idx: int32): astr;
 begin
   // security off because cookies could characters developers don't want 
   // trimmed, and they may get confused if security was trimming their cookies
@@ -1271,20 +1285,20 @@ begin
 end;
 
 { Indexed access to cookie variable }
-function FetchCookieVal(idx: int32): astr;
+function fetchCookieVal(idx: int32): astr;
 begin
   // security off for the same reasons as FetchCookieName
   result:= FetchTWebvarVal_S(gCook, idx, SECURE_OFF);
 end;
 
-function FetchCookieVal(idx: int32; cfilter: TFilterFunc): astr;
+function fetchCookieVal(idx: int32; cfilter: TFilterFunc): astr;
 begin
   result:= FetchCookieVal(idx);
   if assigned(cfilter) then result:= cfilter(result);
 end;
 
 { Indexed access to header }
-function FetchHeaderName(idx: int32): astr;
+function fetchHeaderName(idx: int32): astr;
 begin
   // security off because headers may contain characters developers don't
   // want trimmed
@@ -1292,14 +1306,14 @@ begin
 end;
 
 { Indexed access to header }
-function FetchHeaderVal(idx: int32): astr;
+function fetchHeaderVal(idx: int32): astr;
 begin
   // security off for same reasons as FetchHeaderName
   result:= FetchTWebvarVal_S(gHdr, idx, SECURE_OFF);
 end;
 
 { Indexed access to RTI variable }
-function FetchRtiName(idx: int32): astr;
+function fetchRtiName(idx: int32): astr;
 begin
   // security off because RTI vars currently not so externally vulnerible and 
   // could  contain characters that developers don't want trimmed 
@@ -1307,30 +1321,30 @@ begin
 end;
 
 { Indexed access to RTI variable }
-function FetchRtiVal(idx: int32): astr;
+function fetchRtiVal(idx: int32): astr;
 begin
   // security off for same reasons as FetchRtiName
   result:= FetchTWebvarVal_S(gRti, idx, SECURE_OFF);
 end;
 
 { Indexed access to uploaded file name }
-function FetchUpFileName(idx: int32): astr;
+function fetchUpFileName(idx: int32): astr;
 begin
   if (idx >= 0) and (length(gUpFiles) > 0) 
     then result:= gUpFiles[idx].name else result:= '';
 end;
 
 { Indexed access to user defined variable }
-function FetchVarName(idx: int32): astr;
+function fetchVarName(idx: int32): astr;
 begin result:= FetchTWebvarName_S(gVar, idx, SECURE_OFF);
 end;
 
 { Indexed access to user defined variable }
-function FetchVarVal(idx: int32): astr;
+function fetchVarVal(idx: int32): astr;
 begin result:= FetchTWebVarVal_S(gVar, idx, SECURE_OFF);
 end;
 
-function FetchVarVal(idx: int32; vfilter: TFilterFunc): astr;
+function fetchVarVal(idx: int32; vfilter: TFilterFunc): astr;
 begin
   result:= FetchVarVal(idx);
   if assigned(vfilter) then result:= vfilter(result);
@@ -1351,7 +1365,7 @@ end;
   and then try to replace them after (they would already be trimmed).
   i.e. we have to use one or the other, either replace or trim input.}
 
-function Fmt_SF(const s: astr; usefilter: boo; FilterSecurity, Trimsecurity: byte; vfilter: TFilterFunc): astr;
+function fmt_SF(const s: astr; usefilter: boo; FilterSecurity, Trimsecurity: byte; vfilter: TFilterFunc): astr;
 const ID_CHARS = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_';
 var i, len: int32;
     lex: astr;
@@ -1442,14 +1456,14 @@ begin
 end;
 
 { overloaded with default macrovar filter }
-function Fmt_SF(const s: astr; HTMLFilter: boo; FilterSecurity, TrimSecurity: byte): astr;
+function fmt_SF(const s: astr; HTMLFilter: boo; FilterSecurity, TrimSecurity: byte): astr;
 begin result:= Fmt_SF(s, HTMLFilter, FilterSecurity, TrimSecurity, {$ifdef fpc}@{$endif}FilterHtml);
 end;
 
 
 { $macrovars replaced with ones set via SetVar, applies custom html filter to 
   macrovars being formatted, returns formatted result string}
-function Fmt(const s: astr; vfilter: TFilterFunc): astr;
+function fmt(const s: astr; vfilter: TFilterFunc): astr;
 begin result:= Fmt_SF(s, true, SECURE_ON, SECURE_OFF, vfilter);
 end;
 
@@ -1459,7 +1473,7 @@ end;
   rather trims (discards) them
 
   Default security level: 2 }
-function Fmt(const s: astr): astr;
+function fmt(const s: astr): astr;
 begin
   result:= Fmt_SF(s, false, SECURE_OFF, SECURE_ON);
   // Uses the following default security settings:
@@ -1473,7 +1487,7 @@ end;
   as opposed to trimming and discarding them like Fmt() does.
 
   Default security level: 2 }
-function FmtFilter(const s: astr): astr;
+function fmtFilter(const s: astr): astr;
 begin
   result:= fmt(s, {$ifdef FPC}@{$endif}FilterHtml);
 end;
@@ -1482,28 +1496,28 @@ end;
 
   Default Security level is 2. Use the _S suffix function if you do not need
   high filtering security, or you wish to implment your own filters }
-function GetPostVar(const name: astr): astr;
+function getPostVar(const name: astr): astr;
 begin result:= GetPostVar_S(name, SECURE_ON);
 end;
 
 { security 0, with custom user filter in place }
-function GetPostVar(const name: astr; vfilter: TFilterFunc): astr;
+function getPostVar(const name: astr; vfilter: TFilterFunc): astr;
 begin
   result:= GetPostVar_S(name, SECURE_OFF);  
   if assigned(vfilter) then result:= vfilter(result);
 end;
 
 { for DLL }
-function GetPostVar1(const name: astr; vfilter: TFilterFunc): astr;
+function getPostVar1(const name: astr; vfilter: TFilterFunc): astr;
 begin result:= GetPostVar(name, vfilter);
 end;
 
 { for DLL }
-function GetPostVar2(const name: astr): astr;
+function getPostVar2(const name: astr): astr;
 begin result:= GetPostVar(name);
 end;
 
-function GetPostVar_Unsafe(const name: astr): astr;
+function getPostVar_Unsafe(const name: astr): astr;
 var i: int32;
 begin
   result:= '';
@@ -1549,7 +1563,7 @@ end;
   Security 0: does not automatically trim. use this when you want to implement
               your own filtering, such as when using FilterHTML
   Security 2: zeros out malicious characters}
-function GetPostVar_S(const name: astr; security: byte): astr;
+function getPostVar_S(const name: astr; security: byte): astr;
 begin
   result:= GetPostVar_Unsafe(name);
   case security of
@@ -1561,16 +1575,16 @@ begin
 end;
 
 { Returns value of gGetPost (GET/POST) variable as double precision float }
-function GetPostVarAsFloat(const name: astr): double;
+function getPostVarAsFloat(const name: astr): double;
 begin result:= GetTwebvarAsFloat(gGetPost, name);
 end;
 
 { Returns value of gGetPost (GET/POST) variable as int32 }
-function GetPostVarAsInt(const name: astr): int32;
+function getPostVarAsInt(const name: astr): int32;
 begin result:= GetTwebvarAsInt(gGetPost, name);
 end;
 
-function GetTWebvarVal(const w: TWebVars; const name: astr): astr;
+function getTWebvarVal(const w: TWebVars; const name: astr): astr;
 var i: int32;
 begin
   result:= '';
@@ -1583,11 +1597,11 @@ end;
 
 { Returns value of a cookie
   todo: research if security levels can be implemented }
-function GetCookie(const name: astr): astr;
+function getCookie(const name: astr): astr;
 begin result:= GetTWebVarVal(gCook, name);
 end;
 
-function GetCookie(const name: astr; cfilter: TFilterFunc): astr;
+function getCookie(const name: astr; cfilter: TFilterFunc): astr;
 begin
   result:= GetCookie(name);
   if assigned(cfilter) then result:= cfilter(result);
@@ -1595,43 +1609,43 @@ end;
 
 { Returns value of a cookie as double precision float
   todo: research if security levels can be implemented }
-function GetCookieAsFloat(const name: astr): double;
+function getCookieAsFloat(const name: astr): double;
 begin result:= GetTwebvarAsFloat(gCook, name);
 end;
 
 { Returns value of a cookie as integer
   todo: research if security levels can be implemented }
-function GetCookieAsInt(const name: astr): int32;
+function getCookieAsInt(const name: astr): int32;
 begin result:= GetTWebvarAsInt(gCook, name);
 end;
 
 { Returns value part of already assigned HTTP header
   todo: research if security levels can be implemented }
-function GetHeader(const name: astr): astr;
+function getHeader(const name: astr): astr;
 begin result:= GetTWebVarVal(gHdr, name);
 end;
 
 { Returns value of RTI (Run Time Information) variable
   todo: research if security levels can be implemented }
-function GetRti(const name: astr): astr;
+function getRti(const name: astr): astr;
 begin result:= GetTWebVarVal(gRti, name);
 end;
 
 { Returns value of RTI variable as double precision float
   todo: research if security levels can be implemented }
-function GetRtiAsFloat(const name: astr): double;
+function getRtiAsFloat(const name: astr): double;
 begin result:= GetTwebvarAsFloat(gRti, name);
 end;
 
 { Returns value of RTI variable as integer
   todo: research if security levels can be implemented }
-function GetRtiAsInt(const name: astr): int32;
+function getRtiAsInt(const name: astr): int32;
 begin result:= GetTWebvarAsInt(gRti, name);
 end;
 
 { Returns original name of the uploaded file
   todo: research if security levels can be implemented }
-function GetUpFileName(const name: astr): astr; var i: int32;
+function getUpFileName(const name: astr): astr; var i: int32;
 begin
   result:= '';
   if length(gUpFiles) = 0 then exit;
@@ -1642,7 +1656,7 @@ begin
 end;
 
 { Returns size of the uploaded file }
-function GetUpFileSize(const name: astr): int32; var i: int32;
+function getUpFileSize(const name: astr): int32; var i: int32;
 begin
   result:= 0;
   if length(gUpFiles) = 0 then exit;
@@ -1654,7 +1668,7 @@ end;
 
 { Returns Content-Type of the uploaded file
   todo: research if security levels can be implemented }
-function GetUpFileType(const name: astr): astr; var i: int32;
+function getUpFileType(const name: astr): astr; var i: int32;
 begin
   result:= '';
   if length(gUpFiles) = 0 then exit;
@@ -1673,7 +1687,7 @@ end;
 
    Security level 2:
      Trims (deletes) malicious characters from variable *)
-function GetVar_S(const name: astr; security: byte): astr; var i: int32;
+function getVar_S(const name: astr; security: byte): astr; var i: int32;
 begin
   result:= '';
   // look in vars
@@ -1688,18 +1702,18 @@ end;
 
 { Returns value of any macro template variable (gVar[])
   Default security level: 2 }
-function GetVar(const name: astr): astr;
+function getVar(const name: astr): astr;
 begin result:= GetVar_S(name, SECURE_ON);
 end;
 
-function GetVar(const name: astr; vfilter: TFilterFunc): astr;
+function getVar(const name: astr; vfilter: TFilterFunc): astr;
 begin
   result:= GetVar_S(name, SECURE_OFF);
   if assigned(vfilter) then result:= vfilter(result);
 end;
 
 { look in macrovars, posted vars, cookie vars }
-function GetAny_S(const name: astr; security: byte): astr;
+function getAny_S(const name: astr; security: byte): astr;
   
   function Check(const w: TWebVars): astr;
   var i: int32;
@@ -1722,12 +1736,12 @@ begin
 end;
 
 
-function GetAny(const name: astr): astr;
+function getAny(const name: astr): astr;
 begin result:= GetAny_S(name, SECURE_ON);
 end;
 
 { security 0, with custom user filter in place }
-function GetAny(const name: astr; vfilter: TFilterFunc): astr;
+function getAny(const name: astr; vfilter: TFilterFunc): astr;
 begin
   result:= GetAny_S(name, SECURE_OFF);  
   if assigned(vfilter) then result:= vfilter(result);
@@ -1744,7 +1758,7 @@ end;
  Security level 2:
    Filters malicious characters from variable into safe html equivalents
 *)
-function GetPostVar_SF(const name: astr; security: byte): astr; var i: int32;
+function getPostVar_SF(const name: astr; security: byte): astr; var i: int32;
 begin
   result:= '';
   // look in gGetPost vars
@@ -1758,32 +1772,32 @@ begin
     end;
 end;
 
-function GetPostVar_SafeHTML(const name: astr): astr;
+function getPostVar_SafeHTML(const name: astr): astr;
 begin result:= GetPostVar_SF(name, SECURE_ON);
 end;
 
 { Return value of macrovar as float (double precision) }
-function GetVarAsFloat(const name: astr): double;
+function getVarAsFloat(const name: astr): double;
 begin val(GetVar(name), result);
 end;
 
 { Return float value of any macrovar, posted var, or cookie }
-function GetAnyAsFloat(const name: astr): double;
+function getAnyAsFloat(const name: astr): double;
 begin val(GetAny(name), result);
 end;
 
 { Return integer value of any macrovar }
-function GetVarAsInt(const name: astr): int32;
+function getVarAsInt(const name: astr): int32;
 begin val(GetVar(name), result);
 end;
 
 { Return integer value of any macrovar, posted var, or cookie }
-function GetAnyAsInt(const name: astr): int32;
+function getAnyAsInt(const name: astr): int32;
 begin val(GetAny(name), result);
 end;
 
 { private: abstract }
-function IsTwebvar(const name: astr; const w: TWebvars): boo;
+function isTwebvar(const name: astr; const w: TWebvars): boo;
 var i: int32;
 begin
   result:= false;
@@ -1792,32 +1806,32 @@ begin
 end;
 
 { Tells whether a configuration variable is assigned }
-function IsCfgVar(const name: astr): boo;
+function isCfgVar(const name: astr): boo;
 begin result:= IsTwebvar(name, TwebVars(gConf))
 end;
 
 { Tells whether a gGetPost (GET/POST/URL) variable is assigned }
-function IsPostVar(const name: astr): boo;
+function isPostVar(const name: astr): boo;
 begin result:= IsTwebvar(name, gGetPost)
 end;
 
 { Tells whether a cookie is assigned }
-function IsCookie(const name: astr): boo;
+function isCookie(const name: astr): boo;
 begin result:= IsTwebvar(name, gCook)
 end;
 
 { Tells if an RTI variable exists }
-function IsRti(const name: astr): boo;
+function isRti(const name: astr): boo;
 begin result:= IsTwebvar(name, gRti)
 end;
 
 { Tells if a macro var exists }
-function IsVar(const name: astr): boo;
+function isVar(const name: astr): boo;
 begin result:= IsTwebvar(name, gVar)
 end;
 
 { Tells if a file field is uploaded }
-function IsUpFile(const name: astr): boo;
+function isUpFile(const name: astr): boo;
 var i: int32;
 begin
   result:= false;
@@ -1829,7 +1843,7 @@ begin
 end;
 
 { Tells if a header is assigned, case insensitive name }
-function IsHeader(const name: astr): boo;
+function isHeader(const name: astr): boo;
 var i: int32;
 begin
   result:= false;
@@ -1861,7 +1875,8 @@ begin
     end;
   // look in gGetPost gVar
   if length(gGetPost) > 0 then
-    for i:= low(gGetPost) to high(gGetPost) do if gGetPost[i].name = name then begin 
+    for i:= low(gGetPost) to high(gGetPost) do if gGetPost[i].name = name then 
+    begin 
       result:= 4; 
       exit;
     end;
@@ -1968,7 +1983,7 @@ procedure outlnff(const s: astr);
 begin outff(s); outln;
 end;
 
-function NoHeadSentNorBuffering: boo;
+function noHeadSentNorBuffering: boo;
 begin
   result:= false;
   if (not headers_sent) {$ifdef gzip_on}and (not out_buffering){$endif} then
@@ -1977,7 +1992,7 @@ end;
 
 
 { Plain file output - returns FILE_READ_ERR if problem, OK otherwise  }
-function FileOut(const fname: astr): errcode;
+function fileOut(const fname: astr): errcode;
 var fh: text;
     s: astr;
 begin
@@ -1992,7 +2007,7 @@ begin
 end;
 
 { private }
-procedure WriteBuff(p: Pointer; len: LongWord);
+procedure writeBuff(p: Pointer; len: LongWord);
 begin
  {$ifdef gzip_on}
   if out_buffering then begin
@@ -2003,7 +2018,7 @@ begin
 end;
 
 { Binary Buffer Output...UNTYPED }
-procedure BufferOut(const buff; len: LongWord);
+procedure bufferOut(const buff; len: LongWord);
 var P: pointer;
 begin
   P:= @Buff;
@@ -2012,7 +2027,7 @@ begin
 end;
 
 { Plain binary file output }
-function ResourceOut(const fname: astr): errcode;
+function resourceOut(const fname: astr): errcode;
 const BUFFSIZE = 16384;
 var fh: file of char;
     buff: pchar;
@@ -2037,7 +2052,7 @@ begin
 end;
 
 { with custom filter func set by user for security on each macro var }
-function TemplateOut(const fname: astr; vfilter: TFilterFunc): errcode;
+function templateOut(const fname: astr; vfilter: TFilterFunc): errcode;
 var fh: text;
     s: astr;
 begin
@@ -2061,7 +2076,7 @@ begin
 end;
 
 { default templateout, applies html filter }
-function TemplateOut(const fname: astr): errcode;
+function templateOut(const fname: astr): errcode;
 begin result:= TemplateOut(fname, true);
 end;
 
@@ -2074,7 +2089,7 @@ end;
   not filtered or trimmed, just variables being used via SetVar. Template files 
   are dynamic text files. Anything dynamic in text file format is less secure, 
   just like a PHP script is less secure than static html.}
-function TemplateOut(const fname: astr; HtmlFilter: boo): errcode; 
+function templateOut(const fname: astr; HtmlFilter: boo): errcode; 
 begin
   if HtmlFilter = true then 
     result:= TemplateOut(fname, {$ifdef FPC}@{$endif}FilterHTML) 
@@ -2083,7 +2098,7 @@ begin
 end;
 
 { for DLL exporting }
-function TemplateOut1(const fname: astr; HtmlFilter: boo): errcode; 
+function templateOut1(const fname: astr; HtmlFilter: boo): errcode; 
 begin result:= TemplateOut(fname, htmlfilter);
 end;
 
@@ -2092,12 +2107,12 @@ end;
 
   Insecure, only use when you wish to output raw HTML. People can inject
   javascript into URL variables }
-function TemplateRaw(const fname: astr): errcode;
+function templateRaw(const fname: astr): errcode;
 begin result:= TemplateOut(fname, nil);
 end;
 
 { Sets HTTP header like 'Name: Value' }
-function PutHeader(const header: astr): boo;
+function putHeader(const header: astr): boo;
 var i: int32;
     nv: TStrArray;
 begin
@@ -2115,8 +2130,8 @@ begin
   nv[1]:= strtrim(nv[1]);
   // Change value if already set
   if length(gHdr) > 0 then
-  for i:= low(gHdr) to high(gHdr) do if Ucase(gHdr[i].name) = Ucase(nv[0]) then
-  begin
+  for i:= low(gHdr) to high(gHdr) do if Ucase(gHdr[i].name) = Ucase(nv[0]) 
+  then begin
     gHdr[i].value:= nv[1];
     exit;
   end;
@@ -2126,7 +2141,7 @@ begin
 end;
 
 { Generate random string of alphanumeric + '_' char, specify string length }
-function RandomStr(len: int32): astr;
+function randomStr(len: int32): astr;
 const PW_CHARS = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
 var i: int32;
 begin
@@ -2137,7 +2152,7 @@ begin
 end;
 
 { Saves uploaded file to disk }
-function SaveUpFile(const name, fname: astr): boo;
+function saveUpFile(const name, fname: astr): boo;
 var i: int32;
     fh: TFileOfChar;
     written : boo;
@@ -2160,11 +2175,11 @@ var i: int32;
 {e}                                                                             {$ifdef dbug_on}SaveUpFile_E{$endif}end;
 
 { Set a cookie }
-function SetCookie(const name, value: astr): boo;
+function setCookie(const name, value: astr): boo;
 var hdrval: astr;
 {b}                                                                             begin {$ifdef dbug_on}SetCookie_B;{$endif}
   result:= false;
-  // Check headers
+  // check headers
   if headers_sent then begin
     ThrowErr('Can''t set cookie, headers already sent');
     {$ifdef dbug_on}SetCookie_X1;{$endif}
@@ -2183,7 +2198,7 @@ var hdrval: astr;
 {e}                                                                             {$ifdef dbug_on}SetCookie_E;{$endif}end;
 
 { Set cookie as double precision float }
-function SetCookieAsFloat(const name: astr; value: double): boo;
+function setCookieAsFloat(const name: astr; value: double): boo;
 var s: astr;
 begin 
   str(value, s);
@@ -2191,7 +2206,7 @@ begin
 end;
 
 { Set cookie as integer }
-function SetCookieAsInt(const name: astr; value: int32): boo;
+function setCookieAsInt(const name: astr; value: int32): boo;
 var s: astr;
 begin
   str(value, s);
@@ -2199,7 +2214,7 @@ begin
 end;
 
 { Set extended cookie }
-function SetCookieEx(const name, value, path, domain, expiry: astr): boo;
+function setCookieEx(const name, value, path, domain, expiry: astr): boo;
 var headval, pathval, domainpart, expireval: astr;
     updated: boo;
 {b}                                                                             begin {$ifdef dbug_on}SetCookieEx_B;{$endif}
@@ -2231,7 +2246,7 @@ var headval, pathval, domainpart, expireval: astr;
 {e}                                                                             {$ifdef dbug_on}SetCookieEx_E;{$endif}end;
 
 { Sets an extended cookie as double precision float }
-function SetCookieAsFloatEx(const name: astr; value: double; const path, domain, expiry: astr): boo;
+function setCookieAsFloatEx(const name: astr; value: double; const path, domain, expiry: astr): boo;
 var s: astr;
 begin
   str(value, s);
@@ -2239,7 +2254,7 @@ begin
 end;
 
 { Sets an extended cookie as integer }
-function SetCookieAsIntEx(const name: astr; value: int32; const path, domain, expiry: astr): boo;
+function setCookieAsIntEx(const name: astr; value: int32; const path, domain, expiry: astr): boo;
 var s: astr;
 begin
   str(value, s);
@@ -2247,7 +2262,7 @@ begin
 end;
 
 { Sets HTTP header }
-function SetHeader(const name, value: astr): boo;
+function setHeader(const name, value: astr): boo;
 {b}                                                                             begin{$ifdef dbug_on}SetHeader_B; {$endif}
   result:= false;
   if headers_sent then begin
@@ -2263,7 +2278,7 @@ function SetHeader(const name, value: astr): boo;
 
 (* Assigns web variable. i.e. macro variables in templates and formated output
    such as $SomeVar and {$SomeVar} *)
-procedure SetVar(const name, value: astr);
+procedure setVar(const name, value: astr);
 {b}                                                                             begin{$ifdef dbug_on}SetVar_B; {$endif}
   // Change value if name already exist, or add new one if not exist
   if not UpdateWebVar(gVar, name, value, CASE_IGNORE) then 
@@ -2271,7 +2286,7 @@ procedure SetVar(const name, value: astr);
 {e}                                                                             {$ifdef dbug_on}SetVar_E;{$endif}end;
 
 { Assigns PWU variable as double precision float }
-procedure SetVarAsFloat(const name: astr; value: double);
+procedure setVarAsFloat(const name: astr; value: double);
 var s: astr;
 begin
   str(value, s);
@@ -2279,7 +2294,7 @@ begin
 end;
 
 { Assigns macrovar as integer }
-procedure SetVarAsInt(const name: astr; value: int32);
+procedure setVarAsInt(const name: astr; value: int32);
 var s: astr;
 begin
   str(value, s);
@@ -2287,15 +2302,13 @@ begin
 end;
 
 { Throws err if error reporting is on in config settings }
-procedure ThrowErr(const s: astr);
-begin
-  ThrowMsg(s, ttError);
+procedure throwErr(const s: astr);
+begin throwMsg(s, ttError);
 end;
 
 { Throws warning }
 procedure throwWarn(const s: astr);
-begin
-  ThrowMsg(s, ttWarn);
+begin throwMsg(s, ttWarn);
 end;
 
 
