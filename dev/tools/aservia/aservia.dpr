@@ -327,6 +327,8 @@ begin
     dbugln('Left Critical Section');
   end;
   result:= 0;
+  // IF THIS ENDTHREAD IS NOT PLACED HERE, THEN LINUX KEEPS OPENING THREADS
+  // TO A MAXIMUM OF 380 AND IT CAUSES A CONTINUAL LEAKAGE
   EndThread;
   dbugln('Ended thread');
 end;
