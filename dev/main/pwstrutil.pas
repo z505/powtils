@@ -72,6 +72,9 @@ type
 var
   SysLocale : TSysLocale;
 
+function Lcase(const s: astr): astr;
+function Ucase(const s: astr): astr;
+
 function BoolToStr(B: Boolean): string;
 function CurrToStr(Value: Currency): string;
 procedure FloatToDecimal(var result: TFloatRec; Value: Extended; Precision, Decimals : integer);
