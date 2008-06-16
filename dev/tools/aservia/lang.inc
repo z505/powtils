@@ -1,7 +1,8 @@
 const
+  VERSION = 'Aservia 1.0.1';
 {$define lang_en}
 {$ifdef lang_en}
-  str_server = 'Aservia 1.0 (en) / Alexander N Zubakov, 2006; Lars Olson, 2008';
+  str_server = VERSION+' (en) / Alexander N Zubakov, 2006; Lars Olson, 2008';
   str_qcom = 'Type q or quit to shutdown server';
   str_close = '#####Shutdown Server';
   str_wait = '#####Wait for connection... ';
@@ -12,7 +13,7 @@ const
   str_denied = '#####Denied!'#13#10;
   str_request = '#####Request: ';
 {$else}
-  str_server = 'Aservia 1.0 (ru) / Alexander N Zubakov, 2006; Lars Olson, 2008';
+  str_server = VERSION+' (ru) / Alexander N Zubakov, 2006; Lars Olson, 2008';
   str_qcom = 'Введите q или quit чтобы остановить сервер';
   str_close = '#####Завершение работы сервера';
   str_wait = '#####Ожидание соединения...';

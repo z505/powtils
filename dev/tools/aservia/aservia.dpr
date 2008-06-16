@@ -1,6 +1,9 @@
-{ Modified March 2008 by Lars Olson. Aservia (web server).
-  Based on nYume Server }
-program aservia; {$ifdef fpc}{$mode objfpc}{$H+}{$endif}
+{ Modified March 2008 by Lars Olson. Aservia (web server). Based on nYume }
+
+program aservia; 
+{$ifdef fpc}{$mode objfpc}{$H+}{$UNITPATH ../../main/}{$endif} 
+{$R+}
+
 uses
   {$ifdef unix}cthreads, baseunix, unix,{$endif} 
   {$ifdef windows}windows,{$endif}
@@ -8,9 +11,11 @@ uses
 
 {$include lang.inc}
 
-
-const LOGGING_OFF = true;
+// turn these on for more verbose reporting
+// TODO: put in a config file option
+const LOGGING_ON = false;
       MESSAGES_ON = false;   
+      DEBUGGING_ON = false;   
 
 // NOTE: MUST BE HTTP/1.0 - DOESN'T SUPPORT 1.1 CHUNK ENCODING, ETC.
 const
@@ -23,6 +28,8 @@ const
       QUERY_STRING = 'QUERY_STRING';
       SERV_SOFT    = 'SERVER_SOFTWARE';
       REMOTE_ADDR  = 'REMOTE_ADDR';
+      THREAD_LOOP_SLEEP = 10;
+
 var
   server   : TzServer;
   str1     : astr;
@@ -33,17 +40,31 @@ var
   filedir  : astr;
   ip       : astr;
   port     : word;
-  handle   : cardinal;
-  newlog   : boolean;
+  newlog   : boo;
   idxpg: astr; // default index page
   error404 : astr;
   error403 : astr;
   blacklist: array of astr;
-  needStopServer: boolean = false;
+  needStopServer: boo;
+  handle   : int32;
 
 { debugging to console }
-procedure dbugln(s: astr); overload; begin writeln('DEBUG: ', s); end;
-procedure dbugln(s1, s2: astr); begin dbugln(s1+s2); end;
+procedure dbugln(s: astr); overload;   
+begin if DEBUGGING_ON then writeln('DEBUG: ', s); 
+end;
+
+procedure dbugln(s1, s2: astr);        
+begin dbugln(s1+s2); 
+end;
+
+procedure logln(var t: text; s: astr);  
+begin if LOGGING_ON then writeln(t, s); 
+end;
+
+procedure logln(var t: text);  
+begin logln(t, ''); 
+end;
+
 
 { write a line to console }
 
@@ -64,15 +85,13 @@ begin if MESSAGES_ON then writeln(s1,i);
 end;
 
 { always write a note even if MESSAGES_ON is off }
-procedure noteln(s1: astr);          begin  writeln(s1); end;
-procedure noteln(s1,s2: astr);        begin  writeln(s1,s2); end;
-procedure noteln(s1,s2,s3: astr);     begin  writeln(s1,s2,s3); end;
-procedure noteln(s1,s2,s3,s4: astr);     begin  writeln(s1,s2,s3,s4); end;
+procedure noteln(s1: astr);            begin  writeln(s1); end;
+procedure noteln(s1,s2: astr);         begin  writeln(s1,s2); end;
+procedure noteln(s1,s2,s3: astr);      begin  writeln(s1,s2,s3); end;
+procedure noteln(s1,s2,s3,s4: astr);   begin  writeln(s1,s2,s3,s4); end;
 
-
-
-procedure DeleteTrailingHttpVersion(var s: string);
-var found: integer;
+procedure DeleteTrailingHttpVersion(var s: astr);
+var found: int32;
 
   procedure removestr;
   begin
@@ -88,19 +107,19 @@ begin
   removestr;
 end;
 
-
 { user commands to stop server with keyboard at console }
-function needStop(p: pointer): longint;
+function needStop(p: pointer): int32;
 var s: astr;
 begin
   s:= '';
   repeat
     readln(s);
-    if (s = 'q') or (s = 'quit') then needStopServer := true;
+    if (s = 'q') or (s = 'quit') then needStopServer:= true;
+    sleep(800);
   until needStopServer;
   noteln(str_close);
   server.Stop;
-  Result := 0;
+  result:= 0;
 end;
   
 function parceRequest(req: astr): astr;
@@ -114,20 +133,20 @@ function parceRequest(req: astr): astr;
 var
   strings: array of astr; 
   postd: astr; 
-  i: integer;
+  i: int32;
 begin
-  Result := '';
-  SetLength(strings, 0);
+  result := '';
+  setLength(strings, 0);
   i:= pos(#13#10, req);
   while i <> 0 do begin
-    SetLength(strings, Length(strings) + 1);
-    strings[Length(strings) - 1] := copy(req, 1, i - 1);
+    setLength(strings, length(strings) + 1);
+    strings[length(strings) - 1] := copy(req, 1, i - 1);
     delete(req, 1, i+1);
     i:= pos(#13#10, req);
   end;
 
-  if Length(strings) > 0 then
-  for i:= 0 to Length(strings) - 1 do
+  if length(strings) > 0 then
+  for i:= 0 to length(strings) - 1 do
   begin
     if found('GET ', strings[i]) then begin
       result:= strings[i];
@@ -162,7 +181,7 @@ begin
   end;
 
   DeleteTrailingHttpVersion(result);
-  if (result = '') or (result[Length(Result)] = '/') then result += idxpg;
+  if (result = '') or (result[length(Result)] = '/') then result += idxpg;
 end;
   
 function gettype(fname: astr): astr;
@@ -174,39 +193,37 @@ begin
   delete(ext, 1, 1);
   Result := mimecfg.getOpt(ext, def);
 end;
-  
-function getfile(fname: astr; errcode: astr = '200 OK'; 
+
+function getFile(fname: astr; errcode: astr = '200 OK'; 
                  query: astr = ''): astr;
 var
-  fl   : file;
-  buf  : astr;
-  count: integer;
-  filetype  : astr;
+  fl: file;
+  buf: astr;
+  count: int32;
+  filetype: astr;
   parameters: astr = '';
 begin
   filetype := gettype(fname);
   if filetype <> 'execute/cgi' then
   begin
-    SetLength(buf, 4096);
+    setLength(buf, 4096);
     Result := '';
-    Assign(fl, fname);
-    Reset(fl, 1);
-    Result := HTTP_VERSION+' ' + errcode + #13#10 + 
-              str_server + #13#10 +
-             'MIME-version: 1.0'#13#10 +
-             'Allow: GET, POST'#13#10 +
-             'Content-type: ' + filetype + #13#10 +
-             'Content-length: ' + IntToStr(FileSize(fl)) + #13#10 + 
-              #13#10;
+    assign(fl, fname);
+    reset(fl, 1);
+    result:= HTTP_VERSION+' ' + errcode + #13#10 + 
+             str_server + #13#10 +
+            'MIME-version: 1.0'#13#10 +
+            'Allow: GET, POST'#13#10 +
+            'Content-type: ' + filetype + #13#10 +
+            'Content-length: ' + IntToStr(FileSize(fl)) + #13#10 + 
+             #13#10;
     while not eof(fl) do begin
-      BlockRead(fl, pointer(buf)^, 4096, count);
+      blockRead(fl, pointer(buf)^, 4096, count);
       if count < 4096 then buf := copy(buf, 1, count);
-      Result += buf;
+      result += buf;
     end;  
     Close(fl);
-  end
-  else
-  begin
+  end else begin
     if query <> '' then begin
       count := pos('?', query);
       if count > 0 then parameters := copy(query, count + 1, length(query));
@@ -220,7 +237,7 @@ begin
   end;
 end;  
 
-function request(p: pointer): longint;
+function request(p: pointer): int32;
 var path: astr;
 
   function SlashDots: bln;
@@ -230,45 +247,48 @@ var path: astr;
   end;
 
 var
-  deny: boolean;
+  deny: boo;
 
   procedure Log;
   begin
-   if LOGGING_OFF then exit;
+    if not LOGGING_ON then exit;
    {$I-}
-    Assign(fl, logflname); Append(fl);
+    Assign(fl, logflname); Append(fl); 
     if IOResult <> 0 then Rewrite(fl);
-    writeln(fl, str_requestfrom, ip, '; '{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
-    writeln(fl, str1);
-    if deny then writeln(fl, str_denied);
+    logln(fl, str_requestfrom+ip+'; '{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
+    logln(fl, str1);
+    if deny then logln(fl, str_denied);
     close(fl);
    {$I+}
   end;
 
 var fname, name, ip: astr;
-    i: integer;
+    i: int32;
+    pInt: int32;
 begin
   deny:= false;
-  EnterCriticalSection(critical);
+  pInt:= int32(p^);
+  enterCriticalSection(critical);
   try
     clearEnv;
-    server.select(longint(p^));
-    str1 := server.sread;
+    server.select(pInt);
+    str1:= server.sRead;
     msgln(str_request{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
     msgln(str1);
-    ip:= server.getip(longint(p^));
+    ip:= server.getip(pInt);
     addEnv(REMOTE_ADDR, ip);
     addEnv(SERV_SOFT, str_server);
     i:= 0;
-    while (not deny) and (i < Length(blacklist)) do begin
+    while (not deny) and (i < length(blacklist)) do begin
       if ip = blacklist[i] then begin 
-        deny := true; 
+        deny:= true; 
         msgln(str_denied); 
       end;
       inc(i);
     end;
-
-    if deny then server.swrite(getfile(error403, ERR_403_MSG)) else
+    dbugln('Checked blacklist');
+    if deny then server.sWrite(getFile(error403, ERR_403_MSG)) 
+    else
     if str1 <> '' then
     begin
       fname := parceRequest(str1);
@@ -276,74 +296,113 @@ begin
         filedir:= vhostcfg.getOpt('default', '')
       else begin
         filedir:= vhostcfg.getOpt(filedir, vhostcfg.getOpt('default', ''));
-        filedir:= ExcludeTrailingPathDelimiter(filedir);
+        filedir:= excludeTrailingPathDelimiter(filedir);
       end;
       addEnv(DOC_ROOT, filedir);
       name:= fname;
       if pos('?',fname) > 0 then name:= copy(fname,1,pos('?',fname) - 1);
       path:= filedir + name; 
       xpath(path);
-      if (not FileThere(path)) and DirExists(path) then name:= name+'/'+idxpg;
+      if (not fileThere(path)) and dirExists(path) then name:= name+'/'+idxpg;
       addEnv(SCRIPT_NAME, name);
       path:= filedir + name;
       xpath(path); // cross platform slashes
       if FileThere(path) then begin
         if SlashDots then begin
-          server.swrite(getfile(error403, ERR_403_MSG));
+          server.sWrite(getFile(error403, ERR_403_MSG));
           deny:= true;
         end else 
-          server.swrite(getfile(path, '200 OK', fname))
+          server.sWrite(getFile(path, '200 OK', fname))
       end else begin
-        server.swrite(getfile(error404, ERR_404_MSG));
+        server.sWrite(getFile(error404, ERR_404_MSG));
       end;
     end;
-
-    Log;
+    dbugln('Before log() procedure');
+    log;
 
   finally
-    server.Disconnect(longint(p^));
-    LeaveCriticalSection(critical);
+    dbugln('Disconnecting: '+i2s(pInt));
+    server.disconnect(pInt);
+    leaveCriticalSection(critical);
+    dbugln('Left Critical Section');
   end;
-
   result:= 0;
+  EndThread;
+  dbugln('Ended thread');
 end;
 
-procedure SetupLog;
+procedure setupLog;
 begin
+  if not LOGGING_ON then exit;
  {$I-}
-  Assign(fl, logflname);
+  assign(fl, logflname);
   if not newlog then Append(fl);
   if newlog or (IOResult <> 0) then Rewrite(fl);
-  writeln(fl, str_server, #13#10);
-  writeln(fl, str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
-  writeln(fl, str_socket, ip, ':', port);
-  writeln(fl);  
+  logln(fl, str_server+#13#10);
+  logln(fl, str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
+  logln(fl, str_socket+ip+':'+i2s(port));
+  logln(fl);  
   close(fl);
  {$I+}
 end;
 
-procedure RunThreadLoop;
+{ start thread to detect keyboard q/quit at console }
+procedure beginNeedStopThread;
+var id: TTHreadId = 0; 
+    //err: dword = 0;
 begin
-  beginThread(@needStop, nil);
+  //id:= BeginThread(nil,DefaultStackSize,@needStop,nil,0,dummy);
+   { UNIX and WINDOWS return different results (fpc bug) }
+  id:= beginThread(@needStop);
+  if id <> 0 then dbugln('(needStopThread) beginThread Result#: '+i2s(id));
+//  err:= suspendThread(id);
+//  if err <> 0 then dbugln('suspendThread Error#: ', err);
+//  err:= 0;
+//  err:= resumeThread(id);
+//  if err > 0 then dbugln('resumeThread Error#: '+i2s(err));
+end;
+
+{ start connection threads }
+procedure beginRequestThread;
+var id: TTHreadId = 0; 
+    //err: dword = 0;
+begin
+  //id:= BeginThread(nil,DefaultStackSize,@needStop,nil,0,dummy);
+  id:= beginThread(@request, @handle);
+  { UNIX and WINDOWS return different results (fpc bug) }
+  if id <> 0 then dbugln('(requestThread) beginThread Result#: '+i2s(id));
+//  err:= suspendThread(id);
+//  if err <> 0 then dbugln('suspendThread Error#: ', err);
+//  err:= 0;
+//  err:= resumeThread(id);
+//  if err > 0 then dbugln('resumeThread Error#: '+i2s(err));
+end;
+
+{ main server connections loop for all requests }
+procedure runThreadLoop;
+begin
+  beginNeedStopThread;
   initCriticalSection(critical);
   repeat
     msgln(str_wait);
-    handle := server.Connect;
+    handle:= server.connect;
     if (not needStopServer) and (handle >= 0) then begin
       msgln(str_connection);
-      beginThread(@request, @handle);
+      beginRequestThread;
+    end else begin
+      dbugln('runThreadLoop Handle: '+i2s(handle));
     end;
-   sleep(100); // this works as a default
+    sleep(THREAD_LOOP_SLEEP); 
   until needStopServer;
   doneCriticalSection(critical);
 end;
 
-procedure ErrLn(const msg: astr); overload;
+procedure errLn(const msg: astr); 
 begin writeln('E: ',msg);
 end;
 
-procedure ErrLn; overload;
-begin ErrLn('');
+procedure errLn; 
+begin errLn('');
 end;
 
 procedure CreateCfgAndServer;
@@ -399,13 +458,13 @@ end;
 
 { initiates logs, runs thread loop }
 procedure RunServer;
-var inited: boolean;
+var inited: boo;
 begin
   noteln(str_server);
   noteln(str_qcom, #13#10);
   noteln(str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
   createCfgAndServer;
-  inited:= server.InitConnection(ip, port);
+  inited:= server.initConnection(ip, port);
   if inited then begin
     noteln(str_socket, ip, ':', i2s(port));
     setupLog;
@@ -418,6 +477,7 @@ end;
 
 ///////////////////////////////////////////////////////////////////////////////
 begin
+  needStopServer:= false;
   runServer;
 end.
 ///////////////////////////////////////////////////////////////////////////////
