@@ -1,6 +1,6 @@
 { Modified March 2008 by Lars Olson. Aservia (web server).
   Based on nYume Server }
-program aservia; {$ifdef fpc}{$mode delphi}{$H+}{$endif}
+program aservia; {$ifdef fpc}{$mode objfpc}{$H+}{$endif}
 uses
   {$ifdef unix}cthreads, baseunix, unix,{$endif} 
   {$ifdef windows}windows,{$endif}
@@ -8,10 +8,14 @@ uses
 
 {$include lang.inc}
 
-// NOTE: MUST BE HTTP/1.0 - DOESN'T SUPPORT 1.1 CHUNK ENCODING, ETC.
-const HTTP_VERSION = 'HTTP/1.0';
 
-const ERR_404_MSG  = '404 File not found';
+const LOGGING_OFF = true;
+      MESSAGES_ON = false;   
+
+// NOTE: MUST BE HTTP/1.0 - DOESN'T SUPPORT 1.1 CHUNK ENCODING, ETC.
+const
+      HTTP_VERSION = 'HTTP/1.0';
+      ERR_404_MSG  = '404 File not found';
       ERR_403_MSG  = '403 Access denied';
       DOC_ROOT     = 'DOCUMENT_ROOT';
       SCRIPT_NAME  = 'SCRIPT_NAME';
@@ -38,15 +42,34 @@ var
   needStopServer: boolean = false;
 
 { debugging to console }
-procedure dbugln(s: astr); overload;
-begin
-  writeln('DEBUG: ', s);
+procedure dbugln(s: astr); overload; begin writeln('DEBUG: ', s); end;
+procedure dbugln(s1, s2: astr); begin dbugln(s1+s2); end;
+
+{ write a line to console }
+
+procedure msgln(s1: astr);        
+begin if MESSAGES_ON then writeln(s1); 
 end;
 
-procedure dbugln(s1, s2: astr); overload;
-begin
-  dbugln(s1+s2);
+procedure msgln(s1,s2: astr);        
+begin if MESSAGES_ON then writeln(s1,s2); 
 end;
+
+procedure msgln(s1,s2,s3: astr);     
+begin if MESSAGES_ON then writeln(s1,s2, s3); 
+end;
+
+procedure msgln(s1: astr; i: int32); 
+begin if MESSAGES_ON then writeln(s1,i); 
+end;
+
+{ always write a note even if MESSAGES_ON is off }
+procedure noteln(s1: astr);          begin  writeln(s1); end;
+procedure noteln(s1,s2: astr);        begin  writeln(s1,s2); end;
+procedure noteln(s1,s2,s3: astr);     begin  writeln(s1,s2,s3); end;
+procedure noteln(s1,s2,s3,s4: astr);     begin  writeln(s1,s2,s3,s4); end;
+
+
 
 procedure DeleteTrailingHttpVersion(var s: string);
 var found: integer;
@@ -75,7 +98,7 @@ begin
     readln(s);
     if (s = 'q') or (s = 'quit') then needStopServer := true;
   until needStopServer;
-  writeln(str_close);
+  noteln(str_close);
   server.Stop;
   Result := 0;
 end;
@@ -211,6 +234,7 @@ var
 
   procedure Log;
   begin
+   if LOGGING_OFF then exit;
    {$I-}
     Assign(fl, logflname); Append(fl);
     if IOResult <> 0 then Rewrite(fl);
@@ -230,14 +254,17 @@ begin
     clearEnv;
     server.select(longint(p^));
     str1 := server.sread;
-    writeln(str_request{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
-    writeln(str1);
+    msgln(str_request{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
+    msgln(str1);
     ip:= server.getip(longint(p^));
     addEnv(REMOTE_ADDR, ip);
     addEnv(SERV_SOFT, str_server);
     i:= 0;
     while (not deny) and (i < Length(blacklist)) do begin
-      if ip = blacklist[i] then begin deny := true; writeln(str_denied); end;
+      if ip = blacklist[i] then begin 
+        deny := true; 
+        msgln(str_denied); 
+      end;
       inc(i);
     end;
 
@@ -297,30 +324,26 @@ end;
 
 procedure RunThreadLoop;
 begin
-  BeginThread(@needStop, nil);
-  InitCriticalSection(critical);
+  beginThread(@needStop, nil);
+  initCriticalSection(critical);
   repeat
-    writeln(str_wait);
+    msgln(str_wait);
     handle := server.Connect;
     if (not needStopServer) and (handle >= 0) then begin
-      writeln(str_connection);
-      BeginThread(@request, @handle);
-      sleep(20);
+      msgln(str_connection);
+      beginThread(@request, @handle);
     end;
-   //  sleep(100); // this works as a default
-   sleep(20);
+   sleep(100); // this works as a default
   until needStopServer;
-  DoneCriticalSection(critical);
+  doneCriticalSection(critical);
 end;
 
 procedure ErrLn(const msg: astr); overload;
-begin
-  writeln(msg);
+begin writeln('E: ',msg);
 end;
 
 procedure ErrLn; overload;
-begin
-  ErrLn('');
+begin ErrLn('');
 end;
 
 procedure CreateCfgAndServer;
@@ -378,23 +401,23 @@ end;
 procedure RunServer;
 var inited: boolean;
 begin
-  writeln(str_server);
-  writeln(str_qcom, #13#10);
-  writeln(str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
-  CreateCfgAndServer;
+  noteln(str_server);
+  noteln(str_qcom, #13#10);
+  noteln(str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
+  createCfgAndServer;
   inited:= server.InitConnection(ip, port);
   if inited then begin
-    writeln(str_socket, ip, ':', port);
-    SetupLog;
-    RunThreadLoop;
+    noteln(str_socket, ip, ':', i2s(port));
+    setupLog;
+    runThreadLoop;
   end else 
-    ErrCantConnect;
-  FreeCfgAndServer;
+    errCantConnect;
+  freeCfgAndServer;
 end;
 
 
 ///////////////////////////////////////////////////////////////////////////////
 begin
-  RunServer;
+  runServer;
 end.
 ///////////////////////////////////////////////////////////////////////////////
