@@ -48,6 +48,7 @@ Type
     Procedure SubComponent(Caller : TXMLTag);
     Procedure CarryOnVar(Caller : TXMLTag);
     Procedure ExportVars(Caller : TXMLTag);
+    Procedure SetSession(Caller : TXMLTag);
 	Public
     Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
 		Destructor Destroy; Override;
@@ -174,6 +175,11 @@ End;
 Procedure TWebComponent.ExportVars(Caller : TXMLTag);
 Begin
   Self.ExportMyProperties;
+End;
+
+Procedure SetSession(Caller : TXMLTag);
+Begin
+  If 
 End;
 
 Constructor TWebComponent.Create(Name, Tmpl : String; Owner : TWebComponent);
