@@ -2,125 +2,121 @@
 
   Modified March 2008 by Lars Olson. Aservia (web server).
   Based on nYume Server }
-unit zserver; {$ifdef fpc}{$mode delphi}{$H+}{$endif}
+unit zserver; {$ifdef fpc}{$mode delphi}{$H+}{$endif}{$UNITPATH ../../main/}{$R+}
 interface
 uses
-  Sockets;
+  pwtypes, sockets;
   
-const
-  packet_size = 56000;
-  
+const packet_size = 56000;
+      MAX_CONNECTIONS = 300;  
 type
   TzServer = class(TObject)
   private
     sAddr     : TINetSockAddr;
-    MainSocket: longint;
-    conn  : array of longint;
-    ip    : array of string;
-    ccount: longint;
-    csock : longint;
-    function TryBind: boolean;
+    mainSocket: int32;
+    conn  : array of int32;
+    ip    : array of astr;
+    ccount: int32;
+    csock : int32;
+    function tryBind: boo;
   public
-    constructor Create;
-    function InitConnection(const ip: string; port: word): boolean;
-    function  Connect: longint;
-    procedure Disconnect(socket_index: longint);
-    procedure Stop;
-    procedure sWrite(str: string);
-    function  sRead: string;
-    procedure select(socket_index: longint);
-    function getip(socket_index: longint): string;
+    constructor create;
+    function initConnection(const ip: astr; port: word): boo;
+    function  connect: int32;
+    procedure disconnect(socket_index: int32);
+    procedure stop;
+    procedure sWrite(s: astr);
+    function  sRead: astr;
+    procedure select(socket_index: int32);
+    function getIp(socket_index: int32): astr;
   end;
 
 implementation
 uses
   {$ifdef unix}baseunix, unix,{$endif}
   {$ifdef windows}windows,{$endif}
-  pwstrutil, pwtypes;
+  pwstrutil;
 
-function TzServer.TryBind: boolean;
+function TzServer.TryBind: boo;
 begin
-  result:= Bind(MainSocket, saddr, SizeOf(saddr));
+  result:= bind(MainSocket, saddr, SizeOf(saddr));
 end;
 
 constructor TzServer.Create;
 begin
-  inherited Create;
+  inherited create;
   ccount := 0;
 end;
 
 { User must call this after constructing, to bind IP and Port. 
   Returns false if problem }
-function TzServer.InitConnection(const ip: string; port: word): boolean;
+function TzServer.initConnection(const ip: astr; port: word): boo;
 begin
   result:= false;
-  MainSocket := Socket(AF_INET, SOCK_STREAM, 0);
-  saddr.Family := AF_INET;
-  saddr.Port   := htons(port);
-  saddr.Addr   := LongWord(StrToNetAddr(ip));
-  if TryBind then begin Listen(MainSocket,1); result:= true; end;
+  mainSocket := socket(AF_INET, SOCK_STREAM, 0);
+  sAddr.family := AF_INET;
+  sAddr.port   := htons(port);
+  sAddr.addr   := longWord(StrToNetAddr(ip));
+  if tryBind then result:= listen(mainSocket, MAX_CONNECTIONS); 
 end;
 
-function TzServer.Connect;
-var sock     : longint;
-    sAddrSize: longint;
+function TzServer.connect;
+var sock     : int32;
+    sAddrSize: int32;
 begin
-  sAddrSize := SizeOf(sAddr);
-  sock := Accept(MainSocket, sAddr, sAddrSize);
+  sAddrSize := sizeOf(sAddr);
+  sock:= accept(mainSocket, sAddr, sAddrSize);
   if sock <> -1 then begin
     inc(ccount); setLength(conn, ccount); setLength(ip, ccount);
-    ip[ccount - 1] := NetAddrToStr(in_addr(sAddr.Addr));
-    conn[ccount - 1] := sock; 
-    csock := sock;
+    ip[ccount-1] := netAddrToStr(in_addr(sAddr.addr));
+    conn[ccount-1] := sock; 
+    csock:= sock;
   end;
-  Result := ccount - 1;
+  result:= ccount - 1;
 end;
 
-procedure TzServer.Disconnect;
-begin
-  if socket_index < ccount then CloseSocket(conn[socket_index]);
+procedure TzServer.disconnect;
+begin if socket_index < ccount then closeSocket(conn[socket_index]);
 end;
   
-procedure TzServer.Stop;
+procedure TzServer.stop;
 var i: cardinal;
 begin
-  if ccount > 0 then for i := 0 to ccount - 1 do CloseSocket(conn[i]);
-  Shutdown(MainSocket, 2);
-  CloseSocket(MainSocket);
+  if ccount > 0 then for i:= 0 to ccount-1 do closeSocket(conn[i]);
+  shutdown(mainSocket, 2);
+  closeSocket(mainSocket);
 end;
 
 procedure TzServer.select;
-begin
-  if socket_index < ccount then csock := conn[socket_index];
+begin if socket_index < ccount then csock := conn[socket_index];
 end;
 
-function TzServer.getip;
+function TzServer.getIp;
 begin
-  if socket_index < ccount then Result := ip[socket_index] else Result := '';
+  if socket_index < ccount then result := ip[socket_index] else result := '';
 end;
 
 procedure TzServer.sWrite;
-var i: cardinal;
-    s: integer;
+var i, len: int32;
 begin
-  s:= Length(str);
-  if s < packet_size then i := s else i := packet_size;
-  while s > 0 do begin
-    Send(csock, pointer(str)^, i, 0);
-    delete(str, 1, i);
-    s:= s - packet_size;
-    if s < packet_size then i := s;
+  len:= length(s);
+  if len < packet_size then i:= len else i:= packet_size;
+  while len > 0 do begin
+    send(csock, pointer(s)^, i, 0);
+    delete(s, 1, i);
+    len:= len - packet_size;
+    if len < packet_size then i:= len;
   end;
 end;
   
 function TzServer.sRead;
-var buf  : string;
-    count: integer;
+var buf  : astr;
+    count: int32;
 begin
   setLength(buf, packet_size);
-  count := Recv(csock, pointer(buf)^, packet_size, 0);
+  count:= recv(csock, pointer(buf)^, packet_size, 0);
   setLength(buf, count);
-  Result := buf;
+  result:= buf;
 end;  
 
 end.

@@ -1,11 +1,11 @@
 program cgiapp; {$ifdef fpc}{$MODE OBJFPC}{$H+}{$endif}
 
-procedure sayln(s: string); overload;
+procedure sayln(s: string); 
 begin
   write(s + #13#10);
 end;
 
-procedure sayln; overload;
+procedure sayln; 
 begin
   sayln('');
 end;

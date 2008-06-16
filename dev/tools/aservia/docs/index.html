@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru">
   <head>
-    <title>Documentation</title>
+    <title>Aservia - Documentation</title>
     <meta http-equiv="content-type" content="text/html; charset=Windows-1251" />
     <style type="text/css">
 body {
@@ -11,7 +11,6 @@ body {
   color: #000000;
   font-family: Verdana, Tahoma, Arial, sans-serif;
   font-size: 13px;
-
   margin: 0px;
   padding: 20px;
 }
@@ -96,15 +95,35 @@ Documentation
       </div>
       <div class="main">
         <br /><br />
-        <h2>Configuration</h2>
-        <h3>Just after unpacking Zip</h3>
-        <p>
-Modify parameters <em>ip</em> and <em>port</em> in file
-<strong>config.cfg</strong>. Then modify parameters <em>default</em> and
-<em>localhost</em> in file <strong>vhost.cfg</strong>. Read more about those
-parameters in the following.
-        </p>
-        <h3>Configuration files</h3>
+<h2>Configuration</h2>
+
+<h3>Known Issues</h3>
+Not yet optimized. This server is intended as a light weight home web server
+or intranet server. If you have several hundred hits per second, this server 
+may not yet scale for CGI executables yet. 
+For plain HTML it scales okay, but it isn't the fastest server in the world
+yet.
+<p>
+It uses BeginThread and EndThread without any real special preforking tricks.
+<p>
+Some early benchmarks were done
+<ul>
+  <li>On linux 50-100 requests per second for plain html on an older pentium
+  <li>On windows, 100 requests per second for plain html
+  <li>CGI programs were slower, and will be tweaked in the future
+</ul>
+
+This server may have CGI issues if placed under heavy load due to its current early release stages.
+
+<h3>Just after unpacking Zip</h3>
+<p>
+  Modify parameters <em>ip</em> and <em>port</em> in file
+  <strong>config.cfg</strong>. Then modify parameters <em>default</em> and
+  <em>localhost</em> in file <strong>vhost.cfg</strong>. Read more about those
+  parameters in the following.
+</p>
+
+<h3>Configuration files</h3>
         <p>
 All parameters are in following format (BNF-like):
 <br /><br />
