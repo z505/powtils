@@ -398,7 +398,7 @@ Begin
   With Sock Do
   Begin
     CreateSocket;
-    SetLinger(True, 10);
+    SetLinger(True, 1000);
     Bind(fIP, fPort);
     If Sock.LastError <> 0 Then
     Begin

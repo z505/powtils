@@ -139,6 +139,7 @@ Type
   Private
     Function GetLogin: String;
     Function GetState: Boolean;
+    Function GetGroup: String;
   Protected
     fView : TWebLoginBox;
   Public
@@ -148,6 +149,7 @@ Type
     Function Change(NewPass : String): Boolean; Virtual; Abstract;
   Published
     Property LoginName : String Read GetLogin;
+    Property GroupName : String Read GetGroup;
     Property Logged : Boolean Read GetState;
   End;
 
@@ -175,6 +177,12 @@ Type
     Property OnLogout : TWebEvent Read fOnLogout Write fOnLogout;
     Property OnLoginErr : TWebEvent Read fOnLoginErr Write fOnLoginErr;
   End;
+
+  TWebCollectionView = Class(TWebComponent)
+  Public
+    Constructor Create(Name, Tmpl : String; Owner : TWebComponent);
+  End;
+
 
 Implementation
 
@@ -525,6 +533,14 @@ Begin
     GetState := fView.Logged
   Else
     GetState := False;
+End;
+
+Function TWebLoginController.GetGroup: String;
+Begin
+  If Assigned(fView) Then
+    GetGroup := fView.Group
+  Else
+    GetGroup := '';
 End;
 
 Constructor TWebLoginController.Create(aView : TWebLoginBox);
