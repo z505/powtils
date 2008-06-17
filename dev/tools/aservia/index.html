@@ -58,22 +58,22 @@ img {position: block; border-width: 0px;  margin: 5px;}
 
     <h3>Known Issues</h3>
     <p>    
-    Not yet optimized. Plain HTML scales okay (about 50-100
-    requests per second on older computer). It isn't 
-    the fastest server in the world yet. CGI programs may have
-    issues if you request several tens of hits per second. 
-    Future releases will address these issues.
+    Not yet optimized. Plain HTML scales okay (about 50-100 requests per second on 
+    older computer). It isn't the fastest server in the world. CGI programs may have
+    issues if you request several tens of hits per second. Future releases will address 
+    the older nYume code.
     </p>
+    <h3>Tips</h3>
     <p>
-    If you have trouble connecting to port 80, start and stop Apache 
-    first to clear the port. Even if all servers are stopped, you may
-    have issues connecting to a previously opened port. This issue is 
-    also being worked on.
+    If you have trouble connecting to port 80, stop Apache or other running 
+    servers (apachectl stop). 
+    You can use another port, but in your browser while testing you will have
+    to specify it in the URL with a colon: localhost:port/index.html
     </p>
 
     <h3>Cgi Test</h3>
     <i>Pick your extension</i>
-    <table bgcolor=#D9E0F2 cellpadding=5>
+    <table bgcolor=#E2E8F5 cellpadding=5>
       <tr><td>MS Windows        </td> <td><a href="cgiapp.exe">.exe</a> </td></tr>
       <tr><td>Linux:            </td> <td><a href="cgiapp.elf">.elf</a> </td></tr>
       <tr><td>Other Possibility:</td> <td><a href="cgiapp.cgi">.cgi</a> </td></tr>
