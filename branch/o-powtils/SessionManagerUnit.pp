@@ -69,6 +69,7 @@ type
   TAbstractSessionManager= class (TBaseCollection)
   private
     FSessionIDLen: Integer;
+    FSessionIDVarName: String;
     
     function GetSession (Index: Integer): TSession; virtual;
     function GetSessionBySessionID (SessionID: TSessionID): TSession; virtual;
@@ -76,10 +77,11 @@ type
     function FindSessionIndex (SessionID: TSessionID): Integer;
 
   public
+    property SessionIDVarName: String read FSessionIDVarName;
     property Session [Index: Integer]: TSession read GetSession;
     property SessionBySessionID [SessionID: TSessionID]: TSession read GetSessionBySessionID;
 
-    constructor Create (SessionIDLen: Integer);
+    constructor Create (SessionIDLen: Integer; SessIDVarName: String);
     destructor Destroy; override;
 
     procedure AddSession (NewSession: TSession);
@@ -103,6 +105,10 @@ type
     procedure Save; override;
 
   end;
+  
+const
+  DefualtSessionIDLen: Integer= 20;
+  DefualtSessionVarName: String= 'PSPSESS';
   
   
 implementation
@@ -167,11 +173,13 @@ begin
 
 end;
 
-constructor TAbstractSessionManager.Create (SessionIDLen: Integer);
+constructor TAbstractSessionManager.Create (SessionIDLen: Integer; SessIDVarName: String);
 begin
   inherited Create;
   
   Load;
+  FSessionIDLen:= SessionIDLen;
+  FSessionIDVarName:= SessIDVarName;
   
 end;
 

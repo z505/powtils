@@ -397,6 +397,8 @@ constructor TResident.Create (AOwner: TComponent);
     ConfigFileHandle: TextFile;
     TempInt: Integer;
     TempString: String;
+    SessionIDLen: Integer;
+    SessionVarName: String;
     
   begin
     if not FileExists ('PSP.conf') then
@@ -443,23 +445,45 @@ constructor TResident.Create (AOwner: TComponent);
 
     try
       FUsingSessionManager:= UpperCase (WebConfiguration.ConfigurationByName ['SessionManager'].Value)= 'TRUE';
-      StrToInt (WebConfiguration.ConfigurationByName ['SessionIDLen'].Value);
 
     except
       on e: ENameNotFound do
         FUsingSessionManager:= False;
-      on e: EConvertError do
-      begin
-        FUsingSessionManager:= False;
-        WriteLn ('Session id is not an integer!');
-        
-      end;
 
     end;
 
     if FUsingSessionManager then
+    begin
+      try
+        SessionIDLen:= DefualtSessionIDLen;
+        SessionIDLen:= StrToInt (WebConfiguration.ConfigurationByName ['SessionIDLen'].Value);
+
+      except
+        on e: ENameNotFound do;
+        on e: EConvertError do
+        begin
+          WriteLn ('Session id len is not an integer!');
+
+        end;
+
+      end;
+
+      try
+        SessionVarName:= WebConfiguration.ConfigurationByName ['SessionVarName'].Value;
+
+      except
+        on e: ENameNotFound do
+        begin
+          SessionVarName:= DefualtSessionVarName;
+
+        end;
+
+      end;
+
       FSessionManger:= TBasicSessionManager.Create (
-        StrToInt (WebConfiguration.ConfigurationByName ['SessionIDLen'].Value));
+        SessionIDLen, SessionVarName);
+        
+    end;
 
   end;
 

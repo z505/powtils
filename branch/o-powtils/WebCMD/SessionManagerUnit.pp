@@ -68,23 +68,26 @@ type
 
   TAbstractSessionManager= class (TBaseCollection)
   private
-    function GetSession (SessionID: TSessionID): TSession; virtual; abstract;
-    function GetSession (Index: Integer): TSession; virtual; abstract;
-    function GetSessionBySessionID (SessionID: TSessionID): TSession; virtual; abstract;
+    FSessionIDLen: Integer;
+    FSessionIDVarName: String;
+    
+    function GetSession (Index: Integer): TSession; virtual;
+    function GetSessionBySessionID (SessionID: TSessionID): TSession; virtual;
     
     function FindSessionIndex (SessionID: TSessionID): Integer;
 
   public
+    property SessionIDVarName: String read FSessionIDVarName;
     property Session [Index: Integer]: TSession read GetSession;
     property SessionBySessionID [SessionID: TSessionID]: TSession read GetSessionBySessionID;
 
-    constructor Create;
+    constructor Create (SessionIDLen: Integer; SessIDVarName: String);
     destructor Destroy; override;
 
     procedure AddSession (NewSession: TSession);
     procedure DeleteSession (SessionID: TSessionID);
 
-    function GetNewSessionID: TSessionID; virtual; abstract;
+    function GetNewSessionID: TSessionID; virtual;
     function CreateEmptySession: TSession;
     
     procedure Load; virtual; abstract;
@@ -92,34 +95,91 @@ type
     
   end;
   
+  { TBasicSessionManager }
+
+  TBasicSessionManager= class (TAbstractSessionManager)
+  private
+  public
+    
+    procedure Load; override;
+    procedure Save; override;
+
+  end;
+  
+const
+  DefualtSessionIDLen: Integer= 20;
+  DefualtSessionVarName: String= 'PSPSESS';
   
   
 implementation
-
+uses
+  MyTypes;
+  
 { TAbstractSessionManager }
+
+function TAbstractSessionManager.GetSession(Index: Integer): TSession;
+begin
+  Result:= Member [Index] as TSession;
+  
+end;
+
+function TAbstractSessionManager.GetSessionBySessionID(SessionID: TSessionID
+  ): TSession;
+var
+  Ptr: PObject;
+  i: Integer;
+  
+begin
+
+  Ptr:= GetPointerToFirst;
+  for i:= 1 to FSize do
+  begin
+    if (TSession (Ptr^)).SessionID= SessionID then
+    begin
+      Result:= TSession (Ptr^);
+      Exit;
+
+    end;
+
+    Inc (Ptr);
+
+  end;
+
+  raise ESessionNotFound.Create;
+
+end;
 
 function TAbstractSessionManager.FindSessionIndex (SessionID: TSessionID): Integer;
 var
   i: Integer;
+  Ptr: PObject;
   
 begin
-  for i:= 0 to FSize- 1 do
-    if Session [i].SessionID= SessionID then
+  Ptr:= GetPointerToFirst;
+  for i:= 1 to FSize do
+  begin
+    if (TSession (Ptr^)).SessionID= SessionID then
     begin
-      Result:= i;
+      Result:= i- 1;
       Exit;
       
     end;
     
+    Inc (Ptr);
+    
+  end;
+  
   Result:= -1;
 
 end;
 
-constructor TAbstractSessionManager.Create;
+constructor TAbstractSessionManager.Create (SessionIDLen: Integer; SessIDVarName: String);
 begin
-  inherited;
+  inherited Create;
   
   Load;
+  FSessionIDLen:= SessionIDLen;
+  FSessionIDVarName:= SessIDVarName;
   
 end;
 
@@ -148,6 +208,24 @@ begin
   else
     Delete (Index);
     
+end;
+
+function TAbstractSessionManager.GetNewSessionID: TSessionID;
+
+  function GenerateSessionID: String;
+  var
+    i: Integer;
+    CharPtr: PChar;
+    
+  begin
+    Result:= Space (FSessionIDLen);
+    
+    for i:= 1 to FSessionIDLen do
+      Result:= Result ;
+  end;
+  
+begin
+
 end;
 
 function TAbstractSessionManager.CreateEmptySession: TSession;
@@ -286,6 +364,18 @@ constructor ESessionNotFound.Create;
 begin
   inherited Create ('Session Not Found!');
 
+end;
+
+{ TBasicSessionManager }
+
+procedure TBasicSessionManager.Load;
+begin
+  
+end;
+
+procedure TBasicSessionManager.Save;
+begin
+  
 end;
 
 end.

@@ -177,13 +177,20 @@ var
   i: Integer;
 
 begin
-  Result:= '<'+ FTag+ ' '+ FAttributes.ToString;
+
+    Result:= '<'+ FTag+ ' '+ FAttributes.ToString;
 
   if FChilds.Size= 0 then
     Result:= Result+ '/>'
   else
+  begin
+    Result:= Result+ '>';
     for i:= 0 to FChilds.Size- 1 do
       Result:= Result+ #10+ Child [i].ToStringWithOutIndent;
+      
+    Result:= Result+ #10'</'+ FTag+ '>';
+    
+  end;
       
 end;
 

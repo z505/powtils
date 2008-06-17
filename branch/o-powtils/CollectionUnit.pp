@@ -274,8 +274,10 @@ begin
     raise ERangeCheckError.Create ('TBaseCollection.Delete');
 
   FMembers [Index].Free;
-  PtrCurrent:= @FMembers [Index+ 1];
   PtrPrev:= @FMembers [Index];
+  PtrCurrent:= PtrPrev;
+  Inc (PtrCurrent);
+  
   for i:= Index+ 1 to FSize- 1 do
   begin
     PtrPrev^:= PtrCurrent^;
