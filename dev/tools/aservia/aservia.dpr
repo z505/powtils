@@ -34,11 +34,11 @@ const
 var
   gServer: TzServer;     // main server instance
   gPort: word;           // server port
-  gIp: astr              //    ... ip
+  gIp: astr;             //    ... ip
   gIdxPg,                // default index page  
   gError404, gError403,  // error strings
   gFileDir: astr;        // path for files to serve
-  gLogFname: astr        // log file name
+  gLogFname: astr;       // log file name
   gLog: text;            // log file record
   gHandle: int32;
   gMimeCfg, 
@@ -406,35 +406,50 @@ end;
 
 procedure errCantConnect;
 begin
-  ErrLn;
-  ErrLn('Can''t connect to address or port.');
-  ErrLn('The ip:port you are using is '+gIp+':'+inttostr(gPort));
-  ErrLn('Tip: make sure another server is not running.');
-  ErrLn('Error # '+ {$ifdef windows}inttostr(GetLastError){$endif}
+  errLn;
+  errLn('Can''t connect to address or port.');
+  errLn('The ip:port you are using is '+gIp+':'+inttostr(gPort));
+  errLn('Tip: make sure another server is not running.');
+  errLn('Error # '+ {$ifdef windows}inttostr(GetLastError){$endif}
                     {$ifdef unix}inttostr(fpGetErrNo){$endif}
   ); 
   { Ugly inline ifdef above due to FPC bug, can't wrap in another func with 
     fpc 2.2.0. See http://bugs.freepascal.org/view.php?id=10205 }
 
   // cleanup, then kill
-  freeCfgAndServer; Halt;
+  freeCfgAndServer; HALT;
 end;
 
 { initiates logs, runs thread loop }
 procedure runServer;
-var inited: boo;
+var inited: boo = false;
+
+  procedure TryInit;
+  var count: byte = 0; const MAX = 5; // try a certain amount of times
+  begin
+    while not inited do 
+    begin
+      inited:= gServer.initConnection(gIp, gPort);
+      inc(count); if count > MAX then errCantConnect;
+      // port may be busy for a few seconds if apache or other server closing
+      if not inited then begin
+        noteln('Connection not initialized. Trying again in 5 seconds!');
+        noteln('Wait...(attempt '+i2s(count)+' of '+i2s(MAX)+')');
+        sleep(5000);
+      end;
+    end;
+  end;
+
 begin
   noteln(str_server);
   noteln(str_qcom, #13#10);
   noteln(str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
   createCfgAndServer;
-  inited:= gServer.initConnection(gIp, gPort);
-  if inited then begin
-    noteln(str_socket, gIp, ':', i2s(gPort));
-    setupLog;
-    runThreadLoop;
-  end else 
-    errCantConnect;
+  TryInit;
+  if inited then noteln(str_connect_success);
+  noteln(str_socket, gIp, ':', i2s(gPort));
+  setupLog;
+  runThreadLoop;
   freeCfgAndServer;
 end;
 
