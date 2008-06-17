@@ -95,25 +95,23 @@ Documentation
       </div>
       <div class="main">
         <br /><br />
-<h2>Configuration</h2>
-
-<h3>Known Issues</h3>
-Not yet optimized. This server is intended as a light weight home web server
-or intranet server. If you have several hundred hits per second, this server 
-may not yet scale for CGI executables yet. 
-For plain HTML it scales okay, but it isn't the fastest server in the world
-yet.
+<h2>Known Issues</h2>
+Not yet optimized. May not yet scale for several tens of hits per 
+second with CGI executables yet. For plain HTML it is great
+and has seen 50-100 requests per second on an older computer. It 
+isn't the fastest server in the world yet and that is being worked on.
 <p>
-It uses BeginThread and EndThread without any real special preforking tricks.
+It uses BeginThread and EndThread without any real special preforking
+tricks.
 <p>
 Some early benchmarks were done
 <ul>
   <li>On linux 50-100 requests per second for plain html on an older pentium
-  <li>On windows, 100 requests per second for plain html
+  <li>On windows, 90-105 requests per second for plain html
   <li>CGI programs were slower, and will be tweaked in the future
 </ul>
 
-This server may have CGI issues if placed under heavy load due to its current early release stages.
+<h2>Configuration</h2>
 
 <h3>Just after unpacking Zip</h3>
 <p>
