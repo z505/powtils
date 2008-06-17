@@ -11,8 +11,8 @@ uses
 
 {$include lang.inc}
 
-// turn these on for more verbose reporting
-// TODO: put in a config file option
+// Turn these on for more verbose reporting
+// TODO: put in a config file instead
 const LOG_ON = false;
       MESSAGES_ON = false;   
       DEBUG_ON = false;   
@@ -48,10 +48,10 @@ var
   gBlacklist: array of astr;
   gNeedStopServer: boo;
 
-
-{ debugging to console }
-procedure dbugln(s: astr);   begin if DEBUG_ON then writeln('DEBUG: ', s); end;
-procedure dbugln(s1,s2:astr);begin dbugln(s1+s2); end;
+{$ifdef dbug} { debugging to console }
+ procedure dbugln(s: astr);   begin if DEBUG_ON then writeln('DEBUG: ', s); end;
+ procedure dbugln(s1,s2:astr);begin dbugln(s1+s2); end;
+{$endif}
 
 procedure logln(var t:text; s:astr); begin if LOG_ON then writeln(t, s); end;
 procedure logln(var t: text); begin logln(t, ''); end;
@@ -86,9 +86,8 @@ end;
 
 { user commands to stop server with keyboard at console }
 function needStop(p: pointer): int32;
-var s: astr;
+var s: astr = '';
 begin
-  s:= '';
   repeat
     readln(s);
     if (s = 'q') or (s = 'quit') then gNeedStopServer:= true;
@@ -157,7 +156,7 @@ begin
     end;
   end;
 
-  DeleteTrailingHttpVersion(result);
+  deleteTrailingHttpVersion(result);
   if (result = '') or (result[length(result)] = '/') then result += gIdxPg;
 end;
   
@@ -196,7 +195,7 @@ begin
       if count < 4096 then buf := copy(buf, 1, count);
       result += buf;
     end;  
-    Close(F);
+    close(F);
   end else begin
     if query <> '' then begin
       count := pos('?', query);
@@ -211,10 +210,11 @@ begin
   end;
 end;  
 
+{ when server is accessed, a request is made }
 function request(p: pointer): int32;
 var path: astr;
 
-  function SlashDots: boo;
+  function slashDots: boo;
   begin
     result:= false;
     if pos('/../', ExtractRelativepath(gFileDir, path)) <> 0 then result:= true; 
@@ -260,7 +260,7 @@ begin
       end;
       inc(i);
     end;
-    dbugln('Checked blacklist');
+    {$ifdef dbug}dbugln('Checked blacklist');{$endif}
     if deny then gServer.sWrite(getFile(gError403, ERR_403_MSG)) 
     else
     if str1 <> '' then
@@ -291,20 +291,20 @@ begin
         gServer.sWrite(getFile(gError404, ERR_404_MSG));
       end;
     end;
-    dbugln('Before log() procedure');
+    {$ifdef dbug}dbugln('Before log() procedure');{$endif}
     log;
 
   finally
-    dbugln('Disconnecting: '+i2s(data));
+    {$ifdef dbug}dbugln('Disconnecting: '+i2s(data));{$endif}
     gServer.disconnect(data);
-    leaveCriticalSection(gCritical);
-    dbugln('Left Critical Section');
+    leaveCriticalSection(gCritical); 
+    {$ifdef dbug}dbugln('Left Critical Section');{$endif}
   end;
   result:= 0;
+  {$ifdef dbug}dbugln('Ending thread');{$endif}
   // IF ENDTHREAD IS NOT PLACED HERE, THEN LINUX KEEPS OPENING THREADS TO A 
   // MAXIMUM OF 380 AND CAUSES A CONTINUAL LEAKAGE
   endThread;
-  dbugln('Ended thread');
 end;
 
 procedure setupLog;
@@ -324,22 +324,18 @@ end;
 
 { start thread to detect keyboard q/quit at console }
 procedure beginNeedStopThread;
-var id: TThreadId = 0; 
-begin
-  //id:= BeginThread(nil,DefaultStackSize,@needStop,nil,0,dummy);
-  id:= beginThread(@needStop);
-  { UNIX and WINDOWS return different results (fpc bug) }
-  if id <> 0 then dbugln('(needStopThread) beginThread Result#: '+i2s(id));
+var id: TThreadId; 
+begin 
+  id:= beginThread(@needStop); { UNIX and WIN return different results (fpc bug) }       // id:= BeginThread(nil,DefaultStackSize,@needStop,nil,0,dummy);
+  {$ifdef dbug}dbugln('(needStopThread) beginThread Result#: '+i2s(id));{$endif}               
 end;
 
 { start connection threads }
 procedure beginRequestThread;
-var id: TTHreadId = 0; 
-begin
-  //id:= BeginThread(nil,DefaultStackSize,@needStop,nil,0,dummy);
-  id:= beginThread(@request, @gHandle);
-  { UNIX and WINDOWS return different results (fpc bug) }
-  if id <> 0 then dbugln('(requestThread) beginThread Result#: '+i2s(id));
+var id: TTHreadId; 
+begin 
+  id:= beginThread(@request, @gHandle);{ UNIX and WIN return different results (fpc bug)} // id:= BeginThread(,DefaultStackSize,@request,,0,dummy);
+  {$ifdef dbug}dbugln('(requestThread) beginThread Result#: '+i2s(id));{$endif}
 end;
 
 { main server connections loop for all requests }
@@ -354,7 +350,7 @@ begin
       msgln(str_connection);
       beginRequestThread;
     end else begin
-      dbugln('runThreadLoop Handle: '+i2s(gHandle));
+      {$ifdef dbug}dbugln('runThreadLoop Handle: '+i2s(gHandle));{$endif}
     end;
     sleep(THREAD_LOOP_SLEEP); 
   until gNeedStopServer;
@@ -375,13 +371,13 @@ procedure createCfgAndServer;
   var othercfg: TCfgFile;
   begin
     othercfg:= TCfgFile.create('config.cfg');
-      gIp        := othercfg.getOpt('ip',        '127.0.0.1');
-      gPort      := othercfg.getOpt('port',      80);
-      gNewLog    := othercfg.getOpt('deletelog', false);
-      gLogFname := othercfg.getOpt('logfile',   'connections.log');
-      gIdxPg     := othercfg.getOpt('index',     'index.html');
-      gError404  := othercfg.getOpt('error404',  'error404.html');
-      gError403  := othercfg.getOpt('error403',  'error403.html');
+      gIp      := othercfg.getOpt('ip','127.0.0.1');
+      gPort    := othercfg.getOpt('port',80);
+      gNewLog  := othercfg.getOpt('deletelog',false);
+      gLogFname:= othercfg.getOpt('logfile','connections.log');
+      gIdxPg   := othercfg.getOpt('index','index.html');
+      gError404:= othercfg.getOpt('error404','error404.html');
+      gError403 := othercfg.getOpt('error403','error403.html');
     othercfg.free; othercfg:= nil;
 
     othercfg:= TCfgFile.create('blacklist.cfg');
@@ -416,16 +412,16 @@ begin
   { Ugly inline ifdef above due to FPC bug, can't wrap in another func with 
     fpc 2.2.0. See http://bugs.freepascal.org/view.php?id=10205 }
 
-  // cleanup, then kill
+  // cleanup, then kill server
   freeCfgAndServer; HALT;
 end;
 
 { initiates logs, runs thread loop }
 procedure runServer;
 var inited: boo = false;
-
+  // initialize connection to socket 
   procedure TryInit;
-  var count: byte = 0; const MAX = 5; // try a certain amount of times
+  var count: byte = 0; const MAX = 5; // amount of times 
   begin
     while not inited do 
     begin
