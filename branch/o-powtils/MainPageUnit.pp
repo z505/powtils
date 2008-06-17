@@ -10,7 +10,7 @@ type
 
   { TMainPage }
 
-  TMainPage= class (TResidentPageBase)
+  TMainPage= class (TXMLResidentPageBase)
   public
     constructor Create;
 
@@ -20,25 +20,27 @@ type
 
 implementation
 uses
-  ThisProjectGlobalUnit;
+  ThisProjectGlobalUnit, XMLNode, Unix;
 
 { TMainPage }
 
 constructor TMainPage.Create;
 begin
-  inherited Create ('MainPage', ctTextHTML, 'localhost', '/cgi-bin/WebCMD/MainPage');
+  inherited Create ('../../WebCMD/MainPage.xsl', 'MainPage');
 
 end;
 
 procedure TMainPage.MyDispatch;
+
   function LoginPassed (UserName, Password: String): Boolean;
   begin
-    Result:= UserName= 'Amir';
+    Result:= UserName= Password;
     
   end;
   
 var
- UserName, Password: String;
+  UserName, Password: String;
+  LoginNode: TXMLNode;
  
 begin
 
@@ -46,7 +48,14 @@ begin
   Password:= CgiVars.CgiVarValueByName ['Password'];
 
   if LoginPassed (UserName, Password) then
-    WriteProcedure (UserName+ ' : '+ Password)
+  begin
+    FXMLRoot.AddAttribute ('HostName', GetHostName);
+    LoginNode:= TXMLNode.Create ('LoginInfo');
+    LoginNode.AddAttribute ('UserName', UserName);
+//    Session.SessionStart;
+    FXMLRoot.AddChild (LoginNode);
+    
+  end
   else
     Header.AddHeader (TWebHeader.Create ('LOCATION', 'LoginPage?Retry=1'));
     

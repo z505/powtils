@@ -267,15 +267,25 @@ end;
 procedure TBaseCollection.Delete (Index: Integer);
 var
   i: Integer;
-
+  PtrCurrent, PtrPrev: PObject;
+  
 begin
   if (Index< 0) or (FSize<= Index) then
     raise ERangeCheckError.Create ('TBaseCollection.Delete');
 
   FMembers [Index].Free;
+  PtrPrev:= @FMembers [Index];
+  PtrCurrent:= PtrPrev;
+  Inc (PtrCurrent);
   
   for i:= Index+ 1 to FSize- 1 do
-    FMembers [i- 1]:= FMembers [i];
+  begin
+    PtrPrev^:= PtrCurrent^;
+    Inc (PtrCurrent);
+    Inc (PtrPrev);
+//    FMembers [i- 1]:= FMembers [i];
+    
+  end;
     
   Dec (FSize);
   SetLength (FMembers, FSize);

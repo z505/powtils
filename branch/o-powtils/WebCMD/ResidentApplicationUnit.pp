@@ -69,7 +69,7 @@ type
     FSessionManger: TAbstractSessionManager;
     FTempPipeFilePath: String;
     FRemainedToRestart: Integer;
-    FUsingSessionManger: Boolean;
+    FUsingSessionManager: Boolean;
     FWebConfiguration: TWebConfigurationCollection;
     
     MainPipeFileHandle: cInt;
@@ -87,7 +87,7 @@ type
     property NumberOfActiveThread: Integer read FNumberOfActiveThread;
     property RequestQueueSize: Integer read FRequestQueueSize;
     property WebConfiguration: TWebConfigurationCollection read FWebConfiguration;
-    property UsingSessionManger: Boolean read FUsingSessionManger;
+    property UsingSessionManager: Boolean read FUsingSessionManager;
     property SessionManger: TAbstractSessionManager read FSessionManger;
 
   public
@@ -397,6 +397,8 @@ constructor TResident.Create (AOwner: TComponent);
     ConfigFileHandle: TextFile;
     TempInt: Integer;
     TempString: String;
+    SessionIDLen: Integer;
+    SessionVarName: String;
     
   begin
     if not FileExists ('PSP.conf') then
@@ -405,40 +407,90 @@ constructor TResident.Create (AOwner: TComponent);
     AssignFile (ConfigFileHandle, 'PSP.conf');
     Reset (ConfigFileHandle);
 
-    ReadLn (ConfigFileHandle);
-    ReadLn (ConfigFileHandle, TempString);
-    MainPipeFileName:= TempString;
+
+    while not Eof (ConfigFileHandle) do
+    begin
+      ReadLn (ConfigFileHandle, TempString);
+      TempString:= Trim (TempString);
+      
+      if (TempString<> '') and
+        ((Length (TempString)= 0) or (TempString [1]<> '#')) then
+      begin
+        TempInt:= Pos (':', TempString);
+        WebConfiguration.AddWebConfiguration (TWebConfiguration.Create (
+          Copy (TempString, 1, TempInt- 1),
+          Copy (TempString, TempInt+ 1, Length (TempString)- TempInt)));
+          
+      end;
+      
+    end;
+    CloseFile (ConfigFileHandle);
     
+    MainPipeFileName:= WebConfiguration.ConfigurationByName ['MainPipeFileName'].Value;
     if not FileExists (FMainPipeFileName) then
       raise EMainPipeNotFound.Create (FMainPipeFileName);
       
-    ReadLn (ConfigFileHandle);
-    ReadLn (ConfigFileHandle, TempInt);
-//    RestartInterval:= TempInt;
+    TempPipeFilePath:= WebConfiguration.ConfigurationByName ['TemproraryPipesPath'].Value;
+    FNumberOfActiveThread:= StrToInt (WebConfiguration.ConfigurationByName ['MaximumNumberofActiveThreads'].Value);
+    FRequestQueueSize:= StrToInt (WebConfiguration.ConfigurationByName ['MaximumSizeofRequestQueue'].Value);
+    
+    FRestartInterval:= -1;
+    FUsingSessionManager:= False;
+    try
+      FRestartInterval:= StrToInt (WebConfiguration.ConfigurationByName ['RestartInterval'].Value);
+      
+    except
+    
+    end;
 
-    ReadLn (ConfigFileHandle);
-    ReadLn (ConfigFileHandle, TempString);
-    TempPipeFilePath:= TempString;
+    try
+      FUsingSessionManager:= UpperCase (WebConfiguration.ConfigurationByName ['SessionManager'].Value)= 'TRUE';
 
-    ReadLn (ConfigFileHandle);
-    ReadLn (ConfigFileHandle, TempInt);
-    FNumberOfActiveThread:= TempInt;
+    except
+      on e: ENameNotFound do
+        FUsingSessionManager:= False;
 
-    ReadLn (ConfigFileHandle);
-    ReadLn (ConfigFileHandle, TempInt);
-    FRequestQueueSize:= TempInt;
+    end;
 
-    ReadLn (ConfigFileHandle);
-    ReadLn (ConfigFileHandle, TempString);
-    TempString:= Trim (TempString);
-    FUsingSessionManger:= UpperCase (TempString)= 'TRUE';
+    if FUsingSessionManager then
+    begin
+      try
+        SessionIDLen:= DefualtSessionIDLen;
+        SessionIDLen:= StrToInt (WebConfiguration.ConfigurationByName ['SessionIDLen'].Value);
 
-    CloseFile (ConfigFileHandle);
+      except
+        on e: ENameNotFound do;
+        on e: EConvertError do
+        begin
+          WriteLn ('Session id len is not an integer!');
+
+        end;
+
+      end;
+
+      try
+        SessionVarName:= WebConfiguration.ConfigurationByName ['SessionVarName'].Value;
+
+      except
+        on e: ENameNotFound do
+        begin
+          SessionVarName:= DefualtSessionVarName;
+
+        end;
+
+      end;
+
+      FSessionManger:= TBasicSessionManager.Create (
+        SessionIDLen, SessionVarName);
+        
+    end;
 
   end;
 
 begin
   inherited Create (AOwner);
+  
+  FWebConfiguration:= TWebConfigurationCollection.Create;
 
   ReadConfigFileInfo;
 
