@@ -12,9 +12,8 @@ program webcmd1;
 {$ifdef fpc}{$mode objfpc} {$H+} {$UNITPATH ../../main} {$endif}
 
 uses  
-  {$ifdef unix}unix, baseunix, compactsysutils,{$endif} 
-  {$ifdef windows}sysutils,{$endif}
-  pwinit, pwmain, pwenvvar, pwsubstr, pwfileutil, pwtypes, htmout;
+  {$ifdef unix}unix, baseunix,{$endif} 
+  pwinit, pwmain, pwenvvar, pwsubstr, pwfileutil, pwtypes, htmout, pwstrutil;
 
 
 procedure RedirectStdErr;
@@ -31,48 +30,46 @@ begin
 //  rewrite(stderr); 
 end;
 
-
 procedure err(const s: astr);
 begin out('<br><b>Error:</b> ' + s);
 end;
 
 {$ifdef windows}
- { find program command (before first space) }
- function GetCmdPath(const cmd: astr): astr;
- var i: integer;
- begin
-   result:= '';
-   if cmd = '' then exit;
-   for i:= 1 to length(cmd) do begin
-     if cmd[i] = ' ' then exit;
-     result:= result + cmd[i];
-   end;
- end;
+{ find program command (before first space) }
+function GetCmdPath(const cmd: astr): astr;
+var i: integer;
+begin
+  result:= '';
+  if cmd = '' then exit;
+  for i:= 1 to length(cmd) do begin
+    if cmd[i] = ' ' then exit;
+    result:= result + cmd[i];
+  end;
+end;
  
  { find program arguments (after space) }
- function GetCmdArgs(const cmd: astr): astr;
- var i, spacefound: integer;
- begin
-   result:= ''; spacefound:= 0;
-   if cmd = '' then exit;
-   for i:= 1 to length(cmd) do begin
-     if spacefound > 1 then result:= result + cmd[i];
-     if cmd[i] = ' ' then inc(spacefound);
-   end;
- end;
+function GetCmdArgs(const cmd: astr): astr;
+var i, spacefound: integer;
+begin
+  result:= ''; spacefound:= 0;
+  if cmd = '' then exit;
+  for i:= 1 to length(cmd) do begin
+    if spacefound > 1 then result:= result + cmd[i];
+    if cmd[i] = ' ' then inc(spacefound);
+  end;
+end;
 {$endif}
 
 function ExecCmd(const cmd: astr): int32;
 begin
  {$ifdef unix}   result:= fpSystem(cmd);{$endif} 
- {$ifdef windows}result:= executeprocess('cmd', '/c '+GetCmdPath(cmd)+' '+GetCmdArgs(cmd));{$endif}
+ {$ifdef windows}result:= executeProcess('cmd', '/c '+GetCmdPath(cmd)+' '+GetCmdArgs(cmd));{$endif}
 end;
 
 procedure showCmdStatus(err: int32);
 begin
-  out('WEBCMD NOTE: command exited with status: ' + inttostr(err));
+  out('WEBCMD NOTE: command exited with status: ' + i2s(err));
 //  out('Status message: '+ fpgeterrno(errno));
-  
 end;
 
 procedure RunAndShowCmd(const cmd: astr);
