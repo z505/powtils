@@ -5,14 +5,16 @@ Interface
 Uses
   Classes,
   SysUtils,
-  Process,
   TCPServ,
   {$IFDEF WINDOWS}
+  Process,
   WinSock;
   {$ELSE}
+  Unix,
   LibC;
   {$ENDIF}
 
+{$IFDEF WINDOWS}
 Type
   THTTPRequestThread = Class
   Private
@@ -22,13 +24,14 @@ Type
     Destructor Destroy; Override;
     Function IsRunning: Boolean;
   End;
+{$ENDIF}
 
 Const
   EnvVarFmt     = '%s=%s';
   {$IFDEF WINDOWS}
   RequestBinary = 'httprequest.exe %d';
   {$ELSE}
-  RequestBinary = 'httprequest %d';
+  RequestBinary = './httprequest %d &';
   {$ENDIF}
 
 Var
@@ -45,7 +48,9 @@ Procedure CheckIncomming;
 Implementation
 
 Var
+{$IFDEF WINDOWS}
   Processes      : Array Of THTTPRequestThread;
+{$ENDIF}
   RunTimeOptions : Array Of Record
     Name,
     Value : String;
@@ -59,8 +64,10 @@ End;
 
 Procedure FinishServer;
 Begin
+  {$IFDEF WINDOWS}
   While Length(Processes) > 0 Do
     CheckFinished;
+  {$ENDIF}
   Server.Free;
 End;
 
@@ -73,21 +80,28 @@ End;
 
 Procedure AcceptConnection(hSock : TSocket);
 Begin
+  {$IFDEF WINDOWS}
   SetLength(Processes, Length(Processes) + 1);
   Processes[High(Processes)] := THTTPRequestThread.Create(hSock);
+  {$ELSE}
+  fpSystem(Format(RequestBinary, [ hSock ]));
+  {$ENDIF}
 End;
 
+{$IFDEF WINDOWS}
 Procedure FreeProcess(Idx : LongInt);
 Begin
   Processes[Idx].Free;
   Processes[Idx] := Processes[High(Processes)];
   SetLength(Processes, Length(Processes) - 1);
 End;
+{$ENDIF}
 
 Procedure CheckFinished;
 Var
   Ctrl : LongInt;
 Begin
+  {$IFDEF WINDOWS}
   Ctrl := Low(Processes);
   While Ctrl <= High(Processes) Do
   Begin
@@ -99,6 +113,7 @@ Begin
     Else
       Inc(Ctrl);
   End;
+  {$ENDIF}
 End;
 
 Procedure CheckIncomming;
@@ -106,6 +121,7 @@ Begin
   Server.Loop;
 End;
 
+{$IFDEF WINDOWS}
 Constructor THTTPRequestThread.Create(hSock: tSocket);
 Var
   Ctrl : Integer;
@@ -132,5 +148,6 @@ Function THTTPRequestThread.IsRunning: Boolean;
 Begin
   IsRunning := fProcess.Running;
 End;
+{$ENDIF}
 
 End.
