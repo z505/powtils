@@ -8,17 +8,32 @@
     Lars (L505
     http://z505.com
 }
-program webcmd1;
-{$mode objfpc} {$H+}
+program webcmd1; 
+{$ifdef fpc}{$mode objfpc} {$H+} {$UNITPATH ../../main} {$endif}
 
 uses  
   {$ifdef unix}unix, baseunix, compactsysutils,{$endif} 
   {$ifdef windows}sysutils,{$endif}
   pwinit, pwmain, pwenvvar, pwsubstr, pwfileutil, pwtypes, htmout;
 
-procedure err(const s: astr);
+
+procedure RedirectStdErr;
 begin
-  out('<br><b>Error:</b> ' + s);
+//  close(stderr); // needed? 
+//  assign(stderr, 'stderr.txt'); 
+//  rewrite(stderr); 
+end;
+
+procedure restoreStdErr;
+begin
+//  close(stderr); 
+//  assign(stderr,); 
+//  rewrite(stderr); 
+end;
+
+
+procedure err(const s: astr);
+begin out('<br><b>Error:</b> ' + s);
 end;
 
 {$ifdef windows}
@@ -50,7 +65,14 @@ end;
 function ExecCmd(const cmd: astr): int32;
 begin
  {$ifdef unix}   result:= fpSystem(cmd);{$endif} 
- {$ifdef windows}result:= executeprocess(GetCmdPath(cmd), GetCmdArgs(cmd));{$endif}
+ {$ifdef windows}result:= executeprocess('cmd', '/c '+GetCmdPath(cmd)+' '+GetCmdArgs(cmd));{$endif}
+end;
+
+procedure showCmdStatus(err: int32);
+begin
+  out('WEBCMD NOTE: command exited with status: ' + inttostr(err));
+//  out('Status message: '+ fpgeterrno(errno));
+  
 end;
 
 procedure RunAndShowCmd(const cmd: astr);
@@ -62,7 +84,7 @@ begin
   // execute command such as // ls/mv/cp/tar etc.
   err:= ExecCmd(cmd);
   outln(  '-------------------------------------------------------------------------');
-  outln(  'WEBCMD NOTE: command exited with status: ' + inttostr(err));
+  showCmdStatus(err);
   outln('</textarea>');
 end;
 
@@ -84,8 +106,10 @@ end;
 { process command, notify it was attempted }
 procedure ProcessCommand;
 begin
+  RedirectStdErr;
   RunAndShowCmd(HtmForm.cmd);
   Notify;
+  RestoreStdErr;
 end;
 
 procedure Setup;
