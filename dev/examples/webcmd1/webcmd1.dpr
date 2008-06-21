@@ -2,7 +2,7 @@
   have shell/ssh/telnet access available
 
   Notes:
-    -tested on linux, some testing on MS Windows
+    -tested on Linux, MS Windows
 
   Author: 
     Lars (L505
