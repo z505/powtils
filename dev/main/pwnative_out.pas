@@ -20,11 +20,14 @@ UNIT pwnative_out; {$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
 // function for windows and unix. 
 
 INTERFACE
-uses 
-  pwtypes, 
+uses
+  pwtypes,
+ {$IFNDEF LWS2}
  {$IFDEF UNIX}baseunix;{$ENDIF}
  {$IFDEF WINDOWS}windows;{$ENDIF}
-
+ {$ELSE}
+ LWS2Util;
+ {$ENDIF}
 
 {$IFDEF UNIX}
 // Under Unix STDOUT is always 1.
@@ -34,9 +37,11 @@ uses
      STDERR = 2;
 {$ENDIF}
 
+{$IFNDEF LWS2}
 {$IFDEF FPC}{$IFDEF WINDOWS}
   var STDOUT: HANDLE;
 {$ENDIF}{$ENDIF}
+{$ENDIF}
 
 procedure NativeWrite(s : astr); overload;
 procedure NativeWrite(PString : PChar); overload;
@@ -60,6 +65,25 @@ begin
   halt;
 end;
 
+{$IFDEF LWS2} // LightWebServer2 wants WriteLn
+
+  procedure NativeWrite(s: astr); overload;
+  begin
+    Write(LWS2Util.OOText, s);
+  end;
+
+  procedure NativeWrite(Buffer: PChar;  NumChars : Cardinal); overload;
+  begin
+    Buffer[numchars]:= #0;
+    Write(LWS2Util.OOText, Buffer);
+  end;
+
+  procedure NativeWrite(PString: PChar); overload;
+  begin
+    Write(LWS2Util.OOText, PString);
+  end;
+
+{$ELSE}
 
 {$IFNDEF FPC}  // delphi doesn't work with native out unit
   procedure NativeWrite(s: astr); overload;
@@ -223,7 +247,7 @@ var
   end;
 
 {$ENDIF FPC}
-
+{$ENDIF LWS2}
 
 procedure NativeWriteLn(s: astr);
 begin
@@ -234,6 +258,5 @@ procedure NativeWriteLn;
 begin
   NativeWrite(CGI_CRLF);
 end;
-
 
 end.

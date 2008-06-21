@@ -8,7 +8,7 @@ Var
   Command    : String;
 
 Begin
-  StartServer(ParamStr(1), ParamStr(2), StrToInt(ParamStr(3)), StrToInt(ParamStr(4)));
+  StartServer(ParamStr(1), ParamStr(2), ParamStr(3), StrToInt(ParamStr(4)), StrToInt(ParamStr(5)));
   Repeat
     CheckIncomming;
     Inc(CheckCount);

@@ -1,10 +1,9 @@
+{$DEFINE LWS2}
 Uses
-	LWS2Util,
-	pwLWS2Init,
-	pwInit,
-	pwMain;
+  LWS2Util,
+  pwInit,
+  pwMain;
 
 Begin
+  OutLn('Hello world !');
 End.
-
-
