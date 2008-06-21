@@ -344,8 +344,12 @@ const
 {-----------------------------------------------------------------------------}
 
 uses
+ {$IFDEF LWS2}
+  BreakTokens, LWS2Util;
+ {$ELSE}
  {$IFDEF WIN32}windows{$ENDIF}
  {$IFDEF UNIX}baseunix{$ENDIF} ;
+ {$ENDIF}
   
 
 {-- PUBLIC FUNCTIONS ----------------------------------------------------------}
@@ -354,6 +358,28 @@ uses
   todo: implement security levels. it is needed!
   i.e. say someone tries to pass a User Agent as <script java hack_up_Server>}
 function GetEnvVar(const name: ansistring): ansistring;
+{$IFDEF LWS2}
+Begin
+  {  } If Name = 'SERVER_SOFTWARE' Then
+    Result := 'PWULightWebServer/0.2'
+  Else If Name = 'REQUEST_METHOD' Then
+    Result := UnQuote(LWS2Util.Headers.Values['x-PWU-Method'])
+  Else If Name = 'CONTENT_LENGTH' Then
+    Result := UnQuote(LWS2Util.Headers.Values['Content-length'])
+  Else If Name = 'CONTENT_TYPE' Then
+    Result := UnQuote(LWS2Util.Headers.Values['Content-type'])
+  Else If Name = 'QUERY_STRING' Then
+    Result := UnQuote(LWS2Util.Headers.Values['x-PWU-Parameters'])
+  Else If Name = 'HTTP_COOKIE' Then
+    Result := UnQuote(LWS2Util.Headers.Values['HTTP-Cookie'])
+  Else If Name = 'HTTP_ACCEPT_ENCODING' Then
+    Result := UnQuote(LWS2Util.Headers.Values['HTTP-Accept-Encoding'])
+  Else If Name = 'PATH' Then
+    Result := LWS2Util.DocRoot
+  Else
+    Result := '';
+End;
+{$ELSE}
 {$IFDEF WIN32}var tmp: integer;{$ENDIF}
 begin
  {$IFDEF UNIX}
@@ -365,6 +391,7 @@ begin
   SetLength(Result, tmp);
  {$ENDIF}  
 end;
+{$ENDIF}
 
 { Tells if an environment variable is assigned }
 function IsEnvVar(const name: string): boolean;
