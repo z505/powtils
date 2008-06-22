@@ -10,7 +10,7 @@ Uses
   SysUtils,
   BlckSock,
   StreamIO,
-  URLEnc,
+  PWURLEnc,
   {$IFDEF WINDOWS}
   WinSock;
   {$ELSE}
