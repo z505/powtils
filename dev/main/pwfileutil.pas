@@ -182,8 +182,7 @@ end;
 
 {  By JKP and L505 (public domain) }
 function OpenFile(var F: file; const fname: astr; recsize: integer; mode: byte): boolean;
-var                                                                                        
-  oldFM: byte;
+var oldFM: byte;
 begin
   oldFM:= filemode;
   filemode:= mode; 
@@ -191,7 +190,7 @@ begin
   ioresult; // Clears any previous error.
   assign(F, fname);
   reset(F, recsize);
-  Result:= (ioresult = 0);
+  result:= (ioresult = 0);
 {$I+} // restore I/O checking
   filemode:= oldFM;
 end;
@@ -199,8 +198,7 @@ end;
 { tries to open file, forces file to be created if it does not exist 
   By JKP and L505 (public domain) }
 function OpenFileReWrite(var F: file; const fname: astr; recsize: integer): boolean;
-var                                                                                        
-  oldFM: byte;
+var oldFM: byte;
 begin
   oldFM:= filemode;
   filemode:= fmOpenReadWrite; 
@@ -213,12 +211,10 @@ begin
   filemode:= oldFM;
 end;
 
-
 { Try to open a file (doesn't have to be text) return false if unsuccessful 
   By JKP and L505 (public domain) }
 function OpenFile(var F: file; const fname: astr; mode: char): boolean;
-var
-  oldFM: byte;
+var oldFM: byte;
 begin
   if ( mode in ['R', 'W'] ) then
     inc(mode, 32); // convert "mode" to lowercase
@@ -233,11 +229,11 @@ begin
        'r':reset(F);
        'w':rewrite(F);
      end;
-     Result:= (ioresult = 0);
+     result:= (ioresult = 0);
     {$I+} // restore I/O checking
     filemode:= oldFM;
   end else
-    Result:= FALSE; // invalid MODE argument
+    result:= FALSE; // invalid MODE argument
 end;
 
 

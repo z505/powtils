@@ -14,14 +14,17 @@ unit StrWrap1;
 
 interface
 uses 
-  pwfileutil;
+  pwfileutil, pwtypes;
 
-{--- Public constants ---------------------------------------------------------}
+{--- Public ------------------------------------------------------------------}
 
+type TByteArray = array of byte;
+     TCharArray = array of char;
 const 
   FILE_ERR = '-1NF';
 
-const
+  DEFAULT_CHUNK_SIZE  = 8192;  // for functions that BlockRead in chunks
+
   { File open modes }
   fmOpenRead       = $0000;
   fmOpenWrite      = $0001;
@@ -34,15 +37,15 @@ const
   fmShareDenyNone  = $0040;
 
  {$ifdef WINDOWS}
-  CRLF: string = #13#10; // windows uses CRLF (carriage return and a line feed)
+  CRLF: astr = #13#10; // windows uses CRLF (carriage return and a line feed)
  {$endif}
 
  {$ifdef UNIX}
-  CRLF: string = #10;    // linux uses LF. (line feed)
+  CRLF: astr = #10;    // linux uses LF. (line feed)
  {$endif}
 
  {$ifdef MACOS}
-  CRLF: string = #13;    // old mac use CR (carriage return)
+  CRLF: astr = #13;    // old mac use CR (carriage return)
  {$endif}
 {------------------------------------------------------------------------------}
 
@@ -50,68 +53,76 @@ const
 {--- public type --------------------------------------------------------------}
   type
     // string array
-    StrArray = array of string;
+    StrArray = array of astr;
 
     // store line numbers
-    LnArray = array of integer;
+    LnArray = array of int32;
 
     // string array with a count variable available
     StrArray_c = record
-      Lines: array of string;
-      Count: integer;
+      Lines: array of astr;
+      Count: int32;
     end;
 {------------------------------------------------------------------------------}
 
 { BEGIN: BACKWARDS COMPATIBLE (JUST WRAPPERS }
-  function OpenFileRead(var F:file; const fname: string; recsize: integer): boolean;
-  function OpenFileReWrite(var F:file; const fname:string; recsize:integer): boolean;
-  function OpenFile(var F: text; const fname: string; mode: char): boolean; overload;
-  function OpenFile(var F: file; const fname: string; recsize:integer; mode: byte): boolean; overload;
-  function OpenFile(var F: file; const fname: string; mode: char): boolean; overload;
-  function OpenFile(var F: TFileOfChar; const fname: string; mode: char): boolean; overload;  
-  function MakeDir(s: string): boolean;
+  function openFileRead(var F:file; const fname: astr; recsize: int32): boo;
+  function openFileReWrite(var F:file; const fname:astr; recsize:int32): boo;
+  function openFile(var F: text; const fname: astr; mode: char): boo; overload;
+  function openFile(var F: file; const fname: astr; recsize:int32; mode: byte): boo; overload;
+  function openFile(var F: file; const fname: astr; mode: char): boo; overload;
+  function openFile(var F: TFileOfChar; const fname: astr; mode: char): boo; overload;  
+  function makeDir(s: astr): boo;
 { END: BACKWARDS COMPATIBLE (JUST WRAPPERS }
 
 {--- public functions ---------------------------------------------------------}
-  function ReadChunk(const fname: string; ChunkSize: integer; buf: pointer): boolean;
-  function SaveChunk(fname: string; buf: pointer; chunksize: integer): boolean;
+  function readChunk(const fname:astr; chunksz: int32; buf: pointer): boo;
+  function saveChunk(fname:astr; buf:pointer; chunksz:int32): boo;
 
-  function GetLineCount(const fname: string): longint;
-  function FindLine(const fname: string; linenum: longword): boolean;  
-  function GetFileSize(const fname: string): longint;
+  function getLineCount(const fname:astr): int32;
+  function findLine(const fname:astr; linenum:longword): boo;  
+  function getFileSize(const fname:astr): int32;
+  function getLargeFileSize(const fname:astr): int64;
+  
+  function file2buf(const fname: astr; out buf: TByteArray): int32;  overload;
+  function file2buf(const fname:astr; chunksz:int32; out buf:TByteArray): int32; overload;
 
-  function StrLoadFile(const fname: string): string;
-  function StrSaveFile(const fname, InputStr: string): boolean; overload;
-  function StrSaveFile(const fname, InputStr, endlnfeed: string): boolean; overload;
-  function StrLoadLns(NumOfLines: integer; const fname:string): String;
-  function StrLoadRng(FromLine: integer; ToLine:integer; const fname: string):String;
+  function file2str(const fname:astr; out err:int32): astr; overload;
+  function file2str(const fname:astr): astr; overload;
 
-  function GetLn1(const fname: string): string;
-  function GetLn2(const fname: string): string;
-  function GetLnN(LineNumber: integer; const fname: string): string;
+  function strLoadFile(const fname: astr): astr; overload;
+  function strLoadFile(const fname: astr; chunksz: int32): astr; overload;
+  function strSaveFile(const fname, inputStr: astr): boo; overload;
+  function strSaveFile(const fname, inputStr, endlnfeed: astr): boo; overload;
+  function strLoadLns(NumOfLines: int32; const fname:astr): astr;
+  function strLoadRng(FromLine: int32; ToLine:int32; const fname: astr):astr;
 
-  function ArrayLoadFile(const fname:string): StrArray;
-  function ArrayLoadFile_c(const fname: string): StrArray_c;
-  function ArrayLoadFile_0(const fname: string): StrArray;
-  function ArrayLoadFile_c_0(const fname: string): StrArray_c;
-  function ArrayLoadLns(NumOfLines: integer; const fname: string): StrArray;
-  function ArrayLoadLns_0(NumOfLines: integer; const fname: string): StrArray;
-  function ArrayLoadRng(FromLine: integer; ToLine:integer; const fname: string): StrArray;
-  function ArrayLoadRng_0(FromLine: integer; ToLine:integer; const fname: string): StrArray;
+  function getLn1(const fname: astr): astr;
+  function getLn2(const fname: astr): astr;
+  function getLnN(LineNumber: int32; const fname: astr): astr;
 
-  function GetLastLns(const fname: string; NumLines: longint): string;
+  function arrayLoadFile(const fname:astr): StrArray;
+  function arrayLoadFile_c(const fname: astr): StrArray_c;
+  function arrayLoadFile_0(const fname: astr): StrArray;
+  function arrayLoadFile_c_0(const fname: astr): StrArray_c;
+  function arrayLoadLns(NumOfLines: int32; const fname: astr): StrArray;
+  function arrayLoadLns_0(NumOfLines: int32; const fname: astr): StrArray;
+  function arrayLoadRng(FromLine: int32; ToLine:int32; const fname: astr): StrArray;
+  function arrayLoadRng_0(FromLine: int32; ToLine:int32; const fname: astr): StrArray;
 
-  function RemoveDupStrings(var InputStrArray: StrArray): integer;
+  function GetLastLns(const fname: astr; NumLines: int32): astr;
+
+  function RemoveDupStrings(var InputStrArray: StrArray): int32;
 (*  TO DO
 
   function StrLoadExact(LineNumsArray: LnArray; fname: string): string;
   function ArrayLoadExact(LineNumsArray: LnArray; fname: string): StrArray;
   function ArrayLoadExact_0(LineNumsArray: LnArray; fname: string): StrArray;
-  function ArraySaveFile(InputArray: StrArray; fname: string): boolean;
-  function StrAddLine: boolean;
-  function FileAddLine: boolean;
-  function StrAppendToFile: boolean;
-  function FileAppendToStr: boolean;
+  function ArraySaveFile(InputArray: StrArray; fname: string): boo;
+  function StrAddLine: boo;
+  function FileAddLine: boo;
+  function StrAppendToFile: boo;
+  function FileAppendToStr: boo;
 *)
 
 {------------------------------------------------------------------------------}
@@ -125,45 +136,45 @@ uses
   {$IFDEF WINDOWS}windows{$ENDIF};
 
 
-function MakeDir(s: string): boolean;
+function MakeDir(s: astr): boo;
 begin
   result:= pwfileutil.MakeDir(s);
 end;
 
-function OpenFile(var F: text; const fname: string; mode: char): boolean;
+function openFile(var F: text; const fname: astr; mode: char): boo;
 begin
-  result:= pwfileutil.OpenFile(F, fname, mode);
+  result:= pwfileutil.openFile(F, fname, mode);
 end;
 
-function OpenFileRead(var F: file; const fname: string; recsize: integer): boolean;
+function openFileRead(var F: file; const fname: astr; recsize: int32): boo;
 begin
-  result:= pwfileutil.OpenFileRead(F, fname, recsize);
+  result:= pwfileutil.openFileRead(F, fname, recsize);
 end;
 
-function OpenFile(var F: file; const fname: string; recsize: integer; mode: byte): boolean;
+function openFile(var F: file; const fname: astr; recsize: int32; mode: byte): boo;
 begin
-  result:= pwfileutil.OpenFile(F, fname, recsize, mode);
+  result:= pwfileutil.openFile(F, fname, recsize, mode);
 end;
 
-function OpenFileRewrite(var F: file; const fname: string; recsize: integer): boolean;
+function openFileRewrite(var F: file; const fname: astr; recsize: int32): boo;
 begin
-  result:= pwfileutil.OpenFileRewrite(F, fname, recsize);
+  result:= pwfileutil.openFileRewrite(F, fname, recsize);
 end;
 
-function OpenFile(var F: file; const fname: string; mode: char): boolean;
+function openFile(var F: file; const fname: astr; mode: char): boo;
 begin
-  result:= pwfileutil.OpenFile(F, fname, mode);
+  result:= pwfileutil.openFile(F, fname, mode);
 end;
 
-function OpenFile(var F: TFileOfChar; const fname: string; mode: char): boolean;
+function openFile(var F: TFileOfChar; const fname: astr; mode: char): boo;
 begin
-  result:= OpenFile(f, fname, mode);
+  result:= openFile(f, fname, mode);
 end;
 
 { Get the size of any file, doesn't matter whether it's a text or binary file.
   JEFF: return -1 if the file can't be found. }
 {$IFDEF WINDOWS}
-function GetFileSize(const fname: string): longint;
+function getFileSize(const fname: astr): int32;
 var
   FileInfo:WIN32_FIND_DATA;
   hInfo: THANDLE;
@@ -180,9 +191,25 @@ begin
     Windows.FindClose(hInfo);
   end else Result:= -1
 end;
+
+function getLargeFileSize(const fname: astr): int64;
+var
+  fileInfo:WIN32_FIND_DATA;
+  hInfo: THANDLE;
+begin
+  hInfo:= findFirstFile(pChar(fname),
+          {$ifdef fpc} @FileInfo
+          {$else}       FileInfo {$endif});
+  if (hInfo <> INVALID_HANDLE_VALUE) then begin
+    Result:= int64(fileInfo.nFileSizeHigh) shl int64(32) +    
+             int64(fileInfo.nFileSizeLow);
+    Windows.FindClose(hInfo);
+  end else Result:= -1
+end;
+
 {$ELSE}
 // Unix version:
-function GetFileSize(const fname: string): longint;
+function GetFileSize(const fname: astr): int64;
 var
   FileInfo:TStat;
 begin
@@ -200,11 +227,11 @@ end;
         It's not usually a big deal. Line counts are fast anyway.   
 
  JEFF: return -1 on error}
-function GetLineCount(const fname: string): longint;
+function GetLineCount(const fname: astr): int32;
 var F: text;
 begin
   Result:=-1;
-  if not OpenFile(F, fname, 'r') then EXIT;
+  if not openFile(F, fname, 'r') then EXIT;
   Result:=0;
   while not EOF(F) do begin
     Readln(F);
@@ -215,13 +242,13 @@ end;
 
 
 { Verify line exists in file (i.e. on large files, does line 150000 exist?) }
-function FindLine(const fname: string; linenum: longword): boolean;
+function FindLine(const fname: astr; linenum: longword): boo;
 var F: text;
     cnt: longword;
 begin
   Result:= false;
   cnt:= 0;
-  if not OpenFile(F, fname, 'r') then EXIT;
+  if not openFile(F, fname, 'r') then EXIT;
   while (result <> true) or (not EOF(F)) do begin
     Readln(F);
     inc(cnt); //increment line count
@@ -230,30 +257,104 @@ begin
   close(F); //close file
 end;
 
-function StrLoadFile(const fname: string): string;
-var F: file;
-    InputFileSize: Integer;
-    Buffer: Pointer;
+{ Loads file into string 
+  Note: do not use for large files over the size of an integer! }
+function StrLoadFile(const fname: astr): astr;
 begin
-  result:= FILE_ERR; 
-  if OpenFile(F, fname, 1, fmOpenReadWrite) = false then EXIT;
-  result:= '';
-  InputFileSize:= FileSize(F);
-  SetLength(Result, InputFileSize);
-  Buffer:= PChar(Result);
-  BlockRead(F, Buffer^, InputFileSize);
-  CloseFile(F);
+  result:= StrLoadFile(fname, GetFileSize(fname));
 end;
 
-{ save a string directly to a file }
-function StrSaveFile(const fname, InputStr: string): boolean; overload;
+{ overloaded with ability to specify chunk read size 
+  Todo: large files.. int64 .. see if setlength is compatible }
+function StrLoadFile(const fname: astr; chunksz: int32): astr; 
 var F: file;
-    OutputFileSize: integer;
+    curRead: int32;  
+    totalRead: int32;
+begin
+  result:= FILE_ERR; 
+  totalRead:= 0;
+  // open file with a record size of 1
+  if openFile(F, fname, 1, fmOpenReadWrite) = false then EXIT;
+  result:= '';
+  curRead:= 1;
+  // the file will be read as one big chunk
+  while curRead > 0 do begin
+    setlength(result, length(result)+chunksz);
+    uniquestring(result);
+    curRead:= 0;
+    blockRead(F, pchar(result)[totalread], chunksz, curRead);
+    totalRead:= totalRead + curRead;
+  end;
+  setlength(result, totalRead);
+  closeFile(F);
+end;
+
+{ returns -1 if problem, else total bytes of file and a buffer in OUT param }
+function file2buf(const fname:astr; chunksz:int32; out buf:TByteArray): int32; 
+var F: file;
+    curRead: int32; // currently read
+    totalread: int32;
+begin
+  result:= -1; 
+  totalRead:= 0;
+  setlength(buf, 0);
+  // open file with a record size of 1
+  if openFile(F, fname, 1, fmOpenReadWrite) = false then EXIT;
+  curRead:= 1;
+  // the file will be read as one big chunk
+  while curRead > 0 do begin
+    setlength(buf, length(buf)+chunksz);
+    curRead:= 0;
+    blockread(F, buf[totalread], chunksz, curRead);
+    totalread:= totalRead + curRead;
+  end;
+  setlength(buf, totalRead);
+  result:= totalread;
+  closefile(F);
+end;
+
+{ overloaded with default chunk size }
+function file2buf(const fname: astr; out buf: TByteArray): int32; 
+begin
+  result:= File2Buf(fname, DEFAULT_CHUNK_SIZE, buf); 
+end;
+
+{ loads file into a string returns -1 in OUT param if problem }
+function File2Str(const fname: astr; chunksz: int64; out err: int32): astr; 
+var buf: TByteArray;
+begin
+  result:= '';
+  err:= File2Buf(fname, chunksz, buf);
+  if err > 0 then begin
+    setlength(result, length(buf));
+    result:= astr(TCharArray(buf));
+  end;
+end;
+
+{ overloaded with default chunk size used }
+function File2Str(const fname: astr; out err: int32): astr; 
+begin
+  result:=  File2Str(fname, DEFAULT_CHUNK_SIZE, err); 
+end;
+
+{ loads file into a string returns -1NF if error }
+function File2Str(const fname: astr): astr; 
+var err: int32;
+begin
+  result:= File2Str(fname, err);
+  if err < 0 then result:= FILE_ERR;
+end;
+
+
+{ save a string directly to a file }
+function StrSaveFile(const fname, InputStr: astr): boo; overload;
+var F: file;
+    OutputFileSize: int32;
     Buffer: Pointer;
 begin
   result:= false;
-  if OpenFileRewrite(F, fname, 1) = false then EXIT; // open in write mode
-  OutputFileSize:= Length(inputstr);
+  if openFileRewrite(F, fname, 1) = false then EXIT; // open in write mode
+  OutputFileSize:= length(inputstr);
   Buffer := PChar(inputstr);
   BlockWrite(F, Buffer^, OutputFileSize);
   CloseFile(F);
@@ -261,37 +362,37 @@ begin
 end;
 
 { read a chunk from any file }
-function ReadChunk(const fname: string; ChunkSize: integer; buf: pointer): boolean;
+function ReadChunk(const fname: astr; chunksz: int32; buf: pointer): boo;
 var f: file;
-    readamt: integer;
+    readamt: int32;
 begin
   result:= false;
-  if OpenFileRead(F, fname, 1) = false then EXIT; // open in write mode
-  BlockRead(F, Buf^, ChunkSize, readamt);
+  if openFileRead(F, fname, 1) = false then EXIT; // open in write mode
+  BlockRead(F, Buf^, chunksz, readamt);
   if readamt = 0 then result:= false;
   CloseFile(F);
 end;
 
 { save a chunk directly to a file }
-function SaveChunk(fname: string; buf: pointer; chunksize: integer): boolean;
+function SaveChunk(fname: astr; buf: pointer; chunksz: int32): boo;
 var F: file;
 begin
   result:= false;
   // open in write mode  
-  if OpenFileRewrite(F, fname, 1) = false then EXIT; 
-  BlockWrite(F, Buf^, chunksize);
+  if openFileRewrite(F, fname, 1) = false then EXIT; 
+  BlockWrite(F, Buf^, chunksz);
   CloseFile(F);
 end;
 
 { same as above but ability to specify final line ending at end of file }
-function StrSaveFile(const fname, InputStr, endlnfeed: string): boolean; overload;
+function StrSaveFile(const fname, InputStr, endlnfeed: astr): boo; overload;
 var F: file;
-    OutputFileSize: integer;
+    OutputFileSize: int32;
     Buffer: Pointer;
-    tmpstr: string;
+    tmpstr: astr;
 begin
   result:= false;
-  if OpenFileRewrite(F, fname, 1) = false then EXIT; // open in write mode
+  if openFileRewrite(F, fname, 1) = false then EXIT; // open in write mode
   tmpstr:= inputstr + endlnfeed; // add custom line ending for very end of file
   OutputFileSize:= Length(tmpstr);
   Buffer := PChar(tmpstr);
@@ -303,14 +404,14 @@ end;
 { Load the first N lines of a file into a string directly. Without the entire
   file getting loaded into memory!
   Note: an extra carriage return is appended to the end }
-function StrLoadLns(NumOfLines: longint; const fname: string): string;
+function StrLoadLns(NumOfLines: int32; const fname: astr): astr;
 var F: text;
-    str1: string;
-    Line: string;
-    i:longint;
+    str1: astr;
+    Line: astr;
+    i:int32;
 begin
   result:= FILE_ERR; 
-  if not OpenFile(F, fname, 'r') then EXIT; 
+  if not openFile(F, fname, 'r') then EXIT; 
   str1:=''; result:= ''; i:=0;
   while ( i < NumOfLines ) and ( not  EOF(F) ) do begin
     inc(i); Readln(F,Line);
@@ -325,16 +426,16 @@ end; { Todo: get rid of extra carriage return that is appended. Will require an
 
 { Load certain range of lines from a text file into a string.
   Example: lines 10 to 15 only }
-function StrLoadRng(FromLine:longint; ToLine:longint; const fname: string): string;
+function StrLoadRng(FromLine:int32; ToLine:int32; const fname: astr): astr;
 var F: text;
-    str1: string;
-    Line: string;
-    i:longint;
-    GotLines: boolean; //to signal that we have 'got' all the lines we need
+    str1: astr;
+    Line: astr;
+    i:int32;
+    GotLines: boo; //to signal that we have 'got' all the lines we need
 begin
   result:= FILE_ERR; 
   GotLines:= false; //initialize as false
-  if not OpenFile(F, fname, 'r') then exit;
+  if not openFile(F, fname, 'r') then exit;
   str1:=''; result:= ''; i:=0;
   while ( GotLines <> true )do begin
     if EOF(F) then gotlines:= true;
@@ -357,13 +458,13 @@ end;
 { Get the first line of text into a string, from a specified file
   Tiny bit more efficient than using GetLnN, if you are only accessing Line 1
   Returns string '-1NF' if file NOT FOUND or could not open}
-function GetLn1(const fname: string): string;
+function GetLn1(const fname: astr): astr;
 var
   F: text;
-  Line: string;
+  Line: astr;
 begin
   result:= FILE_ERR; 
-  if not OpenFile(F, fname, 'r') then exit; 
+  if not openFile(F, fname, 'r') then exit; 
   // read only the first line of file and close it
   Readln(F, Line); 
   result:= Line;
@@ -373,12 +474,12 @@ end;
 
 { Get the second line of text into a string, from a specified file
   Tiny bit more efficient than using GetLnN, if you are only accessing Line 2 }
-function GetLn2(const fname: string): string;
+function GetLn2(const fname: astr): astr;
 var F: text;
-    Line: string;
+    Line: astr;
 begin
   result:= FILE_ERR; 
-  if not OpenFile(F, fname, 'r') then EXIT; 
+  if not openFile(F, fname, 'r') then EXIT; 
   ReadLn(F); //pass the first line of the file
   ReadLn(F,Line); //read only the second line of file
   result:= Line;
@@ -387,17 +488,17 @@ end;
 
 
 { Get specified Nth line in a text file into a string }
-function GetLnN(LineNumber: longint; const fname: string): string;
+function GetLnN(LineNumber: int32; const fname: astr): astr;
 var
   F: text;
-  i:longint; //local incremental longint
-  Line: string;
-//  GotLine: boolean;
+  i:int32; 
+  Line: astr;
+//  GotLine: boo;
 begin
   result:= ''; 
   if ( LineNumber < 1 ) then  exit; //nothing to do, file lines start at line 1
   result:= FILE_ERR; 
-  if not OpenFile(F, fname, 'r') then EXIT; 
+  if not openFile(F, fname, 'r') then EXIT; 
   result:= ''; 
   if not EOF(f) then //only continue reading the lines of the file until we have GOT our line that we want
   begin
@@ -415,15 +516,15 @@ end;
   Note: the array contents start at array[1], since we deal with line 1, not
   line 0, for clarity.
   todo:  error checking as separate param }
-function ArrayLoadFile(const fname: string): StrArray;
+function ArrayLoadFile(const fname: astr): StrArray;
 var
   F: text;
-  Line: string;
-  i: longint;
+  Line: astr;
+  i: int32;
 begin
   setlength(result,1);
   result[0]:= FILE_ERR;  // error to array[0] if no file found
-  if not OpenFile(F, fname, 'r') then EXIT; 
+  if not openFile(F, fname, 'r') then EXIT; 
   i:= 0;
   while not Eof(F) do begin
     inc(i);
@@ -438,16 +539,16 @@ end; { Todo: 1. optimize: caparray concept 2.dedicated error return }
 { Same as ArrayLoadFile except we return the count of our file's lines and use
   a record for the function return values. The c suffix stands for "count". 
   Returns -1NF in array[0] contents if file not found }  
-function ArrayLoadFile_c(const fname: string): StrArray_c;
+function ArrayLoadFile_c(const fname: astr): StrArray_c;
 var
   F: text;
-  Line: string;
-  i:longint;
+  Line: astr;
+  i:int32;
 begin
   setlength(result.Lines,1);
   result.Lines[0]:=FILE_ERR; // error to array[0] if no file found
   result.Count:= -1;   // return -1 if nothing found
-  if not OpenFile(F, fname, 'r') then EXIT;
+  if not openFile(F, fname, 'r') then EXIT;
   i:=0;
   while not Eof(F) do begin
     inc(i); readln(F,Line);
@@ -461,13 +562,13 @@ end; { Todo: 1. optimize: caparray concept 2.dedicated error return }
 
 { Same as ArrayLoadFile except array starts at [0] instead of [1]
   Returns -1NF in array[0] contents if file not found }
-function ArrayLoadFile_0(const fname: string): StrArray;
+function ArrayLoadFile_0(const fname: astr): StrArray;
 var F: text;
-    Line: string;
-    i:longint;
+    Line: astr;
+    i:int32;
 begin
   setlength(result,1);
-  if not OpenFile(F, fname, 'r') then 
+  if not openFile(F, fname, 'r') then 
   begin result[0]:= FILE_ERR;  EXIT;
   end;
   i:= -1;
@@ -482,14 +583,14 @@ end; { Todo: 1. optimize: caparray concept 2.dedicated error return }
 
 
 { Same as ArrayLoadFile_c except starts at [0] instead of [1] }
-function ArrayLoadFile_c_0(const fname: string): StrArray_c;
+function ArrayLoadFile_c_0(const fname: astr): StrArray_c;
 var F: text;
-    Line: string;
-    i: longint;
+    Line: astr;
+    i: int32;
 begin
   setlength(result.Lines,1);
   result.Count:= -1;   //...
-  if not OpenFile(F, fname, 'r') then
+  if not openFile(F, fname, 'r') then
   begin result.Lines[0]:= FILE_ERR; EXIT; 
   end;
   i:= -1;
@@ -507,16 +608,16 @@ end; { Todo: 1. optimize: caparray concept 2.dedicated error return }
   a string in the array. Example: load the first 15 lines of a certain file.
   Note: the array contents start at array[1], since we deal with line 1, not
   line 0, for clarity. }
-function ArrayLoadLns(NumOfLines:longint; const fname: string): StrArray;
+function ArrayLoadLns(NumOfLines:int32; const fname: astr): StrArray;
 var F: text;
-    Line: string;
-    i: longint;
+    Line: astr;
+    i: int32;
 begin
   setlength(result,1);
   result[0]:= FILE_ERR; //safety
   i:= 0;
   setlength(result,NumOfLines+1); //we know exact length 
-  if not OpenFile(F, fname, 'r') then EXIT;
+  if not openFile(F, fname, 'r') then EXIT;
   while not ( Eof(F) ) and ( i < NumOfLines ) do begin
     inc(i);
     readln(F,Line);
@@ -527,13 +628,13 @@ end;
 
 
 { Same as ArrayLoadLns, except start at array[0] instead of array[1]  }
-function ArrayLoadLns_0(NumOfLines:longint; const fname: string): StrArray;
+function ArrayLoadLns_0(NumOfLines:int32; const fname: astr): StrArray;
 var F: text;
-    Line: string;
-    i: longint;
+    Line: astr;
+    i: int32;
 begin
   setlength(result,NumOfLines); //we know the exact length that the array will be
-  if not OpenFile(F, fname, 'r') then begin 
+  if not openFile(F, fname, 'r') then begin 
     result[0]:= FILE_ERR; EXIT;
   end;
   i:= -1;
@@ -548,16 +649,16 @@ end;
 { Load a range of lines into a string array. Example: lines 11 to 16 into
   array[1] to array[6]
   note: array starts at 1 not 0 }
-function ArrayLoadRng(FromLine:longint; ToLine:longint; const fname: string): StrArray;
+function ArrayLoadRng(FromLine:int32; ToLine:int32; const fname: astr): StrArray;
 var F: text;
-    Line: string;
-    i: longint;
-    RngAmt: longint;
+    Line: astr;
+    i: int32;
+    RngAmt: int32;
 begin
   RngAmt:= ToLine - FromLine + 1; //the range i.e. 4:6 is 4,5,6 so add 1 to subtraction
   setlength(result,(RngAmt)+2); //we know the exact length that the array will be  +2 because range 4 to 6 is three lines, not two. So +1,  and setlength is 0 based, so another +1.
   result[0]:= FILE_ERR; 
-  if not OpenFile(F, fname, 'r') then EXIT;
+  if not openFile(F, fname, 'r') then EXIT;
   if not ( Eof(F) ) then begin
     // go to first line needed
     for i:= 1 to FromLine-1 do readln(F); 
@@ -571,14 +672,14 @@ end;
 
 
 { Same as ArrayLoadRng but array starts at [0] instead of [1] }
-function ArrayLoadRng_0(FromLine:longint; ToLine:longint; const fname: string): StrArray;
+function ArrayLoadRng_0(FromLine:int32; ToLine:int32; const fname: astr): StrArray;
 var F: text;
-    Line: string;
+    Line: astr;
     i,
-    i2: longint;
+    i2: int32;
 begin
   setlength(result,1);
-  if not OpenFile(F, fname, 'r') then begin  
+  if not openFile(F, fname, 'r') then begin  
     result[0]:=FILE_ERR; EXIT;
   end;
   i:= -1; i2:= 0;
@@ -598,16 +699,16 @@ end;
 
 
 { get n amount of lines at the end of the text file, returns -1NF if file not found }
-function GetLastLns(const fname: string; NumLines: longint): string;
-var LineCnt: longint;
-    StartAt: longint;
+function GetLastLns(const fname: astr; NumLines: int32): astr;
+var LineCnt: int32;
+    StartAt: int32;
     F: text;
-    i: integer; //loop
+    i: int32; //loop
     C: char;
 begin
   result:= ''; //safety
   LineCnt:= GetLineCount(fname);
-  if not OpenFile(F, fname, 'r') then begin 
+  if not openFile(F, fname, 'r') then begin 
     result:= FILE_ERR; 
     exit;
   end;
@@ -626,9 +727,8 @@ end;
 // remove duplicate strings from an array of strings that is sorted. Returns
 // number of duplicates found, 0 if none are found
 // note: will not work unles string array is sorted!
-function RemoveDupStrings(var InputStrArray: StrArray): integer;
-var i: integer; //local loop integer
-    i2: integer; //local increment integer
+function RemoveDupStrings(var InputStrArray: StrArray): int32;
+var i, i2: int32; 
     NonDupeStrArray: StrArray;
 begin
   result:= -1; //safety
@@ -670,7 +770,7 @@ end;
 
   Load only certain lines into a string var. Example: lines 11,13,21
   Note: appends an extra carriage return to end of string }
-function StrLoadExact(LineNumsArray:LnArray; fname:string): string;
+function StrLoadExact(LineNumsArray:LnArray; fname:string): astr;
 begin
 //LnArray
 end;
@@ -687,14 +787,14 @@ end;
          ArrayLoadExactC will be faster, if you specify 6,8,11,13,21 instead.
          This is because ArrayLoadExact has to sort your stuff for you first,
          but this may be convenient at times.}
-function ArrayLoadExact(LineNumsArray:LnArray; fname:string): StrArray;
+function ArrayLoadExact(LineNumsArray:LnArray; fname:astr): StrArray;
 var
   F: text;
-  Line: string;
+  Line: astr;
   i,
   i2,
-  i3:integer;
-  GotLines: boolean; //to signal that we have 'got' all the lines we need
+  i3:int32;
+  GotLines: boo; //to signal that we have 'got' all the lines we need
 begin
   setlength(result,1);
   if FileExists(fname) = false then
@@ -733,14 +833,14 @@ end;
 
 { NOT WORKING YET
   Same as ArrayLoadExact except array starts at [0] instead of [1] }
-function Array0LoadExact(LineNumsArray:LnArray; fname:string): StrArray;
+function Array0LoadExact(LineNumsArray:LnArray; fname:astr): StrArray;
 var
   F: text;
-  Line: string;
+  Line: astr;
   i,
   i2,
-  i3:integer;
-  GotLines: boolean; //to signal that we have 'got' all the lines we need
+  i3:int32;
+  GotLines: boo; //to signal that we have 'got' all the lines we need
 begin
   setlength(result,1);
   if FileExists(fname) = false then
@@ -779,10 +879,10 @@ end;
 { TODO FUNCTIONS }
 
 // Save a string directly to a file
-{ function StrSaveFile(InputString:string; fname: string): boolean; }
+{ function StrSaveFile(InputString:astr; fname: astr): boo; }
 
 // Save an array of strings directly to a file
-{ function ArraySaveFile(InputArray: StrArray; fname: string): boolean; }
+{ function ArraySaveFile(InputArray: StrArray; fname: astr): boo; }
 
 
 { OLD FUNCTIONS }
@@ -790,10 +890,10 @@ end;
 
 (* This one was a little bit slower
 
-function StrLoadFile(const fname: string): string;
+function StrLoadFile(const fname: astr): astr;
 var
   F: file;
-  InputFileSize: Integer;
+  InputFileSize: int32;
   Buffer: Pointer;
 begin
   result:= ''; // safety
