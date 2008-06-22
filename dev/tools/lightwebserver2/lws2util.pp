@@ -74,6 +74,7 @@ End;
 
 Procedure Cleanup;
 Begin
+  Sleep(Timeout);
   IIStream.Free;
   OOStream.Free;
   Close(IIText);
@@ -192,6 +193,9 @@ Finalization
  
   // Debug WriteLn('Sending response, and script generated document...');
   Sock.SendString('HTTP/1.0 200 OK' + CR + LF);
+
+  // Debug WriteLn('Instructing the client to close the socket...');
+  Sock.SendString('Connection: close');
 
   // Debug WriteLn('Sending document.');
   Sock.SendBuffer(OOStream.Memory, OOStream.Size);
