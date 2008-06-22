@@ -24,6 +24,10 @@ type
   str255ray = array of shortstring;
   int32 = longint;   // less vague than "longint", keeps declarations shorter
   boo = boolean;     // keeps procedure declarations shorter and readable 
+  TByteRay = array of byte;
+  PByteRay = ^TByteRay;
+  TCharRay = array of char;
+  PCharRay = ^TCharRay;
 
  {----------------- DEPRECATED -----------------------------------------------}
   num  = longint;                       // use int32
