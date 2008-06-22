@@ -13,7 +13,7 @@ Begin
 End;
 
 Begin
-  If ParamCount > 5 Then Help;
+  If ParamCount < 5 Then Help;
 
   StartServer(ParamStr(1), ParamStr(2), ParamStr(3), StrToInt(ParamStr(4)), StrToInt(ParamStr(5)));
   Repeat
