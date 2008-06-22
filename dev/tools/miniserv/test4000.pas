@@ -76,6 +76,12 @@ procedure dashes;
 begin writeln('-----------------------------------------------------------------');
 end;
 
+procedure note(s: string);
+begin
+
+end;
+
+
 procedure sendpage(a: longint);
 var err: longint;
 
@@ -90,7 +96,7 @@ var err: longint;
   const pagedata = 'test'#13#10;
 
 begin
-  writeln('Sending response.');
+  note('Sending response');
   sendStr('HTTP/1.0 200 OK'#13#10);
 //  sendStr('Date: ' {+ RFC822DateTime(Now)} + #13#10);
   sendStr('Server: Powtils Miniserv'#13#10);
@@ -100,13 +106,8 @@ begin
   sendStr(''#13#10);
   sendStr(pagedata);
   if socketError <> 0 then writeln('Page() socket error.');
-  writeln('Shutting down send');
+  note('Shutting down send');
   shutdown(a, 1);
-end;
-
-procedure note(s: string);
-begin
-
 end;
 
 function recvInfo(a: longint): boolean;
