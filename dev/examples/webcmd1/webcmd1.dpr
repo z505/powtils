@@ -16,7 +16,7 @@ uses
   pwinit, pwmain, pwenvvar, pwsubstr, pwfileutil, pwtypes, htmout, pwstrutil;
 
 
-procedure RedirectStdErr;
+procedure redirectStdErr;
 begin
 //  close(stderr); // needed? 
 //  assign(stderr, 'stderr.txt'); 
@@ -36,7 +36,7 @@ end;
 
 {$ifdef windows}
 { find program command (before first space) }
-function GetCmdPath(const cmd: astr): astr;
+function getCmdPath(const cmd: astr): astr;
 var i: integer;
 begin
   result:= '';
@@ -48,7 +48,7 @@ begin
 end;
  
  { find program arguments (after space) }
-function GetCmdArgs(const cmd: astr): astr;
+function getCmdArgs(const cmd: astr): astr;
 var i, spacefound: integer;
 begin
   result:= ''; spacefound:= 0;
@@ -60,7 +60,7 @@ begin
 end;
 {$endif}
 
-function ExecCmd(const cmd: astr): int32;
+function execCmd(const cmd: astr): int32;
 begin
  {$ifdef unix}   result:= fpSystem(cmd);{$endif} 
  {$ifdef windows}result:= executeProcess('cmd', '/c '+GetCmdPath(cmd)+' '+GetCmdArgs(cmd));{$endif}
@@ -72,7 +72,7 @@ begin
 //  out('Status message: '+ fpgeterrno(errno));
 end;
 
-procedure RunAndShowCmd(const cmd: astr);
+procedure runAndShowCmd(const cmd: astr);
 var err: int32;
 begin
   out('<hr style="border-style: solid; border-width: 1px;">');
@@ -85,7 +85,7 @@ begin
   outln('</textarea>');
 end;
 
-function FormPosted: boo;
+function formPosted: boo;
 begin
   result:= false;
   if isPostVar('form1posted') then result:= true;
@@ -95,38 +95,38 @@ type THtmForm = record cmd: astr; end;
 var HtmForm: THtmForm;
 
 { get incoming cmd and params }
-procedure GetPostedVars;
+procedure getPostedVars;
 begin
-  HtmForm.cmd:= GetCgiVar_S('ed1', 0);
+  HtmForm.cmd:= getCgiVar_S('ed1', 0);
 end;
 
 { process command, notify it was attempted }
-procedure ProcessCommand;
+procedure processCommand;
 begin
-  RedirectStdErr;
-  RunAndShowCmd(HtmForm.cmd);
-  Notify;
-  RestoreStdErr;
+//  redirectStdErr;
+  runAndShowCmd(HtmForm.cmd);
+  notify;
+//  restoreStdErr;
 end;
 
-procedure Setup;
+procedure setup;
   { server document root full path is useful as a special macro }
-  procedure ExpandDocRootMacro(var s: astr);
+  procedure expandDocRootMacro(var s: astr);
   begin
     s:= SubstrReplace(s, '{$DOCROOT}', SERV.DocRoot() );
     s:= SubstrReplace(s, '$DOCROOT', SERV.DocRoot() );
   end;
 begin
-  GetPostedVars;
-  ExpandDocRootMacro(HtmForm.cmd);
+  getPostedVars;
+  expandDocRootMacro(HtmForm.cmd);
   // setup $remembercmd macro var for later use with OutF or TemplateOut
-  SetVar('remembercmd', HtmForm.cmd);
+  setVar('remembercmd', HtmForm.cmd);
 end;
 
 begin
-  StartPage;
-  Setup;
-  JotForm;
-  if FormPosted then ProcessCommand;
-  EndPage;
+  startPage;
+  setup;
+  jotForm;
+  if formPosted then processCommand;
+  endPage;
 end.
