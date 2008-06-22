@@ -10,6 +10,7 @@ Var
 Procedure Help;
 Begin
   WriteLn('Command usage: testserv docroot ip port timeout linger');
+  Halt;
 End;
 
 Begin
