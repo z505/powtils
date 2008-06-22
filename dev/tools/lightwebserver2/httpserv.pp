@@ -6,9 +6,9 @@ Uses
   Classes,
   SysUtils,
   TCPServ,
-  URLEnc,
-  {$IFDEF WINDOWS}
+  PWURLEnc,
   Process,
+  {$IFDEF WINDOWS}
   WinSock;
   {$ELSE}
   Unix,
