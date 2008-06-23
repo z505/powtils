@@ -17,13 +17,8 @@ uses
   pwfileutil, pwtypes;
 
 {--- Public ------------------------------------------------------------------}
-
-type TByteArray = array of byte;
-     TCharArray = array of char;
 const 
   FILE_ERR = '-1NF';
-
-  DEFAULT_CHUNK_SIZE  = 8192;  // for functions that BlockRead in chunks
 
   { File open modes }
   fmOpenRead       = $0000;
@@ -81,21 +76,17 @@ const
 
   function getLineCount(const fname:astr): int32;
   function findLine(const fname:astr; linenum:longword): boo;  
-  function getFileSize(const fname:astr): int32;
-  function getLargeFileSize(const fname:astr): int64;
-  
-  function file2buf(const fname: astr; out buf: TByteArray): int32;  overload;
-  function file2buf(const fname:astr; chunksz:int32; out buf:TByteArray): int32; overload;
 
-  function file2str(const fname:astr; out err:int32): astr; overload;
-  function file2str(const fname:astr): astr; overload;
-
+{ DEPRECATED: use file2str from pwfileutil }
   function strLoadFile(const fname: astr): astr; overload;
   function strLoadFile(const fname: astr; chunksz: int32): astr; overload;
   function strSaveFile(const fname, inputStr: astr): boo; overload;
   function strSaveFile(const fname, inputStr, endlnfeed: astr): boo; overload;
+{ END DEPRECATED }
+
   function strLoadLns(NumOfLines: int32; const fname:astr): astr;
   function strLoadRng(FromLine: int32; ToLine:int32; const fname: astr):astr;
+
 
   function getLn1(const fname: astr): astr;
   function getLn2(const fname: astr): astr;
@@ -171,54 +162,6 @@ begin
   result:= openFile(f, fname, mode);
 end;
 
-{ Get the size of any file, doesn't matter whether it's a text or binary file.
-  JEFF: return -1 if the file can't be found. }
-{$IFDEF WINDOWS}
-function getFileSize(const fname: astr): int32;
-var
-  FileInfo:WIN32_FIND_DATA;
-  hInfo: THANDLE;
-begin
-  hInfo:= FindFirstFile(pChar(fname),
-          {$ifdef fpc} @FileInfo
-          {$else}       FileInfo {$endif});
-  if ( hInfo <> INVALID_HANDLE_VALUE )
-  then begin
-    // Actually should return an Int64 ( for file size > 2GB )
-    // Should be:
-    //  Result:=( (FileInfo.nFileSizeHigh * (MAXDWORD+1)) + FileInfo.nFileSizeLow );
-    Result:= FileInfo.nFileSizeLow;
-    Windows.FindClose(hInfo);
-  end else Result:= -1
-end;
-
-function getLargeFileSize(const fname: astr): int64;
-var
-  fileInfo:WIN32_FIND_DATA;
-  hInfo: THANDLE;
-begin
-  hInfo:= findFirstFile(pChar(fname),
-          {$ifdef fpc} @FileInfo
-          {$else}       FileInfo {$endif});
-  if (hInfo <> INVALID_HANDLE_VALUE) then begin
-    Result:= int64(fileInfo.nFileSizeHigh) shl int64(32) +    
-             int64(fileInfo.nFileSizeLow);
-    Windows.FindClose(hInfo);
-  end else Result:= -1
-end;
-
-{$ELSE}
-// Unix version:
-function GetFileSize(const fname: astr): int64;
-var
-  FileInfo:TStat;
-begin
-  if ( fpStat(fname,FileInfo) = 0 )
-  then Result:= FileInfo.st_size
-  else Result:= -1;
-end;
-{$ENDIF}
-
 
 { Get Line Count of a file
 
@@ -257,15 +200,15 @@ begin
   close(F); //close file
 end;
 
-{ Loads file into string 
-  Note: do not use for large files over the size of an integer! }
-function StrLoadFile(const fname: astr): astr;
+{ DEPRECATED (use File2Str in pwfileutil)
+  Loads file into string. Do not use for large files of say 2GB }
+function strLoadFile(const fname: astr): astr;
 begin
-  result:= StrLoadFile(fname, GetFileSize(fname));
+  result:= strLoadFile(fname, pwfileutil.getFileSize(fname));
 end;
 
-{ overloaded with ability to specify chunk read size 
-  Todo: large files.. int64 .. see if setlength is compatible }
+{ DEPRECATED (use File2Str in pwfileutil)
+  overloaded with ability to specify chunk read size  }
 function StrLoadFile(const fname: astr; chunksz: int32): astr; 
 var F: file;
     curRead: int32;  
@@ -289,64 +232,8 @@ begin
   closeFile(F);
 end;
 
-{ returns -1 if problem, else total bytes of file and a buffer in OUT param }
-function file2buf(const fname:astr; chunksz:int32; out buf:TByteArray): int32; 
-var F: file;
-    curRead: int32; // currently read
-    totalread: int32;
-begin
-  result:= -1; 
-  totalRead:= 0;
-  setlength(buf, 0);
-  // open file with a record size of 1
-  if openFile(F, fname, 1, fmOpenReadWrite) = false then EXIT;
-  curRead:= 1;
-  // the file will be read as one big chunk
-  while curRead > 0 do begin
-    setlength(buf, length(buf)+chunksz);
-    curRead:= 0;
-    blockread(F, buf[totalread], chunksz, curRead);
-    totalread:= totalRead + curRead;
-  end;
-  setlength(buf, totalRead);
-  result:= totalread;
-  closefile(F);
-end;
-
-{ overloaded with default chunk size }
-function file2buf(const fname: astr; out buf: TByteArray): int32; 
-begin
-  result:= File2Buf(fname, DEFAULT_CHUNK_SIZE, buf); 
-end;
-
-{ loads file into a string returns -1 in OUT param if problem }
-function File2Str(const fname: astr; chunksz: int64; out err: int32): astr; 
-var buf: TByteArray;
-begin
-  result:= '';
-  err:= File2Buf(fname, chunksz, buf);
-  if err > 0 then begin
-    setlength(result, length(buf));
-    result:= astr(TCharArray(buf));
-  end;
-end;
-
-{ overloaded with default chunk size used }
-function File2Str(const fname: astr; out err: int32): astr; 
-begin
-  result:=  File2Str(fname, DEFAULT_CHUNK_SIZE, err); 
-end;
-
-{ loads file into a string returns -1NF if error }
-function File2Str(const fname: astr): astr; 
-var err: int32;
-begin
-  result:= File2Str(fname, err);
-  if err < 0 then result:= FILE_ERR;
-end;
-
-
-{ save a string directly to a file }
+{ save a string directly to a file 
+  TODO: int64 sized files }
 function StrSaveFile(const fname, InputStr: astr): boo; overload;
 var F: file;
     OutputFileSize: int32;

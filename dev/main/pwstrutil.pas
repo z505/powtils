@@ -134,17 +134,31 @@ function AdjustLineBreaks(const S: string): string; overload;
 function AdjustLineBreaks(const S: string; Style: TTextLineBreakStyle): string; overload;
 function IsValidIdent(const Ident: string): boolean;
 
+function s2i(const s: string): integer;
+function strToInt(const s: string): integer;
+
 function i2s(value: integer): string; overload;
 function i2s(value: int64): string; overload;
-
-function IntToStr(value: integer): string; overload;
-function IntToStr(value: int64): string; overload;
+function intToStr(value: integer): string; overload;
+function intToStr(value: int64): string; overload;
 {$IFDEF FPC}
-  function IntToStr(value: QWord): string; overload;
+  function intToStr(value: QWord): string; overload;
 {$ENDIF}
 
 implementation
 
+function StrToInt(const s: string): integer;
+var error: word;
+begin
+  val(S, result, Error);
+  if error <> 0 then result:= 0;
+end;
+
+{ alias }
+function s2i(const s: string): integer;
+begin
+  result:= strToInt(s);
+end;
 
 {$IFNDEF FPC}
 function strlen(p: pchar): longint;
