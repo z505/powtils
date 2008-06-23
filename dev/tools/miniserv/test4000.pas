@@ -2,33 +2,31 @@
 
 {$mode objfpc}{$H+} {$unitpath ../../main}
 
-uses baseunix, unix, sockets, utils, pwstrutil;
+uses baseunix, unix, sockets, utils, pwstrutil, crt;
 
 var sock1: longint;
     saddr: TInetSockAddr;
 
 const SERVER_IP = '192.168.0.40';
 
-procedure endSock;
-begin
-  if sock1 > 0 then begin
-    shutdown(sock1, 2);
-    closesocket(sock1);
-  end;
+procedure cleanupHalt;
+begin endSock(sock1); dashes; HALT;
 end;
 
 procedure checkErrorCleanHalt;
-begin if checkError then begin endSock; Halt; end;
+begin if checkError then cleanupHalt; 
 end;
 
 procedure process(asock: longint);
-var f: text;
-    cmd: string;
+var f: text; cmd: string; procid, closed: longint;
 begin
-  cmd:= './req '+ i2s(asock) + ' &';
-  popen(f, cmd,'R');
+  cmd:= './req '+ i2s(asock) {+ ' &'};
+  // procid:=  popen(f, cmd,'R');
+  // note('PROCESS: ', procid);
+  shell(cmd);
   if fpgeterrno <> 0 then writeln ('Error from POpen:: ', fpgeterrno);
-  pclose(f);
+  // closed:= pclose(f);
+  // note('CLOSED PROCESS RESULT: '+ i2s(closed));
 end;
 
 procedure serv; 
@@ -42,16 +40,17 @@ begin
   if (asock < 1) then writeln('DEBUG: ASOCK: ', asock);
   note('Accept...');
   process(asock);
-  closesocket(asock);
+  closeSocket(asock);
 end;
 
-type tproc = procedure;
-
-procedure loop(proc: tproc); 
+procedure loop; 
 var done: boolean = false;
+    line: string[10];
 begin 
   while not done do begin
-    proc;
+    if keypressed then readln(line);
+    if line = 'q' then cleanupHalt;
+    serv;
     //case i of 
     //  50,100,500,1000,1500,2000,2500: writeln('COUNTER: ', i); 
     //end;
@@ -87,7 +86,6 @@ begin
   dashes;
   writeln('Miniserv 0.0.1');  
   startSock;
-  loop(@serv);        
-  endSock;
-  dashes;
+  loop;        
+  cleanupHalt;
 end.
