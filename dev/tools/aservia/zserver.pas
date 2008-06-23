@@ -1,7 +1,7 @@
 { Alexander N Zubakov  All Rights Reserved
+  Modified March 2008 by Lars Olson. Aservia (web server). Based on nYume 
+  License: see aservia license in docs/License.html }  
 
-  Modified March 2008 by Lars Olson. Aservia (web server).
-  Based on nYume Server }
 unit zserver; {$ifdef fpc}{$mode delphi}{$H+}{$endif}{$R+}
 interface
 uses
@@ -13,7 +13,7 @@ type
   TzServer = class(TObject)
   private
     sAddr     : TINetSockAddr;
-    mainSocket: int32;
+    mainsock: int32;
     conn  : array of int32;
     ip    : array of astr;
     ccount: int32;
@@ -35,11 +35,12 @@ implementation
 uses
   {$ifdef unix}baseunix, unix,{$endif}
   {$ifdef windows}windows,{$endif}
-  pwstrutil;
+  pwstrutil, servutil;
+
 
 function TzServer.TryBind: boo;
 begin
-  result:= bind(MainSocket, saddr, SizeOf(saddr));
+  result:= bind(mainsock, saddr, SizeOf(saddr));
 end;
 
 constructor TzServer.Create;
@@ -53,22 +54,22 @@ end;
 function TzServer.InitConnection(const ip: astr; port: word): boo;
 begin
   result:= false;
-  mainsocket := Socket(AF_INET, SOCK_STREAM, 0);
+  mainsock := Socket(AF_INET, SOCK_STREAM, 0);
   sAddr.family := AF_INET;
   sAddr.port   := Htons(port);
   sAddr.addr   := Longword(StrToNetAddr(ip));
-  if TryBind then result:= Listen(mainSocket, MAX_CONNECTIONS); 
+  if TryBind then result:= Listen(mainsock, MAX_CONNECTIONS); 
 end;
 
 function TzServer.Connect;
 var sock     : int32;
     sAddrSize: int32;
 begin
-  sAddrSize := sizeOf(sAddr);
-  sock:= Accept(mainSocket, sAddr, sAddrSize);
-  if sock <> -1 then begin
-    inc(ccount); setlength(conn, ccount); setlength(ip, ccount);
-    ip[ccount-1] := netAddrToStr(in_addr(sAddr.addr));
+  sAddrSize := sizeof(sAddr);
+  sock:= Accept(mainsock, sAddr, sAddrSize);
+  if sock > 0 then begin
+    inc(ccount); Setlength(conn, ccount); Setlength(ip, ccount);
+    ip[ccount-1] := NetAddrToStr(in_addr(sAddr.addr));
     conn[ccount-1] := sock; 
     csock:= sock;
   end;
@@ -76,19 +77,28 @@ begin
 end;
 
 procedure TzServer.Disconnect;
-begin if socket_index < ccount then CloseSocket(conn[socket_index]);
+begin 
+  if socket_index < ccount then begin
+    if conn[socket_index] > 0 then CloseSocket(conn[socket_index]);
+  end;
 end;
   
 procedure TzServer.Stop;
 var i: cardinal;
 begin
-  if ccount > 0 then for i:= 0 to ccount-1 do CloseSocket(conn[i]);
-  Shutdown(mainsocket, 2);
-  CloseSocket(mainsocket);
+  if ccount > 0 then for i:= 0 to ccount-1 do begin
+    if conn[i] > 0 then CloseSocket(conn[i]);
+  end;
+  Shutdown(mainsock, 2);
+  CloseSocket(mainsock);
 end;
 
 procedure TzServer.Select;
-begin if socket_index < ccount then csock := conn[socket_index];
+begin 
+  if (socket_index < ccount) and (socket_index >= 0) then 
+    csock := conn[socket_index]
+  else
+    Errln('Socket index out of bounds!');
 end;
 
 function TzServer.GetIp;

@@ -1,5 +1,7 @@
+{ Alexander N Zubakov  All Rights Reserved
+  Modified March 2008 by Lars Olson. Aservia (web server). Based on nYume 
+  License: see aservia license in docs/License.html }
 
-{ Modified March 2008 by Lars Olson. Aservia (web server). Based on nYume }
 program aservia; 
 {$ifdef fpc}{$mode objfpc}{$H+}{$endif} 
 {$R+}
@@ -7,15 +9,12 @@ program aservia;
 uses
   {$ifdef unix}cthreads, baseunix, unix,{$endif} 
   {$ifdef windows}windows,{$endif}
-  zserver, cfgfile, pwfileutil, pwstrutil, pwtypes, strwrap1, shell;
+  zserver, cfgfile, pwfileutil, pwstrutil, pwtypes, strwrap1, shell, servutil;
 
 {$include lang.inc}
 
 // Turn these on for more verbose reporting
 // TODO: put in a config file instead
-const LOG_ON = false;
-      MESSAGES_ON = false;   
-      DEBUG_ON = false;   
 
 // NOTE: MUST BE HTTP/1.0 - DOESN'T SUPPORT 1.1 CHUNK ENCODING, ETC.
 const
@@ -48,26 +47,6 @@ var
   gBlacklist: array of astr;
   gNeedStopServer: boo;
 
-{$ifdef dbug} { debugging to console }
- procedure Dbugln(s: astr);   begin if DEBUG_ON then writeln('DEBUG: ', s); end;
- procedure Dbugln(s1,s2:astr);begin dbugln(s1+s2); end;
-{$endif}
-
-procedure Logln(var t:text; s:astr); begin if LOG_ON then writeln(t, s); end;
-procedure Logln(var t: text); begin logln(t, ''); end;
-
-{ write a line to console if messages on }
-procedure Msgln(s1: astr);          begin if MESSAGES_ON then writeln(s1); end;
-procedure Msgln(s1,s2: astr);       begin msgln(s1+s2); end;
-procedure Msgln(s1,s2,s3: astr);    begin msgln(s1+s2+s3); end;
-procedure Msgln(s1:astr; i:int32);  begin msgln(s1+i2s(i)); end;
-
-{ write a note even if MESSAGES_ON is off }
-procedure Noteln(s1: astr);            begin  writeln(s1); end;
-procedure Noteln(s1,s2: astr);         begin  writeln(s1,s2); end;
-procedure Noteln(s1,s2,s3: astr);      begin  writeln(s1,s2,s3); end;
-procedure Noteln(s1,s2,s3,s4: astr);   begin  writeln(s1,s2,s3,s4); end;
-
 procedure DeleteTrailingHttpVersion(var s: astr);
 var found: int32;
 
@@ -95,6 +74,9 @@ begin
   until gNeedStopServer;
   Noteln(str_close);
   gServer.Stop;
+  Sleep(2000);
+  Writeln('Stopped server. Hit enter to exit...');
+  Readln;
   result:= 0;
 end;
   
@@ -391,16 +373,6 @@ begin
     Sleep(THREAD_LOOP_SLEEP); 
   until gNeedStopServer;
   DoneCriticalSection(gCritical);
-end;
-
-procedure ErrLn(const msg: astr); 
-begin 
-  Writeln('E: ',msg);
-end;
-
-procedure ErrLn; 
-begin 
-  ErrLn('');
 end;
 
 procedure CreateCfgAndServer;
