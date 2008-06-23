@@ -1,13 +1,13 @@
-{ Modified March 2008 by Lars Olson. Aservia (web server). Based on nYume }
 
+{ Modified March 2008 by Lars Olson. Aservia (web server). Based on nYume }
 program aservia; 
-{$ifdef fpc}{$mode objfpc}{$H+}{$UNITPATH ../../main/}{$endif} 
+{$ifdef fpc}{$mode objfpc}{$H+}{$endif} 
 {$R+}
 
 uses
   {$ifdef unix}cthreads, baseunix, unix,{$endif} 
   {$ifdef windows}windows,{$endif}
-  zserver, cfgfile, pwfileutil, pwstrutil, pwtypes, shell;
+  zserver, cfgfile, pwfileutil, pwstrutil, pwtypes, strwrap1, shell;
 
 {$include lang.inc}
 
@@ -49,58 +49,58 @@ var
   gNeedStopServer: boo;
 
 {$ifdef dbug} { debugging to console }
- procedure dbugln(s: astr);   begin if DEBUG_ON then writeln('DEBUG: ', s); end;
- procedure dbugln(s1,s2:astr);begin dbugln(s1+s2); end;
+ procedure Dbugln(s: astr);   begin if DEBUG_ON then writeln('DEBUG: ', s); end;
+ procedure Dbugln(s1,s2:astr);begin dbugln(s1+s2); end;
 {$endif}
 
-procedure logln(var t:text; s:astr); begin if LOG_ON then writeln(t, s); end;
-procedure logln(var t: text); begin logln(t, ''); end;
+procedure Logln(var t:text; s:astr); begin if LOG_ON then writeln(t, s); end;
+procedure Logln(var t: text); begin logln(t, ''); end;
 
 { write a line to console if messages on }
-procedure msgln(s1: astr);          begin if MESSAGES_ON then writeln(s1); end;
-procedure msgln(s1,s2: astr);       begin msgln(s1+s2); end;
-procedure msgln(s1,s2,s3: astr);    begin msgln(s1+s2+s3); end;
-procedure msgln(s1:astr; i:int32);  begin msgln(s1+i2s(i)); end;
+procedure Msgln(s1: astr);          begin if MESSAGES_ON then writeln(s1); end;
+procedure Msgln(s1,s2: astr);       begin msgln(s1+s2); end;
+procedure Msgln(s1,s2,s3: astr);    begin msgln(s1+s2+s3); end;
+procedure Msgln(s1:astr; i:int32);  begin msgln(s1+i2s(i)); end;
 
 { write a note even if MESSAGES_ON is off }
-procedure noteln(s1: astr);            begin  writeln(s1); end;
-procedure noteln(s1,s2: astr);         begin  writeln(s1,s2); end;
-procedure noteln(s1,s2,s3: astr);      begin  writeln(s1,s2,s3); end;
-procedure noteln(s1,s2,s3,s4: astr);   begin  writeln(s1,s2,s3,s4); end;
+procedure Noteln(s1: astr);            begin  writeln(s1); end;
+procedure Noteln(s1,s2: astr);         begin  writeln(s1,s2); end;
+procedure Noteln(s1,s2,s3: astr);      begin  writeln(s1,s2,s3); end;
+procedure Noteln(s1,s2,s3,s4: astr);   begin  writeln(s1,s2,s3,s4); end;
 
 procedure DeleteTrailingHttpVersion(var s: astr);
 var found: int32;
 
-  procedure removestr;
+  procedure Removestr;
   begin if found > 0 then delete(s, found, (length(s)-found) +1);  
   end;
 
 begin
   found:= pos(' HTTP/1.', s);
-  removestr;
+  Removestr;
   found:= pos(' HTTP/2.', s);   // future proof 
-  removestr;
+  Removestr;
   found:= pos(' HTTP/3.', s);   // future proof 
-  removestr;
+  Removestr;
 end;
 
 { user commands to stop server with keyboard at console }
-function needStop(p: pointer): int32;
+function NeedStop(p: pointer): int32;
 var s: astr = '';
 begin
   repeat
-    readln(s);
+    Readln(s);
     if (s = 'q') or (s = 'quit') then gNeedStopServer:= true;
-    sleep(800);
+    Sleep(800);
   until gNeedStopServer;
-  noteln(str_close);
-  gServer.stop;
+  Noteln(str_close);
+  gServer.Stop;
   result:= 0;
 end;
   
-function parceRequest(req: astr): astr;
+function ParceRequest(req: astr): astr;
   { wrapper for pos() }
-  function found(sub, instr: astr): boo;
+  function Found(sub, instr: astr): boo;
   begin
     result:= false;
     if pos(sub, instr) <> 0 then result:= true;
@@ -112,69 +112,69 @@ var
   i: int32;
 begin
   result := '';
-  setLength(strings, 0);
+  SetLength(strings, 0);
   i:= pos(#13#10, req);
   while i <> 0 do begin
-    setLength(strings, length(strings) + 1);
-    strings[length(strings) - 1] := copy(req, 1, i - 1);
-    delete(req, 1, i+1);
-    i:= pos(#13#10, req);
+    SetLength(strings, length(strings) + 1);
+    strings[length(strings) - 1] := Copy(req, 1, i - 1);
+    Delete(req, 1, i+1);
+    i:= Pos(#13#10, req);
   end;
 
   if length(strings) > 0 then
   for i:= 0 to length(strings) - 1 do
   begin
-    if found('GET ', strings[i]) then begin
+    if Found('GET ', strings[i]) then begin
       result:= strings[i];
       // trim first 'GET ' part
-      delete(result, 1, 4);
-      addenv(REQ_METHOD, 'GET');
+      Delete(result, 1, 4);
+      Addenv(REQ_METHOD, 'GET');
     end
-    else if found('POST ', strings[i]) then
+    else if Found('POST ', strings[i]) then
     begin
       result:= strings[i];
       // trim first 'POST ' part
-      delete(result, 1, 5);
+      Delete(result, 1, 5);
       gFileDir := '';
-      postd := copy(req, pos(#13#10#13#10, req), length(req));
+      postd := Copy(req, pos(#13#10#13#10, req), Length(req));
       postd := StringReplace(postd, '&', ';', [rfReplaceAll]);
       {$ifdef mswindows}postd := StringReplace(postd, '%', '%%', [rfReplaceAll]);{$endif}
-      addenv(QUERY_STRING, postd);
-      addenv(REQ_METHOD, 'POST');
-    end else if found('User-Agent:', strings[i]) then begin
-      delete(strings[i], 1, 12);
-      addEnv('HTTP_USER_AGENT', strings[i]);
+      Addenv(QUERY_STRING, postd);
+      Addenv(REQ_METHOD, 'POST');
+    end else if Found('User-Agent:', strings[i]) then begin
+      Delete(strings[i], 1, 12);
+      AddEnv('HTTP_USER_AGENT', strings[i]);
     end else if found('Host:', strings[i]) then begin
-      delete(strings[i], 1, 6);
+      Delete(strings[i], 1, 6);
       if pos(':', strings[i]) <> 0 then
         strings[i] := copy(strings[i], 1, pos(':', strings[i]) - 1);
-      addEnv('HTTP_HOST', strings[i]);
+      Addenv('HTTP_HOST', strings[i]);
       gFileDir := strings[i];
     end else if found('Referer:', strings[i]) then begin
       delete(strings[i], 1, 9);
-      addEnv('HTTP_REFERER', strings[i]);
+      Addenv('HTTP_REFERER', strings[i]);
     end;
   end;
 
-  deleteTrailingHttpVersion(result);
+  DeleteTrailingHttpVersion(result);
   if (result = '') or (result[length(result)] = '/') then result += gIdxPg;
 end;
   
-function getType(fname: astr): astr;
+function GetType(fname: astr): astr;
 var ext, def: astr;
 begin
   def:= gMimeCfg.getOpt('default', 'application/force-download');;
   ext:= lowerCase(ExtractFileExt(fname));
   delete(ext, 1, 1);
-  result := gMimeCfg.getOpt(ext, def);
+  result:= gMimeCfg.getOpt(ext, def);
 end;
 
+(* old nYume based code
 function getFile(fname:astr; errcode:astr = '200 OK'; query:astr = ''): astr;
-var
-  F: file;
-  count: int32;
-  buf, filetype: astr;
-  parameters: astr = '';
+var F: file;
+    count: int32;
+    buf, filetype: astr;
+    parameters: astr = '';
 begin
   filetype := gettype(fname);
   if filetype <> 'execute/cgi' then
@@ -192,7 +192,7 @@ begin
              #13#10;
     while not eof(F) do begin
       blockRead(F, pointer(buf)^, 4096, count);
-      if count < 4096 then buf := copy(buf, 1, count);
+      if count < 4096 then buf:= copy(buf, 1, count);
       result += buf;
     end;  
     close(F);
@@ -207,6 +207,42 @@ begin
     parameters := StringReplace(parameters, '&', ';', [rfReplaceAll]);
     result := HTTP_VERSION+' '+errcode+#13#10 
               + command(fname + ' "' + parameters + '"');
+  end;
+end;  
+*)
+
+function GetFile(fname:astr; errcode:astr = '200 OK'; query:astr = ''): astr;
+var count: int32;
+    fstring, filetype: astr;
+    fstringsz: int32;
+    parameters: astr = '';
+begin
+  result := '';
+  filetype := getType(fname);
+  if filetype <> 'execute/cgi' then
+  begin
+    fstring:= File2str(fname);
+    fstringsz:= Length(fstring);
+    result:= HTTP_VERSION+' ' + errcode + #13#10 + 
+             str_server + #13#10 +
+            'MIME-version: 1.0'#13#10 +
+            'Allow: GET, POST'#13#10 +
+            'Content-type: ' + filetype + #13#10 +
+            'Content-length: ' + i2s(fstringsz) + #13#10 + 
+             #13#10;
+    result:= result + fstring;
+  end else 
+  begin
+    if query <> '' then begin
+      count := pos('?', query);
+      if count > 0 then parameters := copy(query, count + 1, length(query));
+    end;
+   {$ifdef mswindows}
+    parameters := StringReplace(parameters, '%', '%%', [rfReplaceAll]);
+   {$endif}
+    parameters := StringReplace(parameters, '&', ';', [rfReplaceAll]);
+    result := HTTP_VERSION+' '+errcode+#13#10 
+              + Command(fname + ' "' + parameters + '"');
   end;
 end;  
 
@@ -224,114 +260,114 @@ var
   deny: boo = false;
   str1: astr = '';
 
-  procedure log;
+  procedure Log;
   begin
     if not LOG_ON then exit;
    {$I-}
     Assign(gLog, gLogFname); Append(gLog); 
     if IOResult <> 0 then Rewrite(gLog);
-    logln(gLog, str_requestfrom+gIp+'; '{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
-    logln(gLog, str1);
-    if deny then logln(gLog, str_denied);
-    close(gLog);
+    Logln(gLog, str_requestfrom+gIp+'; '{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
+    Logln(gLog, str1);
+    if deny then Logln(gLog, str_denied);
+    Close(gLog);
    {$I+}
   end;
 
-var fname, name, gIp: astr;
+var fname, name, ip: astr;
     i, data: int32;
 begin
   // incoming pointer converted to strong type
   data:= int32(p^);
   enterCriticalSection(gCritical);
   try
-    clearEnv;
-    gServer.select(data);
+    ClearEnv;
+    gServer.Select(data);
     str1:= gServer.sRead;
-    msgln(str_request{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
-    msgln(str1);
-    gIp:= gServer.getIp(data);
-    addEnv(REMOTE_ADDR, gIp);
-    addEnv(SERV_SOFT, str_server);
+    Msgln(str_request{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
+    Msgln(str1);
+    ip:= gServer.GetIp(data);
+    AddEnv(REMOTE_ADDR, ip);
+    AddEnv(SERV_SOFT, str_server);
     i:= 0;
-    while (not deny) and (i < length(gBlacklist)) do begin
-      if gIp = gBlacklist[i] then begin 
+    while (not deny) and (i < Length(gBlacklist)) do begin
+      if ip = gBlacklist[i] then begin 
         deny:= true; 
-        msgln(str_denied); 
+        Msgln(str_denied); 
       end;
       inc(i);
     end;
-    {$ifdef dbug}dbugln('Checked blacklist');{$endif}
-    if deny then gServer.sWrite(getFile(gError403, ERR_403_MSG)) 
+    {$ifdef dbug}Dbugln('Checked blacklist');{$endif}
+    if deny then gServer.sWrite(GetFile(gError403, ERR_403_MSG)) 
     else
     if str1 <> '' then
     begin
-      fname := parceRequest(str1);
-      if (gFileDir = '') or (gFileDir = gIp) then 
-        gFileDir:= gVhostCfg.getOpt('default', '')
+      fname := ParceRequest(str1);
+      if (gFileDir = '') or (gFileDir = ip) then 
+        gFileDir:= gVhostCfg.GetOpt('default', '')
       else begin
-        gFileDir:= gVhostCfg.getOpt(gFileDir, gVhostCfg.getOpt('default', ''));
-        gFileDir:= excludeTrailingPathDelimiter(gFileDir);
+        gFileDir:= gVhostCfg.GetOpt(gFileDir, gVhostCfg.getOpt('default', ''));
+        gFileDir:= ExcludeTrailingPathDelimiter(gFileDir);
       end;
-      addEnv(DOC_ROOT, gFileDir);
+      AddEnv(DOC_ROOT, gFileDir);
       name:= fname;
       if pos('?',fname) > 0 then name:= copy(fname,1,pos('?',fname) - 1);
       path:= gFileDir + name; 
-      xpath(path);
-      if (not fileThere(path)) and dirExists(path) then name:= name+'/'+gIdxPg;
-      addEnv(SCRIPT_NAME, name);
+      Xpath(path);
+      if (not FileThere(path)) and DirExists(path) then name:= name+'/'+gIdxPg;
+      AddEnv(SCRIPT_NAME, name);
       path:= gFileDir + name;
       xpath(path); // cross platform slashes
       if FileThere(path) then begin
         if SlashDots then begin
-          gServer.sWrite(getFile(gError403, ERR_403_MSG));
+          gServer.sWrite(GetFile(gError403, ERR_403_MSG));
           deny:= true;
         end else 
-          gServer.sWrite(getFile(path, '200 OK', fname))
+          gServer.sWrite(GetFile(path, '200 OK', fname))
+
       end else begin
-        gServer.sWrite(getFile(gError404, ERR_404_MSG));
+        gServer.sWrite(GetFile(gError404, ERR_404_MSG));
       end;
     end;
     {$ifdef dbug}dbugln('Before log() procedure');{$endif}
     log;
-
   finally
     {$ifdef dbug}dbugln('Disconnecting: '+i2s(data));{$endif}
-    gServer.disconnect(data);
-    leaveCriticalSection(gCritical); 
+    gServer.Disconnect(data);
+    LeaveCriticalSection(gCritical); 
     {$ifdef dbug}dbugln('Left Critical Section');{$endif}
   end;
   result:= 0;
   {$ifdef dbug}dbugln('Ending thread');{$endif}
   // IF ENDTHREAD IS NOT PLACED HERE, THEN LINUX KEEPS OPENING THREADS TO A 
   // MAXIMUM OF 380 AND CAUSES A CONTINUAL LEAKAGE
-  endThread;
+  EndThread;
 end;
 
 procedure setupLog;
 begin
   if not LOG_ON then exit;
  {$I-}
-  assign(gLog, gLogFname);
-  if not gNewLog then append(gLog);
-  if gNewLog or (IOResult <> 0) then rewrite(gLog);
-  logln(gLog, str_server+#13#10);
-  logln(gLog, str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
-  logln(gLog, str_socket+gIp+':'+i2s(gPort));
-  logln(gLog);  
-  close(gLog);
+  Assign(gLog, gLogFname);
+  if not gNewLog then Append(gLog);
+  if gNewLog or (IOResult <> 0) then Rewrite(gLog);
+  Logln(gLog, str_server+#13#10);
+  Logln(gLog, str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
+  Logln(gLog, str_socket+gIp+':'+i2s(gPort));
+  Logln(gLog);  
+  Close(gLog);
  {$I+}
 end;
 
 { start thread to detect keyboard q/quit at console }
-procedure beginNeedStopThread;
+procedure BeginNeedStopThread;
 var id: TThreadId; 
 begin 
-  id:= beginThread(@needStop); { UNIX and WIN return different results (fpc bug) }       // id:= BeginThread(nil,DefaultStackSize,@needStop,nil,0,dummy);
-  {$ifdef dbug}dbugln('(needStopThread) beginThread Result#: '+i2s(id));{$endif}               
+  id:= BeginThread(@needStop); { UNIX and WIN return different results (fpc bug) }       // id:= BeginThread(nil,DefaultStackSize,@needStop,nil,0,dummy);
+  {$ifdef dbug}Dbugln('(needStopThread) beginThread Result#: '+i2s(id));{$endif}               
 end;
 
 { start connection threads }
-procedure beginRequestThread;
+procedure BeginRequestThread;
 var id: TTHreadId; 
 begin 
   id:= beginThread(@request, @gHandle);{ UNIX and WIN return different results (fpc bug)} // id:= BeginThread(,DefaultStackSize,@request,,0,dummy);
@@ -339,56 +375,58 @@ begin
 end;
 
 { main server connections loop for all requests }
-procedure runThreadLoop;
+procedure RunThreadLoop;
 begin
-  beginNeedStopThread;
-  initCriticalSection(gCritical);
+  BeginNeedStopThread;
+  InitCriticalSection(gCritical);
   repeat
-    msgln(str_wait);
+    Msgln(str_wait);
     gHandle:= gServer.connect;
     if (not gNeedStopServer) and (gHandle >= 0) then begin
-      msgln(str_connection);
-      beginRequestThread;
+      Msgln(str_connection);
+      BeginRequestThread;
     end else begin
-      {$ifdef dbug}dbugln('runThreadLoop Handle: '+i2s(gHandle));{$endif}
+      {$ifdef dbug}Dbugln('runThreadLoop Handle: '+i2s(gHandle));{$endif}
     end;
-    sleep(THREAD_LOOP_SLEEP); 
+    Sleep(THREAD_LOOP_SLEEP); 
   until gNeedStopServer;
-  doneCriticalSection(gCritical);
+  DoneCriticalSection(gCritical);
 end;
 
-procedure errLn(const msg: astr); 
-begin writeln('E: ',msg);
+procedure ErrLn(const msg: astr); 
+begin 
+  Writeln('E: ',msg);
 end;
 
-procedure errLn; 
-begin errLn('');
+procedure ErrLn; 
+begin 
+  ErrLn('');
 end;
 
-procedure createCfgAndServer;
+procedure CreateCfgAndServer;
   { retreive configuration file info, or use defaults if not avail }
   procedure GetMainCfg;
   var othercfg: TCfgFile;
   begin
-    othercfg:= TCfgFile.create('config.cfg');
-      gIp      := othercfg.getOpt('ip','127.0.0.1');
-      gPort    := othercfg.getOpt('port',80);
-      gNewLog  := othercfg.getOpt('deletelog',false);
-      gLogFname:= othercfg.getOpt('logfile','connections.log');
-      gIdxPg   := othercfg.getOpt('index','index.html');
-      gError404:= othercfg.getOpt('error404','error404.html');
-      gError403 := othercfg.getOpt('error403','error403.html');
+    othercfg:= TCfgFile.Create('config.cfg');
+      gIp      := othercfg.GetOpt('ip','127.0.0.1');
+      gPort    := othercfg.GetOpt('port',80);
+      gNewLog  := othercfg.GetOpt('deletelog',false);
+      gLogFname:= othercfg.GetOpt('logfile','connections.log');
+      gIdxPg   := othercfg.GetOpt('index','index.html');
+      gError404:= othercfg.GetOpt('error404','error404.html');
+      gError403 := othercfg.GetOpt('error403','error403.html');
     othercfg.free; othercfg:= nil;
 
-    othercfg:= TCfgFile.create('blacklist.cfg');
-      gBlacklist:= othercfg.getAllOpts;
+    othercfg:= TCfgFile.Create('blacklist.cfg');
+      gBlacklist:= othercfg.GetAllOpts;
     othercfg.free; othercfg:= nil;
   end;
 
 begin
-  getMainCfg;
-  gMimeCfg:= TCfgFile.create('mime.cfg');
-  gVhostCfg:= TCfgFile.create('vhost.cfg');
+  GetMainCfg;
+  gMimeCfg:= TCfgFile.Create('mime.cfg');
+  gVhostCfg:= TCfgFile.Create('vhost.cfg');
   gServer:= TzServer.Create;
 end;
 
@@ -402,22 +440,22 @@ end;
 
 procedure errCantConnect;
 begin
-  errLn;
-  errLn('Can''t connect to address or port.');
-  errLn('The ip:port you are using is '+gIp+':'+inttostr(gPort));
-  errLn('Tip: make sure another server is not running.');
-  errLn('Error # '+ {$ifdef windows}inttostr(GetLastError){$endif}
+  Errln;
+  Errln('Can''t connect to address or port.');
+  Errln('The ip:port you are using is '+gIp+':'+inttostr(gPort));
+  Errln('Tip: make sure another server is not running.');
+  Errln('Error # '+ {$ifdef windows}inttostr(GetLastError){$endif}
                     {$ifdef unix}inttostr(fpGetErrNo){$endif}
   ); 
   { Ugly inline ifdef above due to FPC bug, can't wrap in another func with 
     fpc 2.2.0. See http://bugs.freepascal.org/view.php?id=10205 }
 
   // cleanup, then kill server
-  freeCfgAndServer; HALT;
+  FreeCfgAndServer; HALT;
 end;
 
 { initiates logs, runs thread loop }
-procedure runServer;
+procedure RunServer;
 var inited: boo = false;
   // initialize connection to socket 
   procedure TryInit;
@@ -425,34 +463,35 @@ var inited: boo = false;
   begin
     while not inited do 
     begin
-      inited:= gServer.initConnection(gIp, gPort);
-      inc(count); if count > MAX then errCantConnect;
+      inited:= gServer.InitConnection(gIp, gPort);
+      inc(count); if count > MAX then ErrCantConnect;
       // port may be busy for a few seconds if apache or other server closing
       if not inited then begin
-        noteln('Connection not initialized. Trying again in 5 seconds!');
-        noteln('Wait...(attempt '+i2s(count)+' of '+i2s(MAX)+')');
-        sleep(5000);
+        Noteln('Connection not initialized. Trying again in 5 seconds!');
+        Noteln('Wait...(attempt '+i2s(count)+' of '+i2s(MAX)+')');
+        Sleep(5000);
       end;
     end;
   end;
 
 begin
-  noteln(str_server);
-  noteln(str_qcom, #13#10);
-  noteln(str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
-  createCfgAndServer;
+  Noteln(str_server);
+  Noteln(str_qcom, #13#10);
+  Noteln(str_runserver{, DateTimeToStr(Date), ', ', TimeToStr(Time)});
+  CreateCfgAndServer;
   TryInit;
-  if inited then noteln(str_connect_success);
-  noteln(str_socket, gIp, ':', i2s(gPort));
-  setupLog;
-  runThreadLoop;
-  freeCfgAndServer;
+  if inited then Noteln(str_connect_success);
+  Noteln(str_socket, gIp, ':', i2s(gPort));
+  SetupLog;
+  RunThreadLoop;
+  FreeCfgAndServer;
 end;
 
 
 ///////////////////////////////////////////////////////////////////////////////
 begin
+  system.isMultiThread:= true;
   gNeedStopServer:= false;
-  runServer;
+  RunServer;
 end.
 ///////////////////////////////////////////////////////////////////////////////
