@@ -2,7 +2,7 @@
 
   Modified March 2008 by Lars Olson. Aservia (web server).
   Based on nYume Server }
-unit zserver; {$ifdef fpc}{$mode delphi}{$H+}{$endif}{$UNITPATH ../../main/}{$R+}
+unit zserver; {$ifdef fpc}{$mode delphi}{$H+}{$endif}{$R+}
 interface
 uses
   pwtypes, sockets;
@@ -20,15 +20,15 @@ type
     csock : int32;
     function tryBind: boo;
   public
-    constructor create;
-    function initConnection(const ip: astr; port: word): boo;
-    function  connect: int32;
-    procedure disconnect(socket_index: int32);
-    procedure stop;
+    constructor Create;
+    function InitConnection(const ip: astr; port: word): boo;
+    function  Connect: int32;
+    procedure Disconnect(socket_index: int32);
+    procedure Stop;
     procedure sWrite(s: astr);
     function  sRead: astr;
-    procedure select(socket_index: int32);
-    function getIp(socket_index: int32): astr;
+    procedure Select(socket_index: int32);
+    function GetIp(socket_index: int32): astr;
   end;
 
 implementation
@@ -50,24 +50,24 @@ end;
 
 { User must call this after constructing, to bind IP and Port. 
   Returns false if problem }
-function TzServer.initConnection(const ip: astr; port: word): boo;
+function TzServer.InitConnection(const ip: astr; port: word): boo;
 begin
   result:= false;
-  mainSocket := socket(AF_INET, SOCK_STREAM, 0);
+  mainsocket := Socket(AF_INET, SOCK_STREAM, 0);
   sAddr.family := AF_INET;
-  sAddr.port   := htons(port);
-  sAddr.addr   := longWord(StrToNetAddr(ip));
-  if tryBind then result:= listen(mainSocket, MAX_CONNECTIONS); 
+  sAddr.port   := Htons(port);
+  sAddr.addr   := Longword(StrToNetAddr(ip));
+  if TryBind then result:= Listen(mainSocket, MAX_CONNECTIONS); 
 end;
 
-function TzServer.connect;
+function TzServer.Connect;
 var sock     : int32;
     sAddrSize: int32;
 begin
   sAddrSize := sizeOf(sAddr);
-  sock:= accept(mainSocket, sAddr, sAddrSize);
+  sock:= Accept(mainSocket, sAddr, sAddrSize);
   if sock <> -1 then begin
-    inc(ccount); setLength(conn, ccount); setLength(ip, ccount);
+    inc(ccount); setlength(conn, ccount); setlength(ip, ccount);
     ip[ccount-1] := netAddrToStr(in_addr(sAddr.addr));
     conn[ccount-1] := sock; 
     csock:= sock;
@@ -75,40 +75,59 @@ begin
   result:= ccount - 1;
 end;
 
-procedure TzServer.disconnect;
-begin if socket_index < ccount then closeSocket(conn[socket_index]);
+procedure TzServer.Disconnect;
+begin if socket_index < ccount then CloseSocket(conn[socket_index]);
 end;
   
-procedure TzServer.stop;
+procedure TzServer.Stop;
 var i: cardinal;
 begin
-  if ccount > 0 then for i:= 0 to ccount-1 do closeSocket(conn[i]);
-  shutdown(mainSocket, 2);
-  closeSocket(mainSocket);
+  if ccount > 0 then for i:= 0 to ccount-1 do CloseSocket(conn[i]);
+  Shutdown(mainsocket, 2);
+  CloseSocket(mainsocket);
 end;
 
-procedure TzServer.select;
+procedure TzServer.Select;
 begin if socket_index < ccount then csock := conn[socket_index];
 end;
 
-function TzServer.getIp;
+function TzServer.GetIp;
 begin
   if socket_index < ccount then result := ip[socket_index] else result := '';
 end;
 
+(* old buggy nYume based code
 procedure TzServer.sWrite;
 var i, len: int32;
 begin
   len:= length(s);
   if len < packet_size then i:= len else i:= packet_size;
   while len > 0 do begin
-    send(csock, pointer(s)^, i, 0);
+    send(csock, pchar(s)[0], i, 0);
     delete(s, 1, i);
     len:= len - packet_size;
     if len < packet_size then i:= len;
   end;
 end;
-  
+*)
+
+procedure TzServer.sWrite;
+var i, len: int32;
+begin
+  len:= length(s);
+  if len < packet_size then i:= len else i:= packet_size;
+  { write data in packet_size chunks, until string is emptied to zero }
+  while len > 0 do begin
+    Send(csock, pchar(s)[0], i, 0);
+    Delete(s, 1, i);
+    len:= Length(s);
+    // if smaller than packet size, then send small amount leftover
+    if len < packet_size then i:= len;
+  end;
+end;
+
+
+(* old buggy nYume based code
 function TzServer.sRead;
 var buf  : astr;
     count: int32;
@@ -117,6 +136,21 @@ begin
   count:= recv(csock, pointer(buf)^, packet_size, 0);
   setLength(buf, count);
   result:= buf;
+//  uniqueString(result);  //must call uniquestring or memory leak ! 
+//  buf:= '';
 end;  
+*)
+
+function TzServer.sRead;
+var buf  : array [0..packet_size-1] of char;
+    count: int32;
+begin
+  Fillchar(buf, sizeof(buf), 0);
+  count:= Recv(csock, buf, packet_size, 0);
+  result:= buf;
+  Setlength(result, count);
+end;  
+
+
 
 end.
