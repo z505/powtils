@@ -127,8 +127,6 @@ type
         2 : (Bytes : Array[0..7] of Byte);
    end;
 
-   PByteArray = ^TByteArray;
-   TByteArray = Array[0..32767] of Byte;
 
    PWordarray = ^TWordArray;
    TWordArray = array[0..16383] of Word;

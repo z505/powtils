@@ -157,8 +157,6 @@ var
    {$ENDIF}
   end;
 
-
-
   procedure NativeWrite(Buffer : PChar;  NumChars : Cardinal); overload;
   begin
    {$IFDEF UNIX}

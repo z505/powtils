@@ -1,13 +1,11 @@
-{
-  Authors: FPC RTL, Trustmaster (Vladimir Sibirov), JKP (Jeff Pohlmeyer), 
-           L505 (Lars Olson),
+{ File utilities. Produces compact binaries. No sysutils/classes bloat.
+  Some functions are based on StrWrap1 unit which Lars and Jeff wrote.
+
+  Authors: L505 (Lars Olson), JKP (Jeff Pohlmeyer), Vladimir Sibirov
+
   License: 
-   FPC RTL Modified GPL. 
-   However, any functions stamped with "Vladimir" are Artistic License. Any 
-   functions stamped with "Lars" are NRCOL license (I hate GPL). Any functions 
-   by both Lars & Vladimir are Artistic License. Functions are therefore free
-   software,  similar to dual licensed code with some full public domain.
-   Public domain and artistic license compatible with GPL }
+   NRCOL public domain. However, any include file or uses modules from FPC are 
+   the modified FPC rtl GPL license }
 
 unit pwfileutil;
 
@@ -30,6 +28,8 @@ type TFmode = (fmDefault, fmR, fmRW);
      TFileOfChar = file of char;
 
 const
+  DEFAULT_CHUNK_SIZE  = 8192;  // for functions that BlockRead in chunks
+
   { File open modes }
   fmOpenRead       = $0000;
   fmOpenWrite      = $0001;
@@ -52,6 +52,16 @@ function ExtractFname(const fpath: astr; ext: bln): astr;
 
 function FileThere(const fpath: astr; fm: TFmode): bln; overload;
 function FileThere(const fpath: astr): bln; overload;
+
+function File2bytes(const fname: astr; out buf: TByteRay): int32;  overload;
+function File2bytes(const fname:astr; chunksz:int32; out buf:TByteRay): int32; overload;
+function File2str(const fname:astr; out err:int32): astr; overload;
+function File2str(const fname:astr): astr; overload;
+
+{ TODO str2file
+  function str2file(const s, fname:astr): errcode; overload;
+  function str2file(const s, fname:astr; chunksz: int32): errcode; overload;
+}
 
 function ExtractFilePath(const fname: astr): astr;
 function ExtractFileDir(const fname: astr): astr;
@@ -96,6 +106,8 @@ function FileExists_plain(const fname: astr): bln;
 function FileExists_read(const fname: astr): bln;
 function FileExists_readwrite(const fname: astr): bln;
 
+function GetFileSize(const fname: astr): int32;
+function GetLargeFileSize(const fname: astr): int64;
 
 const DirSeparators : set of char = ['/','\'];
 
@@ -104,8 +116,7 @@ implementation
 uses
   pwsubstr, pwstrutil;
 
-{ Put tests in here to verify this unit works in as many situations as 
-  possible. }
+{ Put tests in here }
 procedure RunTests;
 begin
   writeln('ExtractFilePart results: ', ExtractFilePart('c:\tmp\blah.cool\success.txt'));
@@ -120,7 +131,66 @@ begin
   readln;
 end;
 
+{$IFDEF WINDOWS}
+{ Get the size of any file, doesn't matter whether it's a text or binary file.
+  JEFF: return -1 if the file can't be found. }
+function getFileSize(const fname: astr): int32;
+var
+  FileInfo:WIN32_FIND_DATA;
+  hInfo: THANDLE;
+begin
+  hInfo:= findFirstFile(pChar(fname),
+          {$ifdef fpc} @FileInfo
+          {$else}       FileInfo {$endif});
+  if (hInfo <> INVALID_HANDLE_VALUE)
+  then begin
+    // Actually should return an Int64 ( for file size > 2GB )
+    // Should be:
+    //  Result:=( (FileInfo.nFileSizeHigh * (MAXDWORD+1)) + FileInfo.nFileSizeLow );
+    result:= FileInfo.nFileSizeLow;
+    windows.findClose(hInfo);
+  end else result:= -1
+end;
+
+{ gets file size, up to about 2GB, returns -1 on error }
+function getLargeFileSize(const fname: astr): int64;
+var
+  fileInfo:WIN32_FIND_DATA;
+  hInfo: THANDLE;
+begin
+  hInfo:= findFirstFile(pChar(fname),
+          {$ifdef fpc} @FileInfo
+          {$else}       FileInfo {$endif});
+  if (hInfo <> INVALID_HANDLE_VALUE) then begin
+    result:= int64(fileInfo.nFileSizeHigh) shl int64(32) +    
+             int64(fileInfo.nFileSizeLow);
+    windows.findClose(hInfo);
+  end else result:= -1
+end;
+
+{$ELSE}
+// Unix versions of above
+function getLargeFileSize(const fname: astr): int64;
+var FileInfo:TStat;
+begin
+  if (fpStat(fname,FileInfo) = 0) then result:= FileInfo.st_size
+    else result:= -1;
+end;
+
+function getFileSize(const fname: astr): int32;
+var fsize: int64;
+begin
+  fsize:= GetLargeFileSize(fname);  
+  // error if file too big
+  if fsize > high(int32) then result:= -1 else result:= fsize;
+end;
+
+{$ENDIF}
+
+
+
 {$ifdef windows}
+
   procedure Sleep(milliseconds: Cardinal);
   begin
     windows.sleep(milliseconds);
@@ -132,18 +202,77 @@ end;
   end;
 {$endif}
 
-{  By JKP and L505 (license: public domain) }
-function OpenFile(var F: TFileOfChar; const fname: astr; mode: char): boolean;
+{ returns -1 if problem, else total bytes of file and a buffer in OUT param 
+  License: NRCOL } 
+function file2bytes(const fname:astr; chunksz:int32; out buf:TByteRay): int32; 
+var F: file;
+    curRead: int32; // currently read
+    totalread: int32;
 begin
-  result:= OpenFile(f, fname, mode);
+  result:= -1; 
+  totalRead:= 0;
+  setlength(buf, 0);
+  // open file with a record size of 1
+  if openFile(F, fname, 1, fmOpenRead) = false then EXIT;
+  curRead:= 1;
+  // the file will be read as one big chunk
+  while curRead > 0 do begin
+    setlength(buf, length(buf)+chunksz);
+    curRead:= 0;
+    blockread(F, buf[totalread], chunksz, curRead);
+    totalread:= totalRead + curRead;
+  end;
+  setlength(buf, totalRead);
+  result:= totalread;
+  closefile(F);
+end;
+
+{ overloaded with default chunk size }
+function file2bytes(const fname: astr; out buf: TByteRay): int32; 
+begin
+  result:= file2bytes(fname, DEFAULT_CHUNK_SIZE, buf); 
+end;
+
+{ loads file into a string returns -1 in OUT param if error 
+  License: NRCOL} 
+function file2str(const fname: astr; chunksz: int32; out err: int32): astr; 
+var buf: TByteRay; len: int32;
+begin
+  result:= '';
+  err:= file2bytes(fname, chunksz, buf);
+  if err > 0 then begin
+    len:= length(buf);
+    setlength(result, len);
+    uniquestring(result);
+    move(pchar(buf)[0], pchar(result)[0], len);
+  end;
+end;
+
+{ overloaded with default chunk size used }
+function file2str(const fname: astr; out err: int32): astr; 
+begin
+  result:= file2str(fname, DEFAULT_CHUNK_SIZE, err); 
+end;
+
+{ loads file into a string, returns empty if file not accessible }
+function file2str(const fname: astr): astr; 
+var err: int32;
+begin
+  result:= file2str(fname, err);
+  if err < 0 then result:= '';
+end;
+
+{  By JKP and L505 (license: public domain) }
+function openFile(var F: TFileOfChar; const fname: astr; mode: char): boolean;
+begin
+  result:= openFile(f, fname, mode);
 end;
 
 { Try to open a text file, return true on success.
   The MODE argument must be one of [R]=read, [W]=write, or [A]=append. 
   By JKP and L505 (public domain) }
-function OpenFile(var F: text; const fname: astr; mode: char): boolean;
-var
-  oldFM: byte;
+function openFile(var F: text; const fname: astr; mode: char): boolean;
+var oldFM: byte;
 begin
   if ( mode in ['A', 'R', 'W'] ) then inc(mode, 32); // "mode" to lowercase
   if ( mode in ['a', 'r', 'w'] ) then
@@ -166,7 +295,7 @@ begin
 end;
 
 {  By JKP and L505 (public domain) }
-function OpenFileRead(var F: file; const fname: astr; recsize: integer): boolean;
+function openFileRead(var F: file; const fname: astr; recsize: integer): boolean;
 var oldFM: byte;       
 begin
   oldFM:= filemode;
@@ -180,7 +309,7 @@ begin
   filemode:= oldFM;
 end;
 
-{  By JKP and L505 (public domain) }
+{  By JKP and L505 }
 function OpenFile(var F: file; const fname: astr; recsize: integer; mode: byte): boolean;
 var oldFM: byte;
 begin
@@ -196,7 +325,7 @@ begin
 end;
 
 { tries to open file, forces file to be created if it does not exist 
-  By JKP and L505 (public domain) }
+  By JKP and L505  }
 function OpenFileReWrite(var F: file; const fname: astr; recsize: integer): boolean;
 var oldFM: byte;
 begin
@@ -212,8 +341,8 @@ begin
 end;
 
 { Try to open a file (doesn't have to be text) return false if unsuccessful 
-  By JKP and L505 (public domain) }
-function OpenFile(var F: file; const fname: astr; mode: char): boolean;
+  By JKP and L505  }
+function openFile(var F: file; const fname: astr; mode: char): boolean;
 var oldFM: byte;
 begin
   if ( mode in ['R', 'W'] ) then
@@ -236,398 +365,38 @@ begin
     result:= FALSE; // invalid MODE argument
 end;
 
+{ Copies file from one path to another. Returns less than 1 if a problem }
+function cloneFile(src, dest: astr): integer;
 
-{ Copies file from one path to another. Returns less than 1 if a problem 
-  By Lars (NRCOL) }
-function CloneFile(src, dest: astr): integer;
-type bytearray = array of byte;
+  function saveBuf(const fname: astr; var buf: pointer; sz: integer): integer;
+  var F: file;
+  begin
+    result:= -1; //init
+    if OpenFileRewrite(F, fname, 1) = false then EXIT; // open in write mode
+    BlockWrite(F, Buf^, sz, result);
+    CloseFile(F);
+  end;
+   
+  function loadBuf(const fname: astr; var buf: TByteRay): integer;
+  var F: file; FSize: integer; 
+  begin
+    result:= -1; // init               
+    if openFile(F, fname, 1, fmOpenRead) = false then exit;
+    FSize:= getFileSize(fname);
+    setLength(buf, FSize);
+    blockRead(F, pointer(buf)^, FSize, result);
+    CloseFile(F);
+  end;
 
- function SaveBuf(const fname: astr; var buf: pointer; sz: integer): integer;
- var F: file;
- begin
-   result:= -1; //init
-   if OpenFileRewrite(F, fname, 1) = false then EXIT; // open in write mode
-   BlockWrite(F, Buf^, sz, result);
-   CloseFile(F);
- end;
- 
- function LoadBuf(const fname: astr; var buf: bytearray): integer;
- var F: file; FSize: Integer; 
- begin
-   result:= -1; // init               
-   if OpenFile(F, fname, 1, fmOpenReadWrite) = false then exit;
-   FSize:= FileSize(F);
-   SetLength(buf, FSize);
-   BlockRead(F, pointer(Buf)^, FSize, result);
-   CloseFile(F);
- end;
-
-var buf: bytearray;
+var buf: TByteRay;
 begin
-  result:= LoadBuf(src, buf);
+  result:= loadBuf(src, buf);
   if result < 0 then exit;
-  result:=  SaveBuf(dest, pointer(buf), result);
-end;
-
-{ BEGIN: FROM FPC SYSUTILS }
-
-{$ifdef unix}
-
-  procedure Sleep(milliseconds: Cardinal);
-  var timeout,timeoutresult : TTimespec;
-  begin
-    timeout.tv_sec:=milliseconds div 1000;
-    timeout.tv_nsec:=1000*1000*(milliseconds mod 1000);
-    fpnanosleep(@timeout,@timeoutresult);
-  end;
-
-
-  { TODO: return error as OUT param }
-  function ExecuteProcess(Const Path: astr; Const ComLine: astr):integer;
-  var
-    pid    : longint;
-    CommandLine: astr;
-    cmdline2 : ppchar;
-  //  e      : EOSError;
-  Begin
-    { always surround the name of the application by quotes
-      so that long filenames will always be accepted. But don't
-      do it if there are already double quotes!
-    }
-     cmdline2:=nil;
-     if Comline<>'' Then
-       begin
-         CommandLine:=ComLine;
-         { Make an unique copy because stringtoppchar modifies the string }
-         UniqueString(CommandLine);
-         cmdline2:= StringtoPPChar(CommandLine,1);
-         cmdline2^:= pchar(Path);
-       end
-     else
-       begin
-         getmem(cmdline2,2*sizeof(pchar));
-         cmdline2^:=pchar(Path);
-         cmdline2[1]:=nil;
-       end;
-  //  {$ifdef USE_VFORK}
-  //  pid:=fpvFork;
-  //  {$else USE_VFORK}
-    pid:=fpFork;
-  //  {$endif USE_VFORK}
-    if pid=0 then
-     begin
-     {The child does the actual exec, and then exits}
-  //    {$ifdef FPC_USE_FPEXEC}
-        fpexecv(pchar(Path),Cmdline2);
-  //    {$else}
-  //      Execl(CommandLine);
-  //    {$endif}
-       { If the execve fails, we return an exitvalue of 127, to let it be known}
-       fpExit(127);
-     end
-    else
-     if pid=-1 then         {Fork failed}
-     begin
-  //      e:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,-1]);
-  //      e.ErrorCode:=-1;
-  //      raise e;
-          exit;
-          // TODO: return error as OUT param 
-     end;
-
-    { We're in the parent, let's wait. }
-    result:=WaitProcess(pid); // WaitPid and result-convert
-
-  //  {$ifdef FPC_USE_FPEXEC}
-    if Comline <> '' then freemem(cmdline2);
-  //  {$endif}
-
-    if (result<0) or (result=127) then begin
-  //    E:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,result]);
-  //    E.ErrorCode:=result;
-  //    Raise E;
-        exit;
-        // TODO: return error as OUT param
-    end;
-  End;
-
-
-  function ExecuteProcess(Const Path: astr; Const ComLine: array Of astr):integer;
-  var pid    : longint;
-     //  e : EOSError;
-  Begin
-    pid:=fpFork;
-    if pid=0 then begin
-       {The child does the actual exec, and then exits}
-        fpexecl(Path,Comline);
-       { If the execve fails, we return an exitvalue of 127, to let it be known}
-       fpExit(127);
-    end else if pid=-1 then         {Fork failed}
-    begin
-      //e:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,-1]);
-      //e.ErrorCode:=-1;
-      //raise e;
-      exit;
-    end;
-
-    { We're in the parent, let's wait. }
-    result:=WaitProcess(pid); // WaitPid and result-convert
-
-    if (result<0) or (result=127) then begin
-      //    E:=EOSError.CreateFmt(SExecuteProcessFailed,[Path,result]);
-      //    E.ErrorCode:=result;
-      //    raise E;
-      exit;
-    end;
-  end;
-
-{$endif unix}
-
-{$ifdef windows}
-{ todo: return OUT param for error code }
-function ExecuteProcess(Const Path: astr; Const ComLine: astr):integer;
-var
-  SI: TStartupInfo;
-  PI: TProcessInformation;
-  Proc : THandle;
-  l    : DWord;
-  CommandLine : astr;
-//  e : EOSError;
-begin
-  FillChar(SI, SizeOf(SI), 0);
-  SI.cb:=SizeOf(SI);
-  SI.wShowWindow:=1;
-  { always surround the name of the application by quotes
-    so that long filenames will always be accepted. But don't
-    do it if there are already double quotes, since Win32 does not
-    like double quotes which are duplicated!
-  }
-  if pos('"',path)=0 then CommandLine:='"'+path+'"' else CommandLine:=path;
-  if ComLine <> '' then 
-    CommandLine:=Commandline+' '+ComLine+#0
-  else CommandLine := CommandLine + #0;
-
-  if not CreateProcess(nil, pchar(CommandLine), 
-    Nil, Nil, False,$20, Nil, Nil, SI, PI) 
-  then begin
-// todo: return error code
-//    e:=EOSError.CreateFmt(SExecuteProcessFailed,[CommandLine,GetLastError]);
-//    e.ErrorCode:=GetLastError;
-//    raise e;
-    exit;
-  end;
-  Proc:= PI.hProcess;
-  if WaitForSingleObject(Proc, dword($ffffffff)) <> $ffffffff then
-    begin
-      GetExitCodeProcess(Proc,l);
-      CloseHandle(Proc);
-      CloseHandle(PI.hThread);
-      result:=l;
-    end
-  else
-    begin
-// todo: return error code
-//      e:=EOSError.CreateFmt(SExecuteProcessFailed,[CommandLine,GetLastError]);
-//      e.ErrorCode:=GetLastError;
-      CloseHandle(Proc);
-      CloseHandle(PI.hThread);
-//      raise e;
-    end;
-end;
-
-function ExecuteProcess(Const Path: astr; Const ComLine: array of astr):integer;
-var CommandLine: astr;
-    i: Integer;
-begin
-  Commandline:='';
-  For i:=0 to high(ComLine) Do Commandline:=CommandLine+' '+Comline[i];
-  ExecuteProcess:=ExecuteProcess(Path,CommandLine);
-end;
-{$endif}
-
-{ fpc rtl: todo, other platforms using include files :( }
-function DirectoryExists(const dir: astr) : Boolean;
-{$ifdef windows}
-var Attr:Dword;
-begin
-  Attr:=GetFileAttributes(dir);
-  if Attr <> $ffffffff then
-    Result:= (Attr and FILE_ATTRIBUTE_DIRECTORY) > 0
-  else
-    Result:=False;
-{$endif}
-{$ifdef unix}
-var Info : Stat;
-begin
-  DirectoryExists:=(fpstat(dir,Info)>=0) and fpS_ISDIR(Info.st_mode);
-{$endif}
-end;
-
-const MaxDirs = 129;
-
-function ExtractRelativepath (Const BaseName,DestName: astr): astr;
-var Source, Dest: astr;  Sc,Dc,I,J: Longint;
-    SD,DD: Array[1..MaxDirs] of PChar;
-const OneLevelBack = '..' + PathDelim;
-begin
-  if Uppercase(ExtractFileDrive(BaseName))<>Uppercase(ExtractFileDrive(DestName)) Then
-  begin
-    Result:=DestName;
-    exit;
-  end;
-  Source:=ExtractFilePath(BaseName);
-  Dest:=ExtractFilePath(DestName);
-  SC:=GetDirs (Source,SD);
-  DC:=GetDirs (Dest,DD);
-  I:=1;
-  While (I<DC) and (I<SC) do
-    begin
-    If StrIcomp(DD[i],SD[i])=0 then
-      Inc(i)
-    else
-      Break;
-    end;
-  Result:='';
-  For J:=I to SC-1 do Result:=Result+OneLevelBack;
-  For J:=I to DC-1 do Result:=Result+DD[J]+PathDelim;
-  Result:=Result+ExtractFileName(DestNAme);
-end;
-
-Procedure DoDirSeparators (Var fname: astr);
-var I : longint;
-begin
-  for I:=1 to Length(fname) do
-    If fname[I] in DirSeparators then
-      fname[i]:=PathDelim;
+  result:= SaveBuf(dest, pointer(buf), result);
 end;
 
 
-function SetDirSeparators (Const fname: astr): astr;
-begin
-  Result:=fname;
-  DoDirSeparators (Result);
-end;
-
-{
-  DirName is split in a #0 separated list of directory names,
-  Dirs is an array of pchars, pointing to these directory names.
-  The function returns the number of directories found, or -1
-  if none were found.
-  DirName must contain only PathDelim as Directory separator chars.
-}
-
-Function GetDirs (Var DirName: astr; Var Dirs: array of pchar) : Longint;
-var I : Longint;
-begin
-  I:=1;
-  Result:=-1;
-  While I<=Length(DirName) do
-    begin
-    If DirName[i]=PathDelim then
-      begin
-      DirName[i]:=#0;
-      Inc(Result);
-      Dirs[Result]:=@DirName[I+1];
-      end;
-    Inc(I);
-    end;
-  If Result>-1 then inc(Result);
-end;
-
-function IncludeTrailingPathDelimiter(const Path: astr): astr;
-var L: integer;
-begin
-  result:=Path; L:= Length(result);
-  if (L=0) or (Result[L] <> PathDelim) then result:= result+PathDelim;
-end;
-
-function IncludeTrailingBackslash(Const Path: astr): astr;
-begin
-  Result:=IncludeTrailingPathDelimiter(Path);
-end;
-
-function ExcludeTrailingBackslash(Const Path: astr): astr;
-begin
-  Result:=ExcludeTrailingPathDelimiter(Path);
-end;
-
-function ExcludeTrailingPathDelimiter(Const Path: astr): astr;
-var L: integer;
-begin
-  L:= length(Path);
-  if (L>0) and (Path[L]=PathDelim) then dec(L);
-  result:= copy(Path,1,L);
-end;
-
-function IsPathDelimiter(Const Path: astr; Index: Integer): Boolean;
-begin
-  result:=(Index>0) and (Index<=Length(Path)) and (Path[Index]=PathDelim);
-end;
-
-function ChangeFileExt(const fname, Extension: astr): astr;
-var i: longint;
-begin
-  i:= Length(fname);
-  while (i > 0) and not(fname[i] in ['/', '.', '\', ':']) do dec(i);
-  if (i = 0) or (fname[i] <> '.') then i:= Length(fname)+1;
-  result:= copy(fname, 1, i-1) + Extension;
-end;
-
-function ExtractFilePath(const fname: astr): astr;
-var i: longint;
-begin
-  i := Length(fname);
-  while (i > 0) and not (fname[i] in ['/', '\', ':']) do dec(i);
-  if i > 0 then result:= copy(fname, 1, i) else result:='';
-end;
-
-function ExtractFileDir(const fname: astr): astr;
-var i: longint;
-begin
-  i:= Length(fname);
-  while (i > 0) and not (fname[i] in ['/', '\', ':']) do Dec(i);
-  if (i > 1) and (fname[I] in ['\', '/']) and
-    not (fname[I - 1] in ['/', '\', ':']) then dec(i);
-  result := Copy(fname, 1, I);
-end;
-
-function ExtractFileDrive(const fname: astr): astr;
-var i: longint;
-begin
-  if (Length(fname) >= 3) and (fname[2] = ':') then
-    result:= copy(fname, 1, 2)
-  else if (Length(fname) >= 2) and (fname[1] in ['/', '\']) and
-    (fname[2] in ['/', '\']) then
-  begin
-    i := 2;
-    while (i < Length(fname)) do begin
-      if fname[i+1] in ['/', '\'] then break;
-      inc(i);
-    end ;
-    result:= Copy(fname, 1, i);
-  end else result := '';
-end;
-
-function ExtractFileName(const fname: astr): astr;
-var i: longint;
-begin
-  i:= Length(fname);
-  while (I > 0) and not (fname[I] in ['/', '\', ':']) do dec(i);
-  result:= Copy(fname, i+1, 255);
-end;
-
-function ExtractFileExt(const fname: astr): astr;
-var i: longint;
-begin
-  i := Length(fname);
-  while (I > 0) and not (fname[I] in ['.', '/', '\', ':']) do dec(I);
-  if (i>0) and (fname[I] = '.') then result:= copy(fname,I,255) else result:= '';
-end;
-
-{ END: FROM FPC SYSUTILS}
-
-{ this grabs "file" from "file.ext" 
-  By L505 (license: public domain) }
+{ this grabs "file" from "file.ext" }
 function ExtractFilePart(fpath: astr): astr;
 var i: integer;
     dotcnt: byte;
@@ -644,8 +413,7 @@ begin
   if dotcnt < 1 then result:= fpath;
 end;
 
-{ if ext is set to false, only grab "file" from "file.ext" 
-  By L505 (NRCOL) }
+{ if ext is set to false, only grab "file" from "file.ext" }
 function ExtractFname(const fpath: astr; ext: bln): astr;
 begin
   result:= '';
@@ -657,8 +425,7 @@ begin
 end;
 
 
-{ creates a directory (not forced) 
-  By Lars (NRCOL) } 
+{ creates a directory (not forced) } 
 function MakeDir(s: astr): bln;
 begin
   result:= false;
@@ -669,16 +436,14 @@ begin
 end;
 
 
-{ cross platform file path slashes normalized
-  By Lars (NRCOL) }
-procedure Xpath(var path: astr);
+{ cross platform file path slashes normalized }
+procedure xpath(var path: astr);
 begin
  {$IFDEF WINDOWS}path:= substrreplace(path, '/', '\');{$ENDIF}
  {$IFDEF UNIX}path:= substrreplace(path, '\', '/');{$ENDIF}
 end;
 
-{ creates new file, returns true if success  
-  By Lars (NRCOL)}
+{ creates new file, returns true if success  }
 function NewFile(const fname: astr): bln;
 var fh: file of byte;
     oldfmode: byte;
@@ -777,8 +542,7 @@ begin
 end;
 
 
-{ Returns last I/O error message
-  By Vladimir (artistic) }
+{ Returns last I/O error message }
 function FileError: astr;
 begin
   case ioresult of
@@ -822,5 +586,10 @@ function DirExists(const dir: astr): boolean;
 begin
   result:= DirectoryExists(dir);
 end;
+
+{ above functions are NRCOL license while below is modified fpc rtl GPL }
+
+{$I pwfileutil_fpc_sysutils.inc }
+
 
 end.

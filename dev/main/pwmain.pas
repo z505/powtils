@@ -168,6 +168,16 @@ function unsetHeader(const name: astr): boo;
 function putHeader(const header: astr): boo;
 
 { Output/Write Functions }
+function fileOut(const fname: astr): errcode;
+function resourceOut(const fname: astr): errcode;
+
+//type bytes = array of byte;
+//     pbytes = ^bytes;
+      
+procedure bytesOut(const buf: TByteRay); 
+procedure bufferOut(const buf; len: longword); 
+
+
 procedure out(const s: astr);
 procedure outln(const s: astr); overload;
 procedure outln; overload;
@@ -176,17 +186,13 @@ procedure outlna(args: array of const);
 
 procedure outf(const s: astr);
 procedure outf(const s: astr; vfilter: TFilterFunc); overload;
-
 procedure outff(const s: astr); 
 
 procedure outlnf(const s: astr); overload;
 procedure outlnf(const s: astr; vfilter: TFilterFunc); overload;
-
 procedure outlnff(const s: astr);
 
-function fileOut(const fname: astr): errcode;
-function resourceOut(const fname: astr): errcode;
-procedure bufferOut(Const buff; len: LongWord);
+
 
 function templateOut(const fname: astr; HtmlFilter: boo): errcode; overload;
 function templateOut(const fname: astr): errcode; overload;
@@ -329,7 +335,9 @@ var plugin_init_called: boo = false;    // plugin initialized flag
     cook_initialized: boo = false;      // cookie flag
     error_reporting, error_halt: boo;   // error flags
    {$ifdef gzip_on}out_buffering, out_compression: boo;{$endif} 
- 
+
+procedure testtest;begin end;
+
 type
   // file structure
   TWebUpFile = record 
@@ -704,7 +712,7 @@ procedure initCook;
 {e}                                                                             {$ifdef dbug_on}InitCook_E;{$endif} end;
 
 {$ifdef gzip_on} // flush output buffer 
-function FlushBuf: boo;
+function flushBuf: boo;
 {b}                                                                            begin{$ifdef dbug_on}FlushBuf_B;{$endif}
   result:= false;
   if not headers_sent then SendHeaders;
@@ -842,7 +850,7 @@ var len: int32;
 { Multipart: put get/post vars }
 procedure MP_putGpVars(data: PString; const content_type: astr);
 var cnt, ptr, tmp, len, dpos: int32;
-    buff, boundary: astr;
+    buf, boundary: astr;
     line: TMp_Line;
     form: PMp_Form;
     UpIdx: int32; // current index to UpFile array
@@ -856,11 +864,11 @@ var cnt, ptr, tmp, len, dpos: int32;
     len:= length(form^[cnt]);
     dpos:= substrPos(form^[cnt], #13 + #10 + #13 + #10) + 4;
     // Getting first line
-    buff:= MP_getLine(@(form^[cnt]), ptr);
+    buf:= MP_getLine(@(form^[cnt]), ptr);
     // Splitting into words
-    line:= MP_splitLine(buff);
+    line:= MP_splitLine(buf);
     // Is it file or variable?
-    if substrpos(buff, 'filename') <> 0 then
+    if substrpos(buf, 'filename') <> 0 then
     begin
       // It is a file
       setlength(gUpFiles, length(gUpFiles) + 1);
@@ -872,8 +880,8 @@ var cnt, ptr, tmp, len, dpos: int32;
       {$endif}
 
       // Getting content type
-      buff:= MP_getLine(@(form^[cnt]), ptr);
-      line:= MP_splitLine(buff);
+      buf:= MP_getLine(@(form^[cnt]), ptr);
+      line:= MP_splitLine(buf);
       gUpFiles[upIdx].content_type:= line[2];
       // Getting value till the end
       gUpFiles[upIdx].size:= len - dpos;
@@ -2014,40 +2022,47 @@ begin
     OutBuff^.AppendBuffer(p, len);
   end else
  {$endif}
-    NativeWrite(p, len);
+    nativeWrite(p, len);
 end;
 
 { Binary Buffer Output...UNTYPED }
-procedure bufferOut(const buff; len: LongWord);
+procedure bufferOut(const buf; len: longword);
 var P: pointer;
 begin
-  P:= @Buff;
+  P:= @buf;
   if NoHeadSentNorBuffering then SendHeaders;
   WriteBuff(P, len);
+end;
+
+{ Write array of byte to screen }
+procedure bytesOut(const buf: TByteRay); 
+begin
+  if NoHeadSentNorBuffering then SendHeaders;
+  WriteBuff(pchar(buf), length(buf));
 end;
 
 { Plain binary file output }
 function resourceOut(const fname: astr): errcode;
 const BUFFSIZE = 16384;
 var fh: file of char;
-    buff: pchar;
+    buf: pchar;
     len: longword;
 begin
   result:= FILE_READ_ERR;
   len:= 0;
   InitMimeDb; // prepare Tony's mime db unit
   if not FileExists_read(fname) then begin ThrowNoFileErr(fname); exit; end;
-  GetMem(buff, BUFFSIZE);
+  GetMem(buf, BUFFSIZE);
   if (not headers_sent) then SetHeader('Content-Type', GetMimeType(fname));
   if NoHeadSentNorBuffering then SendHeaders;
   assign(fh, fname);
   reset(fh);
   while not eof(fh) do begin 
-    blockread(fh, buff^, BUFFSIZE, len);  
-    WriteBuff(buff, len);
+    blockread(fh, buf^, BUFFSIZE, len);  
+    WriteBuff(buf, len);
   end;  
   close(fh);
-  FreeMem(Buff);
+  freeMem(buf);
   result:= ok;
 end;
 
