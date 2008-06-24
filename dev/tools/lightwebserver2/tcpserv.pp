@@ -7,6 +7,7 @@ Interface
 Uses
   Classes,
   BlckSock,
+  Sockets,
   {$IFDEF WINDOWS}
   WinSock;
   {$ELSE}
@@ -44,6 +45,7 @@ Begin
   fLinger    := Linger;
   fConnCount := 0;
   fSock      := TTCPBlockSocket.Create;
+  //  fSock.EnableReuse(true);   // synapse says it is not good practice
   fSock.CreateSocket;
   fSock.SetLinger(True, fLinger);
   fSock.Bind(fIP, fPort);
@@ -80,6 +82,7 @@ Begin
     Begin
       Inc(fConnCount);
       fOnConnect(ClientSock);
+      Sockets.CloseSocket(ClientSock); // needed at least for unix, otherwise file descriptors leak to 1024!
     End
     Else
     Begin
