@@ -16,13 +16,11 @@ const
   CANT_READ_CFG_FILE = '1A: can''t read cfg file';
   MISSING_INIT_CALL_OR_UNIT = 'missing Init() call or unit';
 
-
-
-function errtostr(e: errcode): astr;
+function ErrToStr(e: errcode): astr;
 
 implementation  
 
-function errtostr(e: errcode): astr;
+function ErrToStr(e: errcode): astr;
 begin
   case e of
     GENERAL_ERR: result:= 'general err';
@@ -31,6 +29,8 @@ begin
     CFG_PARSE_ERR: result:= 'cfg parse err';
   end;
 end;
+
+
 
 
 end.

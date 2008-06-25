@@ -1,16 +1,11 @@
-{%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                          Powtils Native Stdout
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{                          Powtils Standard Out
 
---------------------------------------------------------------------------------
- Native Out Unit
---------------------------------------------------------------------------------
   Contains the main procedures and additions for implementing Operating System 
   stdout functions.   This removes one level of redirection  from using 
   Write/Writeln and allows webcrt to work when calling the pwmain.out function.
   Delphi is not supported and these functions just call system.write
 
-  Authors/Credits: Anthony Henry
+  Authors/Credits: Anthony Henry, Lars Olson  License: Artisic
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%}
 
@@ -48,22 +43,11 @@ procedure NativeWrite(PString : PChar); overload;
 procedure NativeWrite(Buffer: PChar;  NumChars: Cardinal); overload;
 procedure NativeWriteLn(s: astr); overload;
 procedure NativeWriteLn; overload;
-procedure ErrWithHeader(const s: astr);
-
 
 // function strlen is defined in system unit.
 // function strlen(p:pchar):sizeint;external name 'FPC_PCHAR_LENGTH';
 
 IMPLEMENTATION
-
-{ Send simple headers and an error.. for cases where headers not in itialized }
-procedure ErrWithHeader(const s: astr);
-begin
-  NativeWriteLn('Content-type: text/html');
-  NativeWriteLn;
-  NativeWriteLn('ERR '+s);
-  halt;
-end;
 
 {$IFDEF LWS2} // LightWebServer2 wants WriteLn
 
