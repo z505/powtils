@@ -1,43 +1,35 @@
-{*******************************************************************************
-
-                                POWTILS 
-
-********************************************************************************
-
-*******************************************************************************}
-
-
 unit pwinit; 
 
 interface
-// uses
-//   pwSdsSess, pwDefaultCfg;
-
-{ Put units like pwSdsSess and pwDefaultCfg in uses clause of this unit if you
-  want that functionality in your web program. By default this unit uses no
-  plugin units, meaning no config file or sessions are on. }
+{ Put units like pwSdsSess and pwDefaultCfg in uses clause if you want that 
+  functionality in your web program. By default pwinit uses no plugin units, 
+  meaning config file, sessions, and other plugins are disabled. }
 
 implementation
 uses 
   pwmain;
 
 initialization
-  Init;
+  pwmain.Init;
+
+finalization
+  pwmain.Fini;
+
 end.
 
-{ Make different copies of this unit for different configurations. Put this file
-  in local directory of your program if you modify it, or rename different
-  copies to specific setups such as pwInitMySql if you have a custom setup }
+{ Make different copies of this unit for different defaults. Put this file in 
+  local directory of your program if you modify it, or rename different copies 
+  to specific setups such as pwInitMySql or pwInitCfg if using those plugins }
 
 
+{------------------------------------------------------------------------------
+             ANOTHER EXAMPLE OF A CONFIGURATION IS BELOW:
+ ------------------------------------------------------------------------------
 
-{ ANOTHER EXAMPLE OF A CONFIGURATION IS BELOW:
-
-
-unit pwInitAll;
+unit pwInit;
 
 interface
-uses // sessions and config are on
+uses // sessions and config are plugged in
    pwSdsSess, pwDefaultCfg;
 
 implementation
@@ -45,17 +37,20 @@ uses
   pwmain;
 
 initialization
-  Init;
+  pwmain.Init;
+finalization
+  pwmain.Fini;
 end.
 }
 
-{ ANOTHER EXAMPLE OF A CONFIGURATION IS BELOW:
+{------------------------------------------------------------------------------
+             ANOTHER EXAMPLE OF A CONFIGURATION IS BELOW:
+ ------------------------------------------------------------------------------
 
-
-unit pwInitAll;
+unit pwInit;
 
 interface
-uses // just sessions, no config
+uses // just sessions, no config file (pwu_win.conf, pwu_unix.conf)
    pwSdsSess; 
 
 implementation
@@ -63,17 +58,22 @@ uses
   pwmain;
 
 initialization
-  Init;
+  pwmain.Init;
+finalization
+  pwmain.Fini;
 end.
 }
 
-{ ANOTHER EXAMPLE OF A CONFIGURATION IS BELOW:
+
+{------------------------------------------------------------------------------
+             ANOTHER EXAMPLE OF A CONFIGURATION IS BELOW:
+ ------------------------------------------------------------------------------
 
 
-unit pwInitAll;
+unit pwInit;
 
 interface
-uses // just config, no sessions
+uses // just config file, no sessions
    pwDefaultCfg; 
 
 implementation
@@ -81,6 +81,8 @@ uses
   pwmain;
 
 initialization
-  Init;
+  pwmain.Init;
+finalization
+  pwmain.Fini;
 end.
 }

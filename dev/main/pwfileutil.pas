@@ -53,10 +53,11 @@ function ExtractFname(const fpath: astr; ext: bln): astr;
 function FileThere(const fpath: astr; fm: TFmode): bln; overload;
 function FileThere(const fpath: astr): bln; overload;
 
-function File2bytes(const fname: astr; out buf: TByteRay): int32;  overload;
-function File2bytes(const fname:astr; chunksz:int32; out buf:TByteRay): int32; overload;
-function File2str(const fname:astr; out err:int32): astr; overload;
-function File2str(const fname:astr): astr; overload;
+function File2Bytes(const fname: astr; out buf: TByteRay): int32;  overload;
+function File2Bytes(const fname: astr; chunksz: int32; out buf:TByteRay): int32; overload;
+
+function File2Str(const fname:astr; out err:int32): astr; overload;
+function File2Str(const fname:astr): astr; overload;
 
 { TODO str2file
   function str2file(const s, fname:astr): errcode; overload;
@@ -134,7 +135,7 @@ end;
 {$IFDEF WINDOWS}
 { Get the size of any file, doesn't matter whether it's a text or binary file.
   JEFF: return -1 if the file can't be found. }
-function getFileSize(const fname: astr): int32;
+function GetFileSize(const fname: astr): int32;
 var
   FileInfo:WIN32_FIND_DATA;
   hInfo: THANDLE;
@@ -153,7 +154,7 @@ begin
 end;
 
 { gets file size, up to about 2GB, returns -1 on error }
-function getLargeFileSize(const fname: astr): int64;
+function GetLargeFileSize(const fname: astr): int64;
 var
   fileInfo:WIN32_FIND_DATA;
   hInfo: THANDLE;
@@ -168,43 +169,37 @@ begin
   end else result:= -1
 end;
 
-{$ELSE}
-// Unix versions of above
-function getLargeFileSize(const fname: astr): int64;
+{$ELSE} // Unix versions of above
+function GetLargeFileSize(const fname: astr): int64;
 var FileInfo:TStat;
 begin
   if (fpStat(fname,FileInfo) = 0) then result:= FileInfo.st_size
     else result:= -1;
 end;
 
-function getFileSize(const fname: astr): int32;
+function GetFileSize(const fname: astr): int32;
 var fsize: int64;
 begin
   fsize:= GetLargeFileSize(fname);  
   // error if file too big
   if fsize > high(int32) then result:= -1 else result:= fsize;
 end;
-
 {$ENDIF}
 
-
-
 {$ifdef windows}
+procedure Sleep(milliseconds: Cardinal);
+begin
+  windows.sleep(milliseconds);
+end;
 
-  procedure Sleep(milliseconds: Cardinal);
-  begin
-    windows.sleep(milliseconds);
-  end;
-
-  function GetFileAttributes(dir: astr): dword;
-  begin
-    result:=GetFileAttributesA(PChar(dir));
-  end;
+function GetFileAttributes(dir: astr): dword;
+begin
+  result:=GetFileAttributesA(PChar(dir));
+end;
 {$endif}
 
-{ returns -1 if problem, else total bytes of file and a buffer in OUT param 
-  License: NRCOL } 
-function file2bytes(const fname:astr; chunksz:int32; out buf:TByteRay): int32; 
+{ returns -1 if problem, else total bytes of file and a buffer in OUT param } 
+function File2Bytes(const fname:astr; chunksz:int32; out buf:TByteRay): int32; 
 var F: file;
     curRead: int32; // currently read
     totalread: int32;
@@ -213,7 +208,7 @@ begin
   totalRead:= 0;
   setlength(buf, 0);
   // open file with a record size of 1
-  if openFile(F, fname, 1, fmOpenRead) = false then EXIT;
+  if OpenFile(F, fname, 1, fmOpenRead) = false then EXIT;
   curRead:= 1;
   // the file will be read as one big chunk
   while curRead > 0 do begin
@@ -228,14 +223,13 @@ begin
 end;
 
 { overloaded with default chunk size }
-function file2bytes(const fname: astr; out buf: TByteRay): int32; 
+function File2bytes(const fname: astr; out buf: TByteRay): int32; 
 begin
   result:= file2bytes(fname, DEFAULT_CHUNK_SIZE, buf); 
 end;
 
-{ loads file into a string returns -1 in OUT param if error 
-  License: NRCOL} 
-function file2str(const fname: astr; chunksz: int32; out err: int32): astr; 
+{ loads file into a string returns -1 in OUT param if error } 
+function File2str(const fname: astr; chunksz: int32; out err: int32): astr; 
 var buf: TByteRay; len: int32;
 begin
   result:= '';
@@ -249,13 +243,13 @@ begin
 end;
 
 { overloaded with default chunk size used }
-function file2str(const fname: astr; out err: int32): astr; 
+function File2str(const fname: astr; out err: int32): astr; 
 begin
   result:= file2str(fname, DEFAULT_CHUNK_SIZE, err); 
 end;
 
 { loads file into a string, returns empty if file not accessible }
-function file2str(const fname: astr): astr; 
+function File2str(const fname: astr): astr; 
 var err: int32;
 begin
   result:= file2str(fname, err);
@@ -263,15 +257,15 @@ begin
 end;
 
 {  By JKP and L505 (license: public domain) }
-function openFile(var F: TFileOfChar; const fname: astr; mode: char): boolean;
+function OpenFile(var F: TFileOfChar; const fname: astr; mode: char): boolean;
 begin
-  result:= openFile(f, fname, mode);
+  result:= OpenFile(f, fname, mode);
 end;
 
 { Try to open a text file, return true on success.
   The MODE argument must be one of [R]=read, [W]=write, or [A]=append. 
   By JKP and L505 (public domain) }
-function openFile(var F: text; const fname: astr; mode: char): boolean;
+function OpenFile(var F: text; const fname: astr; mode: char): boolean;
 var oldFM: byte;
 begin
   if ( mode in ['A', 'R', 'W'] ) then inc(mode, 32); // "mode" to lowercase
@@ -295,7 +289,7 @@ begin
 end;
 
 {  By JKP and L505 (public domain) }
-function openFileRead(var F: file; const fname: astr; recsize: integer): boolean;
+function OpenFileRead(var F: file; const fname: astr; recsize: integer): boolean;
 var oldFM: byte;       
 begin
   oldFM:= filemode;
@@ -342,7 +336,7 @@ end;
 
 { Try to open a file (doesn't have to be text) return false if unsuccessful 
   By JKP and L505  }
-function openFile(var F: file; const fname: astr; mode: char): boolean;
+function OpenFile(var F: file; const fname: astr; mode: char): boolean;
 var oldFM: byte;
 begin
   if ( mode in ['R', 'W'] ) then
@@ -381,8 +375,8 @@ function cloneFile(src, dest: astr): integer;
   var F: file; FSize: integer; 
   begin
     result:= -1; // init               
-    if openFile(F, fname, 1, fmOpenRead) = false then exit;
-    FSize:= getFileSize(fname);
+    if OpenFile(F, fname, 1, fmOpenRead) = false then exit;
+    FSize:= GetFileSize(fname);
     setLength(buf, FSize);
     blockRead(F, pointer(buf)^, FSize, result);
     CloseFile(F);
@@ -424,7 +418,6 @@ begin
   end;
 end;
 
-
 { creates a directory (not forced) } 
 function MakeDir(s: astr): bln;
 begin
@@ -435,9 +428,11 @@ begin
   if IOResult <> 0 then result:= false else result:= true;
 end;
 
-
-{ cross platform file path slashes normalized }
-procedure xpath(var path: astr);
+{ Cross platform file path slashes normalized: note if one has windows slashes
+  stored in a unix path they will be converted... which is not good if unix
+  people use slashes in there folder names (but they shouldn't when writing
+  portable code, and powtils will not tolerate it.) }
+procedure Xpath(var path: astr);
 begin
  {$IFDEF WINDOWS}path:= substrreplace(path, '/', '\');{$ENDIF}
  {$IFDEF UNIX}path:= substrreplace(path, '\', '/');{$ENDIF}
@@ -500,8 +495,7 @@ begin
   end;
 end;
 
-{ Checks if file exists read only, returns true if success 
-  By Vladimir/Lars (Artistic) }
+{ Checks if file exists read only, returns true if success }
 function FileExists_read(const fname: astr): bln;
 var fh: file of byte;
     oldfmode: byte;
