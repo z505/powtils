@@ -10,13 +10,9 @@ uses
   { add your units here }, ResidentApplicationUnit,
   CollectionUnit, WebUnit,
   ThisApplicationPagesUnit, PipeWrapperUnit, URLEnc, SessionManagerUnit,
-  WebStringUnit, RequestsQueue, XMLNode, AttributeUnit, ThisProjectGlobalUnit,
-  ExceptionUnit, ThreadingUnit,
-
+  WebStringUnit, RequestsQueue, ThisProjectGlobalUnit,
+  ExceptionUnit, ThreadingUnit, XMLNode, AttributeUnit,
   LoginPageUnit, MainPageUnit;
-  
-var
-  Resident: TResident;
   
 begin
 
