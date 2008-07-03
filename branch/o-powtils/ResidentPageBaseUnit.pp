@@ -26,15 +26,19 @@ interface
 
 uses
   Classes, SysUtils, WebUnit, CollectionUnit, XMLNode, AttributeUnit, Unix,
-    BaseUnix;
+    BaseUnix, SessionManagerUnit, ResidentApplicationUnit;
   
 type
 
   { TResidentPageBase }
 
   TResidentPageBase= class (TWeb)
+  private
+    function GetSession: TSession;
+
   protected
 //    FPersistance: Boolean;
+    MainApplicationInstance: TResident;
     FMainPipeFileName: String;
     FPageName: String;
     FPipeHandle: cInt;
@@ -43,6 +47,7 @@ type
     FRequestURI: String;
     FHostName: String;
     FForceToSendHeader: Boolean;
+    FSessionID: TSessionID;
 
     procedure SetPipeFileName (const Filename: String);
     procedure WriteDirectlyToOutput (const S: String);
@@ -56,6 +61,8 @@ type
     property PipeFileName: String Write SetPipeFileName;
 
   public
+    property Session: TSession read GetSession;
+    
     constructor Create (ThisPageName: String; ContType: TContentType= ctTextHTML;
                        PageHost: String= ''; PagePath: String= ''); virtual;
     destructor Destroy; override;
@@ -105,6 +112,21 @@ uses
   ThisProjectGlobalUnit;
   
 { TResidentPageBase }
+
+function TResidentPageBase.GetSession: TSession;
+(*$I+*)
+const
+  SessionIDVarName: String= '';
+(*$I-*)
+
+begin
+  if SessionIDVarName= '' then
+    SessionIDVarName:= WebConfiguration.ConfigurationValueByName ['SessionIDVarName'];
+    
+  FSessionID:= CgiVars.CgiVarValueByName [SessionIDVarName];
+  Result:= SessionManagerUnit.GetSession (FSessionID);
+  
+end;
 
 procedure TResidentPageBase.SetPipeFileName (const Filename: String);
 begin
@@ -208,6 +230,7 @@ begin
   inherited CreateWithOutGetWebData (PageHost, PagePath, ThisPageName,
      GlobalObjContainer.WebConfiguration, ContType);
 
+  FSessionID:= '';
   PipeIsAssigned:= False;
   
 end;
@@ -263,6 +286,7 @@ begin
 //  fpFlush (FPipeHandle);??!!
   
 end;
+
 
 { TBasePageCollection }
 

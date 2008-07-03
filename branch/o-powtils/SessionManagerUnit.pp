@@ -105,15 +105,32 @@ type
     procedure Save; override;
 
   end;
-  
+
+function GetSession (SessionID: String): TSession;
+
 const
   DefualtSessionIDLen: Integer= 20;
   DefualtSessionVarName: String= 'PSPSESS';
   
+var
+  SessionManager: TAbstractSessionManager;// Will be created in TResident constructor
   
 implementation
 uses
   MyTypes;
+
+function GetSession (SessionID: String): TSession;
+begin
+  if SessionID= '' then
+    Result:= SessionManager.CreateEmptySession
+  else
+    try
+      Result:= SessionManager.SessionBySessionID [SessionID]
+      
+    except
+      on e: ESessionNotFound do
+    end;
+end;
   
 { TAbstractSessionManager }
 

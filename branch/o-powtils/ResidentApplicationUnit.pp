@@ -41,7 +41,7 @@ interface
 
 uses
   Classes, SysUtils, CollectionUnit, ThreadingUnit,
-  ResidentPageBaseUnit, CustApp, WebUnit, RequestsQueue,
+  CustApp, WebUnit, RequestsQueue,
   BaseUnix, SessionManagerUnit;
 
 type
@@ -54,7 +54,7 @@ type
     
   end;
   
-  TOnNewRequestArrived= procedure (Sender: TObject; ResidentPage: TResidentPageBase) of object;
+  TOnNewRequestArrived= procedure (Sender: TObject) of object;
   
   { TResident }
   
@@ -66,12 +66,9 @@ type
     FRestartInterval: Integer;
     FMainPipeFileName: String;
     FOnNewRequest: TOnNewRequestArrived;
-    FSessionManger: TAbstractSessionManager;
     FTempPipeFilePath: String;
     FRemainedToRestart: Integer;
     FUsingSessionManager: Boolean;
-    FWebConfiguration: TWebConfigurationCollection;
-    
     MainPipeFileHandle: cInt;
 
     procedure SetMainPipeFileName (const AValue: String);
@@ -86,9 +83,7 @@ type
     property RemainedToRestart: Integer read FRemainedToRestart;
     property NumberOfActiveThread: Integer read FNumberOfActiveThread;
     property RequestQueueSize: Integer read FRequestQueueSize;
-    property WebConfiguration: TWebConfigurationCollection read FWebConfiguration;
     property UsingSessionManager: Boolean read FUsingSessionManager;
-    property SessionManger: TAbstractSessionManager read FSessionManger;
 
   public
   
@@ -96,7 +91,7 @@ type
     procedure ExecuteInThread;
   
     constructor Create (AOwner : TComponent);
-    
+
   end;
 
   { TParameter }
@@ -112,6 +107,9 @@ type
 
   end;
 
+var
+  Resident: TResident;
+  
 
 implementation
 uses
@@ -480,7 +478,7 @@ constructor TResident.Create (AOwner: TComponent);
 
       end;
 
-      FSessionManger:= TBasicSessionManager.Create (
+      SessionManagerUnit.SessionManager:= TBasicSessionManager.Create (
         SessionIDLen, SessionVarName);
         
     end;
@@ -490,7 +488,7 @@ constructor TResident.Create (AOwner: TComponent);
 begin
   inherited Create (AOwner);
   
-  FWebConfiguration:= TWebConfigurationCollection.Create;
+  WebConfiguration:= TWebConfigurationCollection.Create;
 
   ReadConfigFileInfo;
 
