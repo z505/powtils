@@ -488,6 +488,9 @@ type
     
   end;
 
+var
+  WebConfiguration: TWebConfigurationCollection;
+  
 implementation
 uses
   SubStrings, Base64_Enc, URLEnc;
