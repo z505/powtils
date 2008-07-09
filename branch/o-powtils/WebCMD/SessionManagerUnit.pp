@@ -128,13 +128,16 @@ begin
       Result:= SessionManager.SessionBySessionID [SessionID]
       
     except
-      on e: ESessionNotFound do
+      on e: ESessionNotFound do //Session has been expired
+        Result:= SessionManager.CreateEmptySession
+
     end;
+    
 end;
   
 { TAbstractSessionManager }
 
-function TAbstractSessionManager.GetSession(Index: Integer): TSession;
+function TAbstractSessionManager.GetSession (Index: Integer): TSession;
 begin
   Result:= Member [Index] as TSession;
   
@@ -242,7 +245,11 @@ function TAbstractSessionManager.GetNewSessionID: TSessionID;
   end;
   
 begin
-
+  Result:= GenerateSessionID;
+  
+  while FindSessionIndex (Result)<> -1 do
+    Result:= GenerateSessionID;
+    
 end;
 
 function TAbstractSessionManager.CreateEmptySession: TSession;

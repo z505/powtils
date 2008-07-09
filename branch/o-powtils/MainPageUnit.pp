@@ -52,7 +52,9 @@ begin
     FXMLRoot.AddAttribute ('HostName', GetHostName);
     LoginNode:= TXMLNode.Create ('LoginInfo');
     LoginNode.AddAttribute ('UserName', UserName);
-//    Session.SessionStart;
+    Session.AddVariable ('UserName', UserName);
+    Session.AddVariable ('LastAction', DateTimeToStr (Now));
+
     FXMLRoot.AddChild (LoginNode);
     
   end

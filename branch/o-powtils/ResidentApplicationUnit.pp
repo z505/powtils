@@ -467,7 +467,7 @@ constructor TResident.Create (AOwner: TComponent);
       end;
 
       try
-        SessionVarName:= WebConfiguration.ConfigurationByName ['SessionVarName'].Value;
+        SessionVarName:= WebConfiguration.ConfigurationByName ['SessionIDVarName'].Value;
 
       except
         on e: ENameNotFound do

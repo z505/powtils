@@ -270,19 +270,18 @@ type
 
   { TCookie }
 
-  TCookie= class (TObject)
+  TCookie= class (TNameValue)
  private
     FDomain: String;
     FExpires: string;
-    FName: String;
     FPath: String;
-    FValue: TWebString;
+    function GetValue: String;
 
   public
     property Domain: String read FDomain;
     property Path: String read FPath;
     property Name: String read FName;
-    property Value: TWebString read FValue;
+    property Value: String read GetValue;
     property Expires: string read FExpires;
     
     constructor Create (CookieName, CookieValue: String;
@@ -295,13 +294,14 @@ type
 
   { TCookieCollection }
 
-  TCookieCollection= class (TBaseCollection)
+  TCookieCollection= class (TNameValueCollection)
   private
     FHostName: String;
     FPageURI: String;
     FWebHeaderCollection: TWebHeaderCollection;
     FIsHeaderSent: PBoolean;
     function GetCookie (Index: Integer): TCookie;
+    function GetCookieByName (Name: String): TCookie;
     function GetText: String;
     
   public
@@ -321,7 +321,6 @@ type
     
     procedure Add (NewCookie: TCookie);
     function IsExists (Name: String): Boolean;
-    function GetCookieByName (Name: String): TCookie;
     procedure RemoveCookieByName (Name: String);
     
   end;
@@ -1280,7 +1279,7 @@ begin
   
   FRunTimeInformation.AddRunTimeInformation (TWebRunTimeInformation.Create ('SESSION_REGISTERED', 'TRUE'));
   
-  Key:= base64_decode (FCookieCollection.GetCookieByName ('PWUSESS').Value.ToString);
+  Key:= base64_decode (FCookieCollection.GetCookieByName ('PWUSESS').Value);
   SessionID:= sds_escape (Copy (key, 13, Length (Key)- 12));
   Key:= sds_escape (Copy (Key, 1, 12));
   
@@ -1488,7 +1487,7 @@ var
 begin
   for i:= 0 to FSize- 1 do
     FWebHeaderCollection.Add (TWebHeader.Create ('Set-Cookie',
-    URLEncode (Cookie [i].Name)+ '='+ URLEncode (Cookie [i].Value.ToString)+
+    URLEncode (Cookie [i].Name)+ '='+ URLEncode (Cookie [i].Value)+
      ';path='+ Cookie [i].Path+ ';domain='+ Cookie [i].Domain+
      ';expires=' + Cookie [i].Expires  ));
 
@@ -1552,10 +1551,22 @@ end;
 
 { TCookie }
 
+function TCookie.GetValue: String;
+begin
+  Result:= (PString (PByte (FValue)))^;
+
+end;
+
 constructor TCookie.Create(CookieName, CookieValue: String;
   CookieExpireTime: String; CookiePath: String; CookieDomain: String);
+var
+  PVal: PString;
+
 begin
-  inherited Create;
+  New (PVal);
+  PVal^:= CookieValue;
+
+  inherited Create (CookieName, TObject (PVal));
 
   FName:= CookieName;
   FValue:= TWebString.Create (CookieValue);
@@ -1577,9 +1588,9 @@ function TCookie.ToString (Index: Integer): String;
 begin
   case Index of
     0:
-      Result:= FDomain+ ':'+ FExpires+ ':'+ FName+ ':'+ FValue.ToString+ ':'+ FPath;
+      Result:= FDomain+ ':'+ FExpires+ ':'+ FName+ ':'+ Value+ ':'+ FPath;
     1:
-      Result:=  URLEncode (FName)+ '='+ URLEncode (FValue.ToString)+ ';path='+ FPath+ ';expires='
+      Result:=  URLEncode (FName)+ '='+ Value+ ';path='+ FPath+ ';expires='
       + FExpires;
       
   end;

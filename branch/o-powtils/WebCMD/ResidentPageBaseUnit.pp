@@ -124,6 +124,9 @@ begin
     SessionIDVarName:= WebConfiguration.ConfigurationValueByName ['SessionIDVarName'];
     
   FSessionID:= CgiVars.CgiVarValueByName [SessionIDVarName];
+  if FSessionID= '' then
+//    FSessionID:= Cookies.naCookieValueByName [SessionIDVarName];
+    
   Result:= SessionManagerUnit.GetSession (FSessionID);
   
 end;
