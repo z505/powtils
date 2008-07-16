@@ -188,19 +188,19 @@ End;
 
 Procedure TXMLTag.StartEmit;
 Begin
-  WebWrite('<' + fTagName);
+  Out('<' + fTagName);
   If fAttributes.Count > 0 Then
     OutF(' ' + fAttributes.DelimitedText);
   If fClosing Then
-    WebWrite('>')
+    Out('>')
   Else
-    WebWrite('/>');
+    Out('/>');
 End;
 
 Procedure TXMLTag.EndEmit;
 Begin
   If fClosing Then
-    WebWrite('</' + fTagName + '>');
+    Out('</' + fTagName + '>');
 End;
 
 Procedure TXMLTag.Emit;

@@ -9,18 +9,19 @@
 
 Unit SQLite3Template;
 
-Uses
-  PWMain,
-  XMLBase,
-  WebTemplate,
-  DB,
-  SQLite3DS;
-
 Interface
+Uses
+  WebTemplate;
 
 Procedure RegisterToTemplate(Template : TWebTemplate);
 
 Implementation
+
+Uses
+  PWMain,
+  XMLBase,
+  DB,
+  SQLite3DS;
 
 Var
   DS : TSQLite3DataSet;
