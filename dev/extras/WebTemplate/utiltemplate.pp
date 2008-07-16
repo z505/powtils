@@ -9,23 +9,25 @@
 
 Unit UtilTemplate;
 
-Uses
-  PWMain,
-  XMLBase,
-  WebTemplate;
-
 Interface
+
+Uses
+  WebTemplate;
 
 Procedure RegisterToTemplate(Template : TWebTemplate);
 
 Implementation
 
+Uses
+  PWMain,
+  XMLBase;
+
 Procedure TemplateIf(Caller : TXMLTag);
 Begin
   If GetVar(Caller.GetAttribute('var')) = Caller.GetAttribute('value') Then
-    EmitChildsIf('then')
+    Caller.EmitChildsIf('then')
   Else
-    EmitChildsIf('else');
+    Caller.EmitChildsIf('else');
 End;
 
 Procedure TemplateCase(Caller : TXMLTag);
@@ -36,10 +38,10 @@ Begin
   Caller.First;
   While Not(Caller.EndOfChilds)  Do
   Begin
-    If (Caller.Child.Name = 'when') And
-      (GetVar(Caller.Child.GetAttribute('var')) = Caller.Child.GetAttribute('value')) Then
+    If ((Caller.Child As TXMLTag).Name = 'when') And
+      (GetVar((Caller.Child As TXMLTag).GetAttribute('var')) = (Caller.Child As TXMLTag).GetAttribute('value')) Then
     Begin
-      Child.EmitChilds;
+      (Caller.Child As TXMLTag).EmitChilds;
       CaseFound := True;
     End;
     Caller.Next;
@@ -48,8 +50,8 @@ Begin
   If Not(CaseFound) Then
     While Not(Caller.EndOfChilds) Do
     Begin
-      If Caller.Child.Name = 'default' Then
-        Child.EmitChilds;
+      If (Caller.Child As TXMLTag).Name = 'default' Then
+        (Caller.Child As TXMLTag).EmitChilds;
       Caller.Next;
     End;
 End;
