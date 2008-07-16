@@ -42,55 +42,56 @@ What I didn't include
 
 }
 
-unit strfilter; {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF}
+unit pwstrfilter; {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF}
 
 interface
+uses pwtypes;
 
 type
   TCharSet = set of char;
 
 
-function ValidChars(s: string; CharSet: TCharSet): boolean;
+function ValidChars(s: astr; CharSet: TCharSet): boo;
 
-function IsEmail(s: string): boolean;
+function IsEmail(s: astr): boo;
 
-function IsAlphNum(s: string): boolean;
-function IsAlphNumSpace(s: string): boolean;
-function IsAlphNumSpaceUscor(s: string): boolean;
-function IsAlphNumSpaceDashUscor(s: string): boolean;
-function IsAlphNumDashUscor(s: string): boolean;
-function IsAlphNumUscor(s: string): boolean;
-function IsAlphNumDash(s: string): boolean;
+function IsAlphNum(s: astr): boo;
+function IsAlphNumSpace(s: astr): boo;
+function IsAlphNumSpaceUscor(s: astr): boo;
+function IsAlphNumSpaceDashUscor(s: astr): boo;
+function IsAlphNumDashUscor(s: astr): boo;
+function IsAlphNumUscor(s: astr): boo;
+function IsAlphNumDash(s: astr): boo;
 
-function IsNum(s: string): boolean;
-function IsNumDash(s: string): boolean;
-function IsNumSpace(s: string): boolean;
-function IsNumDashSpace(s: string): boolean;
-function IsNumSpaceDashBrack(s: string): boolean;
-function IsNumDashBrackPlus(s: string): boolean; 
-function IsNumDashBrack(s: string): boolean; 
+function IsNum(s: astr): boo;
+function IsNumDash(s: astr): boo;
+function IsNumSpace(s: astr): boo;
+function IsNumDashSpace(s: astr): boo;
+function IsNumSpaceDashBrack(s: astr): boo;
+function IsNumDashBrackPlus(s: astr): boo; 
+function IsNumDashBrack(s: astr): boo; 
 
-function IsAlph(s: string): boolean;
-function IsAlphSpaceUscor(s: string): boolean;
-function IsAlphDash(s: string): boolean;
-function IsAlphDashSpace(s: string): boolean;
-function IsAlphUscor(s: string): boolean;
-function IsAlphSpace(s: string): boolean;
-function IsLowAlph(s: string): boolean;
-function IsLowAlphSpace(s: string): boolean;
-function IsLowAlphUscor(s: string): boolean;
-function IsLowAlphSpaceUscor(s: string): boolean;
-function IsUpAlph(s: string): boolean;
-function IsUpAlphUscor(s: string): boolean;
-function IsUpAlphSpace(s: string): boolean;
-function IsUpAlphSpaceUscor(s: string): boolean;
+function IsAlph(s: astr): boo;
+function IsAlphSpaceUscor(s: astr): boo;
+function IsAlphDash(s: astr): boo;
+function IsAlphDashSpace(s: astr): boo;
+function IsAlphUscor(s: astr): boo;
+function IsAlphSpace(s: astr): boo;
+function IsLowAlph(s: astr): boo;
+function IsLowAlphSpace(s: astr): boo;
+function IsLowAlphUscor(s: astr): boo;
+function IsLowAlphSpaceUscor(s: astr): boo;
+function IsUpAlph(s: astr): boo;
+function IsUpAlphUscor(s: astr): boo;
+function IsUpAlphSpace(s: astr): boo;
+function IsUpAlphSpaceUscor(s: astr): boo;
 
 
 
 implementation
 
 { checks string for characters given as a parameter }
-function ValidChars(s: string; CharSet: TCharSet): boolean;
+function ValidChars(s: astr; CharSet: TCharSet): boo;
 var i: integer;
 begin
   if length(s) < 1 then begin result:= false; exit; end;
@@ -108,15 +109,15 @@ end;
   Just checks for general "within the ballpark" correctness.
   Does not accept address such as John@localhost it must be in the format
   john@domain.com or john.domain.ca etc.}
-function IsEmail(s: string): boolean;
+function IsEmail(s: astr): boo;
 const
   DOMAIN_CHARS = ['a'..'z', 'A'..'Z', '0'..'9', '-'];
   ALPHA_NUMERIC = ['a'..'z', 'A'..'Z', '0'..'9'];
 var
   i: integer;
   AtFound: byte;
-  CharAfterAt: boolean;
-  CharBeforeAt: boolean;
+  CharAfterAt: boo;
+  CharBeforeAt: boo;
   DotsAfterAt: byte;
   
 begin
@@ -155,7 +156,7 @@ begin
   end;
 end;
 
-function IsAlphNum(s: string): boolean;
+function IsAlphNum(s: astr): boo;
 var
   i: integer;
 begin
@@ -167,7 +168,7 @@ begin
 end;
 
 // alphabet, numbers, and space allowed
-function IsAlphNumSpace(s: string): boolean;
+function IsAlphNumSpace(s: astr): boo;
 var
   i: integer;
 begin
@@ -179,7 +180,7 @@ begin
 end;
 
 // alphabet, numbers, space, and underscore allowed
-function IsAlphNumSpaceUscor(s: string): boolean;
+function IsAlphNumSpaceUscor(s: astr): boo;
 var
   i: integer;
 begin
@@ -191,7 +192,7 @@ begin
 end;
 
 // alphabet, numbers, space, dash, and underscore allowed
-function IsAlphNumSpaceDashUscor(s: string): boolean;
+function IsAlphNumSpaceDashUscor(s: astr): boo;
 var
   i: integer;
 begin
@@ -204,7 +205,7 @@ end;
 
 
 // alphabet, numbers, dash, and underscore allowed
-function IsAlphNumDashUscor(s: string): boolean;
+function IsAlphNumDashUscor(s: astr): boo;
 var
   i: integer;
 begin
@@ -216,7 +217,7 @@ begin
 end;
 
 // alphabet, numbers, and underscore allowed
-function IsAlphNumUscor(s: string): boolean;
+function IsAlphNumUscor(s: astr): boo;
 var
   i: integer;
 begin
@@ -228,7 +229,7 @@ begin
 end;
 
 // alphabet, numbers, and dash allowed
-function IsAlphNumDash(s: string): boolean;
+function IsAlphNumDash(s: astr): boo;
 var
   i: integer;
 begin
@@ -240,7 +241,7 @@ begin
 end;
 
 
-function IsNumDashBrackPlus(s: string): boolean; 
+function IsNumDashBrackPlus(s: astr): boo; 
 var
   i: integer;
 begin
@@ -251,7 +252,7 @@ begin
       begin result:= false; exit; end;
 end;
 
-function IsNumDashBrack(s: string): boolean; 
+function IsNumDashBrack(s: astr): boo; 
 var
   i: integer;
 begin
@@ -263,7 +264,7 @@ begin
 end;
 
 // numbers only
-function IsNum(s: string): boolean;
+function IsNum(s: astr): boo;
 var
   i: integer;
 begin
@@ -275,7 +276,7 @@ begin
 end;
 
 // numbers and dashes allowed
-function IsNumDash(s: string): boolean;
+function IsNumDash(s: astr): boo;
 var
   i: integer;
 begin
@@ -287,7 +288,7 @@ begin
 end;
 
 // numbers and spaces allowed
-function IsNumSpace(s: string): boolean;
+function IsNumSpace(s: astr): boo;
 var
   i: integer;
 begin
@@ -299,7 +300,7 @@ begin
 end;
 
 // numbers, dashes, and spaces allowed
-function IsNumDashSpace(s: string): boolean;
+function IsNumDashSpace(s: astr): boo;
 var
   i: integer;
 begin
@@ -311,7 +312,7 @@ begin
 end;
 
 // numbers, dashes, brackets, and spaces allowed
-function IsNumSpaceDashBrack(s: string): boolean;
+function IsNumSpaceDashBrack(s: astr): boo;
 var
   i: integer;
 begin
@@ -323,7 +324,7 @@ begin
 end;
 
 
-function IsAlph(s: string): boolean;
+function IsAlph(s: astr): boo;
 var
   i: integer;
 begin
@@ -335,7 +336,7 @@ begin
 end;
 
 // alphabet plus underscore and space allowed
-function IsAlphSpaceUscor(s: string): boolean;
+function IsAlphSpaceUscor(s: astr): boo;
 var
   i: integer;
 begin
@@ -347,7 +348,7 @@ begin
 end;
 
 // alphabet plus dashes allowed
-function IsAlphDash(s: string): boolean;
+function IsAlphDash(s: astr): boo;
 var
   i: integer;
 begin
@@ -359,7 +360,7 @@ begin
 end;
 
 // alphabet plus dashes and spaces allowed
-function IsAlphDashSpace(s: string): boolean;
+function IsAlphDashSpace(s: astr): boo;
 var
   i: integer;
 begin
@@ -371,7 +372,7 @@ begin
 end;
 
 // alphabet plus underscore allowed
-function IsAlphUscor(s: string): boolean;
+function IsAlphUscor(s: astr): boo;
 var
   i: integer;
 begin
@@ -383,7 +384,7 @@ begin
 end;
 
 // alphabet plus space allowed
-function IsAlphSpace(s: string): boolean;
+function IsAlphSpace(s: astr): boo;
 var
   i: integer;
 begin
@@ -395,7 +396,7 @@ begin
 end;
 
 // lower case alphabet allowed
-function IsLowAlph(s: string): boolean;
+function IsLowAlph(s: astr): boo;
 var
   i: integer;
 begin
@@ -407,7 +408,7 @@ begin
 end;
 
 // lower case alphabet plus space allowed
-function IsLowAlphSpace(s: string): boolean;
+function IsLowAlphSpace(s: astr): boo;
 var
   i: integer;
 begin
@@ -419,7 +420,7 @@ begin
 end;
 
 // lower case alphabet plus underscore allowed
-function IsLowAlphUscor(s: string): boolean;
+function IsLowAlphUscor(s: astr): boo;
 var
   i: integer;
 begin
@@ -431,7 +432,7 @@ begin
 end;
 
 // lower case alphabet plus space and underscore allowed
-function IsLowAlphSpaceUscor(s: string): boolean;
+function IsLowAlphSpaceUscor(s: astr): boo;
 var
   i: integer;
 begin
@@ -443,7 +444,7 @@ begin
 end;
 
 // upper case alphabet allowed
-function IsUpAlph(s: string): boolean;
+function IsUpAlph(s: astr): boo;
 var
   i: integer;
 begin
@@ -455,7 +456,7 @@ begin
 end;
 
 // upper case alphabet and underscore allowed
-function IsUpAlphUscor(s: string): boolean;
+function IsUpAlphUscor(s: astr): boo;
 var
   i: integer;
 begin
@@ -467,7 +468,7 @@ begin
 end;
 
 // upper case alphabet and space allowed
-function IsUpAlphSpace(s: string): boolean;
+function IsUpAlphSpace(s: astr): boo;
 var
   i: integer;
 begin
@@ -479,7 +480,7 @@ begin
 end;
 
 // upper case alphabet, and underscores and spaces allowed
-function IsUpAlphSpaceUscor(s: string): boolean;
+function IsUpAlphSpaceUscor(s: astr): boo;
 var
   i: integer;
 begin
