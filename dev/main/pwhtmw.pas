@@ -522,8 +522,8 @@ type
 {  PUBLIC PROCEDURES/FUNCTION DECLARATIONS                                     }
 {------------------------------------------------------------------------------}
 
-procedure outbr(const s: string);
-procedure outpara(const s: string);
+procedure OutBr(const s: string);
+procedure OutPara(const s: string);
 
 procedure HtmBegin;
 procedure HtmBegin(title: string); overload;
@@ -727,13 +727,13 @@ end;
 {------------------------------------------------------------------------------}
 
 
-procedure outbr(const s: string);
+procedure OutBr(const s: string);
 begin
   out(s);
   out('<br />');
 end;
 
-procedure outpara(const s: string);
+procedure OutPara(const s: string);
 begin
   out('<p>');
   out(s);
@@ -1410,7 +1410,7 @@ var
 begin
  Cnt := CountCGIVars();
  If Cnt >= 1 then
-   For I := 1 to Cnt  DO form_HiddenOut(FetchCGIVarName(I),FetchCGIVarValue(I));
+   For I := 1 to Cnt  DO form_HiddenOut(FetchPostVarName(I),FetchPostVarVal(I));
 end;
 
 
