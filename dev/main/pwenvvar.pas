@@ -1,27 +1,15 @@
 { Helper unit for gaining access to the Cgi Environment variables easily
+  Purpose of unit:  It is more elegant to use   outln( SERV.Referer() );
+                    Compared to: outln(GetCgiEnv('HTTP_REFERER'));
 
-     Why not just make a general function to get any environment variable on
-     the fly, such as GetCgiEnv('HTTP_REFERER') ?
+  Todo: Create easy to use old stack style Object instead of record. Records
+        don't have properties which are easier to use than function()
 
-     It is more elegant to use:
-
-       outln( SERV.Referer() );
-
-     Compared to :
-
-       outln(GetCgiEnv('HTTP_REFERER'));
    
-    You may also get single Cgi environment var's at a time by calling:
-      GetCgiUserAgent
-      GetCgiReferrer
+  Authors: Lars (L505)
+           http://z505.com
 
-  Feel free to write a class or old borland stack based object with properties, 
-  for more syntactic sugar if you want. 
-
-  Author: Lars (L505)
-          Website: http://z505.com
-
-  License: NRCOL
+  License: ~NRCOL
 --------------------------------------------------------------------------------}
 
 unit pwenvvar; {$IFDEF FPC} {$mode objfpc}{$H+} {$ENDIF}
@@ -29,6 +17,50 @@ unit pwenvvar; {$IFDEF FPC} {$mode objfpc}{$H+} {$ENDIF}
 interface
 
 type
+  // Get single cgi environment variable on demand
+  { 35 TOTAL }
+  TCgiEnvVar = record
+    Accept: function: string;     
+    AcceptEncod: function: string;
+    AcceptLang: function: string; 
+    AuthType: function: string;
+    ContentLength: function: string;
+    ContentType: function: string;
+    Cookie: function: string;   
+    DocName: function: string;
+    DocRoot: function: string;
+    DocUri: function: string;
+    Forwarded: function: string;
+    GateIntf: function: string;
+    Host: function: string;
+    IfModSince: function: string;
+    PathInfo: function: string;
+    PathTranslated: function: string;
+    Pragma: function: string;   
+    QueryString: function: string;
+    Referer: function: string;  
+    RemoteAddr: function: string;
+    RemoteHost: function: string;
+    RemoteIdent: function: string;
+    RemotePort: function: string;
+    RemoteUser: function: string;
+    RequestMethod: function: string;
+    RequestUri: function: string;
+    ScriptFileName: function: string;
+    ScriptName: function: string;
+    ScriptUri: function: string;
+    ServerAdmin: function: string;
+    ServerName: function: string;
+    ServerPort: function: string;
+    ServerProtocol: function: string;
+    ServerSig: function: string;
+    ServerSoft: function: string;
+    UserAgent: function: string;
+  end;
+
+(******************************************************************************
+ DEPRECATED
+
   // Store cgi environment variables, getting them only once.
   // Store them individually or all at once
   { 35 TOTAL }
@@ -71,57 +103,25 @@ type
     UserAgent: string;
   end;
 
-  // Get single cgi environment variable on demand
-  { 35 TOTAL }
-  TCgiEnvVar = record
-    Accept: function: string;     
-    AcceptEncod: function: string;
-    AcceptLang: function: string; 
-    AuthType: function: string;
-    ContentLength: function: string;
-    ContentType: function: string;
-    Cookie: function: string;   
-    DocName: function: string;
-    DocRoot: function: string;
-    DocUri: function: string;
-    Forwarded: function: string;
-    GateIntf: function: string;
-    Host: function: string;
-    IfModSince: function: string;
-    PathInfo: function: string;
-    PathTranslated: function: string;
-    Pragma: function: string;   
-    QueryString: function: string;
-    Referer: function: string;  
-    RemoteAddr: function: string;
-    RemoteHost: function: string;
-    RemoteIdent: function: string;
-    RemotePort: function: string;
-    RemoteUser: function: string;
-    RequestMethod: function: string;
-    RequestUri: function: string;
-    ScriptFileName: function: string;
-    ScriptName: function: string;
-    ScriptUri: function: string;
-    ServerAdmin: function: string;
-    ServerName: function: string;
-    ServerPort: function: string;
-    ServerProtocol: function: string;
-    ServerSig: function: string;
-    ServerSoft: function: string;
-    UserAgent: function: string;
-  end;
+function GetCgiEnvVars: TCgiEnvVars;
+
+var
+  // access to all variables initialized (placed) into the record in one shot
+  CgiEnvVars: TCgiEnvVars;
+
+
+END DEPRECATED
+*******************************************************************************)
 
 function GetEnvVar(const name: ansistring): ansistring;  
-function GetCgiEnvVars: TCgiEnvVars;
 function IsEnvVar(const name: string): boolean;
 
 (* Obsolete or future feature
   function CountEnvVars: longword;
   function FetchEnvVarName(index: longword): string;
   function FetchEnvVarVal(index: longword): string;
-  function SetEnvVar(const name, value: string): boolean; *)
-
+  function SetEnvVar(const name, value: string): boolean; 
+*)
 
 
 // single calls...
@@ -164,14 +164,13 @@ function GetCgiServerSoft: string;
 function GetCgiUserAgent: string;
 
 
-{ public variables so developer does not need to declare them in his program }
-var
-  // access to all variables initialized (placed) into the record in one shot
-  CgiEnvVars: TCgiEnvVars;
+(******************************************************************************
+DEPRECATED use SERV. instead
 
+const
   // access to all variables, individually placed into the record on demand. 
   { 35 TOTAL }
-const
+
 {$IFDEF FPC}
   CgiEnvVar: TCgiEnvVar = (
     Accept: @GetCgiAccept;
@@ -254,6 +253,9 @@ const
   );
 {$ENDIF}
 
+
+DEPRECATED END 
+*******************************************************************************)
 
 // new syntax for 1.6.1
 const
@@ -441,6 +443,8 @@ function GetCgiUserAgent: string;       begin result:= GetEnvVar('HTTP_USER_AGEN
 function GetCgiDocUri: string;          begin result:= GetEnvVar('DOCUMENT_URI'); end;
 function GetCgiScriptUri: string;       begin result:= GetEnvVar('SCRIPT_URI'); end;
 
+(****************************************************************************** 
+ DEPRECATED
 
 { Get all cgi environment variables into a record all at once
   Not as fast/effecient as single calls }
@@ -487,6 +491,7 @@ begin
     UserAgent     := GetEnvVar('HTTP_USER_AGENT');
   end;
 end;
+*******************************************************************************)
 
 // END OF PUBLIC FUNCTIONS
 {------------------------------------------------------------------------------}
