@@ -9,7 +9,7 @@ Copyright: Artistic license, a copy is included with your download.
 
 *******************************************************************************}
 
-unit sqlutils; {$IFDEF FPC}{$MODE OBJFPC}{$H+} {$IFDEF EXTRA_SECURE} {$R+}{$Q+}{$CHECKPOINTER ON} {$ENDIF}{$ENDIF}
+unit pwsqlutils; {$IFDEF FPC}{$MODE OBJFPC}{$H+} {$IFDEF EXTRA_SECURE} {$R+}{$Q+}{$CHECKPOINTER ON} {$ENDIF}{$ENDIF}
 
 interface
 uses
