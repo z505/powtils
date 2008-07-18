@@ -182,18 +182,18 @@ procedure BufferOut(const buf; len: longword);
 
 
 procedure Out(const s: astr);
-procedure Outln(const s: astr); overload;
-procedure Outln; overload;
+procedure OutLn(const s: astr); overload;
+procedure OutLn; overload;
 procedure Outa(args: array of const);
-procedure Outlna(args: array of const);
+procedure OutLna(args: array of const);
 
 procedure Outf(const s: astr);
 procedure Outf(const s: astr; vfilter: TFilterFunc); overload;
 procedure Outff(const s: astr); 
 
-procedure Outlnf(const s: astr); overload;
-procedure Outlnf(const s: astr; vfilter: TFilterFunc); overload;
-procedure Outlnff(const s: astr);
+procedure OutLnf(const s: astr); overload;
+procedure OutLnf(const s: astr; vfilter: TFilterFunc); overload;
+procedure OutLnff(const s: astr);
 
 function TemplateOut(const fname: astr; HtmlFilter: boo): errcode; overload;
 function TemplateOut(const fname: astr): errcode; overload;
@@ -486,12 +486,12 @@ var i: int32;
   if not headers_sent then SendHeaders;
   {$ifdef gzip_on} if out_buffering then FlushBuf;{$endif}
   // spit error to screen
-  outln(HTM_BREAK);
+  OutLn(HTM_BREAK);
   case style of
-    ttError: outln('ERR: ' + Msg);
-    ttWarn: outln('WARN: ' + Msg);
+    ttError: OutLn('ERR: ' + Msg);
+    ttWarn: OutLn('WARN: ' + Msg);
   end;
-  outln(HTM_BREAK);
+  OutLn(HTM_BREAK);
   if error_halt then halt(0);
 {e}                                                                             {$ifdef dbug_on}ThrowMsg_E;{$endif}end;
 
@@ -548,7 +548,7 @@ begin
   end;
 end;
 
-{ same as outLn but does not check for headers }
+{ same as OutLn but does not check for headers }
 procedure OutLnNoHeaders(const s: astr);
 begin
  {$ifdef gzip_on}
@@ -1937,19 +1937,19 @@ procedure Outa(args: array of const);
 var i: int32;  
 begin  
   if high(args) < 0 then 
-    out('')  
+    Out('')  
   else 
   begin
     for i:= low(args) to high(args) do  
     begin  
       case Args[i].vtype of  
-        vtinteger   : out(pwstrutil.inttostr(args[i].vInteger));  
-        vtboolean   : out(booltostr(args[i].vBoolean));
-        vtchar      : out(astr(args[i].vChar));  
-        vtextended  : out(FormatFloat('', args[i].VExtended^));  // i.e float value
-        vtString    : out(args[i].vString^);  
-        vtPChar     : out(Args[i].vPChar);  
-        vtAnsiString: out(AnsiString(Args[I].vAnsiString));
+        vtinteger   : Out(pwstrutil.inttostr(args[i].vInteger));  
+        vtboolean   : Out(booltostr(args[i].vBoolean));
+        vtchar      : Out(astr(args[i].vChar));  
+        vtextended  : Out(FormatFloat('', args[i].VExtended^));  // i.e float value
+        vtString    : Out(args[i].vString^);  
+        vtPChar     : Out(Args[i].vPChar);  
+        vtAnsiString: Out(AnsiString(Args[I].vAnsiString));
       else  
         {$ifdef dbug_on}outa_Unable_to_use_type_in_array_param;{$endif}
       end;  
@@ -1957,8 +1957,8 @@ begin
   end;
 end;
 
-procedure Outlna(args: array of const); 
-begin outa(args); outln; 
+procedure OutLna(args: array of const); 
+begin outa(args); OutLn; 
 end;
 
 { Formatted output with $MacroVars. As opposed to OutFF, this function replaces
@@ -1981,31 +1981,31 @@ begin Out(FmtFilter(s));
 end;
 
 { Plain output with line feed (no html break, just CRLF) }
-procedure Outln(const s: astr); 
+procedure OutLn(const s: astr); 
 begin Out(s + CGI_CRLF); 
 end;
 
-procedure Outln; 
-begin Outln('');
+procedure OutLn; 
+begin OutLn('');
 end;
 
-{ Formatted outln, outputs $macrovars that exist from SetVar 
+{ Formatted OutLn, outputs $macrovars that exist from SetVar 
   Zeros out malicious chars. F stands  for "Formatted". }
-procedure Outlnf(const s: astr);
-begin Outln(fmt(s));
+procedure OutLnf(const s: astr);
+begin OutLn(fmt(s));
 end;
 
 { overloaded, custom filter applied to macrovars }
-procedure Outlnf(const s: astr; vfilter: TFilterFunc);
-begin Outf(s, vfilter); outln;
+procedure OutLnf(const s: astr; vfilter: TFilterFunc);
+begin Outf(s, vfilter); OutLn;
 end;
 
 { Formatted and filtered writeln, outputs variables like macros,
   i.e. replaces $MyVar with an existing web variable, plus filters
   malicious attempts by filtering HTML special characters.
   FF stands for "Formatted and Filtered" }
-procedure OutlnFF(const s: astr);
-begin outff(s); outln;
+procedure OutLnFF(const s: astr);
+begin outff(s); OutLn;
 end;
 
 function noHeadSentNorBuffering: boo;
