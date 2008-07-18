@@ -15,6 +15,7 @@ Uses
   Classes,
   PWMain,
   SysUtils,
+  DateUtils,
   XMLBase,
   XMLLoader,
   XMLParser;
@@ -61,11 +62,23 @@ Var
   fTokenIterator: TTokenIterator;
 Begin
   Try
-    fSourceStream := TFileStream.Create(fFileName, fmOpenRead);
-    fSourceTokens := ParseXML(fSourceStream);
-    fTokenIterator := TTokenIterator.Create(fSourceTokens);
-    fRootTag := XMLLoad(fTokenIterator, fNameSpace);
-    fLoaded  := True;
+    If FileExists(fFileName + '.pchtml') And
+      (CompareDateTime(GetXMLDate(fFileName), GetPreDate(fFileName)) < 0)  Then
+    Begin
+      fSourceTokens := LoadPre(fFileName);
+      fTokenIterator := TTokenIterator.Create(fSourceTokens);
+      fRootTag := XMLLoad(fTokenIterator, fNameSpace);
+      fLoaded  := True;
+    End
+    Else
+    Begin
+      fSourceStream := TFileStream.Create(fFileName, fmOpenRead);
+      fSourceTokens := ParseXML(fSourceStream);
+      fTokenIterator := TTokenIterator.Create(fSourceTokens);
+      fTokenIterator.SaveToFile(fFileName);
+      fRootTag := XMLLoad(fTokenIterator, fNameSpace);
+      fLoaded  := True;
+    End;
   Except
   On E: Exception Do
     WriteLn(fFileName, ': ', E.Message);

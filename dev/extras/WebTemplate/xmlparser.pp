@@ -44,16 +44,61 @@ Type
     Constructor Create(Src: TTokenList);
     Function IsEOS: Boolean;
     Procedure Skip;
+    Procedure SaveToFile(Arq : String);
     Property Token: Ansistring Read GetCurrToken;
     Property Row: longword Read GetCurrRow;
     Property Col: longword Read GetCurrCol;
     Property TkType: Byte Read GetCurrType;
   End;
 
-
+Function GetXMLDate(Source: String): TDateTime;
+Function GetPreDate(Source: String): TDateTime;
+Function LoadPre(Source: String): TTokenList;
 Function ParseXML(Source: TStream): TTokenList;
 
 Implementation
+
+Function GetXMLDate(Source: String): TDateTime;
+Begin
+  GetXMLDate := FileDateToDateTime(FileAge(Source + '.pchtml'));
+End;
+
+Function GetPreDate(Source: String): TDateTime;
+Var
+  Handler : Text;
+  Temp    : String;
+Begin
+  Assign(Handler, Source + '.pchtml');
+  Reset(Handler);
+  ReadLn(Handler, Temp);
+  ReadLn(Handler, Temp);
+  GetPreDate := StrToDateTime(Temp);
+  Close(Handler);
+End;
+
+Function LoadPre(Source: String): TTokenList;
+Var
+  Handler : Text;
+  Ctrl    : LongWord;
+  Temp    : String;
+  Buffer  : TTokenList;
+
+Begin
+  Assign(Handler, Source + '.pchtml');
+  Reset(Handler);
+  ReadLn(Handler, Ctrl);
+  SetLength(Buffer, Ctrl);
+  ReadLn(Handler, Temp);
+  For Ctrl := Low(Buffer) To High(Buffer) Do
+  Begin
+    ReadLn(Handler, Buffer[Ctrl].Row);
+    ReadLn(Handler, Buffer[Ctrl].Col);
+    ReadLn(Handler, Buffer[Ctrl].Literal);
+    ReadLn(Handler, Buffer[Ctrl].TokenType);
+  End;    
+  Close(Handler);
+  LoadPre := Buffer;
+End;
 
 Function ParseXML(Source: TStream): TTokenList;
 Var
@@ -270,6 +315,25 @@ Begin
   Inc(fPosition);
   If fPosition > High(fTokenList) Then
     fPosition := High(fTokenList);
+End;
+
+Procedure TTokenIterator.SaveToFile(Arq : String);
+Var
+  Handler : Text;
+  Ctrl    : LongWord;
+Begin
+  Assign(Handler, Arq + '.pchtml');
+  Rewrite(Handler);
+  WriteLn(Handler, Length(fTokenList));
+  WriteLn(Handler, DateTimeToStr(Now));
+  For Ctrl := Low(fTokenList) To High(fTokenList) Do
+  Begin
+    WriteLn(Handler, fTokenList[Ctrl].Row);
+    WriteLn(Handler, fTokenList[Ctrl].Col);
+    WriteLn(Handler, fTokenList[Ctrl].Literal);
+    WriteLn(Handler, fTokenList[Ctrl].TokenType);
+  End;    
+  Close(Handler);
 End;
 
 End.
