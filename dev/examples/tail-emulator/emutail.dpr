@@ -69,7 +69,7 @@ begin
   fileOut('htm/header.htm');
   out('<br />');
 
-  showlines:= GetCGIVar('showlines');
+  showlines:= GetPostVar('showlines');
   if showlines = '' then
     showlines:= '10'; //default 10 lines
 

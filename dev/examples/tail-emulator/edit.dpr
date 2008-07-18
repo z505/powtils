@@ -28,9 +28,9 @@ var
 
 begin
   // must be edit text updates
-  if GetCGIVar('update') = 'yes' then
+  if GetPostVar('update') = 'yes' then
   begin
-    Edit1_Lines:= GetCGIVar_SafeHTML('Edit1');
+    Edit1_Lines:= GetPostVar_SafeHTML('Edit1');
     StrSaveFile(WatchFile, Edit1_Lines);
     outln('File has been saved. Use your back button to edit again.');
     halt;
