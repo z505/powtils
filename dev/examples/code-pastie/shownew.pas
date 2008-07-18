@@ -51,7 +51,7 @@ procedure ShowNewPasties;
   
   function MakePastieLink(id: string): string;
   begin
-    result:= '<a href="' + CgiEnvVars.ScriptName + '?p=' + id +'">Id #' + id + '</a>';
+    result:= '<a href="' + SERV.ScriptName() + '?p=' + id +'">Id #' + id + '</a>';
   end;
 
 var
