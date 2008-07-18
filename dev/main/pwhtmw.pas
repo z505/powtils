@@ -1408,7 +1408,7 @@ procedure RollUpCGIValues;
 var 
  I,Cnt : LongInt;
 begin
- Cnt := CountCGIVars();
+ Cnt := CountPostVars();
  If Cnt >= 1 then
    For I := 1 to Cnt  DO form_HiddenOut(FetchPostVarName(I),FetchPostVarVal(I));
 end;
@@ -1616,7 +1616,7 @@ begin
     and (input.PageAlign = chaCenter)
     and (input.widthunit = cuPercent) then
   begin
-    ThrowWebError('<script>alert("Warning: CustomBox.width should be EVEN number if centered")</script>');
+    ThrowErr('<script>alert("Warning: CustomBox.width should be EVEN number if centered")</script>');
   end;
 
   out('<div style="position:' + CSSPos[input.position] + ';' +

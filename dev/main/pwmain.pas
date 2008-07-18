@@ -265,6 +265,10 @@ procedure ThrowWarn(const s: astr);
 // flags
 var headers_sent: boo = false;
 
+
+procedure ErrWithHeader(const s: astr);
+
+
 // END OF PUBLIC FUNCTION DECLARATIONS
 {-----------------------------------------------------------------------------}
 
@@ -400,6 +404,17 @@ function unsetenv(const name: pchar): int32; cdecl; external 'c' name 'unsetenv'
 {------------------------------------------------------------------------------}
 
 
+{ Send simple headers and an error.. for cases where headers not in itialized }
+procedure ErrWithHeader(const s: astr);
+begin
+  NativeWriteLn('Content-type: text/html');
+  NativeWriteLn;
+  NativeWriteLn('ERR: '+s);
+  halt;
+end;
+
+
+
 {------------------------------------------------------------------------------}
 {--- PRIVATE FUNCTIONS/PROCEDURES ---------------------------------------------}
 {------------------------------------------------------------------------------}
@@ -423,15 +438,6 @@ begin
   ThrowErr('reading file: ' + fname);
 end;           
 
-{ Send simple headers and an error.. for cases where headers not in itialized }
-procedure ErrWithHeader(const s: astr);
-begin
-  NativeWriteLn('Content-type: text/html');
-  NativeWriteLn;
-  NativeWriteLn('ERR: '+s);
-  halt;
-end;
-
 procedure HaltErr(const s: astr);
 begin
   OutLn('ERR: '+s);
@@ -448,15 +454,15 @@ var i: int32;
   if headers_sent then exit;
   // kill if mandatory Init() not called
   if not plugin_init_called then ErrWithHeader(MISSING_INIT_CALL_OR_UNIT);
-  if {$ifndef FPC}@{$endif}customSessUpdate <> nil then customSessUpdate;
+  if {$ifndef FPC}@{$endif}CustomSessUpdate <> nil then CustomSessUpdate;
   // write headers to stdout
   if length(gHdr) > 0 then for i:= low(gHdr) to high(gHdr) do
-    nativeWriteLn(gHdr[i].name + ': ' + gHdr[i].value);
+    NativeWriteLn(gHdr[i].name + ': ' + gHdr[i].value);
 
-  nativeWriteLn;
+  NativeWriteLn;
   // Update RTI
   headers_sent:= true;
-  setRti(U_HEADERS_SENT, 'TRUE');
+  SetRti(U_HEADERS_SENT, 'TRUE');
   result:= true;
 {e}                                                                             {$ifdef dbug_on}SendHeaders_E{$endif} end;
 
@@ -472,7 +478,7 @@ var i: int32;
   i:= GetRtiAsInt('ERRORS');
   inc(i);
   str(i, s);
-  iSetRTI('ERRORS', s);
+  iSetRti('ERRORS', s);
   if not error_reporting then exit; 
   // disable content encoding
   if IsHeader('Content-Encoding') then UnsetHeader('Content-Encoding');
@@ -483,7 +489,7 @@ var i: int32;
   outln(HTM_BREAK);
   case style of
     ttError: outln('ERR: ' + Msg);
-    ttWarn: outln('WARNING: ' + Msg);
+    ttWarn: outln('WARN: ' + Msg);
   end;
   outln(HTM_BREAK);
   if error_halt then halt(0);
@@ -2585,7 +2591,7 @@ var i, len: int32;
 
 {$ifdef gzip_on}
 // Flush and destroy buffer if output flags are on
-procedure FlushDestroyOutputBuf;
+procedure FlushAndDestroyBuf;
 begin
   if (out_buffering) and (out_compression) then dispose(OutBuff, Destroy); 
 end;
@@ -2634,7 +2640,7 @@ begin
  {$endif}
   if not headers_sent then SendHeaders;
  {$ifdef gzip_on}
-  FlushDestroyOutputBuf;
+  FlushAndDestroyBuf;
  {$endif}
  {$ifdef PWUDEBUG}
   pwdebugplugin.DebugFini(debugt);
