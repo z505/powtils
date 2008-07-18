@@ -45,15 +45,14 @@ var
 
 implementation
 uses
-  pwnative_out,
-  {$ifdef WINDOWS}windows{$ENDIF}
-  {$ifdef UNIX}baseunix{$ENDIF}
-  ;
+  {$ifdef windows}windows{$endif} {$ifdef unix}baseunix{$endif},
+  pwnative_out;
 
-function lasterr: integer;
+
+function LastErr: integer;
 begin
-  {$ifdef WINDOWS}result:= getlasterror;{$endif}
-  {$ifdef UNIX}result:= fpgeterrno;{$endif}
+  {$ifdef WINDOWS}result:= GetLastError;{$endif}
+  {$ifdef UNIX}result:= fpGetErrNo;{$endif}
 end;
 
 {$ifdef DBUG_ON}
@@ -87,8 +86,8 @@ end;
  begin 
    F:= FileCreate(fname, fmShareDenyNone);   // TODO: UNIX FILE LOCKING
    if F = -1 then begin
-     str(lasterr, err);
-     ErrWithHeader('problem creating debug file: '+fname+' lasterror: '+err);
+     str(LastErr, err);
+     ErrWithHeader('Debug file creation err: '+fname+' LastErr: '+err);
    end;
  end;
 
