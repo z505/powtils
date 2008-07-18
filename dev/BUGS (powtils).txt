@@ -1,20 +1,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
- PSP/PWU
+ Powtils
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Known Bug on BSD:
-  DSO (dynpwu) will not work on BSD but works fine on Linux 
+  DSO (dynpwu.pas) will not work on BSD but works fine on Linux 
   (date tested: Jan-Feb 2007). Reported BSD bug relating to dynamic link 
    libraries to the FPC team, assigned to Marco V.
 
 Known Bug on Unix:
-  smartlinking will not work on FPC 2.0.2 for the PWU DSO/DLL.
-  smartlinking appears to work fine on Microsoft Windows for dynamic link
-  libraries. If compiling the DSO/DLL on unix, turn smart linking off.
-  The problem was related to finalization/initialization not occuring in the
-  DSO.
+  Smartlinking will not work on FPC 2.0.2 for the DSO/DLL.  Smartlinking 
+  appears to work fine on MS Windows for dynamic link libraries. If compiling 
+  the DSO/DLL on unix, turn smart linking off.  The problem was related to 
+  finalization/initialization not occuring.
 
 Known bug: 
 
