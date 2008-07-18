@@ -97,7 +97,7 @@ var HtmForm: THtmForm;
 { get incoming cmd and params }
 procedure getPostedVars;
 begin
-  HtmForm.cmd:= getCgiVar_S('ed1', 0);
+  HtmForm.cmd:= GetPostVar_S('ed1', 0);
 end;
 
 { process command, notify it was attempted }

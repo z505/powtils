@@ -29,6 +29,7 @@ end;
 procedure ProcessUpfile;
 var fname, path: astr;
 begin
+  //  fname:= '/'+GetUpFileName(WIDGET);
   fname:= '/test123456-'+GetUpFileName(WIDGET);
   // absolute path to save file in public html (document root)
   path:= SERV.DocRoot() + fname;
