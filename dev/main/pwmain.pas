@@ -39,11 +39,11 @@
  Special Defines 
 --------------------------------------------------------------------------------
  Below defines customize behavior. Save exe size by leaving all undefined.
-  dbug_on      -> detailed custom debugging if you assign debugln:= @myproc;
-  GZIP_ON      -> html compression saves bandwidth, output_compression and  output_buffering must also be enabled in config for gzip to have any effect. Gzip is harder to debug at the command line though: you will see a bunch of crap ;) It also takes more CPU power.. but saves the bandwidth bill, so it is up to you.
-  PWUDEBUG     -> text log file debugging, only use on localhost single visitor testing since it multiple visitors cannot write simutaneously to the same log file
-  EXTRA_SECURE -> check overflows, range errors (recommended)
-  SYSUTILS_ON  -> compactsysutils may cause troubles on 64 bit or other machines. If you have problems then you can define this to use Sysutils
+  DBUG_ON      -> extremely detailed debugging if you assign debugln:= @myproc;
+  GZIP_ON      -> html compression saves bandwidth, output_compression and  output_buffering must also be enabled in config for gzip to have any effect. Gzip is harder to debug at the command line though: you will see a bunch of compressed crap ;) It also takes more CPU power.. but saves the bandwidth bill, so it is up to you.
+  PWUDEBUG     -> text log file debugging, only use on localhost single visitor testing since with multiple visitors it cannot write simutaneously!
+  EXTRA_SECURE -> check overflows, range checks on (recommended)
+  SYSUTILS_ON  -> if you have problems with CompactSysUtils then you can define this to use regular Sysutils (64 bit machines should use sysutils for now)
 
  Using $DEFINE in this unit is not global for all units, so instead use 
  delphi project options or fpc -d option for global define across units.
@@ -184,16 +184,16 @@ procedure BufferOut(const buf; len: longword);
 procedure Out(const s: astr);
 procedure OutLn(const s: astr); overload;
 procedure OutLn; overload;
-procedure Outa(args: array of const);
-procedure OutLna(args: array of const);
+procedure OutA(args: array of const);
+procedure OutLnA(args: array of const);
 
-procedure Outf(const s: astr);
-procedure Outf(const s: astr; vfilter: TFilterFunc); overload;
-procedure Outff(const s: astr); 
+procedure OutF(const s: astr);
+procedure OutF(const s: astr; vfilter: TFilterFunc); overload;
+procedure OutFF(const s: astr); 
 
-procedure OutLnf(const s: astr); overload;
-procedure OutLnf(const s: astr; vfilter: TFilterFunc); overload;
-procedure OutLnff(const s: astr);
+procedure OutLnF(const s: astr); overload;
+procedure OutLnF(const s: astr; vfilter: TFilterFunc); overload;
+procedure OutLnFF(const s: astr);
 
 function TemplateOut(const fname: astr; HtmlFilter: boo): errcode; overload;
 function TemplateOut(const fname: astr): errcode; overload;
@@ -276,9 +276,7 @@ procedure ErrWithHeader(const s: astr);
 { FOR PLUGIN UNITS - TYPICAL USERS CAN IGNORE THIS PUBLIC INTERFACE           }
 {-----------------------------------------------------------------------------}
 { Advanced developers use this interface to extend Powtils. i.e. custom session 
-  units (mysql, firebird addons instead of SDS). Any functions in this section 
-  are not for a typical developer
-}
+  units (mysql, firebird instead of SDS), custom Config unit, etc. }
 
 type
   // variable structure
@@ -306,7 +304,11 @@ function iCustomCfgUnitSet: boo;
 {-----------------------------------------------------------------------------}
 
 
-// Backwards compatibility
+(*
+ Backwards compatibility no longer available.
+ WebWrite, GetCgiVar, and other functions have been removed. Too much confusion 
+ in the documentation, and too much duplication. 
+
 const 
   // Use GetPostVar instead
   GetCgiVar: function (const name: astr): astr                                  = {$ifdef fpc}@{$endif}GetPostVar;
@@ -315,7 +317,9 @@ const
   GetCgiVarAsFloat: function(const name: astr): double                          = {$ifdef fpc}@{$endif}GetPostVarAsFloat;   
   GetCgiVarAsInt: function(const name: astr): int32                             = {$ifdef fpc}@{$endif}GetPostVarAsInt;   
   GetCgiVar_SafeHTML: function(const name: astr): astr                          = {$ifdef fpc}@{$endif}GetPostVar_SafeHTML;   
-
+  //  WebWrite
+  //  WebWriteLn
+*)
 
 {------------------------------------------------------------------------------}
                                 implementation

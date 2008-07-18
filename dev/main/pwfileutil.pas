@@ -4,8 +4,8 @@
   Authors: L505 (Lars Olson), JKP (Jeff Pohlmeyer), Vladimir Sibirov
 
   License: 
-   NRCOL public domain. However, any include file or uses modules from FPC are 
-   the modified FPC rtl GPL license }
+   ~NRCOL public domain. However, any FPC include file modules are under 
+   modified FPC RTL GPL }
 
 unit pwfileutil;
 
@@ -15,12 +15,11 @@ unit pwfileutil;
 
 interface
 uses 
-  {$ifdef windows}windows,{$endif}
-  {$ifdef unix}baseunix, unix,{$endif}
+  {$ifdef windows}windows,{$endif} {$ifdef unix}baseunix, unix,{$endif}
   pwtypes;
 
 
-// many tests, feel free to run them, add to them, verify them, etc
+// many tests, feel free to add more
 procedure RunTests;
 
 // default, read, readwrite, 
@@ -29,7 +28,6 @@ type TFmode = (fmDefault, fmR, fmRW);
 
 const
   DEFAULT_CHUNK_SIZE  = 8192;  // for functions that BlockRead in chunks
-
   { File open modes }
   fmOpenRead       = $0000;
   fmOpenWrite      = $0001;
@@ -47,75 +45,70 @@ function NewFile(const fname: astr): bln;
 function CloneFile(src, dest: astr): integer;
 function FileError: astr;
 
-function ExtractFilePart(fpath: astr): astr;
-function ExtractFname(const fpath: astr; ext: bln): astr;
-
 function FileThere(const fpath: astr; fm: TFmode): bln; overload;
 function FileThere(const fpath: astr): bln; overload;
 
 function File2Bytes(const fname: astr; out buf: TByteRay): int32;  overload;
 function File2Bytes(const fname: astr; chunksz: int32; out buf:TByteRay): int32; overload;
-
 function File2Str(const fname:astr; out err:int32): astr; overload;
 function File2Str(const fname:astr): astr; overload;
 
-{ TODO str2file
-  function str2file(const s, fname:astr): errcode; overload;
-  function str2file(const s, fname:astr; chunksz: int32): errcode; overload;
-}
-
+function ExtractFilePart(fpath: astr): astr;
+function ExtractFname(const fpath: astr; ext: bln): astr;
 function ExtractFilePath(const fname: astr): astr;
 function ExtractFileDir(const fname: astr): astr;
 function ExtractFileDrive(const fname: astr): astr;
 function ExtractFileName(const fname: astr): astr;
 function ExtractFileExt(const fname: astr): astr;
+function ExtractRelativepath (Const BaseName,DestNAme : astr): astr;
 
 function ChangeFileExt(const fname, Extension: astr): astr;
 
-function ExtractRelativepath (Const BaseName,DestNAme : astr): astr;
 function IncludeTrailingPathDelimiter(Const Path : astr) : astr;
 function IncludeTrailingBackslash(Const Path : astr) : astr;
 function ExcludeTrailingBackslash(Const Path: astr): astr;
 function ExcludeTrailingPathDelimiter(Const Path: astr): astr;
-function IsPathDelimiter(Const Path: astr; Index: Integer): Boolean;
+function IsPathDelimiter(const path: astr; index: integer): boo;
 Procedure DoDirSeparators (Var fname : astr);
 Function SetDirSeparators (Const fname : astr) : astr;
-function GetDirs (Var DirName : astr; Var Dirs : Array of pchar) : Longint;
+function GetDirs (Var DirName : astr; Var Dirs : Array of pchar): longint;
 
-function OpenFileRead(var F:file; const fname: astr; recsize: integer): boolean;
-function OpenFileReWrite(var F:file; const fname:astr; recsize:integer): boolean;
-function OpenFile(var F: text; const fname: astr; mode: char): boolean; overload;
-function OpenFile(var F: file; const fname: astr; recsize:integer; mode: byte): boolean; overload;
-function OpenFile(var F: file; const fname: astr; mode: char): boolean; overload;
-function OpenFile(var F: TFileOfChar; const fname: astr; mode: char): boolean; overload;  
-function MakeDir(s: astr): boolean;
+function OpenFileRead(var F:file; const fname: astr; recsize: integer): boo;
+function OpenFileReWrite(var F:file; const fname:astr; recsize:integer): boo;
+function OpenFile(var F: text; const fname: astr; mode: char): boo; overload;
+function OpenFile(var F: file; const fname: astr; recsize:integer; mode: byte): boo; overload;
+function OpenFile(var F: file; const fname: astr; mode: char): boo; overload;
+function OpenFile(var F: TFileOfChar; const fname: astr; mode: char): boo; overload;  
 
-function DirectoryExists(const dir: astr): boolean;
-function DirExists(const dir: astr): boolean;
+function MakeDir(s: astr): boo;
+function DirectoryExists(const dir: astr): boo;
+function DirExists(const dir: astr): boo;
 
 {$ifdef windows}
 function GetFileAttributes(Dir: astr): dword;
 {$endif}
 
 procedure Sleep(milliseconds: Cardinal);
-
 function ExecuteProcess(const path: astr; const ComLine: astr):integer;
 function ExecuteProcess(const path: astr; const ComLine: array of astr):integer;
+
+function GetFileSize(const fname: astr): int32;
+function GetLargeFileSize(const fname: astr): int64;
 
 // backwards compatibility for older Powtils programs (use FileThere)
 function FileExists_plain(const fname: astr): bln;
 function FileExists_read(const fname: astr): bln;
 function FileExists_readwrite(const fname: astr): bln;
 
-function GetFileSize(const fname: astr): int32;
-function GetLargeFileSize(const fname: astr): int64;
+{ TODO str2file
+  function str2file(const s, fname:astr): errcode; overload;
+  function str2file(const s, fname:astr; chunksz: int32): errcode; overload;
+}
 
 const DirSeparators : set of char = ['/','\'];
 
-implementation
-
-uses
-  pwsubstr, pwstrutil;
+implementation 
+uses pwsubstr, pwstrutil;
 
 { Put tests in here }
 procedure RunTests;
@@ -147,7 +140,7 @@ begin
   then begin
     // Actually should return an Int64 ( for file size > 2GB )
     // Should be:
-    //  Result:=( (FileInfo.nFileSizeHigh * (MAXDWORD+1)) + FileInfo.nFileSizeLow );
+    //  result:=( (FileInfo.nFileSizeHigh * (MAXDWORD+1)) + FileInfo.nFileSizeLow );
     result:= FileInfo.nFileSizeLow;
     windows.findClose(hInfo);
   end else result:= -1
@@ -256,16 +249,14 @@ begin
   if err < 0 then result:= '';
 end;
 
-{  By JKP and L505 (license: public domain) }
-function OpenFile(var F: TFileOfChar; const fname: astr; mode: char): boolean;
+function OpenFile(var F: TFileOfChar; const fname: astr; mode: char): boo;
 begin
   result:= OpenFile(f, fname, mode);
 end;
 
 { Try to open a text file, return true on success.
-  The MODE argument must be one of [R]=read, [W]=write, or [A]=append. 
-  By JKP and L505 (public domain) }
-function OpenFile(var F: text; const fname: astr; mode: char): boolean;
+  The MODE argument must be one of [R]=read, [W]=write, or [A]=append. }
+function OpenFile(var F: text; const fname: astr; mode: char): boo;
 var oldFM: byte;
 begin
   if ( mode in ['A', 'R', 'W'] ) then inc(mode, 32); // "mode" to lowercase
@@ -281,62 +272,58 @@ begin
        'r':reset(F);
        'w':rewrite(F);
      end;
-     Result:= (ioresult = 0);
+     result:= (ioresult = 0);
     {$I+} // restore I/O checking
     filemode:= oldFM;
   end else
-    Result:= FALSE; // invalid MODE argument
+    result:= FALSE; // invalid MODE argument
 end;
 
-{  By JKP and L505 (public domain) }
-function OpenFileRead(var F: file; const fname: astr; recsize: integer): boolean;
+function OpenFileRead(var F: file; const fname: astr; recsize: integer): boo;
 var oldFM: byte;       
 begin
   oldFM:= filemode;
   filemode:= fmOpenRead;
-{$I-} // I/O checks off for now
-  ioresult; // Clears any previous error.
-  assign(F, fname);
-  reset(F, recsize);
-  Result:= (ioresult = 0);
-{$I+} // restore I/O checking
-  filemode:= oldFM;
-end;
-
-{  By JKP and L505 }
-function OpenFile(var F: file; const fname: astr; recsize: integer; mode: byte): boolean;
-var oldFM: byte;
-begin
-  oldFM:= filemode;
-  filemode:= mode; 
-{$I-} // I/O checks off for now
+ {$I-} // disable I/O checks
   ioresult; // Clears any previous error.
   assign(F, fname);
   reset(F, recsize);
   result:= (ioresult = 0);
-{$I+} // restore I/O checking
+ {$I+} // restore I/O checks
   filemode:= oldFM;
 end;
 
-{ tries to open file, forces file to be created if it does not exist 
-  By JKP and L505  }
-function OpenFileReWrite(var F: file; const fname: astr; recsize: integer): boolean;
+function OpenFile(var F: file; const fname: astr; recsize: integer; mode: byte): boo;
+var oldFM: byte;
+begin
+  oldFM:= filemode;
+  filemode:= mode; 
+ {$I-} // I/O checks off for now
+  ioresult; // clear any previous error
+  assign(F, fname);
+  reset(F, recsize);
+  result:= (ioresult = 0);
+ {$I+} // restore I/O checks
+  filemode:= oldFM;
+end;
+
+{ tries to open file, forces file to be created if it does not exist }
+function OpenFileReWrite(var F: file; const fname: astr; recsize: integer): boo;
 var oldFM: byte;
 begin
   oldFM:= filemode;
   filemode:= fmOpenReadWrite; 
-{$I-} // I/O checks off for now
-  ioresult; // Clears any previous error.
+ {$I-} // disable I/O checks 
+  ioresult; // clears any previous error
   assign(F, fname);
   rewrite(F, recsize);
-  Result:= (ioresult = 0);
-{$I+} // restore I/O checking
+  result:= (ioresult = 0);
+ {$I+} // restore I/O checks
   filemode:= oldFM;
 end;
 
-{ Try to open a file (doesn't have to be text) return false if unsuccessful 
-  By JKP and L505  }
-function OpenFile(var F: file; const fname: astr; mode: char): boolean;
+{ Try to open a file (doesn't have to be text) return false if unsuccessful }
+function OpenFile(var F: file; const fname: astr; mode: char): boo;
 var oldFM: byte;
 begin
   if ( mode in ['R', 'W'] ) then
@@ -360,9 +347,9 @@ begin
 end;
 
 { Copies file from one path to another. Returns less than 1 if a problem }
-function cloneFile(src, dest: astr): integer;
+function CloneFile(src, dest: astr): int32;
 
-  function saveBuf(const fname: astr; var buf: pointer; sz: integer): integer;
+  function SaveBuf(const fname: astr; var buf: pointer; sz: integer): integer;
   var F: file;
   begin
     result:= -1; //init
@@ -371,28 +358,27 @@ function cloneFile(src, dest: astr): integer;
     CloseFile(F);
   end;
    
-  function loadBuf(const fname: astr; var buf: TByteRay): integer;
+  function LoadBuf(const fname: astr; var buf: TByteRay): integer;
   var F: file; FSize: integer; 
   begin
     result:= -1; // init               
     if OpenFile(F, fname, 1, fmOpenRead) = false then exit;
     FSize:= GetFileSize(fname);
-    setLength(buf, FSize);
-    blockRead(F, pointer(buf)^, FSize, result);
+    SetLength(buf, FSize);
+    BlockRead(F, pointer(buf)^, FSize, result);
     CloseFile(F);
   end;
 
 var buf: TByteRay;
 begin
-  result:= loadBuf(src, buf);
+  result:= LoadBuf(src, buf);
   if result < 0 then exit;
   result:= SaveBuf(dest, pointer(buf), result);
 end;
 
-
-{ this grabs "file" from "file.ext" }
+{ grab "file" from "file.ext" }
 function ExtractFilePart(fpath: astr): astr;
-var i: integer;
+var i: int32;
     dotcnt: byte;
 begin
   result:= '';
@@ -454,7 +440,7 @@ begin
     result:= true; 
     close(fh); 
   end;
-  //    debugln('FileExists_readwrite: ' + fname);
+  // debugln('FileExists_readwrite: ' + fname);
   filemode:= oldfmode;
 end;
 
@@ -472,15 +458,13 @@ begin
   end;
 end;
 
-{ Overloaded, default mode 
-  By L505 (license: public domain) }  
+{ Overloaded, default mode }  
 function FileThere(const fpath: astr): bln; overload;
 begin
   result:= FileThere(fpath, fmDefault);
 end;
 
-{ Checks if file exists, returns true if success 
-  By Vladimir/Lars (Artistic) }
+{ Checks if file exists, returns true if success }
 function FileExists_plain(const fname: astr): bln;
 var fh: file of byte;
 begin
@@ -514,8 +498,7 @@ begin
   filemode:= oldfmode;
 end;
 
-{ Checks if file exists with write access, returns true if success
-  By Vladimir/Lars (artistic) }
+{ Checks if file exists with write access, returns true if success }
 function FileExists_readwrite(const fname: astr): bln;
 var fh: file of byte;
     oldfmode: byte;
@@ -531,7 +514,7 @@ begin
     result:= true; 
     close(fh); 
   end;
-  //    debugln('FileExists_readwrite: ' + fname);
+  // debugln('FileExists_readwrite: ' + fname);
   filemode:= oldfmode;
 end;
 
@@ -576,12 +559,12 @@ begin
 end;
 
 { nicer alias }
-function DirExists(const dir: astr): boolean;
+function DirExists(const dir: astr): boo;
 begin
   result:= DirectoryExists(dir);
 end;
 
-{ above functions are NRCOL license while below is modified fpc rtl GPL }
+{ Above is under NRCOL license. Below file is modified Fpc Rtl GPL }
 
 {$I pwfileutil_fpc_sysutils.inc }
 
