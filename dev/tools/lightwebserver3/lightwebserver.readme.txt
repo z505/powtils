@@ -1,0 +1,1 @@
+unfortunatelly i dont know how to make the service/daemon version of lightwebserver to run, so you will have to use the console testserv.pp version.
