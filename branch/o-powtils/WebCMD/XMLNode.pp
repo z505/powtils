@@ -178,7 +178,7 @@ var
 
 begin
 
-    Result:= '<'+ FTag+ ' '+ FAttributes.ToString;
+  Result:= '<'+ FTag+ ' '+ FAttributes.ToString;
 
   if FChilds.Size= 0 then
     Result:= Result+ '/>'
