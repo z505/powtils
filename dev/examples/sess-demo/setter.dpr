@@ -6,8 +6,8 @@ uses
   pwtypes, pwmain;    
 
 begin
-  setsess('USERID','MAX');
-  outln('<a href="getter'+EXT+'">Click Here For Get Test</a>');
-  offreadln; // hack to keep console open OFFLINE only
+  SetSess('USERID','MAX');
+  OutLn('<a href="getter'+EXT+'">Click Here For Get Test</a>');
+  OffReadLn; // hack to keep console open OFFLINE only
 end.
 
