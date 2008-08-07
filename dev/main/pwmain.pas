@@ -337,7 +337,10 @@ uses
 {$ifdef dbug_on}
   // var debugt: text; // Debug output file (for localhost single visitor testing only!)
   var debugt: int32; 
-  procedure dbugln(s: astr); begin pwdebugplugin.dbugln(debugt, s); end;
+  procedure dbugln(s: astr); 
+  begin 
+    pwdebugplugin.dbugln(debugt, s); 
+  end;
 {$endif}
 
 { flags } 
@@ -345,7 +348,6 @@ var plugin_init_called: boo = false;    // plugin initialized flag
     cook_initialized: boo = false;      // cookie flag
     error_reporting, error_halt: boo;   // error flags
    {$ifdef gzip_on}out_buffering, out_compression: boo;{$endif} 
-
 
 type
   // uploaded file structure

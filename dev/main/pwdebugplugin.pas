@@ -3,10 +3,10 @@
 ********************************************************************************
   Debugging plugin system, with a default available (text file log).
   This unit is only used in other units if DBUG_ON compiler define is on.
-  i.e. normal web programs have no verbose debugging by defauly.
+  i.e. normal web programs have no verbose debugging by default.
 
-  Copyright (c) 2007-2008 by Powtils devel team. See NRCOL License.
-  Authors/Credits: L505 (Lars Olson)
+  License: ~NRCOL 
+  Authors: L505 (Lars Olson)
 ********************************************************************************}
 
 unit pwdebugplugin; 
@@ -26,9 +26,9 @@ uses pwtypes, pwfileutil;
   text handle parameter in your plugin unit if not using a Text log. I.e. if 
   using a database or other storage }
 var
-   debuginit: procedure(var F: THandle; const fname: astr) = {$ifdef FPC}@{$endif}defaultdebuginit;
-   debugfini: procedure(F: THandle)                        = {$ifdef FPC}@{$endif}defaultdebugfini;
-   debugln: procedure(F: THandle; var s: string)         = {$ifdef FPC}@{$endif}defaultdebugln;
+   DebugInit: procedure(var F: THandle; const fname: astr)  = {$ifdef FPC}@{$endif}defaultdebuginit;
+   DebugFini: procedure(F: THandle)                         = {$ifdef FPC}@{$endif}defaultdebugfini;
+   DebugLn: procedure(F: THandle; var s: string)            = {$ifdef FPC}@{$endif}defaultdebugln;
 
 (*
  var 
@@ -45,7 +45,7 @@ var
 
 implementation
 uses
-  {$ifdef windows}windows{$endif} {$ifdef unix}baseunix{$endif},
+  {$ifdef windows}windows,{$endif} {$ifdef unix}baseunix,{$endif}
   pwnative_out;
 
 
