@@ -397,6 +397,7 @@ constructor TResident.Create (AOwner: TComponent);
     TempString: String;
     SessionIDLen: Integer;
     SessionVarName: String;
+    SessionUseCookie: Boolean;
     
   begin
     if not FileExists ('PSP.conf') then
@@ -478,8 +479,23 @@ constructor TResident.Create (AOwner: TComponent);
 
       end;
 
+
+      try
+        SessionUseCookie:=
+          UpperCase (WebConfiguration.ConfigurationByName ['SessionUseCookie'].Value)
+            = 'TRUE';
+
+      except
+        on e: ENameNotFound do
+        begin
+          SessionUseCookie:= True;
+
+        end;
+
+      end;
+
       SessionManagerUnit.SessionManager:= TBasicSessionManager.Create (
-        SessionIDLen, SessionVarName);
+        SessionIDLen, SessionVarName, SessionUseCookie);
         
     end;
 

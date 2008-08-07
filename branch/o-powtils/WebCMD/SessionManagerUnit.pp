@@ -70,6 +70,7 @@ type
   private
     FSessionIDLen: Integer;
     FSessionIDVarName: String;
+    FStoreSessionIDInCookie: Boolean;
     
     function GetSession (Index: Integer): TSession; virtual;
     function GetSessionBySessionID (SessionID: TSessionID): TSession; virtual;
@@ -80,8 +81,10 @@ type
     property SessionIDVarName: String read FSessionIDVarName;
     property Session [Index: Integer]: TSession read GetSession;
     property SessionBySessionID [SessionID: TSessionID]: TSession read GetSessionBySessionID;
+    property StoreSessionIDInCookie: Boolean read FStoreSessionIDInCookie;
 
-    constructor Create (SessionIDLen: Integer; SessIDVarName: String);
+    constructor Create (SessionIDLen: Integer; SessIDVarName: String;
+        StoreSessIDInCookie: Boolean);
     destructor Destroy; override;
 
     procedure AddSession (NewSession: TSession);
@@ -122,7 +125,10 @@ uses
 function GetSession (SessionID: String): TSession;
 begin
   if SessionID= '' then
-    Result:= SessionManager.CreateEmptySession
+  begin
+    Result:= SessionManager.CreateEmptySession;
+
+  end
   else
     try
       Result:= SessionManager.SessionBySessionID [SessionID]
@@ -193,13 +199,15 @@ begin
 
 end;
 
-constructor TAbstractSessionManager.Create (SessionIDLen: Integer; SessIDVarName: String);
+constructor TAbstractSessionManager.Create (SessionIDLen: Integer;
+   SessIDVarName: String; StoreSessIDInCookie: Boolean);
 begin
   inherited Create;
   
   Load;
   FSessionIDLen:= SessionIDLen;
   FSessionIDVarName:= SessIDVarName;
+  FStoreSessionIDInCookie:= StoreSessIDInCookie;
   
 end;
 
@@ -233,15 +241,23 @@ end;
 function TAbstractSessionManager.GetNewSessionID: TSessionID;
 
   function GenerateSessionID: String;
+  const
+    Letters: String= 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
   var
     i: Integer;
     CharPtr: PChar;
     
   begin
     Result:= Space (FSessionIDLen);
+    CharPtr:= @Result [1];
     
     for i:= 1 to FSessionIDLen do
-      Result:= Result ;
+    begin
+      CharPtr^:= Letters [Random (Length (Letters))] ;
+      Inc (CharPtr);
+      
+    end;
+      
   end;
   
 begin
@@ -255,6 +271,7 @@ end;
 function TAbstractSessionManager.CreateEmptySession: TSession;
 begin
   Result:= TSession.Create (GetNewSessionID);
+  Self.AddSession (Result);
   
 end;
 
@@ -318,7 +335,10 @@ end;
 
 constructor TSession.Create (ThisSessionID: TSessionID);
 begin
-
+  inherited Create;
+  
+  FSessionID:= ThisSessionID;
+  
 end;
 
 procedure TSession.AddVariable (NewVar: TVariable);

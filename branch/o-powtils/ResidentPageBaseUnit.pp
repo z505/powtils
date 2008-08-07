@@ -109,7 +109,7 @@ type
 
 implementation
 uses
-  ThisProjectGlobalUnit;
+  ThisProjectGlobalUnit, DateUtils;
   
 { TResidentPageBase }
 
@@ -122,12 +122,14 @@ const
 begin
   if SessionIDVarName= '' then
     SessionIDVarName:= WebConfiguration.ConfigurationValueByName ['SessionIDVarName'];
-    
-  FSessionID:= CgiVars.CgiVarValueByName [SessionIDVarName];
+
   if FSessionID= '' then
-//    FSessionID:= Cookies.naCookieValueByName [SessionIDVarName];
-    
+    FSessionID:= Cookies.CookieValueByName [SessionIDVarName];
+
   Result:= SessionManagerUnit.GetSession (FSessionID);
+  FSessionID:= Result.SessionID;
+  Cookies.Add (SessionIDVarName, FSessionID,
+                    Now+ 1.0/ 24);
   
 end;
 
@@ -171,10 +173,15 @@ const
 begin
   if HeaderCanBeSent then
   begin
-    BufText:= Header.Text;
-    FpWrite (FPipeHandle, BufText [1], Length (BufText));
-    FpWrite (FPipeHandle, NewLine [1], 2);
+    BufText:= Header.Text+ #10;
     Header.Clear;
+    FpWrite (FPipeHandle, BufText [1], Length (BufText));
+
+    BufText:= Cookies.Text;
+    Cookies.Clear;
+    FpWrite (FPipeHandle, BufText [1], Length (BufText));
+    
+    FpWrite (FPipeHandle, NewLine [1], 1);
     HeaderCanBeSent:= False;
 
   end;

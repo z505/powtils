@@ -61,7 +61,7 @@ implementation
 
 uses
   ResidentApplicationUnit, ResidentPageBaseUnit,
-  ThisApplicationPagesUnit, MyTypes;
+  ThisApplicationPagesUnit, MyTypes, SessionManagerUnit;
 
 { TResidentPageExcecuteThread }
 
@@ -119,6 +119,7 @@ begin
       PageInstance.PipeFileName:= MsgParameter.Argument [1];
       try
         PageInstance.MyDispatch;
+        
       except
         on e: Exception do
           WriteLn (e.Message);

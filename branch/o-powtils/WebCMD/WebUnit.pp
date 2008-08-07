@@ -51,7 +51,15 @@ var
 type
   // Exceptions
   ENotImplementedYet= class (Exception);
-  ECookieNotFound= class (Exception);
+
+  { ECookieNotFound }
+
+  ECookieNotFound= class (Exception)
+  public
+    constructor Create;
+    constructor Create (Msg: String);
+
+  end;
 
   {
     TContentType which is now an enumeration. It can be String, too.
@@ -215,8 +223,7 @@ type
 
     procedure Clear;
     procedure AddHeader (NewHeader: TWebHeader); overload;
-    procedure AddHearer (Str: String); overload;
-    
+
   end;
 
   { TCgiVar }
@@ -272,20 +279,23 @@ type
 
   TCookie= class (TNameValue)
  private
-    FDomain: String;
-    FExpires: string;
-    FPath: String;
+    PVal: PString;
     function GetValue: String;
 
+  protected
+    FDomain: String;
+    FExpires: TDateTime;
+    FPath: String;
+    
   public
     property Domain: String read FDomain;
     property Path: String read FPath;
     property Name: String read FName;
     property Value: String read GetValue;
-    property Expires: string read FExpires;
+    property Expires: TDateTime read FExpires;
     
     constructor Create (CookieName, CookieValue: String;
-        CookieExpireTime: String= ''; CookiePath: String= ''; CookieDomain: String= '');
+        CookieExpireTime: TDateTime= 0; CookiePath: String= ''; CookieDomain: String= '');
     destructor Destroy; override;
     
     function ToString (Index: Integer= 0): String;
@@ -302,10 +312,13 @@ type
     FIsHeaderSent: PBoolean;
     function GetCookie (Index: Integer): TCookie;
     function GetCookieByName (Name: String): TCookie;
+    function GetCookieValueByName(Name: String): String;
     function GetText: String;
     
   public
     property Cookie [Index: Integer]: TCookie read GetCookie;
+    property CookieByName [Name: String]: TCookie read GetCookieByName;
+    property CookieValueByName [Name: String]: String read GetCookieValueByName;
     property HostName: String read FHostName;
     property PageURI: String read FPageURI;
     property Text: String read GetText;
@@ -319,7 +332,9 @@ type
     procedure LoadFromString (CookieString: String);
     procedure WriteCookie;
     
-    procedure Add (NewCookie: TCookie);
+    procedure Add (NewCookie: TCookie); overload;
+    procedure Add (CookieName, CookieValue: String;
+        CookieExpireTime: TDateTime= ''; CookiePath: String= ''; CookieDomain: String= ''); overload;
     function IsExists (Name: String): Boolean;
     procedure RemoveCookieByName (Name: String);
     
@@ -492,7 +507,7 @@ var
   
 implementation
 uses
-  SubStrings, Base64_Enc, URLEnc;
+  SubStrings, Base64_Enc, URLEnc, MyTypes;
 
 procedure WebWriteDirectlyToOutput1 (const S: String);
 begin
@@ -1164,11 +1179,6 @@ begin
   
 end;
 
-procedure TWebHeaderCollection.AddHearer (Str: String);
-begin
-
-end;
-
 {==============================================================================}
 {================================   Types   ===================================}
 {==============================================================================}
@@ -1348,11 +1358,18 @@ end;
 function TCookieCollection.GetText: String;
 var
   i: Integer;
+  Ptr: PObject;
   
 begin
   Result:= '';
-  for i:= 0 to FSize- 1 do
-    Result:= Result+ 'Set-Cookie:'+ Cookie [i].ToString (1)+ #10;
+  Ptr:= GetPointerToFirst;
+  
+  for i:= 1 to FSize do
+  begin
+    Result:= Result+ 'Set-Cookie:'+ TCookie (Ptr^).ToString (1)+ #10;
+    Inc (Ptr);
+    
+  end;
     
 end;
 
@@ -1489,7 +1506,7 @@ begin
     FWebHeaderCollection.Add (TWebHeader.Create ('Set-Cookie',
     URLEncode (Cookie [i].Name)+ '='+ URLEncode (Cookie [i].Value)+
      ';path='+ Cookie [i].Path+ ';domain='+ Cookie [i].Domain+
-     ';expires=' + Cookie [i].Expires  ));
+     ';expires=' + DateTimeToStr (Cookie [i].Expires)));
 
 end;
 
@@ -1499,35 +1516,112 @@ begin
   
 end;
 
+procedure TCookieCollection.Add (CookieName, CookieValue: String;
+  CookieExpireTime: TDateTime; CookiePath: String; CookieDomain: String);
+var
+  Ptr: PObject;
+  i: Integer;
+  NewCookie: TCookie;
+  
+begin
+  Ptr:= GetPointerToFirst;
+  NewCookie:= nil;
+  
+  for i:= 1 to Size do
+  begin
+    if TCookie (Ptr^).Name= CookieName then
+    begin
+      NewCookie:= TCookie (Ptr^);
+      NewCookie.PVal^:= CookieValue;
+      NewCookie.FExpires:= CookieExpireTime;
+      
+    end;
+    
+    Inc (Ptr);
+    
+  end;
+  
+  if NewCookie= nil then
+  begin
+    NewCookie:= TCookie.Create (CookieName, CookieValue,
+      CookieExpireTime,
+       CookiePath, CookieDomain);
+    Add (NewCookie);
+    
+  end;
+  
+end;
+
 function TCookieCollection.IsExists (Name: String): Boolean;
 var
   i: Integer;
+  Ptr: PObject;
   
 begin
-  for i:= 0 to Size- 1 do
-    if Cookie [i].Name= Name then
-    begin
-      Result:= True;
+  Ptr:= GetPointerToFirst;
+  Result:= True;
+
+  for i:= 1 to Size do
+  begin
+    if (TCookie (Ptr^)).Name= Name then
       Exit;
-    end;
+    Inc (Ptr);
+
+  end;
 
   Result:= False;
+  
 end;
 
 function TCookieCollection.GetCookieByName (Name: String): TCookie;
 var
   i: Integer;
+  Ptr: PObject;
 
 begin
-  if not Self.IsExists (Name) then
-    raise ECookieNotFound.Create (Name+ 'does not exist');
+  Ptr:= GetPointerToFirst;
 
-  for i:= 0 to Size- 1 do
-    if Cookie [i].Name= Name then
+  for i:= 1 to Size do
+  begin
+    if (TCookie (Ptr^)).Name= Name then
     begin
-      Result:= Cookie [i];
+      Result:= TCookie (Ptr^);
       Exit;
+      
     end;
+    
+    Inc (Ptr);
+
+  end;
+
+  raise ECookieNotFound.Create (Name);
+
+end;
+
+function TCookieCollection.GetCookieValueByName (Name: String): String;
+var
+  i: Integer;
+  Ptr: PObject;
+
+begin
+  Ptr:= GetPointerToFirst;
+
+  for i:= 1 to Size do
+  begin
+    if (TCookie (Ptr^)).Name= Name then
+    begin
+      Result:= TCookie (Ptr^).Value;
+      Exit;
+
+    end;
+
+    Inc (Ptr);
+
+  end;
+
+  Result:= '';
+
+
 end;
 
 procedure TCookieCollection.RemoveCookieByName(Name: String);
@@ -1553,15 +1647,12 @@ end;
 
 function TCookie.GetValue: String;
 begin
-  Result:= (PString (PByte (FValue)))^;
+  Result:= PVal^;
 
 end;
 
 constructor TCookie.Create(CookieName, CookieValue: String;
-  CookieExpireTime: String; CookiePath: String; CookieDomain: String);
-var
-  PVal: PString;
-
+  CookieExpireTime: TDateTime; CookiePath: String; CookieDomain: String);
 begin
   New (PVal);
   PVal^:= CookieValue;
@@ -1588,10 +1679,10 @@ function TCookie.ToString (Index: Integer): String;
 begin
   case Index of
     0:
-      Result:= FDomain+ ':'+ FExpires+ ':'+ FName+ ':'+ Value+ ':'+ FPath;
+      Result:= FDomain+ ':'+ FormatDateTime ('ddd,dd-mmm-yyyy hh:nn:ss', FExpires)+ ' PDT:'+ FName+ ':'+ Value+ ':'+ FPath;
     1:
       Result:=  URLEncode (FName)+ '='+ Value+ ';path='+ FPath+ ';expires='
-      + FExpires;
+      + FormatDateTime ('ddd,dd-mmm-yyyy hh:nn:ss', FExpires)+ ' PDT';
       
   end;
   
@@ -1887,6 +1978,20 @@ end;
 function TCgiVar.ToString: String;
 begin
   Result:= FName+ ':'+ Value;
+  
+end;
+
+{ ECookieNotFound }
+
+constructor ECookieNotFound.Create;
+begin
+  inherited Create ('Cookie Not Found!');
+  
+end;
+
+constructor ECookieNotFound.Create(Msg: String);
+begin
+  inherited Create (Msg);
   
 end;
 
