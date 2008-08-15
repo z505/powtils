@@ -277,7 +277,7 @@ type
 
   { TCookie }
 
-  TCookie= class (TNameValue)
+ TCookie= class (TNameValue)
  private
     PVal: PString;
     function GetValue: String;
