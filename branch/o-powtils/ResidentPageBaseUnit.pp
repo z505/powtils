@@ -105,6 +105,7 @@ type
     function GetPage(Index: Integer): TResidentPageBase;
   public
     property Page [Index: Integer]: TResidentPageBase read GetPage;
+    
   end;
 
 implementation
@@ -118,17 +119,30 @@ function TResidentPageBase.GetSession: TSession;
 const
   SessionIDVarName: String= '';
 (*$I-*)
-
+var
+  SessionIDInCookie: String;
+  
 begin
   if SessionIDVarName= '' then
     SessionIDVarName:= WebConfiguration.ConfigurationValueByName ['SessionIDVarName'];
 
-  if FSessionID= '' then
-    FSessionID:= Cookies.CookieValueByName [SessionIDVarName];
+  if IsEqualGUID (FSessionID, EmptySessionID) then
+  begin
+    SessionIDInCookie:= Cookies.CookieValueByName [SessionIDVarName];
+    try
+      FSessionID:= StringToGUID (SessionIDInCookie);
+      
+    except
+      on e: EConvertError do
+        FSessionID:= EmptySessionID;
+       
+    end;
+    
+  end;
 
   Result:= SessionManagerUnit.GetSession (FSessionID);
   FSessionID:= Result.SessionID;
-  Cookies.Add (SessionIDVarName, FSessionID,
+  Cookies.Add (SessionIDVarName, GUIDToString (FSessionID),
                     Now+ 1.0/ 24);
   
 end;
@@ -240,7 +254,7 @@ begin
   inherited CreateWithOutGetWebData (PageHost, PagePath, ThisPageName,
      GlobalObjContainer.WebConfiguration, ContType);
 
-  FSessionID:= '';
+  FSessionID:= EmptySessionID;
   PipeIsAssigned:= False;
   
 end;

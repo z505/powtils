@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<xsl:template match="/LoginPage">
+<xsl:template match="/MainPage">
 <HTML>
   <HEAD>
-    <TITLE>WebCMD Application Login Page</TITLE>
+    <TITLE><xsl:value-of select= "LoginInfo/@UserName"/>@<xsl:value-of select="@HostName"/></TITLE>
   </HEAD>
   
  <BODY alink="#0000cc" bgcolor="#ffffff" link="#0000cc" text="#000000" vlink="#0000cc">
@@ -37,7 +37,6 @@
                <TR>
                 <TD align="right" width="30%"><INPUT type="checkbox" name="RememberUserName" /></TD>
                 <TD align="left" width="*">Remeber my username</TD>
-		<INPUT type= "hidden" name= "Action" value= "Login"/>
                </TR>
               </TBODY>
              </TABLE>

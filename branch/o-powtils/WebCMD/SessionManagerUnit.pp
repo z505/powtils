@@ -36,7 +36,7 @@ type
 
   end;
 
-  TSessionID= String;
+  TSessionID= TGuid;
   
   { TSession }
 
@@ -109,7 +109,10 @@ type
 
   end;
 
-function GetSession (SessionID: String): TSession;
+const
+  EmptySessionID: TGuid= '{5D6D6F68-69C9-11DD-B04C-EB0A56D89593}';
+
+function GetSession (SessionID: TSessionID): TSession;
 
 const
   DefualtSessionIDLen: Integer= 20;
@@ -122,9 +125,9 @@ implementation
 uses
   MyTypes;
 
-function GetSession (SessionID: String): TSession;
+function GetSession (SessionID: TSessionID): TSession;
 begin
-  if SessionID= '' then
+  if IsEqualGUID (SessionID, EmptySessionID) then
   begin
     Result:= SessionManager.CreateEmptySession;
 
@@ -149,7 +152,7 @@ begin
   
 end;
 
-function TAbstractSessionManager.GetSessionBySessionID(SessionID: TSessionID
+function TAbstractSessionManager.GetSessionBySessionID (SessionID: TSessionID
   ): TSession;
 var
   Ptr: PObject;
@@ -160,7 +163,7 @@ begin
   Ptr:= GetPointerToFirst;
   for i:= 1 to FSize do
   begin
-    if (TSession (Ptr^)).SessionID= SessionID then
+    if IsEqualGUID ((TSession (Ptr^)).SessionID, SessionID) then
     begin
       Result:= TSession (Ptr^);
       Exit;
@@ -184,7 +187,7 @@ begin
   Ptr:= GetPointerToFirst;
   for i:= 1 to FSize do
   begin
-    if (TSession (Ptr^)).SessionID= SessionID then
+    if IsEqualGUID ((TSession (Ptr^)).SessionID, SessionID) then
     begin
       Result:= i- 1;
       Exit;
@@ -240,15 +243,17 @@ end;
 
 function TAbstractSessionManager.GetNewSessionID: TSessionID;
 
-  function GenerateSessionID: String;
+  function GenerateSessionID: TSessionID;
   const
     Letters: String= 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
+    
   var
     i: Integer;
     CharPtr: PChar;
     
   begin
-    Result:= Space (FSessionIDLen);
+    CreateGUID (Result);
+{    Result:= Space (FSessionIDLen);
     CharPtr:= @Result [1];
     
     for i:= 1 to FSessionIDLen do
@@ -257,7 +262,7 @@ function TAbstractSessionManager.GetNewSessionID: TSessionID;
       Inc (CharPtr);
       
     end;
-      
+}
   end;
   
 begin

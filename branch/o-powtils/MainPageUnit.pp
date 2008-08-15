@@ -39,28 +39,42 @@ procedure TMainPage.MyDispatch;
   end;
   
 var
-  UserName, Password: String;
+  Action, UserName, Password: String;
   LoginNode: TXMLNode;
  
 begin
 
-  UserName:= CgiVars.CgiVarValueByName ['UserName'];
-  Password:= CgiVars.CgiVarValueByName ['Password'];
-
-  if LoginPassed (UserName, Password) then
-  begin
-    FXMLRoot.AddAttribute ('HostName', GetHostName);
-    LoginNode:= TXMLNode.Create ('LoginInfo');
-    LoginNode.AddAttribute ('UserName', UserName);
-    Session.AddVariable ('UserName', UserName);
-    Session.AddVariable ('LastAction', DateTimeToStr (Now));
-
-    FXMLRoot.AddChild (LoginNode);
-    
-  end
+  Action:= CgiVars.CgiVarValueByName ['Action'];
+  if Action= '' then
+    Header.AddHeader (TWebHeader.Create ('LOCATION', 'LoginPage?Retry=1'))
   else
-    Header.AddHeader (TWebHeader.Create ('LOCATION', 'LoginPage?Retry=1'));
+  begin
+    UserName:= CgiVars.CgiVarValueByName ['UserName'];
+    Password:= CgiVars.CgiVarValueByName ['Password'];
+
+    case Action [1] of
+      'L':
+        if LoginPassed (UserName, Password) then
+        begin
+          FXMLRoot.AddAttribute ('HostName', GetHostName);
+          LoginNode:= TXMLNode.Create ('LoginInfo');
+          LoginNode.AddAttribute ('UserName', UserName);
+          
+          Session.AddVariable ('UserName', UserName);
+          Session.AddVariable ('LastAction', DateTimeToStr (Now));
+
+          FXMLRoot.AddChild (LoginNode);
+
+        end
+        else
+          Header.AddHeader (TWebHeader.Create ('LOCATION', 'LoginPage?Retry=1'));
+
+      'R':
+      ;
+    end;
     
+  end;
+  
 end;
 
 end.
