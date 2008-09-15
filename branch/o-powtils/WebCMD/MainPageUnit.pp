@@ -4,13 +4,18 @@ unit MainPageUnit;
 
 interface
 uses
-  Classes, SysUtils, {CollectionBaseUnit, }ResidentPageBaseUnit, WebUnit;
+  Classes, SysUtils, {CollectionBaseUnit, }ResidentPageBaseUnit,
+    WebUnit, XMLNode;
 
 type
 
   { TMainPage }
 
   TMainPage= class (TXMLResidentPageBase)
+  private
+    function SessionIsValid: Boolean;
+    function GetInfo: TXMLNode;
+  
   public
     constructor Create;
 
@@ -20,9 +25,34 @@ type
 
 implementation
 uses
-  ThisProjectGlobalUnit, XMLNode, Unix;
+  ThisProjectGlobalUnit, Unix, DateUtils;
 
 { TMainPage }
+
+function TMainPage.SessionIsValid: Boolean;
+var
+  LastActionTime: TDateTime;
+
+begin
+  Result:= True;
+  
+  if Session.VariableExists ('LastActionTime') then
+  begin
+    LastActionTime:= StrToDateTime (Session.ValueByName ['LastActionTime']);
+    if IncHour (LastActionTime, 1)< Now then
+      Result:= False;
+
+  end;
+  
+end;
+
+function TMainPage.GetInfo: TXMLNode;
+begin
+  Result:= TXMLNode.Create ('ServerInfo');
+  Result.AddAttribute ('ServerTime', TimeToStr (Now));
+  Result.AddAttribute ('ServerDate', DateToStr (Now));
+  
+end;
 
 constructor TMainPage.Create;
 begin
@@ -34,7 +64,7 @@ procedure TMainPage.MyDispatch;
 
   function LoginPassed (UserName, Password: String): Boolean;
   begin
-    Result:= UserName= Password;
+    Result:= (UserName= Password) and (UserName<> '');
     
   end;
   
@@ -49,6 +79,7 @@ begin
     Header.AddHeader (TWebHeader.Create ('LOCATION', 'LoginPage?Retry=1'))
   else
   begin
+
     UserName:= CgiVars.CgiVarValueByName ['UserName'];
     Password:= CgiVars.CgiVarValueByName ['Password'];
 
@@ -60,8 +91,8 @@ begin
           LoginNode:= TXMLNode.Create ('LoginInfo');
           LoginNode.AddAttribute ('UserName', UserName);
           
-          Session.AddVariable ('UserName', UserName);
-          Session.AddVariable ('LastAction', DateTimeToStr (Now));
+          Session.AddValue ('UserName', UserName);
+          Session.AddValue ('LastActionTime', DateTimeToStr (Now));
 
           FXMLRoot.AddChild (LoginNode);
 
@@ -73,6 +104,11 @@ begin
       ;
     end;
     
+    if SessionIsValid then
+      FXMLRoot.AddChild (GetInfo)
+    else
+      Header.AddHeader (TWebHeader.Create ('LOCATION', 'LoginPage?Retry=2'));
+
   end;
   
 end;

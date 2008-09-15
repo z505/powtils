@@ -222,6 +222,7 @@ end;
 
 procedure TResidentPageBase.WriteHeaders;
 var
+  IsFirstLine: Boolean;
   S: String;
 
 begin
@@ -231,13 +232,18 @@ begin
     S:= Header.Text;
     Header.Clear;
     WriteProcedure (S);
-    
-  end;
+    IsFirstLine:= False;
+
+  end
+  else
+    IsFirstLine:= True;
   
   if Cookies.Size<> 0 then
   begin
     S:= Cookies.Text;
     Cookies.Clear;
+    if not IsFirstLine then
+      WriteProcedure (#10);
     WriteProcedure (S);
 
   end;
@@ -286,6 +292,7 @@ begin
   if PipeIsAssigned then
   begin
     WriteHeaders;
+    
     if Buffer.Count<> 0 then
       WriteProcedure (Buffer.Text);
 

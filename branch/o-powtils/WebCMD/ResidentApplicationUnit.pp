@@ -351,7 +351,6 @@ begin
       
       if StringIsComplete then
       begin
-
         NewRequest:= TRequest.Create (SegmentedString);
         RequestQueue.Insert (NewRequest);
         Inc (ReqCon);

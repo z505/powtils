@@ -124,7 +124,7 @@ begin
   Position:= Pos (ParametersCookiesSeprator, ParamsAndCookies);
 
   FParameters:= Copy (ParamsAndCookies, 1, Position- 1);
-  Delete (ParamsAndCookies, 1, Position+ 1);
+  Delete (ParamsAndCookies, 1, Position);
   FCookieStr:= URLDecode (ParamsAndCookies);
 
 (*$IFDEF DEBUG_MODE*)
