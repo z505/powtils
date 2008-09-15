@@ -29,10 +29,14 @@ type
 
   TVariable= class (TNameValue)
   private
-    procedure UpdateValue (NewVal: String);
+    FStringValue: String;
+    procedure UpdateValue (var AVal: String);
     
   public
-    constructor _Create (VarName, VarValue: String);
+    property StringValue: String read FStringValue;
+    
+    constructor Create (AName, AValue: String);
+    destructor Destroy; override;
 
   end;
 
@@ -40,27 +44,24 @@ type
   
   { TSession }
 
-  TSession= class (TBaseCollection)
+  TSession= class (TNameValueCollection)
   private
     FSessionID: TSessionID;
     
+    function GetValueByName (VariableName: String): String;
     function GetVariable (Index: Integer): TVariable;
-    function GetVariableByName (VarName: String): TVariable;
-    function FindVariableIndex (VarName: String): Integer;
-    
+
   public
     property SessionID: TSessionID read FSessionID;
     property Variable [Index: Integer]: TVariable read GetVariable;
-    property VariableByName [VarName: String]: TVariable read GetVariableByName;
+    property ValueByName [VariableName: String]: String read GetValueByName;
 
     constructor Create (ThisSessionID: TSessionID);
     
-    procedure AddVariable (NewVar: TVariable);
-    procedure AddVariable (Name, Value: String);
-    procedure UpdateValue (Name, Value: String);
-    procedure DeleteVariable (Name, Value: String);
+    procedure DeleteVariable (VariableName: String);
+    procedure AddValue (AName, AValue: String);
     
-    function VariableExists (VarName: String): TVariable;
+    function VariableExists (VariableName: String): Boolean;
 
   end;
   
@@ -77,6 +78,9 @@ type
     
     function FindSessionIndex (SessionID: TSessionID): Integer;
 
+  protected
+    function GenerateSessionID: TSessionID;
+    
   public
     property SessionIDVarName: String read FSessionIDVarName;
     property Session [Index: Integer]: TSession read GetSession;
@@ -134,8 +138,8 @@ begin
   end
   else
     try
-      Result:= SessionManager.SessionBySessionID [SessionID]
-      
+      Result:= SessionManager.SessionBySessionID [SessionID];
+
     except
       on e: ESessionNotFound do //Session has been expired
         Result:= SessionManager.CreateEmptySession
@@ -202,6 +206,26 @@ begin
 
 end;
 
+function TAbstractSessionManager.GenerateSessionID: TSessionID;
+begin
+  Result:= EmptySessionID;;
+  while CreateGUID (Result)<> 0 do;
+  
+  while IsEqualGUID (Result, EmptySessionID) do
+    while CreateGUID (Result)<> 0 do;
+
+{    Result:= Space (FSessionIDLen);
+  CharPtr:= @Result [1];
+
+  for i:= 1 to FSessionIDLen do
+  begin
+    CharPtr^:= Letters [Random (Length (Letters))] ;
+    Inc (CharPtr);
+
+  end;
+}
+end;
+
 constructor TAbstractSessionManager.Create (SessionIDLen: Integer;
    SessIDVarName: String; StoreSessIDInCookie: Boolean);
 begin
@@ -243,28 +267,6 @@ end;
 
 function TAbstractSessionManager.GetNewSessionID: TSessionID;
 
-  function GenerateSessionID: TSessionID;
-  const
-    Letters: String= 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
-    
-  var
-    i: Integer;
-    CharPtr: PChar;
-    
-  begin
-    CreateGUID (Result);
-{    Result:= Space (FSessionIDLen);
-    CharPtr:= @Result [1];
-    
-    for i:= 1 to FSessionIDLen do
-    begin
-      CharPtr^:= Letters [Random (Length (Letters))] ;
-      Inc (CharPtr);
-      
-    end;
-}
-  end;
-  
 begin
   Result:= GenerateSessionID;
   
@@ -283,15 +285,25 @@ end;
 
 { TVariable }
 
-procedure TVariable.UpdateValue (NewVal: String);
+procedure TVariable.UpdateValue (var AVal: String);
 begin
-  FValue:= TObject (NewVal);
+  FStringValue:= AVal;
+  FValue:= TObject (@FStringValue);
   
 end;
 
-constructor TVariable._Create (VarName, VarValue: String);
+constructor TVariable.Create (AName, AValue: String);
 begin
-  inherited Create (VarName, TObject (VarValue));
+  FStringValue:= AValue;
+  inherited Create (AName, TObject (@FStringValue));
+  
+end;
+
+destructor TVariable.Destroy;
+begin
+  FValue:= nil;
+  
+  inherited Destroy;
   
 end;
 
@@ -299,42 +311,20 @@ end;
 
 function TSession.GetVariable (Index: Integer): TVariable;
 begin
-  Result:= GetMember (Index) as TVariable;
+  Result:= NameValue [Index] as TVariable;
   
 end;
 
-function TSession.GetVariableByName (VarName: String): TVariable;
-var
-  i: Integer;
-  
+function TSession.GetValueByName (VariableName: String): String;
 begin
-  for i:= 0 to FSize- 1 do
-    if Variable [i].Name= VarName then
-    begin
-      Result:= Variable [i];
-      Exit;
-    end;
+  try
+    Result:= (NameValueByName [VariableName] as TVariable).StringValue;
 
-  raise EVariableNotFoundInSession.Create;
-    
-end;
+  except
+    on E: ENameNotFound do
+      Result:= '';
 
-function TSession.FindVariableIndex (VarName: String): Integer;
-var
-  i: Integer;
-  
-begin
-  VarName:= UpperCase (VarName);
-  
-  for i:= 0 to FSize- 1 do
-    if Variable [i].Name= VarName then
-    begin
-      Result:= i;
-      Exit;
-      
-    end;
-
-  Result:= -1;
+  end;
   
 end;
 
@@ -346,16 +336,7 @@ begin
   
 end;
 
-procedure TSession.AddVariable (NewVar: TVariable);
-var
-  CopyVar: TVariable;
-  
-begin
-  CopyVar:= TVariable.Create (UpperCase (NewVar.Name), NewVar.Value);
-  Add (CopyVar);
-  
-end;
-
+{
 procedure TSession.AddVariable (Name, Value: String);
 begin
   Add (TVariable._Create (UpperCase (Name), Value));
@@ -374,29 +355,44 @@ begin
     TempVar.UpdateValue (Value);
   
 end;
+}
 
-procedure TSession.DeleteVariable (Name, Value: String);
+procedure TSession.DeleteVariable (VariableName: String);
 var
   Index: Integer;
   
 begin
-  Index:= FindVariableIndex (Name);
+  Index:= GetNameValueIndexByName (VariableName);
   if Index<> -1 then
     Delete (Index);
     
 end;
 
-function TSession.VariableExists (VarName: String): TVariable;
+procedure TSession.AddValue (AName, AValue: String);
 var
-  VarIndex: Integer;
+  ANewVariable: TVariable;
   
 begin
-  VarIndex:= FindVariableIndex (VarName);
-  if VarIndex<> -1 then
-    Result:= Variable [VarIndex]
-  else
-    Result:= nil;
+  try
+    ANewVariable:= NameValueByName [AName] as TVariable;
+    ANewVariable.UpdateValue (AValue);
     
+  except
+    on E: ENameNotFound do
+    begin
+      ANewVariable:= TVariable.Create (AName, AValue);
+      Add (ANewVariable);
+      
+    end;
+    
+  end;
+  
+end;
+
+function TSession.VariableExists (VariableName: String): Boolean;
+begin
+  Result:= GetNameValueIndexByName (VariableName)<> -1;
+
 end;
 
 { EVariableNotFoundInSession }

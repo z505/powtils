@@ -133,7 +133,6 @@ begin
   end
   else
     raise EFileNotFound.Create (FileName);
-    
   
 end;
 

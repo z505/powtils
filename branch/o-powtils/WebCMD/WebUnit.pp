@@ -1458,7 +1458,7 @@ var
   CurrentCookie: TCookie;
   
 begin
-  Len:= length (CookieString);
+  Len:= Length (CookieString);
   if Len= 0 then
     Exit;
   if CookieString [Len]<> ';' then
@@ -1484,15 +1484,12 @@ begin
     // Getting value
     LastValuePos:= Pos (';', CookieString);
     Value:= Copy (CookieString, 1, LastValuePos- 1);
-            System.Delete (CookieString, 1, LastValuePos);
+    System.Delete (CookieString, 1, LastValuePos);
     
     CurrentCookie:= TCookie.Create (Name, Value);
     
     Self.Add (CurrentCookie);
     
-    if LastValuePos= 0 then
-      Break;
-      
   end;
   
 end;
@@ -1828,7 +1825,7 @@ end;
 function TCgiVariableCollection.GetCgiVarValueByName (VarName: String): String;
 begin
   try
-    Result:= CgiVarByName [VarName].Value;
+    Result:= (NameValueByName [VarName] as TCgiVar).Value;
     
   except
     on e: ENameNotFound do
