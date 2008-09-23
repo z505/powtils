@@ -20,7 +20,7 @@ type
    public
 
     constructor Create (ReqQueue: TCircularRequestsQueue); overload;
-    procedure Free;
+    destructor Destroy; override;
 
   end;
 
@@ -35,8 +35,8 @@ type
          read GetResidentThread;
 
     constructor Create;
-    procedure Free;
-    
+    destructor Destroy; override;
+
   end;
 
   { TThreadPool }
@@ -50,7 +50,7 @@ type
     constructor Create (RequestPool: TCircularRequestsQueue;
                        n: Integer);
     procedure Execute;
-    procedure Free;
+    destructor Destroy; override;
 
     {This procedure can be implemented in a better way -- using message passing}
     procedure WaitUntilEndOfAllActiveThreads;
@@ -143,7 +143,7 @@ begin
 
 end;
 
-procedure TResidentPageExcecuteThread.Free;
+destructor TResidentPageExcecuteThread.Destroy;
 begin
   FRequestQueue:= nil;
 
@@ -185,7 +185,7 @@ begin
 
 end;
 
-procedure TThreadPool.Free;
+destructor TThreadPool.Destroy;
 begin
   FThreadCollection.Free;
 
@@ -232,7 +232,7 @@ begin
   
 end;
 
-procedure TThreadCollection.Free;
+destructor TThreadCollection.Destroy;
 var
   i: Integer;
   
