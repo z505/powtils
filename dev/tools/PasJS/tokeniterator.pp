@@ -17,8 +17,8 @@ Type
     Function EOTk : Boolean;
     Procedure Start;
     Procedure Next;
-    Function Expected(Tk : TTokenKind): Boolean; Overload;
-    Function Expected(Tk : String): Boolean; Overload;
+    Function Expected(Tk : TTokenKind; Flag : Boolean): Boolean; Overload;
+    Function Expected(Tk : String; Flag : Boolean): Boolean; Overload;
     Property Token : TToken Read GetCurrentToken;
   End;
 
@@ -51,12 +51,18 @@ Begin
   Inc(fCurrent);
 End;
 
-Function TTokenIterator.Expected(Tk : TTokenKind): Boolean;
+Function TTokenIterator.Expected(Tk : TTokenKind; Flag : Boolean): Boolean;
 Begin
-  Expected := GetCurrentToken.Kind = Tk;
+  If Flag Then
+  Begin
+    If GetCurrentToken.Kind = Tk Then
+      
+  End
+  Else
+    Expected := GetCurrentToken.Kind = Tk;
 End;
 
-Function TTokenIterator.Expected(Tk : String): Boolean;
+Function TTokenIterator.Expected(Tk : String; Flag : Boolean): Boolean;
 Begin
   Expected := GetCurrentToken.Value = Tk;
 End;
