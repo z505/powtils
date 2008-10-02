@@ -2,77 +2,50 @@ Unit Parser;
 
 Interface
 
-Uses Classes, SysUtils, Scanner, TokenIterator, StreamHelp;
+Uses Classes, SysUtils, Scanner, TokenIterator, StreamHelp, SyntaxTree;
 
-Type
-  EParser = Class(Exception);
-
-Procedure Parser(Src : TTokenIterator; Dest : TStream);
+Function Parser(Src : TTokenIterator): TTreeElementList;
 
 Implementation
 
-Procedure Parser(Src : TTokenIterator; Dest : TStream);
+Function Parser(Src : TTokenIterator): TTreeElementList;
 
-  Procedure EmitLn(St : String);
+  Function ParseSymbol(Src : TTokenIterator; Owner : TRootTreeElement): TRootTreeElement; Forward;
+
+  Function ParseVarDec(Src : TTokenIterator; Owner : TRootTreeElement): TRootTreeElement;
   Begin
-    WriteLn(Dest, St);
+    ParseVarDec := TVarSyntax.Create(Src, Owner);
   End;
 
-  Procedure Emit(St : String);
-  Begin
-    Write(Dest, St);
-  End;
-
-  Function IsAddOp(St : String): Boolean;
-  Begin
-    IsAddOp := ((St = '+') Or (St = '-')) Or
-      ((St = 'or') Or (St = 'xor'));
-  End;
-
-  Function IsMulOp(St : String): Boolean;
-  Begin
-    IsMulOp := ((St = '*') Or (St = '/')) Or
-      (St = 'and');
-  End;
-
-  Function IsRelOp(St : String): Boolean;
-  Begin
-    IsRelOp := (St[1] In ['=', '>', '<']) Or
-      ((St = '<>') Or (St = '>=')) Or
-      (St = '<>'));
-  End;
-
-  Procedure RaiseError(St : String; Tk : TToken);
-  Begin
-    Raise EParser.Create(
-      '("' +
-      Tk.Value + '", "' +
-      Tk.SrcName + '", ' +
-      Tk.Row + ', ' +
-      Tk.Col + '): ' +
-      St
-    );
-  End;
-
-  Procedure ParseSymbols; Foward;
-
-  Procedure ParseVarDec;
+  Function ParseFuncDec(Src : TTokenIterator; Owner : TRootTreeElement): TRootTreeElement;
   Begin
   End;
 
-  Procedure ParseFuncDec;
+  Function ParseProcDec(Src : TTokenIterator; Owner : TRootTreeElement): TRootTreeElement;
   Begin
   End;
 
-  Procedure ParseProcDec;
+  Function ParseSymbol(Src : TTokenIterator; Owner : TRootTreeElement): TRootTreeElement;
   Begin
+    If Src.Token.Value = 'var' Then
+      ParseSymbol := ParseVarDec(Src, Owner)
+    Else If Src.Token.Value = 'procedure' Then
+      ParseSymbol := ParseProcDec(Src, Owner)
+    Else If Src.Token.Value = 'function' Then
+      ParseSymbol := ParseFuncDec(Src, Owner)
+    Else
+      Src.RaiseError('Expected Var, Procedure or Function declaration.');      
   End;
 
-  Procedure ParseSymbols;
-  Begin
-  End;
+Var
+  RootSyntax : TTreeElementList;
 
 Begin
+  Src.Start;
+  RootSyntax := TProgramSyntax.Create(Src, Nil);
+  While Not(Src.EOTk Or (Src.Token.Value = 'end')) Do
+    RootSyntax.AddChild(ParseSymbol(Src, RootSyntax));
+  Parser := RootSyntax;
 End;
 
 End.

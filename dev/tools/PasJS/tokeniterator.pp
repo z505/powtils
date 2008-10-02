@@ -17,8 +17,12 @@ Type
     Function EOTk : Boolean;
     Procedure Start;
     Procedure Next;
-    Function Expected(Tk : TTokenKind; Flag : Boolean): Boolean; Overload;
-    Function Expected(Tk : String; Flag : Boolean): Boolean; Overload;
+    Procedure Back;
+    Function Expected(Tk : TTokenKind): Boolean; Overload;
+    Function Expected(Tk : String): Boolean; Overload;
+    Function IsSumOp: Boolean;
+    Function IsMulOp: Boolean;
+    Procedure RaiseError(Msg : String);
     Property Token : TToken Read GetCurrentToken;
   End;
 
@@ -51,20 +55,48 @@ Begin
   Inc(fCurrent);
 End;
 
-Function TTokenIterator.Expected(Tk : TTokenKind; Flag : Boolean): Boolean;
+Procedure TTokenIterator.Back;
 Begin
-  If Flag Then
-  Begin
-    If GetCurrentToken.Kind = Tk Then
-      
-  End
-  Else
-    Expected := GetCurrentToken.Kind = Tk;
+  Dec(fCurrent);
 End;
 
-Function TTokenIterator.Expected(Tk : String; Flag : Boolean): Boolean;
+Function TTokenIterator.Expected(Tk : TTokenKind): Boolean;
+Begin
+  Expected := GetCurrentToken.Kind = Tk;
+End;
+
+Function TTokenIterator.Expected(Tk : String): Boolean;
 Begin
   Expected := GetCurrentToken.Value = Tk;
+End;
+
+Function TTokenIterator.IsSumOp: Boolean;
+Begin
+  IsSumOp :=
+    ((GetCurrentToken.Value = '+') Or
+    (GetCurrentToken.Value = '-')) Or
+    ((GetCurrentToken.Value = 'or') Or
+    (GetCurrentToken.Value = 'xor'));
+End;
+
+Function TTokenIterator.IsMulOp: Boolean;
+Begin
+  IsMulOp :=
+    ((GetCurrentToken.Value = '*') Or
+    (GetCurrentToken.Value = '/')) Or
+    (GetCurrentToken.Value = 'and');
+End;
+
+Procedure TTokenIterator.RaiseError(Msg : String);
+Begin
+  Raise EParser.Create(
+    '("' +
+    GetCurrentToken.Value + '", "' +
+    GetCurrentToken.SrcName + '", ' +
+    IntToStr(GetCurrentToken.Row) + ', ' +
+    IntToStr(GetCurrentToken.Col) + '): ' +
+    Msg
+  );
 End;
 
 End.

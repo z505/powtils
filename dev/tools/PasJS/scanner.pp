@@ -318,7 +318,10 @@ Var
       Begin
         SetLength(Temp, Length(Temp) + 1);
         Temp[High(Temp)].Kind    := tkType;
-        Temp[High(Temp)].Value   := Token;
+        If tkType = tkWord Then
+          Temp[High(Temp)].Value   := LowerCase(Token)
+        Else
+          Temp[High(Temp)].Value   := Token;
         Temp[High(Temp)].Row     := Source.Row;
         Temp[High(Temp)].Col     := Source.Col;
         Temp[High(Temp)].SrcName := Source.Name;
