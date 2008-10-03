@@ -25,6 +25,7 @@ Type
     Procedure SetChild(Idx : LongInt; Child : TRootTreeElement);
     Function Count: LongInt;
   Public
+    Destructor Destroy; Override;
     Procedure AddChild(Child : TRootTreeElement);
     Property Childs[Idx : LongInt]: TRootTreeElement Read GetChild Write SetChild;
   End;
@@ -46,6 +47,14 @@ Type
   End;
 
   TIdentifierListSyntax = Class(TTreeElementList)
+  Public
+    Constructor Create(
+      T : TTokenIterator;
+      O : TRootTreeElement
+    );
+  End;
+
+  TSymbolReferenceSyntax = Class(TTreeElementList)
   Public
     Constructor Create(
       T : TTokenIterator;
@@ -292,6 +301,15 @@ Begin
 //  Child.Owner := Self;
 End;
 
+Destructor TTreeElementList.Destroy;
+Var
+  Ctrl : LongInt;
+Begin
+  For Ctrl := Low(fChilds) To High(fChilds) Do
+    fChilds[Ctrl].Free;
+  Inherited Destroy;
+End;
+
 Constructor TTerminalSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
 Begin
   Inherited Create(T, O);
@@ -320,6 +338,17 @@ Begin
   End;
 End;
 
+Constructor TSymbolReferenceSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Begin
+  Inherited Create(T, O);
+  T.Next;
+  If T.Expected('.') Then
+  Begin
+    T.Next;
+    AddChild(TSymbolReferenceSyntax.Create(T, O));
+  End;
+End;
+
 Constructor TFactorSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
 Begin
   Inherited Create(T, O);
@@ -336,16 +365,25 @@ Begin
   Inherited Create(T, O);
   If T.Expected(tkIdent) Then
   Begin
+    T.Mark;
     T.Next;
+    While Not(T.EOTk) And T.Expected('.') Do
+    Begin
+      T.Next;
+      If T.Expected(tkIdent) Then
+        T.Next
+      Else
+        T.RaiseError('Expected identifier after "."');
+    End;
     If T.Expected('(') Then
     Begin
-      T.Back;
+      T.BackTrack;
       AddChild(TCallSyntax.Create(T, O));
     End
     Else
     Begin
-      T.Back;
-      AddChild(TIdentifierSyntax.Create(T, O));
+      T.BackTrack;
+      AddChild(TSymbolReferenceSyntax.Create(T, O));
     End;
   End
   Else If T.Token.Value = '-' Then
@@ -425,7 +463,7 @@ Begin
   Begin
     T.Next;
     AddChild(TElseStamentSyntax.Create(T, O));
-  End
+  End;
 End;
 
 Constructor TForDirectionSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
@@ -516,7 +554,13 @@ Begin
   Begin
     T.Next;
     While Not((T.Expected('else') Or T.Expected('end')) Or T.EOTk) Do
+    Begin
       AddChild(TCaseEntrySyntax.Create(T, O));
+      If T.Expected(';') Then
+        T.Next
+      Else
+        T.RaiseError('Expected ";".');
+    End;
     If T.Expected('else') Then
     Begin
       T.Next;
@@ -548,8 +592,8 @@ End;
 Constructor TAttribSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
 Begin
   Inherited Create(T, O);
+  // Write('>>>', T.Token.Value, '<<<');
   AddChild(TIdentifierSyntax.Create(T, O));
-  T.Next;
   If T.Expected(':=') Then
   Begin
     T.Next;
@@ -562,7 +606,7 @@ End;
 Constructor TCallSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
 Begin
   Inherited Create(T, O);
-  AddChild(TIdentifierSyntax.Create(T, O));
+  AddChild(TSymbolReferenceSyntax.Create(T, O));
   If T.Expected('(') Then
   Begin
     T.Next;
@@ -596,7 +640,9 @@ Begin
   End
   Else If T.Expected(tkIdent) Then
   Begin
+    // Write('>>');
     T.Next;
+    // Write('<<');
     If T.Expected(':=') Then
     Begin
       T.Back;
@@ -616,7 +662,15 @@ Constructor TCodeBlockSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
 Begin
   Inherited Create(T, O);
   While Not(T.Expected('end')) Do
+  Begin
     AddChild(TStamentSyntax.Create(T, O));
+    If T.Expected(';') Then
+      T.Next
+    Else
+      If T.Expected('end') Then
+      Else
+        T.RaiseError('Expected ";" or "end".');
+  End;
   If T.Expected('end') Then
     T.Next
   Else
@@ -667,6 +721,10 @@ Begin
   End
   Else
     T.RaiseError('Expected "begin"');
+  If T.Expected(';') Then
+    T.Next
+  Else
+    T.RaiseError('Expected ";"');
 End;
 
 Constructor TProcSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
@@ -687,6 +745,10 @@ Begin
   End
   Else
     T.RaiseError('Expected "begin"');
+  If T.Expected(';') Then
+    T.Next
+  Else
+    T.RaiseError('Expected ";"');
 End;
 
 Constructor TProgramSyntax.Create(T : TTokenIterator; O : TRootTreeElement);

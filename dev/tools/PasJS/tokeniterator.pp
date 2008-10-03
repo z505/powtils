@@ -9,7 +9,8 @@ Type
 
   TTokenIterator = Class
   Private
-    fCurrent : Longint;
+    fCurrent,
+    fMarked  : LongInt;
     fBuffer  : TTokenList;
     Function GetCurrentToken : TToken;
   Public
@@ -18,6 +19,8 @@ Type
     Procedure Start;
     Procedure Next;
     Procedure Back;
+    Procedure Mark;
+    Procedure BackTrack;
     Function Expected(Tk : TTokenKind): Boolean; Overload;
     Function Expected(Tk : String): Boolean; Overload;
     Function IsSumOp: Boolean;
@@ -30,6 +33,7 @@ Implementation
 
 Function TTokenIterator.GetCurrentToken : TToken;
 Begin
+  // Write(' ' + fBuffer[fCurrent].Value + ' ');
   GetCurrentToken := fBuffer[fCurrent];
 End;
 
@@ -38,6 +42,7 @@ Begin
   Inherited Create;
   fBuffer  := Src;
   fCurrent := Low(fBuffer);
+  fMarked  := Low(fBuffer);
 End;
 
 Function TTokenIterator.EOTk : Boolean;
@@ -58,6 +63,16 @@ End;
 Procedure TTokenIterator.Back;
 Begin
   Dec(fCurrent);
+End;
+
+Procedure TTokenIterator.Mark;
+Begin
+  fMarked := fCurrent;
+End;
+
+Procedure TTokenIterator.BackTrack;
+Begin
+  fCurrent := fMarked;
 End;
 
 Function TTokenIterator.Expected(Tk : TTokenKind): Boolean;
