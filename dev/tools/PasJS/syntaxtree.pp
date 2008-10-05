@@ -18,6 +18,8 @@ Type
     Property Owner : TRootTreeElement Read fOwner Write fOwner;
   End;
 
+  TClassOfTRootTreeElement = Class Of TRootTreeElement;
+
   TTreeElementList = Class(TRootTreeElement)
   Private
     fChilds : Array Of TRootTreeElement;
@@ -27,6 +29,7 @@ Type
   Public
     Destructor Destroy; Override;
     Procedure AddChild(Child : TRootTreeElement);
+    Function FindElement(Kind : TClassOfTRootTreeElement): TRootTreeElement;
     Property Childs[Idx : LongInt]: TRootTreeElement Read GetChild Write SetChild;
   End;
 
@@ -62,12 +65,19 @@ Type
     );
   End;
 
-  TFactorSyntax = Class;
-  TTermSyntax = Class;
-
   TMulOperatorSyntax = Class(TTerminalSyntax);
 
   TSumOperatorSyntax = Class(TTerminalSyntax);
+
+  TRelOperatorSyntax = Class(TTerminalSyntax);
+
+  TFactorTerminalSyntax = Class(TTreeElementList)
+  Public
+    Constructor Create(
+      T : TTokenIterator;
+      O : TRootTreeElement
+    );
+  End;    
 
   TFactorSyntax = Class(TTreeElementList)
   Public
@@ -97,7 +107,13 @@ Type
 
   TUnaryNotSyntax = Class(TPrefixedSyntax);
 
-  TExpressionSyntax = Class(TFactorSyntax);
+  TExpressionSyntax = Class(TTreeElementList)
+  Public
+    Constructor Create(
+      T : TTokenIterator;
+      O : TRootTreeElement
+    );
+  End;
 
   TExpressionListSyntax = Class(TTreeElementList)
   Public
@@ -301,6 +317,19 @@ Begin
 //  Child.Owner := Self;
 End;
 
+Function TTreeElementList.FindElement(Kind : TClassOfTRootTreeElement): TRootTreeElement;
+Var
+  Ctrl : LongInt;
+Begin
+  FindElement := Nil;
+  For Ctrl := Low(fChilds) To High(fChilds) Do
+    If fChilds[Ctrl].ClassType = Kind Then
+    Begin
+      FindElement := fChilds[Ctrl];
+      Exit;
+    End;
+End;
+
 Destructor TTreeElementList.Destroy;
 Var
   Ctrl : LongInt;
@@ -349,18 +378,7 @@ Begin
   End;
 End;
 
-Constructor TFactorSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
-Begin
-  Inherited Create(T, O);
-  AddChild(TTermSyntax.Create(T, O));
-  If T.IsMulop Then
-  Begin
-    AddChild(TMulOperatorSyntax.Create(T, O));
-    AddChild(TFactorSyntax.Create(T, O));
-  End;
-End;
-
-Constructor TTermSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TFactorTerminalSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
 Begin
   Inherited Create(T, O);
   If T.Expected(tkIdent) Then
@@ -401,10 +419,27 @@ Begin
   End
   Else
     AddChild(TTerminalSyntax.Create(T, O));
+End;
+
+Constructor TFactorSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Begin
+  Inherited Create(T, O);
+  AddChild(TFactorTerminalSyntax.Create(T, O));
+  If T.IsMulOp Then
+  Begin
+    AddChild(TMulOperatorSyntax.Create(T, O));
+    AddChild(TFactorSyntax.Create(T, O));
+  End;
+End;
+
+Constructor TTermSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Begin
+  Inherited Create(T, O);
+  AddChild(TFactorSyntax.Create(T, O));
   If T.IsSumOp Then
   Begin
     AddChild(TSumOperatorSyntax.Create(T, O));
-    AddChild(TTermSyntax.Create(T, O));
+    AddChild(TFactorSyntax.Create(T, O));
   End;
 End;
 
@@ -413,6 +448,17 @@ Begin
   Inherited Create(T, O);
   T.Next;
   AddChild(TTerminalSyntax.Create(T, O));
+End;
+
+Constructor TExpressionSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Begin
+  Inherited Create(T, O);
+  AddChild(TTermSyntax.Create(T, O));
+  If T.IsRelOp Then
+  Begin
+    AddChild(TRelOperatorSyntax.Create(T, O));
+    AddChild(TTermSyntax.Create(T, O));
+  End;
 End;
 
 Constructor TExpressionListSyntax.Create(T : TTokenIterator; O : TRootTreeElement);

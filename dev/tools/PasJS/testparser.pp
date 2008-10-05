@@ -11,23 +11,33 @@ Begin
 End;
 
 Begin
-  MySourceFile := TFileStream.Create(ParamStr(1), fmOpenRead);
-  MyDefines    := TStringList.Create;
-  MyDefines.Sorted := True;
-  MyDefines.Duplicates := dupIgnore;
-  MyDefines.Add('pasjs');
-  MySyntax := Parser.Parser(
-    TTokenIterator.Create(
-      Scanner.PreProcess(
-        ParamStr(1),
-        Scanner.Scanner(
-          ParamStr(1), MySourceFile
-        ),
-        MyDefines,
-        @OpenNewOne
+  Try
+    MySourceFile := TFileStream.Create(ParamStr(1), fmOpenRead);
+    MyDefines    := TStringList.Create;
+    MyDefines.Sorted := True;
+    MyDefines.Duplicates := dupIgnore;
+    MyDefines.Add('pasjs');
+    MySyntax := Parser.Parser(
+      TTokenIterator.Create(
+        Scanner.PreProcess(
+          ParamStr(1),
+          Scanner.Scanner(
+            ParamStr(1), MySourceFile
+          ),
+          MyDefines,
+          @OpenNewOne
+        )
       )
-    )
-  );
+    );
+  Except
+    On E: Exception Do
+    Begin
+      WriteLn(E.Message);
+      MySyntax.Free;
+      MySourceFile.Free;
+      Halt;
+    End;
+  End;
   MySyntax.Free;
   MySourceFile.Free;
 End.
