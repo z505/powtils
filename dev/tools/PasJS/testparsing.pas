@@ -6,10 +6,10 @@ Var
 
 Procedure teste(var a : integer);
 Begin
-  If 1 * a + 2 then
+  If 1 and a + 2 = b or c = 3 then
     document.writeln('teste')
   Else
-    document.WriteLn('something wrong ! ifs should accept boolean expressions !')
+    document.WriteLn('now expressions are working correctly !')
 End;
 
 function hello: boolean;

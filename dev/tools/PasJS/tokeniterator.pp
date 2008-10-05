@@ -25,6 +25,7 @@ Type
     Function Expected(Tk : String): Boolean; Overload;
     Function IsSumOp: Boolean;
     Function IsMulOp: Boolean;
+    Function IsRelOp: Boolean;
     Procedure RaiseError(Msg : String);
     Property Token : TToken Read GetCurrentToken;
   End;
@@ -102,14 +103,24 @@ Begin
     (GetCurrentToken.Value = 'and');
 End;
 
+Function TTokenIterator.IsRelOp: Boolean;
+Begin
+  IsRelOp := (GetCurrentToken.Value[1] In ['=', '>', '<']) Or
+    (((GetCurrentToken.Value = '<=') Or
+    (GetCurrentToken.Value = '>=')) Or
+    (GetCurrentToken.Value = '<>'));
+End;
+
+
 Procedure TTokenIterator.RaiseError(Msg : String);
 Begin
   Raise EParser.Create(
-    '("' +
-    GetCurrentToken.Value + '", "' +
-    GetCurrentToken.SrcName + '", ' +
+    'Fatal Error. ' + #13#10 +
+    'File: "' +
+    GetCurrentToken.SrcName + '". ' + #13#10 + 'Got : "' +
+    GetCurrentToken.Value + '", At (' +
     IntToStr(GetCurrentToken.Row) + ', ' +
-    IntToStr(GetCurrentToken.Col) + '): ' +
+    IntToStr(GetCurrentToken.Col) + '): ' + #13#10 +
     Msg
   );
 End;
