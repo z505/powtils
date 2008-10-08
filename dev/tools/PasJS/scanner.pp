@@ -20,8 +20,11 @@ Type
     tkUnknown,    // Unknown token while scanning whitespace
     tkWord,       // Reserved word or punctuation mark
     tkIdent,      // Identifier
-    tkNumber,     // Any number, deals with $HEXA
+    tkNumber,     // Any number
     tkString,     // Single quote enclosed char string (Quote not included)
+    tkBoolean,    // Literal boolean value
+    tkFloat,      // Literal floating point number
+    tkChar,       // Literal char
     tkComment,    // Any comment ('{' and '}' not included)
     tkPreCmd      // Comment that starts with '{$' (Not Included, neither trailing '}')
   );
@@ -188,11 +191,29 @@ Var
       tkType := tkNumber;
       Token := '' + Source.Current;
       If Source.Current = '$' Then
+      Begin
         While (Source.Next In ['0'..'9', 'A'..'F', 'a'..'f']) And Not(Source.EOS) Do
-          Token := Token + Source.Current
+          Token := Token + Source.Current;
+        Token := IntToStr(StrToInt(Token));
+      End
       Else
         While (Source.Next In ['0'..'9']) And Not(Source.EOS) Do
           Token := Token + Source.Current;
+      If Source.Current = '.' Then
+      Begin
+        tkType := tkFloat;
+        While (Source.Next In ['0'..'9']) And Not(Source.EOS) Do
+          Token := Token + Source.Current;
+      End;
+    End;
+
+    Procedure ScanChar;
+    Begin
+      Source.Mark;
+      tkType := tkChar;
+      Token := '';
+      While (Source.Next In ['0'..'9']) And Not(Source.EOS) Do
+        Token := Token + Source.Current;
     End;
 
     Procedure ScanString;
@@ -229,6 +250,8 @@ Var
       Token := LowerCase(Token);
       If IsWord(Token) Then
         tkType := tkWord
+      Else If (Token = 'true') Or (Token = 'false') Then
+        tkType := tkBoolean
       Else
         tkType := tkIdent;
     End;
@@ -303,6 +326,8 @@ Var
         ScanString
       Else If Source.Current = '$' Then
         ScanNumber
+      Else If Source.Current = '#' Then
+        ScanChar
       Else If Source.Current = '{' Then
         ScanComment
       Else

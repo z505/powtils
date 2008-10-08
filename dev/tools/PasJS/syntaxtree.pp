@@ -1,142 +1,109 @@
 Unit SyntaxTree;
 
 Interface
-Uses TokenIterator, Scanner, SysUtils, Classes;
+Uses TokenIterator, Scanner, SysUtils, Classes, Tree;
 
 Type
-  TRootTreeElement = Class;
-  TRootTreeElement = Class
+  TIdentifierCallBack = Function(T : TToken; Name : String): TTokenKind Of Object;
+
+  TTokenTreeElement = Class(TTreeElement)
   Private
     fToken : TToken;
-    fOwner : TRootTreeElement;
+    fCallBack : TIdentifierCallBack;
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
+    Procedure PropagateIdentifierCallBack(CB : TIdentifierCallBack);
+    Procedure VerifyIdentifiers;
+    Function EvaluateTo: TTokenKind;
+    Function Generate: String;
     Property Token : TToken Read fToken;
-    Property Owner : TRootTreeElement Read fOwner Write fOwner;
   End;
 
-  TClassOfTRootTreeElement = Class Of TRootTreeElement;
-
-  TTreeElementList = Class(TRootTreeElement)
-  Private
-    fChilds : Array Of TRootTreeElement;
-    Function GetChild(Idx : LongInt): TRootTreeElement;
-    Procedure SetChild(Idx : LongInt; Child : TRootTreeElement);
-    Function Count: LongInt;
+  TTerminalSyntax = Class(TTokenTreeElement)
   Public
-    Destructor Destroy; Override;
-    Procedure AddChild(Child : TRootTreeElement);
-    Function FindElement(Kind : TClassOfTRootTreeElement): TRootTreeElement;
-    Property Childs[Idx : LongInt]: TRootTreeElement Read GetChild Write SetChild;
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TTerminalSyntax = Class(TRootTreeElement)
+  TNumericTerminalSyntax = Class(TTerminalSyntax);
+  TStringTerminalSyntax = Class(TTerminalSyntax);
+  TBooleanTerminalSyntax = Class(TTerminalSyntax);
+  TCharTerminalSyntax = Class(TTerminalSyntax);
+  TFloatTerminalSyntax = Class(TTerminalSyntax);
+
+  TIdentifierSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TIdentifierSyntax = Class(TRootTreeElement)
+  TIdentifierListSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TIdentifierListSyntax = Class(TTreeElementList)
+  TTypeIdentifierSyntax = Class(TIdentifierSyntax);
+
+  TSymbolReferenceSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TSymbolReferenceSyntax = Class(TTreeElementList)
+  TMulOperatorSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TMulOperatorSyntax = Class(TTerminalSyntax);
-
-  TSumOperatorSyntax = Class(TTerminalSyntax);
-
-  TRelOperatorSyntax = Class(TTerminalSyntax);
-
-  TFactorTerminalSyntax = Class(TTreeElementList)
+  TSumOperatorSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
+  End;
+
+  TRelOperatorSyntax = Class(TTokenTreeElement)
+  Public
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
+  End;
+
+  TFactorTerminalSyntax = Class(TTokenTreeElement)
+  Public
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;    
 
-  TFactorSyntax = Class(TTreeElementList)
+  TFactorSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;    
 
-  TTermSyntax = Class(TTreeElementList)
+  TTermSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TPrefixedSyntax = Class(TTreeElementList)
+  TPrefixedSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
   TUnaryMinusSyntax = Class(TPrefixedSyntax);
 
   TUnaryNotSyntax = Class(TPrefixedSyntax);
 
-  TExpressionSyntax = Class(TTreeElementList)
+  TExpressionSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TExpressionListSyntax = Class(TTreeElementList)
+  TExpressionListSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TVarDecSyntax = Class(TTreeElementList)
+  TVarDecSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TVarSyntax = Class(TTreeElementList)
+  TVarSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
   TStamentSyntax = Class;
@@ -144,208 +111,472 @@ Type
 
   TForFinishExpressionSyntax = Class(TExpressionSyntax);
 
-  TIfStamentSyntax = Class(TTreeElementList)
+  TIfStamentSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TForDirectionSyntax = Class(TRootTreeElement)
+  TForDirectionSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TForStamentSyntax = Class(TTreeElementList)
+  TForStamentSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TWhileStamentSyntax = Class(TTreeElementList)
+  TWhileStamentSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TRepeatStamentSyntax = Class(TTreeElementList)
+  TRepeatStamentSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TCaseEntrySyntax = Class(TTreeElementList)
+  TCaseEntrySyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TCaseStamentSyntax = Class(TTreeElementList)
+  TCaseStamentSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TWithStamentSyntax = Class(TTreeElementList)
+  TWithStamentSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TAttribSyntax = Class(TTreeElementList)
+  TAttribSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TCallSyntax = Class(TTreeElementList)
+  TCallSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TStamentSyntax = Class(TTreeElementList)
+  TStamentSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
   TElseStamentSyntax = Class(TStamentSyntax);
 
-  TCodeBlockSyntax = Class(TTreeElementList)
+  TCodeBlockSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
   TVarParameterDecSyntax = Class(TVarDecSyntax);
 
   TParameterDecSyntax = Class(TVarDecSyntax);
 
-  TParametersSyntax = Class(TTreeElementList)
+  TParametersSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TReturnTypeIdentifierSyntax = Class(TIdentifierSyntax);
-
-  TFuncSyntax = Class(TTreeElementList)
+  TFuncSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TProcSyntax = Class(TTreeElementList)
+  TProcSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
-  TProgramSyntax = Class(TTreeElementList)
+  TProgramSyntax = Class(TTokenTreeElement)
   Public
-    Constructor Create(
-      T : TTokenIterator;
-      O : TRootTreeElement
-    );
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
+
+Procedure RaiseError(Msg : String; Tk : TToken);
 
 Implementation
 
-Constructor TRootTreeElement.Create(T : TTokenIterator; O : TRootTreeElement);
+Procedure RaiseError(Msg : String; Tk : TToken);
 Begin
+  Raise EParser.Create(
+    'Fatal Error. ' + #13#10 +
+    'File: "' +
+    Tk.SrcName + '". ' + #13#10 + 'Got : "' +
+    Tk.Value + '", At (' +
+    IntToStr(Tk.Row) + ', ' +
+    IntToStr(Tk.Col) + '): ' + #13#10 +
+    Msg
+  );
+End;
+
+Constructor TTokenTreeElement.Create(T : TTokenIterator; O : TTokenTreeElement);
+Begin
+  Inherited Create(O);
   If Assigned(T) Then
     fToken := T.Token;
-  fOwner := O;
 End;
 
-Function TTreeElementList.GetChild(Idx : LongInt): TRootTreeElement;
+Procedure TTokenTreeElement.PropagateIdentifierCallBack(CB : TIdentifierCallBack);
 Begin
-  If Idx In [Low(fChilds), High(fChilds)] Then
-    GetChild := fChilds[Idx]
-  Else
-    Raise Exception.Create('Array index out of bounds.');
+  fCallBack := CB;
+  If (Count > 0) Then
+  Begin
+    Start;
+    Repeat
+      (Child As TTokenTreeElement).PropagateIdentifierCallBack(CB);
+      Next;
+    Until EOE;
+  End;
 End;
 
-Procedure TTreeElementList.SetChild(Idx : LongInt; Child : TRootTreeElement);
+Procedure TTokenTreeElement.VerifyIdentifiers;
 Begin
-  If Idx In [Low(fChilds), High(fChilds)] Then
-    fChilds[Idx] := Child
-  Else
-    Raise Exception.Create('Array index out of bounds.');
+  If Self Is TSymbolReferenceSyntax Then
+    fCallBack(
+      (Self As TSymbolReferenceSyntax).Token,
+      (Self As TSymbolReferenceSyntax).Token.Value
+      );
+  If (Count > 0) Then
+  Begin
+    Start;
+    Repeat
+      (Child As TTokenTreeElement).VerifyIdentifiers;
+      Next;
+    Until EOE;
+  End;
 End;
 
-Function TTreeElementList.Count: LongInt;
-Begin
-  Count := Length(fChilds);
-End;
-
-Procedure TTreeElementList.AddChild(Child : TRootTreeElement);
-Begin
-  SetLength(fChilds, Length(fChilds) + 1);
-  fChilds[High(fChilds)] := Child;
-//  Child.Owner := Self;
-End;
-
-Function TTreeElementList.FindElement(Kind : TClassOfTRootTreeElement): TRootTreeElement;
+Function TTokenTreeElement.EvaluateTo: TTokenKind;
 Var
-  Ctrl : LongInt;
+  Tmp1,
+  Tmp2 : TTokenKind;
 Begin
-  FindElement := Nil;
-  For Ctrl := Low(fChilds) To High(fChilds) Do
-    If fChilds[Ctrl].ClassType = Kind Then
+  If Self Is TNumericTerminalSyntax Then
+    EvaluateTo := tkNumber
+  Else If Self Is TStringTerminalSyntax Then
+    EvaluateTo := tkString
+  Else If Self Is TBooleanTerminalSyntax Then
+    EvaluateTo := tkBoolean
+  Else If Self Is TCharTerminalSyntax Then
+    EvaluateTo := tkChar
+  Else If Self Is TFloatTerminalSyntax Then
+    EvaluateTo := tkFloat
+  Else If Self Is TUnaryMinusSyntax Then
+  Begin
+    Start;
+    EvaluateTo := (Child As TTokenTreeElement).EvaluateTo;
+  End
+  Else If Self Is TUnaryNotSyntax Then
+  Begin
+    Start;
+    EvaluateTo := (Child As TTokenTreeElement).EvaluateTo;
+  End
+  Else If Self Is TExpressionSyntax Then
+  Begin
+    Tmp1 := tkUnknown;
+    Tmp2 := tkUnknown;
+    Start;
+    If FindElement(TRelOperatorSyntax) Then
     Begin
-      FindElement := fChilds[Ctrl];
-      Exit;
+      Tmp1 := (Child As TRelOperatorSyntax).EvaluateTo;
+      Start;
+      If FindElement(TTermSyntax) Then
+        Tmp2 := (Child As TTermSyntax).EvaluateTo
+      Else
+        RaiseError('Internal error, cant find factor.', fToken);
+      If Tmp1 <> Tmp2 Then
+        RaiseError('Type mismatch (1).', fToken);
+    End
+    Else
+    Begin
+      If FindElement(TTermSyntax) Then
+        Tmp1 := (Child As TTermSyntax).EvaluateTo
+      Else
+        RaiseError('Internal error, cant find factor.', fToken);
     End;
+    EvaluateTo := Tmp1;
+  End
+  Else If Self Is TSymbolReferenceSyntax Then
+    EvaluateTo := fCallBack(fToken, fToken.Value)
+  Else If Self Is TMulOperatorSyntax Then
+  Begin
+    Start;
+    Tmp1 := (Child As TTokenTreeElement).EvaluateTo;
+    If Not(Tmp1 In [tkNumber, tkFloat]) Then
+      RaiseError('Type mismatch (2).', fToken);
+    EvaluateTo := Tmp1;
+  End
+  Else If Self Is TSumOperatorSyntax Then
+  Begin
+    Start;
+    EvaluateTo := (Child As TTokenTreeElement).EvaluateTo;
+  End
+  Else If Self Is TRelOperatorSyntax Then
+  Begin
+    Start;
+    EvaluateTo := (Child As TTokenTreeElement).EvaluateTo;
+  End
+  Else If Self Is TFactorTerminalSyntax Then
+  Begin
+    Start;
+    EvaluateTo := (Child As TTokenTreeElement).EvaluateTo;
+  End
+  Else If Self Is TFactorSyntax Then
+  Begin
+    Tmp1 := tkUnknown;
+    Tmp2 := tkUnknown;
+    Start;
+    If FindElement(TMulOperatorSyntax) Then
+    Begin
+      Tmp1 := (Child As TMulOperatorSyntax).EvaluateTo;
+      Start;
+      If FindElement(TFactorTerminalSyntax) Then
+        Tmp2 := (Child As TFactorTerminalSyntax).EvaluateTo
+      Else
+        RaiseError('Internal error, cant find factor.', fToken);
+      If Tmp1 <> Tmp2 Then
+        RaiseError('Type mismatch (4).', fToken);
+    End
+    Else
+    Begin
+      If FindElement(TFactorTerminalSyntax) Then
+        Tmp1 := (Child As TFactorTerminalSyntax).EvaluateTo
+      Else
+        RaiseError('Internal error, cant find factor.', fToken);
+    End;
+    EvaluateTo := Tmp1;
+  End
+  Else If Self Is TTermSyntax Then
+  Begin
+    Tmp1 := tkUnknown;
+    Tmp2 := tkUnknown;
+    Start;
+    If FindElement(TSumOperatorSyntax) Then
+    Begin
+      Tmp1 := (Child As TSumOperatorSyntax).EvaluateTo;
+      Start;
+      If FindElement(TFactorSyntax) Then
+        Tmp2 := (Child As TFactorSyntax).EvaluateTo
+      Else
+        RaiseError('Internal error, cant find factor.', fToken);
+      If Tmp1 <> Tmp2 Then
+        RaiseError('Type mismatch (5).', fToken);
+    End
+    Else
+    Begin
+      If FindElement(TFactorSyntax) Then
+        Tmp1 := (Child As TFactorSyntax).EvaluateTo
+      Else
+        RaiseError('Internal error, cant find factor.', fToken);
+    End;
+    EvaluateTo := Tmp1;
+  End
+  Else
+    EvaluateTo := tkUnknown;
 End;
 
-Destructor TTreeElementList.Destroy;
-Var
-  Ctrl : LongInt;
+Function TTokenTreeElement.Generate: String;
 Begin
-  For Ctrl := Low(fChilds) To High(fChilds) Do
-    fChilds[Ctrl].Free;
-  Inherited Destroy;
+  If Self Is TNumericTerminalSyntax Then
+    Result := fToken.Value
+  Else If Self Is TStringTerminalSyntax Then
+    Result := '"' + fToken.Value + '"'
+  Else If Self Is TBooleanTerminalSyntax Then
+    If fToken.Value = 'true' Then
+      Result := '1'
+    Else
+      Result := '0'
+  Else If Self Is TCharTerminalSyntax Then
+    Result := '"' + Char(StrToInt(fToken.Value)) + '"'
+  Else If Self Is TFloatTerminalSyntax Then
+    Result := fToken.Value
+  Else If Self Is TIdentifierSyntax Then
+    Result := fToken.Value
+  Else If Self Is TSymbolReferenceSyntax Then
+    If Count > 0 Then
+      Result := fToken.Value + '.' +
+        (Child As TSymbolReferenceSyntax).Generate
+    Else
+      Result := fToken.Value
+  Else If Self Is TMulOperatorSyntax Then
+  Begin
+    EvaluateTo; // Just to check type mismatch;
+    Result := fToken.Value + ' ' +
+      (Child As TFactorSyntax).Generate;
+  End
+  Else If Self Is TSumOperatorSyntax Then
+  Begin
+    EvaluateTo; // Just to check type mismatch;
+    Result := fToken.Value + ' ' +
+      (Child As TFactorSyntax).Generate;
+  End
+  Else If Self Is TRelOperatorSyntax Then
+  Begin
+    EvaluateTo; // Just to check type mismatch;
+    Result := fToken.Value + ' ' +
+      (Child As TTermSyntax).Generate;
+  End
+  Else If Self Is TFactorTerminalSyntax Then
+  Begin
+    Start;
+    Result := (Child As TTokenTreeElement).Generate;
+  End
+  Else If Self Is TFactorSyntax Then
+  Begin
+    Start;
+    FindElement(TFactorTerminalSyntax);
+    Result := (Child As TFactorTerminalSyntax).Generate;
+    Start;
+    If FindElement(TMulOperatorSyntax) Then
+      Result := Result + ' ' + (Child As TMulOperatorSyntax).Generate;
+  End
+  Else If Self Is TTermSyntax Then
+  Begin
+    Start;
+    FindElement(TFactorSyntax);
+    Result := (Child As TFactorSyntax).Generate;
+    Start;
+    If FindElement(TSumOperatorSyntax) Then
+      Result := Result + ' ' + (Child As TSumOperatorSyntax).Generate;
+  End
+  Else If Self Is TUnaryMinusSyntax Then
+  Begin
+    Start;
+    FindElement(TFactorTerminalSyntax);
+    Result := '-' + (Child As TFactorTerminalSyntax).Generate
+  End
+  Else If Self Is TUnaryNotSyntax Then
+  Begin
+    Start;
+    FindElement(TFactorTerminalSyntax);
+    Result := '!' + (Child As TFactorTerminalSyntax).Generate
+  End
+  Else If Self Is TExpressionSyntax Then
+  Begin
+    Start;
+    FindElement(TTermSyntax);
+    Result := (Child As TTermSyntax).Generate;
+    Start;
+    If FindElement(TRelOperatorSyntax) Then
+      Result := Result + ' ' + (Child As TRelOperatorSyntax).Generate;
+  End
+  Else If Self Is TExpressionListSyntax Then
+  Begin
+    Start;
+    Result := (Child As TExpressionSyntax).Generate;
+    Next;
+    While Not(EOE) Do
+    Begin
+      Result := Result + ', ' + (Child As TExpressionSyntax).Generate;
+      Next;
+    End;
+  End
+  Else If Self Is TIfStamentSyntax Then
+  Begin
+    Start;
+    FindElement(TExpressionSyntax);
+    Result := 'if (' + (Child As TExpressionSyntax).Generate + ')';
+    FindElement(TStamentSyntax);
+    Result := Result + #13#10 + (Child As TStamentSyntax).Generate + ';' + #13#10;
+    If FindElement(TElseStamentSyntax) Then
+      Result := Result + 'else' + #13#10 +
+        (Child As TStamentSyntax).Generate + ';' + #13#10;
+  End
+  Else If Self Is TForStamentSyntax Then
+  Begin
+    Start;
+    FindElement(TIdentifierSyntax);
+    Result := 'for (' + (Child As TIdentifierSyntax).Generate;
+    Start;
+    FindElement(TExpressionSyntax);
+    Result := Result + '=' + (Child As TExpressionSyntax).Generate;
+    Start;
+    FindElement(TIdentifierSyntax);
+    Result := Result + '; ' + (Child As TIdentifierSyntax).Generate;
+    Start;
+    FindElement(TForFinishExpressionSyntax);
+    Result := Result + '==' + (Child As TExpressionSyntax).Generate;
+    Start;
+    FindElement(TIdentifierSyntax);
+    Result := Result + '; ' + (Child As TIdentifierSyntax).Generate;
+    Start;
+    FindElement(TForDirectionSyntax);
+    If (Child As TForDirectionSyntax).Token.Value = 'to' Then
+      Result := Result + '++)'
+    Else
+      Result := Result + '--)';
+    Start;
+    FindElement(TStamentSyntax);
+    Result := Result + #13#10 +
+      (Child As TStamentSyntax).Generate + ';' + #13#10;
+  End
+  Else If Self Is TWhileStamentSyntax Then
+  Begin
+    Start;
+    FindElement(TExpressionSyntax);
+    Result := 'while (' + (Child As TExpressionSyntax).Generate + ')' + #13#10;
+    Start;
+    FindElement(TStamentSyntax);
+    Result := Result + (Child As TStamentSyntax).Generate + ';' + #13#10;
+  End
+  Else If Self Is TRepeatStamentSyntax Then
+  Begin
+  End
+  Else If Self Is TCaseEntrySyntax Then
+  Else If Self Is TCaseStamentSyntax Then
+  Else If Self Is TWithStamentSyntax Then
+  Else If Self Is TAttribSyntax Then
+  Begin
+    Start;
+    FindElement(TIdentifierSyntax);
+    Result := (Child As TIdentifierSyntax).Generate;
+    Start;
+    FindElement(TExpressionSyntax);
+    Result := Result + '=' + (Child As TExpressionSyntax).Generate + ';' + #13#10;
+  End
+  Else If Self Is TCallSyntax Then
+  Begin
+    Start;
+    FindElement(TSymbolReferenceSyntax);
+    Result := (Child As TSymbolReferenceSyntax).Generate + '(';
+    Start;
+    If FindElement(TExpressionListSyntax) Then
+      Result := Result + (Child As TExpressionListSyntax).Generate;
+    Result := Result + ')';
+  End
+  Else If Self Is TStamentSyntax Then
+  Begin
+    Start;
+    Result := (Child As TTokenTreeElement).Generate;
+  End
+  Else If Self Is TElseStamentSyntax Then
+  Begin
+    Start;
+    Result := (Child As TTokenTreeElement).Generate;
+  End
+  Else If Self Is TCodeBlockSyntax Then
+  Begin
+    Start;
+    While Not(EOE) Do
+    Begin
+      Result := Result + #13#10 + (Child As TStamentSyntax).Generate;
+      Next;
+    End;
+  End
 End;
 
-Constructor TTerminalSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TTerminalSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
 End;
 
-Constructor TIdentifierSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TIdentifierSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   If T.Expected(tkIdent) Then
   Begin
@@ -356,7 +587,7 @@ Begin
     T.RaiseError('Expected identifier.');
 End;
 
-Constructor TIdentifierListSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TIdentifierListSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   AddChild(TIdentifierSyntax.Create(T, Self));
@@ -367,7 +598,7 @@ Begin
   End;
 End;
 
-Constructor TSymbolReferenceSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TSymbolReferenceSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
@@ -378,7 +609,28 @@ Begin
   End;
 End;
 
-Constructor TFactorTerminalSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TMulOperatorSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
+Begin
+  Inherited Create(T, O);
+  T.Next;
+  AddChild(TFactorSyntax.Create(T, O));
+End;
+
+Constructor TSumOperatorSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
+Begin
+  Inherited Create(T, O);
+  T.Next;
+  AddChild(TFactorSyntax.Create(T, O));
+End;
+
+Constructor TRelOperatorSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
+Begin
+  Inherited Create(T, O);
+  T.Next;
+  AddChild(TTermSyntax.Create(T, O));
+End;
+
+Constructor TFactorTerminalSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   If T.Expected(tkIdent) Then
@@ -417,71 +669,72 @@ Begin
     Else
       T.RaiseError('Expected ")"');
   End
+  Else If T.Token.Kind = tkNumber Then
+    AddChild(TNumericTerminalSyntax.Create(T, O))
+  Else If T.Token.Kind = tkString Then
+    AddChild(TStringTerminalSyntax.Create(T, O))
+  Else If T.Token.Kind = tkBoolean Then
+    AddChild(TBooleanTerminalSyntax.Create(T, O))
+  Else If T.Token.Kind = tkFloat Then
+    AddChild(TCharTerminalSyntax.Create(T, O))
+  Else If T.Token.Kind = tkChar Then
+    AddChild(TFloatTerminalSyntax.Create(T, O))
   Else
-    AddChild(TTerminalSyntax.Create(T, O));
+    T.RaiseError('Expected identifer or literal');
 End;
 
-Constructor TFactorSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TFactorSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   AddChild(TFactorTerminalSyntax.Create(T, O));
   If T.IsMulOp Then
-  Begin
     AddChild(TMulOperatorSyntax.Create(T, O));
-    AddChild(TFactorSyntax.Create(T, O));
-  End;
 End;
 
-Constructor TTermSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TTermSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   AddChild(TFactorSyntax.Create(T, O));
   If T.IsSumOp Then
-  Begin
     AddChild(TSumOperatorSyntax.Create(T, O));
-    AddChild(TFactorSyntax.Create(T, O));
-  End;
 End;
 
-Constructor TPrefixedSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TPrefixedSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
-  AddChild(TTerminalSyntax.Create(T, O));
+  AddChild(TFactorTerminalSyntax.Create(T, O));
 End;
 
-Constructor TExpressionSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TExpressionSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   AddChild(TTermSyntax.Create(T, O));
   If T.IsRelOp Then
-  Begin
     AddChild(TRelOperatorSyntax.Create(T, O));
-    AddChild(TTermSyntax.Create(T, O));
-  End;
 End;
 
-Constructor TExpressionListSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TExpressionListSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Repeat
     AddChild(TExpressionSyntax.Create(T, O));
   Until T.EOTk Or Not(T.Expected(','));
 End;
 
-Constructor TVarDecSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TVarDecSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   AddChild(TIdentifierListSyntax.Create(T, O));
   If T.Expected(':') Then
   Begin
     T.Next;
-    AddChild(TIdentifierSyntax.Create(T, O));
+    AddChild(TTypeIdentifierSyntax.Create(T, O));
   End
   Else
     T.RaiseError('Expected ":"');
 End;
 
-Constructor TVarSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TVarSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
@@ -495,7 +748,7 @@ Begin
   End;
 End;
 
-Constructor TIfStamentSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TIfStamentSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
@@ -512,7 +765,7 @@ Begin
   End;
 End;
 
-Constructor TForDirectionSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TForDirectionSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   If T.Expected('to') Or T.Expected('downto') Then
   Begin
@@ -523,7 +776,7 @@ Begin
     T.RaiseError('Expected "to" or "downto".');
 End;
 
-Constructor TForStamentSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TForStamentSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
@@ -535,9 +788,9 @@ Begin
   End
   Else
     T.RaiseError('Expected ":=".');
-  If T.Expected('to') Then
+  If T.Expected('to') Or T.Expected('downto') Then
   Begin
-    T.Next;
+    AddChild(TForDirectionSyntax.Create(T, O));
     AddChild(TForFinishExpressionSyntax.Create(T, O));
   End
   Else
@@ -551,7 +804,7 @@ Begin
     T.RaiseError('Expected "do".');
 End;
 
-Constructor TWhileStamentSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TWhileStamentSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
@@ -565,7 +818,7 @@ Begin
     T.RaiseError('expected "do"');
 End;
 
-Constructor TRepeatStamentSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TRepeatStamentSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
@@ -578,7 +831,7 @@ Begin
   AddChild(TExpressionSyntax.Create(T, O));
 End;
 
-Constructor TCaseEntrySyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TCaseEntrySyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   AddChild(TTerminalSyntax.Create(T, O));
@@ -591,7 +844,7 @@ Begin
     T.RaiseError('Expected ":"');
 End;
 
-Constructor TCaseStamentSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TCaseStamentSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
@@ -621,7 +874,7 @@ Begin
     T.RaiseError('Expected "of"');
 End;
 
-Constructor TWithStamentSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TWithStamentSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
@@ -635,10 +888,9 @@ Begin
     T.RaiseError('Expected "do"');
 End;
 
-Constructor TAttribSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TAttribSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
-  // Write('>>>', T.Token.Value, '<<<');
   AddChild(TIdentifierSyntax.Create(T, O));
   If T.Expected(':=') Then
   Begin
@@ -649,7 +901,7 @@ Begin
     T.RaiseError('Expected ":="');
 End;
 
-Constructor TCallSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TCallSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   AddChild(TSymbolReferenceSyntax.Create(T, O));
@@ -657,14 +909,14 @@ Begin
   Begin
     T.Next;
     AddChild(TExpressionListSyntax.Create(T, O));
+    If T.Expected(')') Then
+      T.Next
+    Else
+      T.RaiseError('Expected ")"');
   End;
-  If T.Expected(')') Then
-    T.Next
-  Else
-    T.RaiseError('Expected ")"');
 End;
 
-Constructor TStamentSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TStamentSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   If T.Expected('if') Then
@@ -704,7 +956,7 @@ Begin
     T.RaiseError('Expected command, attribution or call.');
 End;
 
-Constructor TCodeBlockSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TCodeBlockSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   While Not(T.Expected('end')) Do
@@ -723,7 +975,7 @@ Begin
     T.RaiseError('Expected "end"');
 End;
 
-Constructor TParametersSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TParametersSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   Repeat
@@ -742,7 +994,7 @@ Begin
     T.RaiseError('Expected ")"');
 End;
 
-Constructor TFuncSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TFuncSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
@@ -752,7 +1004,7 @@ Begin
   If T.Expected(':') Then
   Begin
     T.Next;
-    AddChild(TReturnTypeIdentifierSyntax.Create(T, O));
+    AddChild(TTypeIdentifierSyntax.Create(T, O));
   End
   Else
     T.RaiseError('Expected ":"');
@@ -760,6 +1012,17 @@ Begin
     T.Next
   Else
     T.RaiseError('Expected ";"');
+  While Not(T.Expected('begin')) Do
+  Begin
+    If T.Expected('var') Then
+      AddChild(TVarSyntax.Create(T, O))
+    Else If T.Expected('function') Then
+      AddChild(TFuncSyntax.Create(T, O))
+    Else If T.Expected('procedure') Then
+      AddChild(TProcSyntax.Create(T, O))
+    Else
+      T.RaiseError('Expected Var, Function or Procedure Declaration.');
+  End;
   If T.Expected('begin') Then
   Begin
     T.Next;
@@ -773,7 +1036,7 @@ Begin
     T.RaiseError('Expected ";"');
 End;
 
-Constructor TProcSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TProcSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   T.Next;
@@ -784,6 +1047,17 @@ Begin
     T.Next
   Else
     T.RaiseError('Expected ";"');
+  While Not(T.Expected('begin')) Do
+  Begin
+    If T.Expected('var') Then
+      AddChild(TVarSyntax.Create(T, O))
+    Else If T.Expected('function') Then
+      AddChild(TFuncSyntax.Create(T, O))
+    Else If T.Expected('procedure') Then
+      AddChild(TProcSyntax.Create(T, O))
+    Else
+      T.RaiseError('Expected Var, Function or Procedure Declaration.');
+  End;
   If T.Expected('begin') Then
   Begin
     T.Next;
@@ -797,7 +1071,7 @@ Begin
     T.RaiseError('Expected ";"');
 End;
 
-Constructor TProgramSyntax.Create(T : TTokenIterator; O : TRootTreeElement);
+Constructor TProgramSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
   If T.Expected('program') Then
