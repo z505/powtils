@@ -45,7 +45,6 @@ Begin
   Src.Start;
   If Src.Count > 0 Then
   Repeat
-    WriteLn(Handler, '');
     If Src.Child Is TSymbolVar Then
     Begin
       Write  (Handler, 'var');
@@ -82,13 +81,14 @@ Begin
     Src.Next;
   Until Src.EOE;
   If (Src Is TSymbolFunction) Or (Src Is TSymbolProcedure) Then
-    WriteLn(Handler, (Src As TSymbolWithAttached).Attached.Generate);
+    Write(Handler, (Src As TSymbolWithAttached).Attached.Generate);
   If (Src Is TSymbolJavaFunction) Then
-    WriteLn(Handler, (Src As TSymbolJavaFunction).Java, #13#10)
+    WriteLn(Handler, (Src As TSymbolJavaFunction).Java)
   Else If (Src Is TSymbolJavaProcedure) Then
-    WriteLn(Handler, (Src As TSymbolJavaProcedure).Java, #13#10);
+    WriteLn(Handler, (Src As TSymbolJavaProcedure).Java);
   If Assigned(Src.Owner) Then
     WriteLn(Handler, '}');
+  WriteLn(Handler, '');
 End;
 
 Begin

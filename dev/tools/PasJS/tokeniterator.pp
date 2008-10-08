@@ -100,7 +100,8 @@ Begin
   IsMulOp :=
     ((GetCurrentToken.Value = '*') Or
     (GetCurrentToken.Value = '/')) Or
-    (GetCurrentToken.Value = 'and');
+    ((GetCurrentToken.Value = 'and') Or
+    (GetCurrentToken.Value = 'div'));
 End;
 
 Function TTokenIterator.IsRelOp: Boolean;
@@ -110,7 +111,6 @@ Begin
     (GetCurrentToken.Value = '>=')) Or
     (GetCurrentToken.Value = '<>'));
 End;
-
 
 Procedure TTokenIterator.RaiseError(Msg : String);
 Begin

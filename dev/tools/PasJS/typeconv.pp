@@ -42,30 +42,48 @@ Const
      False, False, False, False, False)
   );
 
-Function MulOpToJS(St : String): String;
-Function SumOpToJS(St : String): String;
-Function RelOpToJS(St : String): String;
+  Operators : Array[1..14] Of Record
+    Pas,
+    Js   : String;
+  End =
+  (
+    (Pas : '+';   Js : '+'),
+    (Pas : '-';   Js : '-'),
+    (Pas : '*';   Js : '*'),
+
+    (Pas : '/';   Js : '/'),
+    (Pas : 'div'; Js : '/'),
+    (Pas : 'and'; Js : '&&'),
+
+    (Pas : 'or';  Js : '||'),
+    (Pas : '=';   Js : '=='),
+    (Pas : '<';   Js : '<'),
+
+    (Pas : '>';   Js : '>'),
+    (Pas : '<=';  Js : '<='),
+    (Pas : '>=';  Js : '>='),
+
+    (Pas : '<>';  Js : '!='),
+    (Pas : 'not'; Js : '!')
+  );
+
+
+
+Function Translate(X : String): String;
 
 Implementation
 
-Function MulOpToJS(St : String): String;
+Function Translate(X : String): String;
+Var
+  y : LongInt;
 Begin
-  If St = '*' Then
-    MulOpToJS := '*'
-  Else If St = 'div' Then
-    MulOpToJS := '/'
-  Else If St = '/' Then
-    MulOpToJS := '/'
-  Else If St = 'and' Then
-    MulOpToJS := '&&';
-End;
-
-Function SumOpToJS(St : String): String;
-Begin
-End;
-
-Function RelOpToJS(St : String): String;
-Begin
+  Translate := '';
+  For y := Low(Operators) To High(Operators) Do
+    If Operators[y].Pas = X Then
+    Begin
+      Translate := Operators[y].Js;
+      Exit;
+    End;
 End;
 
 End.

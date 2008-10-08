@@ -18,9 +18,14 @@ end;
 
 procedure test;
 var c : integer;
+  b: boolean;
 Begin
-  for c := 1 to 100 do
-    writeint(c);    
+  while b do
+    for c := 1 to 100 do
+    begin
+      writeint(c);
+      b := c = 10;
+    end;
 End;
 
 Begin

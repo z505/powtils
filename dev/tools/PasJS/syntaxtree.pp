@@ -1,7 +1,7 @@
 Unit SyntaxTree;
 
 Interface
-Uses TokenIterator, Scanner, SysUtils, Classes, Tree;
+Uses TokenIterator, Scanner, SysUtils, Classes, Tree, TypeConv;
 
 Type
   TIdentifierCallBack = Function(T : TToken; Name : String): TTokenKind Of Object;
@@ -421,19 +421,19 @@ Begin
   Else If Self Is TMulOperatorSyntax Then
   Begin
     EvaluateTo; // Just to check type mismatch;
-    Result := fToken.Value + ' ' +
+    Result := Translate(fToken.Value) + ' ' +
       (Child As TFactorSyntax).Generate;
   End
   Else If Self Is TSumOperatorSyntax Then
   Begin
     EvaluateTo; // Just to check type mismatch;
-    Result := fToken.Value + ' ' +
+    Result := Translate(fToken.Value) + ' ' +
       (Child As TFactorSyntax).Generate;
   End
   Else If Self Is TRelOperatorSyntax Then
   Begin
     EvaluateTo; // Just to check type mismatch;
-    Result := fToken.Value + ' ' +
+    Result := Translate(fToken.Value) + ' ' +
       (Child As TTermSyntax).Generate;
   End
   Else If Self Is TFactorTerminalSyntax Then
@@ -497,10 +497,10 @@ Begin
     FindElement(TExpressionSyntax);
     Result := 'if (' + (Child As TExpressionSyntax).Generate + ')';
     FindElement(TStamentSyntax);
-    Result := Result + #13#10 + (Child As TStamentSyntax).Generate + ';' + #13#10;
+    Result := Result + #13#10 +  (Child As TStamentSyntax).Generate;
     If FindElement(TElseStamentSyntax) Then
-      Result := Result + 'else' + #13#10 +
-        (Child As TStamentSyntax).Generate + ';' + #13#10;
+      Result := Result + 'else' + #13#10 +  
+        (Child As TStamentSyntax).Generate;
   End
   Else If Self Is TForStamentSyntax Then
   Begin
@@ -527,8 +527,8 @@ Begin
       Result := Result + '--)';
     Start;
     FindElement(TStamentSyntax);
-    Result := Result + #13#10 +
-      (Child As TStamentSyntax).Generate + ';' + #13#10;
+    Result := Result + #13#10 +  
+      (Child As TStamentSyntax).Generate;
   End
   Else If Self Is TWhileStamentSyntax Then
   Begin
@@ -537,17 +537,23 @@ Begin
     Result := 'while (' + (Child As TExpressionSyntax).Generate + ')' + #13#10;
     Start;
     FindElement(TStamentSyntax);
-    Result := Result + (Child As TStamentSyntax).Generate + ';' + #13#10;
+    Result := Result +  (Child As TStamentSyntax).Generate;
   End
   Else If Self Is TRepeatStamentSyntax Then
   Begin
+    Start;
+    Repeat
+      If Child Is TStamentSyntax Then
+        Result := Result + (Child As TStamentSyntax).Generate + ';' + #13#10;
+      Next;
+    Until EOE;
     Start;
     FindElement(TExpressionSyntax);
     Result := 'while (!(' + (Child As TExpressionSyntax).Generate + '))' + #13#10 + '{';
     Start;
     Repeat
       If Child Is TStamentSyntax Then
-        Result := Result + (Child As TStamentSyntax).Generate + ';' + #13#10;
+        Result := Result +  (Child As TStamentSyntax).Generate + ';' + #13#10;
       Next;
     Until EOE;
     Result := Result + '};' + #13#10;
@@ -560,7 +566,7 @@ Begin
     Result := Result + (Child As TFactorTerminalSyntax).Generate;
     Start;
     FindElement(TStamentSyntax);
-    Result := Result + (Child As TStamentSyntax).Generate + ';' + #13#10;
+    Result := Result +  (Child As TStamentSyntax).Generate;
   End
   Else If Self Is TCaseStamentSyntax Then
   Begin
@@ -571,13 +577,13 @@ Begin
     Start;
     Repeat
       If Child Is TCaseEntrySyntax Then
-        Result := Result + (Child As TCaseEntrySyntax).Generate;
+        Result := Result +  (Child As TCaseEntrySyntax).Generate;
       Next;
     Until EOE;
     Start;
     If FindElement(TStamentSyntax) Then
       Result := Result + 'else ' + #13#10 + (Child As TStamentSyntax).Generate;
-    Result := Result + '};' + #13#10;
+    Result := Result + '}';
   End
   Else If Self Is TWithStamentSyntax Then
   Begin
@@ -590,7 +596,7 @@ Begin
     Result := (Child As TIdentifierSyntax).Generate;
     Start;
     FindElement(TExpressionSyntax);
-    Result := Result + '=' + (Child As TExpressionSyntax).Generate + ';' + #13#10;
+    Result := Result + ' = (' + (Child As TExpressionSyntax).Generate + ')';
   End
   Else If Self Is TCallSyntax Then
   Begin
@@ -605,19 +611,25 @@ Begin
   Else If Self Is TStamentSyntax Then
   Begin
     Start;
-    Result := (Child As TTokenTreeElement).Generate;
+    If Child Is TCodeBlockSyntax Then
+      Result := '{' + #13#10 +  (Child As TTokenTreeElement).Generate + '}'
+    Else
+      Result := (Child As TTokenTreeElement).Generate;
   End
   Else If Self Is TElseStamentSyntax Then
   Begin
     Start;
-    Result := (Child As TTokenTreeElement).Generate;
+    Result :=  (Child As TTokenTreeElement).Generate;
   End
   Else If Self Is TCodeBlockSyntax Then
   Begin
     Start;
     While Not(EOE) Do
     Begin
-      Result := Result + #13#10 + (Child As TStamentSyntax).Generate;
+      If Result <> '' Then
+        Result := Result +  (Child As TStamentSyntax).Generate + ';' + #13#10
+      Else
+        Result :=  (Child As TStamentSyntax).Generate + ';' + #13#10;
       Next;
     End;
   End

@@ -336,7 +336,10 @@ Begin
   While Not(Src.EOE) Do
   Begin
     If Src.Child Is TJavaBodySyntax Then
-      fJava := fJava + #13#10 + (Src.Child As TJavaBodySyntax).Token.Value;
+      If fJava <> '' Then
+        fJava := fJava + #13#10 + (Src.Child As TJavaBodySyntax).Token.Value
+      Else
+        fJava := (Src.Child As TJavaBodySyntax).Token.Value;
     Src.Next;
   End;
 End;
@@ -359,7 +362,10 @@ Begin
   While Not(Src.EOE) Do
   Begin
     If Src.Child Is TJavaBodySyntax Then
-      fJava := fJava + #13#10 + (Src.Child As TJavaBodySyntax).Token.Value;
+      If fJava <> '' Then
+        fJava := fJava + #13#10 + (Src.Child As TJavaBodySyntax).Token.Value
+      Else
+        fJava := (Src.Child As TJavaBodySyntax).Token.Value;
     Src.Next;
   End;
 End;
