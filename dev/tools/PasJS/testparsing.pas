@@ -1,24 +1,17 @@
 Program teste;
 
-Var
-  var1, var2, var3, var4, var5 : byte;
-  var6, var7, var8, var9, var10 : byte;
-
-Procedure teste(var b : integer);
-var c : string;
+procedure test;
+var c : integer;
 Begin
-  If 2 = 2 then
-    teste(1)
-  Else
-    teste(2);
+  for c := 1 to 100 do
+    write(c);    
 End;
 
-function hello: boolean;
+procedure write(b : integer);
 begin
-  hello := 1;
+  while b = 10 do
+    test;
 end;
 
 Begin
-  teste(2);
-  teste(hello);
 End.

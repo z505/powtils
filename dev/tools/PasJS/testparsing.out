@@ -1,40 +1,19 @@
 
-var var1;
-
-var var2;
-
-var var3;
-
-var var4;
-
-var var5;
-
-var var6;
-
-var var7;
-
-var var8;
-
-var var9;
-
-var var10;
-
-function teste(b);
+function test();
 {
 
 var c;
 
-
-if (2 = 2)
-teste(1);
-else
-teste(2);
+for (c=1; c==100; c++)
+write(c);
 
 }
 
-function hello();
+function write(b);
 {
 
-hello=1;
+
+while (b = 10)
+test();
 
 }

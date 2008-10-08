@@ -526,10 +526,48 @@ Begin
   End
   Else If Self Is TRepeatStamentSyntax Then
   Begin
+    Start;
+    FindElement(TExpressionSyntax);
+    Result := 'while (!(' + (Child As TExpressionSyntax).Generate + '))' + #13#10 + '{';
+    Start;
+    Repeat
+      If Child Is TStamentSyntax Then
+        Result := Result + (Child As TStamentSyntax).Generate + ';' + #13#10;
+      Next;
+    Until EOE;
+    Result := Result + '};' + #13#10;
   End
   Else If Self Is TCaseEntrySyntax Then
+  Begin
+    Result := 'case ';
+    Start;
+    FindElement(TFactorTerminalSyntax);
+    Result := Result + (Child As TFactorTerminalSyntax).Generate;
+    Start;
+    FindElement(TStamentSyntax);
+    Result := Result + (Child As TStamentSyntax).Generate + ';' + #13#10;
+  End
   Else If Self Is TCaseStamentSyntax Then
+  Begin
+    Result := 'switch (';
+    Start;
+    FindElement(TSymbolReferenceSyntax);
+    Result := Result + (Child As TSymbolReferenceSyntax).Generate + ')' + #13#10 + '{';
+    Start;
+    Repeat
+      If Child Is TCaseEntrySyntax Then
+        Result := Result + (Child As TCaseEntrySyntax).Generate;
+      Next;
+    Until EOE;
+    Start;
+    If FindElement(TStamentSyntax) Then
+      Result := Result + 'else ' + #13#10 + (Child As TStamentSyntax).Generate;
+    Result := Result + '};' + #13#10;
+  End
   Else If Self Is TWithStamentSyntax Then
+  Begin
+    Result := '// Unsuported' + #13#10;
+  End
   Else If Self Is TAttribSyntax Then
   Begin
     Start;
@@ -834,7 +872,7 @@ End;
 Constructor TCaseEntrySyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
-  AddChild(TTerminalSyntax.Create(T, O));
+  AddChild(TFactorTerminalSyntax.Create(T, O));
   If T.Expected(':') Then
   Begin
     T.Next;
@@ -848,7 +886,7 @@ Constructor TCaseStamentSyntax.Create(T : TTokenIterator; O : TTokenTreeElement)
 Begin
   Inherited Create(T, O);
   T.Next;
-  AddChild(TIdentifierSyntax.Create(T, O));
+  AddChild(TSymbolReferenceSyntax.Create(T, O));
   If T.Expected('of') Then
   Begin
     T.Next;
