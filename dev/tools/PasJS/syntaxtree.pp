@@ -495,6 +495,8 @@ Begin
   Begin
     Start;
     FindElement(TExpressionSyntax);
+    If (Child As TExpressionSyntax).EvaluateTo <> tkBoolean Then
+      RaiseError('Expected boolean expression.', (Child As TExpressionSyntax).Token);
     Result := 'if (' + (Child As TExpressionSyntax).Generate + ')';
     FindElement(TStamentSyntax);
     Result := Result + #13#10 +  (Child As TStamentSyntax).Generate;
@@ -534,6 +536,8 @@ Begin
   Begin
     Start;
     FindElement(TExpressionSyntax);
+    If (Child As TExpressionSyntax).EvaluateTo <> tkBoolean Then
+      RaiseError('Expected boolean expression.', (Child As TExpressionSyntax).Token);
     Result := 'while (' + (Child As TExpressionSyntax).Generate + ')' + #13#10;
     Start;
     FindElement(TStamentSyntax);
@@ -549,6 +553,8 @@ Begin
     Until EOE;
     Start;
     FindElement(TExpressionSyntax);
+    If (Child As TExpressionSyntax).EvaluateTo <> tkBoolean Then
+      RaiseError('Expected boolean expression.', (Child As TExpressionSyntax).Token);
     Result := 'while (!(' + (Child As TExpressionSyntax).Generate + '))' + #13#10 + '{';
     Start;
     Repeat
@@ -593,10 +599,21 @@ Begin
   Begin
     Start;
     FindElement(TIdentifierSyntax);
-    Result := (Child As TIdentifierSyntax).Generate;
-    Start;
-    FindElement(TExpressionSyntax);
-    Result := Result + ' = (' + (Child As TExpressionSyntax).Generate + ')';
+    If (Child As TIdentifierSyntax).Token.Value = 'result' Then
+    Begin
+      Start;
+      FindElement(TExpressionSyntax);
+//      If (Child As TExpressionSyntax).EvaluateTo <> tkBoolean Then
+//        RaiseError('Expected boolean expression.', (Child As TExpressionSyntax).Token);
+      Result := 'return (' + (Child As TExpressionSyntax).Generate + ')';
+    End
+    Else
+    Begin
+      Result := (Child As TIdentifierSyntax).Generate;
+      Start;
+      FindElement(TExpressionSyntax);
+      Result := Result + ' = (' + (Child As TExpressionSyntax).Generate + ')';
+    End;
   End
   Else If Self Is TCallSyntax Then
   Begin
