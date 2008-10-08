@@ -192,6 +192,21 @@ Type
     Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
+  TJavaBodySyntax = Class(TTokenTreeElement)
+  Public
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
+  End;
+
+  TJavaFuncSyntax = Class(TTokenTreeElement)
+  Public
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
+  End;
+
+  TJavaProcSyntax = Class(TTokenTreeElement)
+  Public
+    Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
+  End;
+
   TProgramSyntax = Class(TTokenTreeElement)
   Public
     Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
@@ -1058,6 +1073,16 @@ Begin
       AddChild(TFuncSyntax.Create(T, O))
     Else If T.Expected('procedure') Then
       AddChild(TProcSyntax.Create(T, O))
+    Else If T.Expected('javascript') Then
+    Begin
+      T.Next;
+      If T.Expected('function') Then
+        AddChild(TJavaFuncSyntax.Create(T, O))
+      Else If T.Expected('procedure') Then
+        AddChild(TJavaProcSyntax.Create(T, O))
+      Else
+        T.RaiseError('Expected "function" or "procedure".');
+    End
     Else
       T.RaiseError('Expected Var, Function or Procedure Declaration.');
   End;
@@ -1093,6 +1118,16 @@ Begin
       AddChild(TFuncSyntax.Create(T, O))
     Else If T.Expected('procedure') Then
       AddChild(TProcSyntax.Create(T, O))
+    Else If T.Expected('javascript') Then
+    Begin
+      T.Next;
+      If T.Expected('function') Then
+        AddChild(TJavaFuncSyntax.Create(T, O))
+      Else If T.Expected('procedure') Then
+        AddChild(TJavaProcSyntax.Create(T, O))
+      Else
+        T.RaiseError('Expected "function" or "procedure".');
+    End
     Else
       T.RaiseError('Expected Var, Function or Procedure Declaration.');
   End;
@@ -1103,6 +1138,68 @@ Begin
   End
   Else
     T.RaiseError('Expected "begin"');
+  If T.Expected(';') Then
+    T.Next
+  Else
+    T.RaiseError('Expected ";"');
+End;
+
+Constructor TJavaBodySyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
+Begin
+  Inherited Create(T, O);
+  If T.Expected(tkString) Then
+    T.Next
+  Else
+    T.RaiseError('Expected string with javascript commands.');
+End;
+
+Constructor TJavaFuncSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
+Begin
+  Inherited Create(T, O);
+  T.Next;
+  AddChild(TIdentifierSyntax.Create(T, O));
+  If T.Token.Value = '(' Then
+    AddChild(TParametersSyntax.Create(T, O));
+  If T.Expected(':') Then
+  Begin
+    T.Next;
+    AddChild(TTypeIdentifierSyntax.Create(T, O));
+  End
+  Else
+    T.RaiseError('Expected ":"');
+  If T.Expected(';') Then
+    T.Next
+  Else
+    T.RaiseError('Expected ";"');
+  While T.Expected(tkString) And Not(T.EOTk) Do
+    AddChild(TJavaBodySyntax.Create(T, O));
+  If T.Expected('end') Then
+    T.Next
+  Else
+    T.RaiseError('Expected "end".');
+  If T.Expected(';') Then
+    T.Next
+  Else
+    T.RaiseError('Expected ";".');
+End;
+
+Constructor TJavaProcSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
+Begin
+  Inherited Create(T, O);
+  T.Next;
+  AddChild(TIdentifierSyntax.Create(T, O));
+  If T.Token.Value = '(' Then
+    AddChild(TParametersSyntax.Create(T, O));
+  If T.Expected(';') Then
+    T.Next
+  Else
+    T.RaiseError('Expected ";"');
+  While T.Expected(tkString) And Not(T.EOTk) Do
+    AddChild(TJavaBodySyntax.Create(T, O));
+  If T.Expected('end') Then
+    T.Next
+  Else
+    T.RaiseError('Expected "end".');
   If T.Expected(';') Then
     T.Next
   Else
@@ -1129,6 +1226,16 @@ Begin
       AddChild(TFuncSyntax.Create(T, O))
     Else If T.Expected('procedure') Then
       AddChild(TProcSyntax.Create(T, O))
+    Else If T.Expected('javascript') Then
+    Begin
+      T.Next;
+      If T.Expected('function') Then
+        AddChild(TJavaFuncSyntax.Create(T, O))
+      Else If T.Expected('procedure') Then
+        AddChild(TJavaProcSyntax.Create(T, O))
+      Else
+        T.RaiseError('Expected "function" or "procedure".');
+    End
     Else
       T.RaiseError('Expected Var, Function or Procedure Declaration.');
   End;

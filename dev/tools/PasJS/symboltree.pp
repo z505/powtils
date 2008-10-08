@@ -18,6 +18,7 @@ Type
     fPassage  : TPassType;
     fAttached : TCodeBlockSyntax;
     fVisible  : TStringList;
+    fJava     : String;
   Public
     Constructor Create(T : TToken; N, K : String; O : TSymbolTreeElement); Overload;
     Constructor Create(T : TToken; N, K : String; PT : TPassType; O : TSymbolTreeElement); Overload;
@@ -31,6 +32,7 @@ Type
     Property Attached: TCodeBlockSyntax Read fAttached Write fAttached;
     Property Token: TToken Read fToken Write fToken;
     Property Visible: TStringList Read fVisible;
+    Property Java: String Read fJava Write fJava;
   End;
 
   TSymbolVar = Class(TSymbolTreeElement);
@@ -53,6 +55,16 @@ Type
   End;
   
   TSymbolProcedure = Class(TSymbolWithParameters);
+
+  TSymbolJavaFunction = Class(TSymbolTreeElement)
+  Public
+    Constructor Create(T : TToken; Src : TTokenTreeElement; O : TSymbolTreeElement);
+  End;
+
+  TSymbolJavaProcedure = Class(TSymbolTreeElement) 
+  Public
+    Constructor Create(T : TToken; Src : TTokenTreeElement; O : TSymbolTreeElement);
+  End;
   
   TSymbolProgram = Class(TSymbolWithAttached)
   Public
@@ -197,7 +209,11 @@ Begin
     Else If Src.Child Is TFuncSyntax Then
       O.AddChild(TSymbolFunction.Create((Src.Child As TTokenTreeElement).Token, (Src.Child As TTokenTreeElement), O))
     Else If Src.Child Is TProcSyntax Then
-      O.AddChild(TSymbolProcedure.Create((Src.Child As TTokenTreeElement).Token, (Src.Child As TTokenTreeElement), O));
+      O.AddChild(TSymbolProcedure.Create((Src.Child As TTokenTreeElement).Token, (Src.Child As TTokenTreeElement), O))
+    Else If Src.Child Is TJavaFuncSyntax Then
+      O.AddChild(TSymbolJavaFunction.Create((Src.Child As TTokenTreeElement).Token, (Src.Child As TTokenTreeElement), O))
+    Else If Src.Child Is TJavaProcSyntax Then
+      O.AddChild(TSymbolJavaProcedure.Create((Src.Child As TTokenTreeElement).Token, (Src.Child As TTokenTreeElement), O));
     Src.Next;
   Until Src.EOE;
 End;
@@ -266,7 +282,7 @@ Begin
   If Src.FindElement(TIdentifierSyntax) Then
     fName := (Src.Child As TTokenTreeElement).Token.Value
   Else
-    Raise Exception.Create('Internal error, cant find program name.');
+    Raise Exception.Create('Internal error, cant find symbol name.');
   Inherited Create((Src.Child As TTokenTreeElement).Token, fName, 'void', O);
   Src.Start;
   ParseSubSymbols((Src As TTokenTreeElement), Self);
@@ -295,6 +311,57 @@ Begin
     fKind := (Src.Child As TTokenTreeElement).Token.Value
   Else
     Raise Exception.Create('Internal error, cant find function return type.');
+End;
+
+Constructor TSymbolJavaFunction.Create(T : TToken; Src : TTokenTreeElement; O : TSymbolTreeElement);
+Begin
+  Src.Start;
+  If Src.FindElement(TIdentifierSyntax) Then
+    fName := (Src.Child As TTokenTreeElement).Token.Value
+  Else
+    Raise Exception.Create('Internal error, cant find symbol name.');
+  Inherited Create((Src.Child As TTokenTreeElement).Token, fName, 'void', O);
+  Src.Start;
+  If Src.FindElement(TParametersSyntax) Then
+      DeclareParameters((Src.Child As TTokenTreeElement), Self);
+  Src.Start;
+  If Src.FindElement(TTypeIdentifierSyntax) Then
+    fKind := (Src.Child As TTokenTreeElement).Token.Value
+  Else
+    Raise Exception.Create('Internal error, cant find function return type.');
+  Src.Start;
+  If Not(Src.FindElement(TJavaBodySyntax)) Then
+    Raise Exception.Create('Internal error, cant find javascript equivalent.');
+  Src.Start;
+  While Not(Src.EOE) Do
+  Begin
+    If Src.Child Is TJavaBodySyntax Then
+      fJava := fJava + #13#10 + (Src.Child As TJavaBodySyntax).Token.Value;
+    Src.Next;
+  End;
+End;
+
+Constructor TSymbolJavaProcedure.Create(T : TToken; Src : TTokenTreeElement; O : TSymbolTreeElement);
+Begin
+  Src.Start;
+  If Src.FindElement(TIdentifierSyntax) Then
+    fName := (Src.Child As TTokenTreeElement).Token.Value
+  Else
+    Raise Exception.Create('Internal error, cant find symbol name.');
+  Inherited Create((Src.Child As TTokenTreeElement).Token, fName, 'void', O);
+  Src.Start;
+  If Src.FindElement(TParametersSyntax) Then
+      DeclareParameters((Src.Child As TTokenTreeElement), Self);
+  Src.Start;
+  If Not(Src.FindElement(TJavaBodySyntax)) Then
+    Raise Exception.Create('Internal error, cant find javascript equivalent.');
+  Src.Start;
+  While Not(Src.EOE) Do
+  Begin
+    If Src.Child Is TJavaBodySyntax Then
+      fJava := fJava + #13#10 + (Src.Child As TJavaBodySyntax).Token.Value;
+    Src.Next;
+  End;
 End;
 
 Constructor TSymbolProgram.Create(Src : TTokenTreeElement);

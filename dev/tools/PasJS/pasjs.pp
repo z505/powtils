@@ -66,11 +66,27 @@ Begin
       Write  (Handler, 'function');
       Write  (Handler, ' ' + (Src.Child As TSymbolTreeElement).Name);
       DumpSymbols((Src.Child As TSymbolTreeElement));
+    End
+    Else If Src.Child Is TSymbolJavaFunction Then
+    Begin
+      Write  (Handler, 'function');
+      Write  (Handler, ' ' + (Src.Child As TSymbolTreeElement).Name);
+      DumpSymbols((Src.Child As TSymbolTreeElement));
+    End
+    Else If Src.Child Is TSymbolJavaProcedure Then
+    Begin
+      Write  (Handler, 'function');
+      Write  (Handler, ' ' + (Src.Child As TSymbolTreeElement).Name);
+      DumpSymbols((Src.Child As TSymbolTreeElement));
     End;
     Src.Next;
   Until Src.EOE;
   If (Src Is TSymbolFunction) Or (Src Is TSymbolProcedure) Then
     WriteLn(Handler, (Src As TSymbolWithAttached).Attached.Generate);
+  If (Src Is TSymbolJavaFunction) Then
+    WriteLn(Handler, (Src As TSymbolJavaFunction).Java, #13#10)
+  Else If (Src Is TSymbolJavaProcedure) Then
+    WriteLn(Handler, (Src As TSymbolJavaProcedure).Java, #13#10);
   If Assigned(Src.Owner) Then
     WriteLn(Handler, '}');
 End;
