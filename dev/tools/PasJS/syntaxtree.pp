@@ -161,6 +161,8 @@ Type
     Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
   End;
 
+  TBlankStamentSyntax = Class(TTokenTreeElement);
+
   TStamentSyntax = Class(TTokenTreeElement)
   Public
     Constructor Create(T : TTokenIterator; O : TTokenTreeElement);
@@ -420,19 +422,19 @@ Begin
       Result := fToken.Value
   Else If Self Is TMulOperatorSyntax Then
   Begin
-    EvaluateTo; // Just to check type mismatch;
+    Start;
     Result := Translate(fToken.Value) + ' ' +
       (Child As TFactorSyntax).Generate;
   End
   Else If Self Is TSumOperatorSyntax Then
   Begin
-    EvaluateTo; // Just to check type mismatch;
+    Start;
     Result := Translate(fToken.Value) + ' ' +
       (Child As TFactorSyntax).Generate;
   End
   Else If Self Is TRelOperatorSyntax Then
   Begin
-    EvaluateTo; // Just to check type mismatch;
+    Start;
     Result := Translate(fToken.Value) + ' ' +
       (Child As TTermSyntax).Generate;
   End
@@ -495,8 +497,6 @@ Begin
   Begin
     Start;
     FindElement(TExpressionSyntax);
-    If (Child As TExpressionSyntax).EvaluateTo <> tkBoolean Then
-      RaiseError('Expected boolean expression.', (Child As TExpressionSyntax).Token);
     Result := 'if (' + (Child As TExpressionSyntax).Generate + ')';
     FindElement(TStamentSyntax);
     Result := Result + #13#10 +  (Child As TStamentSyntax).Generate;
@@ -536,8 +536,6 @@ Begin
   Begin
     Start;
     FindElement(TExpressionSyntax);
-    If (Child As TExpressionSyntax).EvaluateTo <> tkBoolean Then
-      RaiseError('Expected boolean expression.', (Child As TExpressionSyntax).Token);
     Result := 'while (' + (Child As TExpressionSyntax).Generate + ')' + #13#10;
     Start;
     FindElement(TStamentSyntax);
@@ -546,6 +544,7 @@ Begin
   Else If Self Is TRepeatStamentSyntax Then
   Begin
     Start;
+    Result := '{' + #13#10;
     Repeat
       If Child Is TStamentSyntax Then
         Result := Result + (Child As TStamentSyntax).Generate + ';' + #13#10;
@@ -553,16 +552,14 @@ Begin
     Until EOE;
     Start;
     FindElement(TExpressionSyntax);
-    If (Child As TExpressionSyntax).EvaluateTo <> tkBoolean Then
-      RaiseError('Expected boolean expression.', (Child As TExpressionSyntax).Token);
-    Result := 'while (!(' + (Child As TExpressionSyntax).Generate + '))' + #13#10 + '{';
+    Result := Result + 'while (!(' + (Child As TExpressionSyntax).Generate + '))' + #13#10 + '{' + #13#10;
     Start;
     Repeat
       If Child Is TStamentSyntax Then
         Result := Result +  (Child As TStamentSyntax).Generate + ';' + #13#10;
       Next;
     Until EOE;
-    Result := Result + '};' + #13#10;
+    Result := Result + '};' + #13#10 + '};' + #13#10;
   End
   Else If Self Is TCaseEntrySyntax Then
   Begin
@@ -603,13 +600,13 @@ Begin
     Begin
       Start;
       FindElement(TExpressionSyntax);
-//      If (Child As TExpressionSyntax).EvaluateTo <> tkBoolean Then
-//        RaiseError('Expected boolean expression.', (Child As TExpressionSyntax).Token);
       Result := 'return (' + (Child As TExpressionSyntax).Generate + ')';
     End
     Else
     Begin
-      Result := (Child As TIdentifierSyntax).Generate;
+      Start;
+      FindElement(TIdentifierSyntax);
+      Result := (Child As TIdentifierSyntax).Token.Value;
       Start;
       FindElement(TExpressionSyntax);
       Result := Result + ' = (' + (Child As TExpressionSyntax).Generate + ')';
@@ -902,10 +899,17 @@ End;
 
 Constructor TRepeatStamentSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
+  WriteLn('Parsing...');
   Inherited Create(T, O);
   T.Next;
   While Not(T.Expected('until')) Do
+  Begin
     AddChild(TStamentSyntax.Create(T, O));
+    If T.Expected(';') Then
+      T.Next
+    Else
+      T.RaiseError('Expected ";" or "until".');
+  End;
   If T.Expected('until') Then
     T.Next
   Else
@@ -1001,7 +1005,9 @@ End;
 Constructor TStamentSyntax.Create(T : TTokenIterator; O : TTokenTreeElement);
 Begin
   Inherited Create(T, O);
-  If T.Expected('if') Then
+  If T.Expected(';') Then
+    AddChild(TBlankStamentSyntax.Create(T, O))
+  Else If T.Expected('if') Then
     AddChild(TIfStamentSyntax.Create(T, O))
   Else If T.Expected('for') Then
     AddChild(TForStamentSyntax.Create(T, O))
