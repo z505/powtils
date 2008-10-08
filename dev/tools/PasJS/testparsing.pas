@@ -28,5 +28,10 @@ Begin
     end;
 End;
 
+function test2: boolean;
+begin
+  result := 1;
+end;
+
 Begin
 End.
