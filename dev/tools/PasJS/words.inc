@@ -28,7 +28,7 @@ Const
   ';'
   );
 
-  Pascal_Words: Array[0..32] Of String =
+  Pascal_Words: Array[0..33] Of String =
   (
   'and',
   'begin',
@@ -62,5 +62,6 @@ Const
   'var',
   'while',
   'with',
-  'xor'
+  'xor',
+  'javascript'
   );
