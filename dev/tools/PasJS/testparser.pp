@@ -3,7 +3,7 @@ Uses Scanner, Parser, Classes, Sysutils, SyntaxTree, TokenIterator;
 Var
   MySourceFile : TFileStream;
   MyDefines    : TStringList;
-  MySyntax     : TTreeElementList;
+  MySyntax     : TTokenTreeElement;
 
 Function OpenNewOne(FName : String): TStream;
 Begin

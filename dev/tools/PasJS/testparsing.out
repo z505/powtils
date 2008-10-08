@@ -1,0 +1,40 @@
+
+var var1;
+
+var var2;
+
+var var3;
+
+var var4;
+
+var var5;
+
+var var6;
+
+var var7;
+
+var var8;
+
+var var9;
+
+var var10;
+
+function teste(b);
+{
+
+var c;
+
+
+if (2 = 2)
+teste(1);
+else
+teste(2);
+
+}
+
+function hello();
+{
+
+hello=1;
+
+}
