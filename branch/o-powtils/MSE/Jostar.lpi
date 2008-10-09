@@ -1,0 +1,404 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <PathDelim Value="/"/>
+    <Version Value="6"/>
+    <General>
+      <Flags>
+        <AlwaysBuild Value="False"/>
+      </Flags>
+      <MainUnit Value="0"/>
+      <IconPath Value="./"/>
+      <TargetFileExt Value=""/>
+      <ActiveEditorIndexAtStart Value="2"/>
+    </General>
+    <VersionInfo>
+      <ProjectVersion Value=""/>
+    </VersionInfo>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="/usr/bin/gnome-terminal -t 'Lazarus Run Output' -e '$(LazarusDir)/tools/runwait.sh $(TargetCmdLine)'"/>
+        <Display Use="True"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="indylaz"/>
+        <MinVersion Major="10" Minor="2" Build="3" Valid="True"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="34">
+      <Unit0>
+        <Filename Value="Jostar.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Jostar"/>
+        <CursorPos X="11" Y="16"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="0"/>
+        <UsageCount Value="291"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="StringSearchUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="StringSearchUnit"/>
+        <CursorPos X="5" Y="59"/>
+        <TopLine Value="35"/>
+        <EditorIndex Value="4"/>
+        <UsageCount Value="291"/>
+        <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="HTMLParserUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="HTMLParserUnit"/>
+        <CursorPos X="3" Y="159"/>
+        <TopLine Value="151"/>
+        <UsageCount Value="285"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="CollectionUnit.pp"/>
+        <UnitName Value="CollectionUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="102"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="SearchResultItemUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SearchResultItemUnit"/>
+        <CursorPos X="14" Y="49"/>
+        <TopLine Value="49"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="279"/>
+        <Loaded Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="UtilityFunctionsUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UtilityFunctionsUnit"/>
+        <CursorPos X="7" Y="26"/>
+        <TopLine Value="3"/>
+        <UsageCount Value="276"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="ThreadingUnit.pp"/>
+        <UnitName Value="ThreadingUnit"/>
+        <CursorPos X="14" Y="46"/>
+        <TopLine Value="15"/>
+        <UsageCount Value="101"/>
+        <Bookmarks Count="1">
+          <Item0 X="10" Y="77" ID="1"/>
+        </Bookmarks>
+      </Unit6>
+      <Unit7>
+        <Filename Value="RequestsQueue.pp"/>
+        <UnitName Value="RequestsQueue"/>
+        <CursorPos X="74" Y="8"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="99"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="ResidentApplicationUnit.pp"/>
+        <UnitName Value="ResidentApplicationUnit"/>
+        <CursorPos X="66" Y="358"/>
+        <TopLine Value="342"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="109"/>
+        <Bookmarks Count="1">
+          <Item0 X="35" Y="354" ID="2"/>
+        </Bookmarks>
+        <Loaded Value="True"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="ThisApplicationPagesUnit.pp"/>
+        <UnitName Value="ThisApplicationPagesUnit"/>
+        <CursorPos X="27" Y="58"/>
+        <TopLine Value="36"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="112"/>
+        <Loaded Value="True"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="ResidentPageBaseUnit.pp"/>
+        <UnitName Value="ResidentPageBaseUnit"/>
+        <CursorPos X="1" Y="148"/>
+        <TopLine Value="135"/>
+        <UsageCount Value="103"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="ThisProjectGlobalUnit.pp"/>
+        <UnitName Value="ThisProjectGlobalUnit"/>
+        <CursorPos X="101" Y="51"/>
+        <TopLine Value="28"/>
+        <UsageCount Value="104"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="AdminPages/AdminTopPageUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="AdminTopPageUnit"/>
+        <CursorPos X="1" Y="24"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="220"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="AdminPages/AdminMainPageUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="AdminMainPageUnit"/>
+        <CursorPos X="28" Y="72"/>
+        <TopLine Value="65"/>
+        <UsageCount Value="216"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="AdminPages/GetURLPageUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="GetURLPageUnit"/>
+        <CursorPos X="30" Y="81"/>
+        <TopLine Value="61"/>
+        <UsageCount Value="207"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="SEThreadingUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SEThreadingUnit"/>
+        <CursorPos X="22" Y="90"/>
+        <TopLine Value="69"/>
+        <EditorIndex Value="10"/>
+        <UsageCount Value="202"/>
+        <Loaded Value="True"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="../../../../O-PSP-OnGoogle/branch/o-powtils/ThreadCollectionUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ThreadCollectionUnit"/>
+        <CursorPos X="45" Y="8"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="201"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="/usr/share/fpcsrc/rtl/objpas/classes/classesh.inc"/>
+        <CursorPos X="3" Y="477"/>
+        <TopLine Value="461"/>
+        <UsageCount Value="3"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="/usr/lib/lazarus/components/indy-10.2.0.3/lazarus/indylaz.pas"/>
+        <UnitName Value="indylaz"/>
+        <CursorPos X="51" Y="12"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="/usr/share/fpcsrc/rtl/inc/objpash.inc"/>
+        <CursorPos X="23" Y="147"/>
+        <TopLine Value="131"/>
+        <UsageCount Value="2"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="StreamUnit.pas"/>
+        <UnitName Value="StreamUnit"/>
+        <CursorPos X="3" Y="40"/>
+        <TopLine Value="35"/>
+        <UsageCount Value="9"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="SEResultParserUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SEResultParserUnit"/>
+        <CursorPos X="17" Y="36"/>
+        <TopLine Value="11"/>
+        <EditorIndex Value="11"/>
+        <UsageCount Value="91"/>
+        <Loaded Value="True"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="SEHTTPSenderUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SEHTTPSenderUnit"/>
+        <CursorPos X="36" Y="13"/>
+        <TopLine Value="13"/>
+        <EditorIndex Value="12"/>
+        <UsageCount Value="87"/>
+        <Loaded Value="True"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="/usr/lib/lazarus/components/indy-10.2.0.3/lazarus/IdHTTP.pas"/>
+        <UnitName Value="IdHTTP"/>
+        <CursorPos X="37" Y="615"/>
+        <TopLine Value="599"/>
+        <UsageCount Value="36"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="GetURLPageUnit.pp"/>
+        <UnitName Value="GetURLPageUnit"/>
+        <CursorPos X="21" Y="72"/>
+        <TopLine Value="56"/>
+        <EditorIndex Value="6"/>
+        <UsageCount Value="41"/>
+        <Loaded Value="True"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="SessionManagerUnit.pp"/>
+        <UnitName Value="SessionManagerUnit"/>
+        <CursorPos X="1" Y="283"/>
+        <TopLine Value="267"/>
+        <EditorIndex Value="9"/>
+        <UsageCount Value="41"/>
+        <Loaded Value="True"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="AdminMainPageUnit.pp"/>
+        <UnitName Value="AdminMainPageUnit"/>
+        <CursorPos X="1" Y="71"/>
+        <TopLine Value="68"/>
+        <EditorIndex Value="5"/>
+        <UsageCount Value="14"/>
+        <Loaded Value="True"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="Google.Conf"/>
+        <CursorPos X="1" Y="21"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="36"/>
+        <SyntaxHighlighter Value="None"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="/usr/share/fpcsrc/rtl/i386/i386.inc"/>
+        <CursorPos X="1" Y="1288"/>
+        <TopLine Value="1272"/>
+        <EditorIndex Value="7"/>
+        <UsageCount Value="41"/>
+        <Loaded Value="True"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="/usr/share/fpcsrc/rtl/inc/objpas.inc"/>
+        <CursorPos X="1" Y="586"/>
+        <TopLine Value="569"/>
+        <EditorIndex Value="8"/>
+        <UsageCount Value="41"/>
+        <Loaded Value="True"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="/usr/lib/lazarus/components/indy-10.2.0.3/lazarus/IdBaseComponent.pas"/>
+        <UnitName Value="IdBaseComponent"/>
+        <CursorPos X="17" Y="147"/>
+        <TopLine Value="131"/>
+        <UsageCount Value="9"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="/usr/lib/lazarus/components/indy-10.2.0.3/lazarus/IdException.pas"/>
+        <UnitName Value="IdException"/>
+        <CursorPos X="3" Y="53"/>
+        <TopLine Value="37"/>
+        <UsageCount Value="10"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="../../../../MyUnits/State Machine/AutomataUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="AutomataUnit"/>
+        <CursorPos X="42" Y="12"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="22"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="AutomataUnit.pp"/>
+        <UnitName Value="AutomataUnit"/>
+        <CursorPos X="6" Y="134"/>
+        <TopLine Value="125"/>
+        <UsageCount Value="10"/>
+      </Unit33>
+    </Units>
+    <JumpHistory Count="0" HistoryIndex="-1"/>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="5"/>
+    <SearchPaths>
+      <OtherUnitFiles Value="AdminPages/"/>
+    </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <DelphiCompat Value="True"/>
+        <UseAnsiStrings Value="True"/>
+      </SyntaxOptions>
+    </Parsing>
+    <CodeGeneration>
+      <Generate Value="Faster"/>
+    </CodeGeneration>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <BreakPoints Count="7">
+      <Item1>
+        <Source Value="../../../PSP/O-PSP/Examples/WebCMD/WebUnit.pp"/>
+        <Line Value="732"/>
+      </Item1>
+      <Item2>
+        <Source Value="../../../PSP/O-PSP/Examples/WebCMD/MainPageUnit.pp"/>
+        <Line Value="83"/>
+      </Item2>
+      <Item3>
+        <Source Value="Jostar.lpr"/>
+        <Line Value="35"/>
+      </Item3>
+      <Item4>
+        <Source Value="AdminPages/AdminMainPageUnit.pp"/>
+        <Line Value="76"/>
+      </Item4>
+      <Item5>
+        <Source Value="SessionManagerUnit.pp"/>
+        <Line Value="282"/>
+      </Item5>
+      <Item6>
+        <Source Value="SessionManagerUnit.pp"/>
+        <Line Value="211"/>
+      </Item6>
+      <Item7>
+        <Source Value="AdminPages/GetURLPageUnit.pp"/>
+        <Line Value="77"/>
+      </Item7>
+    </BreakPoints>
+    <Watches Count="3">
+      <Item1>
+        <Expression Value="Str"/>
+      </Item1>
+      <Item2>
+        <Expression Value="Self"/>
+      </Item2>
+      <Item3>
+        <Expression Value="FSize"/>
+      </Item3>
+    </Watches>
+    <Exceptions Count="7">
+      <Item1>
+        <Name Value="ECodetoolError"/>
+      </Item1>
+      <Item2>
+        <Name Value="EFOpenError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EVariableNotFound"/>
+      </Item3>
+      <Item4>
+        <Name Value="EQueueIsEmpty"/>
+      </Item4>
+      <Item5>
+        <Name Value="ENameNotFound"/>
+      </Item5>
+      <Item6>
+        <Name Value="EConvertError"/>
+      </Item6>
+      <Item7>
+        <Name Value="ESessionNotFound"/>
+      </Item7>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
