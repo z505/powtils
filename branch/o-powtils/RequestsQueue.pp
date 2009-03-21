@@ -47,31 +47,56 @@ type
 
   end;
 
+  { TSuspendedThreads }
+
+  TSuspendedThreads= class (TBaseCollection)
+  private
+    Top, Bot: Integer;
+    CS: TRTLCriticalSection;
+
+  protected
+    function IsEmpty: Boolean; inline;
+    function IsFull: Boolean; inline;
+
+  public
+    constructor Create (_Size: Integer);
+    destructor Destroy; override;
+
+    function Delete: Boolean;
+    procedure Insert (NewThread: TThread);
+
+  end;
+
 
   { TCircularRequestsQueue }
 
   TCircularRequestsQueue= class (TBaseCollection)
   private
-    FThreadsWaitOnDelete,
-    FThreadsWaitOnInsert: TBaseCollection;
+    FSuspendedThreads: TSuspendedThreads;
     SoQ, EoQ: Integer;
     CS: TRTLCriticalSection;
-    ActiveMemberCount: Integer;
+    FActiveMemberCount: Integer;
 
   public
-    constructor Create (QueueSize: Integer);
+    property ActiveMemberCount: Integer read FActiveMemberCount;
+
+    constructor Create (QueueSize, MaxThreadCount: Integer);
     destructor Destroy; override;
 
     procedure Insert (Request: TRequest);
     function Delete: TRequest;
-    procedure AddOnInsert (Thread: TThread);
-    procedure AddOnDelete (Thread: TThread);
+
+    function IsEmpty: Boolean;
+    function IsFull: Boolean;
+
+    procedure AddToSuspendedThreads (AThread: TThread);
+    procedure TryToMakeItEmpty;
 
   end;
 
 implementation
 uses
-  URLEnc;
+  URLEnc, MyTypes;
   
 { TRequest }
 {
@@ -154,7 +179,7 @@ end;
 
 { TCircularRequestsQueue }
 
-constructor TCircularRequestsQueue.Create (QueueSize: Integer);
+constructor TCircularRequestsQueue.Create (QueueSize, MaxThreadCount: Integer);
 begin
   inherited Create;
 
@@ -163,11 +188,10 @@ begin
   Allocate (QueueSize);
   SoQ:= 0;
   EoQ:= 0;
-  FSize:= Size;
-  ActiveMemberCount:= 0;
+  FSize:= QueueSize;
+  FActiveMemberCount:= 0;
 
-  FThreadsWaitOnDelete:= TBaseCollection.Create;
-  FThreadsWaitOnInsert:= TBaseCollection.Create;
+  FSuspendedThreads:= TSuspendedThreads.Create (MaxThreadCount);
   
 end;
 
@@ -178,11 +202,7 @@ var
 begin
   DoneCriticalsection (CS);
   
-  FThreadsWaitOnInsert.Clear;
-  FThreadsWaitOnDelete.Clear;
-
-  FThreadsWaitOnInsert.Free;
-  FThreadsWaitOnDelete.Free;
+  FSuspendedThreads.Free;
   
   inherited;
 
@@ -209,12 +229,9 @@ begin
   EoQ:= (EoQ+ 1) mod FSize;
   Inc (ActiveMemberCount);
   
-  if FThreadsWaitOnDelete.Size<> 0 then
+  if FSuspendedThreads.Size<> 0 then
   begin
-    SuspendedThread:= FThreadsWaitOnDelete.Member [FThreadsWaitOnDelete.Size- 1] as TThread;
-    FThreadsWaitOnDelete.Member [FThreadsWaitOnDelete.Size- 1]:= nil;
-    FThreadsWaitOnDelete.Delete (FThreadsWaitOnDelete.Size- 1);
-    SuspendedThread.Resume;
+    FSuspendedThreads.Delete;
 
   end;
 
@@ -241,23 +258,125 @@ begin
 
 end;
 
-procedure TCircularRequestsQueue.AddOnInsert (Thread: TThread);
+function TCircularRequestsQueue.IsEmpty: Boolean;
+begin
+  Result:= ActiveMemberCount= 0;
+
+end;
+
+function TCircularRequestsQueue.IsFull: Boolean;
+begin
+  Result:= ActiveMemberCount= Size;
+
+end;
+
+procedure TCircularRequestsQueue.AddToSuspendedThreads(AThread: TThread);
+begin
+{$ifdef DebugMode}
+  WriteLn ('RequestQueue:', AThread.ThreadID, ' added to Suspeded Thread');
+{$endif}
+  FSuspendedThreads.Insert (AThread);
+
+end;
+
+procedure TCircularRequestsQueue.TryToMakeItEmpty;
+begin
+{$ifdef DebugMode}
+  WriteLn ('TRequestQueue [TryToMakeItEmpty]');
+{$endif}
+
+  FSuspendedThreads.Delete;
+
+end;
+
+{ TSuspendedThreads }
+
+constructor TSuspendedThreads.Create (_Size: Integer);
+var
+  i: Integer;
+  Ptr: PObject;
+
+begin
+  inherited Create;
+
+  Allocate (_Size);
+
+  Top:= 0;
+  Bot:= 0;
+
+  InitCriticalSection (CS);
+
+end;
+
+destructor TSuspendedThreads.Destroy;
+begin
+  DoneCriticalsection (CS);
+  Clear;
+
+  inherited Destroy;
+
+end;
+
+function TSuspendedThreads.Delete: Boolean;
 begin
   EnterCriticalsection (CS);
+  Result:= IsEmpty;
 
-  FThreadsWaitOnInsert.Add (Thread);
+  if not Result then
+  begin
+{$ifdef DebugMode}
+    WriteLn ('TSuspendedThreads[Delete]: Not Empty');
+{$endif}
+
+    ((FMembers [Bot]) as TThread).Resume;
+    Bot:= (Bot+ 1) mod FSize;
+
+  end
+  else
+  begin
+{$ifdef DebugMode}
+    WriteLn ('TSuspendedThreads[Delete]: Is Empty');
+{$endif}
+  end;
 
   LeaveCriticalsection (CS);
 
 end;
 
-procedure TCircularRequestsQueue.AddOnDelete (Thread: TThread);
+procedure TSuspendedThreads.Insert (NewThread: TThread);
 begin
   EnterCriticalsection (CS);
+{$ifdef DebugMode}
+  WriteLn ('SuspendedThreadsQueue: ', NewThread.ThreadID, ':', Top, ' ', Bot);
+{$endif}
 
-  FThreadsWaitOnDelete.Add (Thread);
+  if not IsFull then
+  begin
+    FMembers [Top]:= NewThread;
+    Top:= (Top+ 1) mod FSize;
+
+  end
+  else
+  begin
+{$ifdef DebugMode}
+    WriteLn ('SuspendedThreadsQueue: SuspendThread Queue is full!');
+{$endif}
+
+  end;
 
   LeaveCriticalsection (CS);
+
+end;
+
+function TSuspendedThreads.IsEmpty: Boolean; inline;
+begin
+  Result:= Top= Bot;
+
+end;
+
+function TSuspendedThreads.IsFull: Boolean; inline;
+begin
+  Result:= ((Top+ 1) mod FSize= Bot);
 
 end;
 

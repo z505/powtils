@@ -15,11 +15,8 @@ type
 
   published
     property PageName: String read FPageName write FPageName;
-    property ContentType: TContentType read FContentType write FContentType;
-    property ForceToSendHeader: Boolean read FForceToSendHeader write FForceToSendHeader;
     
   public
-    constructor Create;
     destructor Destroy; override;
     procedure Clear;
 
@@ -28,14 +25,10 @@ type
   end;
   
 implementation
+uses
+  CookieUnit;
 
 { TMyWebPage2 }
-
-constructor TMyWebPage2.Create;
-begin
-  inherited Create ('Page2', ctTextHTML, 'localhost', '/cgi-bin/Test/Page2');
-
-end;
 
 destructor TMyWebPage2.Destroy;
 begin
@@ -54,11 +47,11 @@ var
   i: Integer;
 
 begin
-  Cookies.Add (TCookie.Create ('Test', 'TestValue', '05/29/2007', 'Temp', ''));
-  Cookies.Add (TCookie.Create ('Test2', 'TestValue2'));
+//  Cookies.Add (TCookie.Create ('Test', 'TestValue', '05/29/2007', 'Temp', ''));
+  Cookies.AddNameValue (TCookie.Create ('Test2', 'TestValue2'));
 
   for i:= 0 to CgiVars.size- 1 do
-    Self.WriteProcedure ('*'+ CgiVars.CgiVar [i].ToString);
+    Self.Write ('*'+ CgiVars.CgiVar [i].ToString);
 
 end;
 
