@@ -5,7 +5,7 @@ unit GlobalUnit;
 interface
 
 uses
-  Classes, SysUtils, FileStringsUnit, WebUnit;
+  Classes, SysUtils, FileStringsUnit, WebUnit, WebConfigurationUnit;
   
 type
   { TGlobalObjectContainer }
@@ -13,19 +13,17 @@ type
   TGlobalObjectContainer= class (TObject)
   private
     FFileStringCollection: TFileStrings;
-    FWebConfiguration: TWebConfigurationCollection;
     
   public
     property FileStringCollection: TFileStrings read FFileStringCollection;
-    property WebConfiguration: TWebConfigurationCollection read FWebConfiguration;
     
     constructor Create;
     procedure Free;
     
   end;
 
-const
-  WebConfigFile: String= 'PWU.conf';
+var
+  WebConfiguration: TWebConfigurationCollection;
 
 implementation
 
@@ -36,8 +34,6 @@ begin
   inherited;
   
   FFileStringCollection:= TFileStrings.Create;
-  FWebConfiguration:= TWebConfigurationCollection.Create;
-  FWebConfiguration.ParseWebConfig (WebConfigFile);
 
 end;
 
@@ -50,9 +46,14 @@ begin
   
 end;
 
+const
+  WebConfigFile: String= 'PWU.conf';
+
 initialization
-  
+  WebConfiguration:= TWebConfigurationCollection.Create (WebConfigFile);
+
 finalization
-  
+  WebConfiguration.Free;
+
 end.
 

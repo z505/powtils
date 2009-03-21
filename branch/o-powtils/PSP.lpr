@@ -11,7 +11,9 @@ uses
   Page1ResidentUnit, CollectionUnit, WebUnit, Page2ResidentUnit,
   ThisApplicationPagesUnit, PipeWrapperUnit, URLEnc, SessionManagerUnit,
   WebStringUnit, RequestsQueue, XMLNode, AttributeUnit, ThisProjectGlobalUnit,
-  ExceptionUnit;
+  ExceptionUnit, AbstractDispatcherUnit, CookieUnit, WebHeaderUnit,
+  WebConfigurationUnit, SessionUnit, CgiVariableUnit,
+WebRunTimeInformationUnit, WebUploadedFileUnit;
   
 var
   Resident: TResident;
@@ -19,6 +21,7 @@ var
 begin
 
   Resident:= TResident.Create (nil);
+//  Resident.
 
   Resident.ExecuteInThread;
 //  Resident.Execute;

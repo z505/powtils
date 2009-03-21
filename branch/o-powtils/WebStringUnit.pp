@@ -38,11 +38,20 @@ type
     function ToUpperCase: TWebString;
     function IsSame (AnotherWebString: TWebString): Boolean;
     function IsSame (AnotherString: String): Boolean;
+
   end;
+
+  procedure URLDecode (var Str: String);
 
 implementation
 uses
-  substrings;
+  substrings, ExceptionUnit;
+
+procedure URLDecode (var Str: String);
+begin
+  raise ENotImplementedYet.Create ('URLDecode', '');
+
+end;
 
 { TWebString }
 

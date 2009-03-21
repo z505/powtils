@@ -160,31 +160,42 @@ type
     property Name: String read FName;
     property Value: TObject read FValue;
 
-    constructor Create (AName: String; AValue: TObject);
+    constructor Create (Nam: String; Value: TObject);
     destructor Destroy; override;
     
+  end;
+  
+  { TNameStrValue }
+
+  TNameStrValue= class (TNameValue)
+  private
+    function GetValue: String;
+  public
+    property Value: String read GetValue;
+
+    constructor Create (AName: String; AValue: String);
+    destructor Destroy; override;
   end;
 
   { TNameValueCollection }
 
-  TNameValueCollection= class (TBaseCollection)
+  TNameValueCollection= class (TStringList)
   private
-    function GetValueByName (AName: String): TObject;
-
+    function GetSize: Integer;
   protected
     function GetNameValue (Index: Integer): TNameValue;
     function GetNameValueByName (AName: String): TNameValue;
     
     procedure RemoveValueByName (Name: String);
-    function GetNameValueIndexByName (AName: String): Integer;
     
   public
     property NameValueByName [AName: String]: TNameValue read GetNameValueByName;
     property NameValue [Index: Integer]: TNameValue read GetNameValue;
-    property ValueByName [AName: String]: TObject read GetValueByName;
+    property Size: Integer read GetSize;
     
-    function IsExists (AName: String): Boolean;
-    function UpdateValue (AName: String): Boolean;
+    function IsExists (Name: String): Boolean;
+
+    procedure AddNameValue (ANameValue: TNameValue);
 
   end;
   
@@ -913,129 +924,56 @@ end;
 
 { TNameValueCollection }
 
-function TNameValueCollection.GetValueByName (AName: String): TObject;
+function TNameValueCollection.GetSize: Integer;
 begin
-  try
-    Result:= NameValueByName [AName].Value;
-    
-  except
-    on e: ENameNotFound do
-      Result:= nil;
-      
-  end;
-  
+  Result:= Count;
 end;
 
 function TNameValueCollection.GetNameValue(Index: Integer): TNameValue;
 begin
-  Result:= Member [Index] as TNameValue;
+  Result:= Objects [Index] as TNameValue;
   
 end;
 
 function TNameValueCollection.GetNameValueByName (AName: String): TNameValue;
 var
-  i: Integer;
-  Ptr: PObject;
+  Index: Integer;
 
 begin
-  AName:= UpperCase (AName);
-  Ptr:= GetPointerToFirst;
-  
-  for i:= 1 to Size do
-  begin
-    if (Ptr^ as TNameValue).FNameInUpperCase= AName then
-    begin
-      Result:= Ptr^ as TNameValue;
-      Exit;
-      
-    end;
-    
-    Inc (Ptr);
-    
-  end;
-  
-  raise ENameNotFound.Create (AName);
+  Index:= Self.IndexOf (AName);
+
+  if 0<= Index then
+    Result:= Objects [Index] as TNameValue
+  else
+    raise ENameNotFound.Create (AName);
   
 end;
 
 procedure TNameValueCollection.RemoveValueByName (Name: String);
 var
-  i: Integer;
-  Ptr: PObject;
+  Index: Integer;
   
 begin
-  Ptr:= GetPointerToFirst;
-  Name:= UpperCase (Name);
-  
-  for i:= 1 to Size do
-  begin
-    if (Ptr^ as TNameValue).FNameInUpperCase= Name then
-    begin
-      Delete (i);
-      Break;
-      
-    end;
-    Inc (Ptr);
-    
-  end;
+  Index:= IndexOf (Name);
+  Delete (Index);
   
 end;
 
-function TNameValueCollection.GetNameValueIndexByName (AName: String): Integer;
+function TNameValueCollection.IsExists (Name: String): Boolean;
 var
-  i: Integer;
-  Ptr: PObject;
-
-begin
-  Ptr:= GetPointerToFirst;
-  Result:= -1;
-  AName:= UpperCase (AName);
-
-  for i:= 0 to Size- 1 do
-  begin
-    if (Ptr^ as TNameValue).FNameInUpperCase= AName then
-    begin
-      Result:= i;
-      Break;
-
-    end;
-    Inc (Ptr);
-
-  end;
-  
-  Result:= -1;
-
-end;
-
-function TNameValueCollection.IsExists (AName: String): Boolean;
-var
-  i: Integer;
-  Ptr: PObject;
+  Index: Integer;
   
 begin
-  Ptr:= GetPointerToFirst;
-  Result:= False;
-  AName:= UpperCase (AName);
-  
-  for i:= 1 to Size do
-  begin
-    if (Ptr^ as TNameValue).FNameInUpperCase= AName then
-    begin
-      Result:= True;
-      Break;
-
-    end;
-    Inc (Ptr);
-
-  end;
+  Index:= IndexOf (Name);
+  Result:= 0<= Index;
 
 
 end;
 
-function TNameValueCollection.UpdateValue (AName: String): Boolean;
+procedure TNameValueCollection.AddNameValue (ANameValue: TNameValue);
 begin
-  NameValueByName [AName].FValue:= TObject (AName);
-  
+  AddObject (ANameValue.Name, ANameValue);
+
 end;
 
 { EVariableNotFound }
@@ -1048,12 +986,12 @@ end;
 
 { TNameValue }
 
-constructor TNameValue.Create (AName: String; AValue: TObject);
+constructor TNameValue.Create (Nam: String; Value: TObject);
 begin
   inherited Create;
   
-  FName:= AName;
-  FValue:= AValue;
+  FName:= Nam;
+  FValue:= Value;
   FNameInUpperCase:= UpperCase (FName);
   
 end;
@@ -1065,6 +1003,34 @@ begin
   
   inherited Destroy;
   
+end;
+
+{ TNameStrValue }
+
+function TNameStrValue.GetValue: String;
+begin
+  Result:= (PString (PByte (FValue)))^;
+
+end;
+
+constructor TNameStrValue.Create (AName: String; AValue: String);
+var
+  PVal: PString;
+
+begin
+  New (PVal);
+  PVal^:= AValue;
+
+  inherited Create (AName, TObject (PVal));
+
+end;
+
+destructor TNameStrValue.Destroy;
+begin
+  FValue:= nil;
+
+  inherited Destroy;
+
 end;
 
 end.

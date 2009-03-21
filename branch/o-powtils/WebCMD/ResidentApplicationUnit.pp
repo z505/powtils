@@ -405,7 +405,6 @@ constructor TResident.Create (AOwner: TComponent);
     AssignFile (ConfigFileHandle, 'PSP.conf');
     Reset (ConfigFileHandle);
 
-
     while not Eof (ConfigFileHandle) do
     begin
       ReadLn (ConfigFileHandle, TempString);

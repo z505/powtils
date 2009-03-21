@@ -70,6 +70,10 @@ type
     FRemainedToRestart: Integer;
     FUsingSessionManager: Boolean;
     MainPipeFileHandle: cInt;
+    FRequestQueue: TCircularRequestsQueue;
+    FDispatchedRequestCount: Integer;
+
+    ThreadPool: TThreadPool;
 
     procedure SetMainPipeFileName (const AValue: String);
     procedure SetRestartInterval (const AValue: Integer);
@@ -85,12 +89,17 @@ type
     property RequestQueueSize: Integer read FRequestQueueSize;
     property UsingSessionManager: Boolean read FUsingSessionManager;
 
+    function RegisterRequest (var ARequestString: String): Boolean;
+
   public
   
     procedure Execute;
     procedure ExecuteInThread;
   
     constructor Create (AOwner : TComponent);
+    destructor Destroy; override;
+
+//    procedure RegisterADisptacher ();
 
   end;
 
@@ -113,7 +122,8 @@ var
 
 implementation
 uses
-  ThisApplicationPagesUnit, URLEnc;
+  ThisApplicationPagesUnit, ExceptionUnit, URLEnc, WebConfigurationUnit,
+  GlobalUnit;
   
 { TParameter }
 
@@ -168,10 +178,24 @@ end;
 
 procedure TResident.SetRestartInterval (const AValue: Integer);
 begin
-
   FRestartInterval:= AValue;
   FRemainedToRestart:= AValue;
   
+end;
+
+function TResident.RegisterRequest (var ARequestString: String): Boolean;
+var
+  NewRequest: TRequest;
+
+begin
+  NewRequest:= TRequest.Create (ARequestString);
+  FRequestQueue.Insert (NewRequest);
+  Inc (FDispatchedRequestCount);
+
+(*$IFDEF DEBUGMODE*)
+  WriteLn (FDispatchedRequestCount, ':NewRequest.Parameters=', NewRequest.Parameters);
+(*$ENDIF*)
+
 end;
 
 procedure TResident.Execute;
@@ -278,10 +302,8 @@ const
   EndOfRequestChar= #$FD;
   
 var
-  ThreadPool: TThreadPool;
-  RequestQueue: TCircularRequestsQueue;
   NewRequest: TRequest;
-  i, ReqCon, EndOfCurrentRequest,
+  i, EndOfCurrentRequest,
   BufferLen: Integer;
   Buffer: AnsiString;
   BufferPtr: PChar;
@@ -289,15 +311,6 @@ var
   SegmentedString: String;
 
 begin
-
-  RequestQueue:= TCircularRequestsQueue.Create (FRequestQueueSize);
-  ThreadPool:= TThreadPool.Create (RequestQueue, FNumberOfActiveThread);
-
-  ThreadPool.Execute;
-
-  MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
-  
-  ReqCon:= 0;
   SegmentedString:= '';
   StringIsComplete:= False;
   
@@ -316,6 +329,7 @@ begin
 
         if BufferLen<= 0 then
         begin
+          WriteLn ('Closing the pipe!');
           FpClose (MainPipeFileHandle);
           MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
           
@@ -351,11 +365,8 @@ begin
       
       if StringIsComplete then
       begin
+        RegisterRequest (SegmentedString);
 
-        NewRequest:= TRequest.Create (SegmentedString);
-        RequestQueue.Insert (NewRequest);
-        Inc (ReqCon);
-        WriteLn (ReqCon, ':NewRequest.Parameters=', NewRequest.Parameters);
         StringIsComplete:= False;
         SegmentedString:= '';
 
@@ -371,7 +382,7 @@ begin
   end;
   
   FpClose (MainPipeFileHandle);
-  RequestQueue.Free;
+  FRequestQueue.Free;
   ThreadPool.Free;
 
 end;
@@ -416,7 +427,7 @@ constructor TResident.Create (AOwner: TComponent);
         ((Length (TempString)= 0) or (TempString [1]<> '#')) then
       begin
         TempInt:= Pos (':', TempString);
-        WebConfiguration.AddWebConfiguration (TWebConfiguration.Create (
+        WebConfiguration.AddNameValue (TWebConfiguration.Create (
           Copy (TempString, 1, TempInt- 1),
           Copy (TempString, TempInt+ 1, Length (TempString)- TempInt)));
           
@@ -504,10 +515,52 @@ constructor TResident.Create (AOwner: TComponent);
 begin
   inherited Create (AOwner);
   
-  WebConfiguration:= TWebConfigurationCollection.Create;
-
   ReadConfigFileInfo;
 
+  FRequestQueue:= TCircularRequestsQueue.Create (FRequestQueueSize, 0);
+
+  ThreadPool:= TThreadPool.Create (FRequestQueue, FNumberOfActiveThread);
+  ThreadPool.Execute;
+
+  MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
+
+  FDispatchedRequestCount:= 0;
+
+
+end;
+
+destructor TResident.Destroy;
+var
+  i: Integer;
+
+begin
+
+  while not FRequestQueue.IsEmpty do
+  begin
+    FRequestQueue.TryToMakeItEmpty;
+
+{$ifdef DebugMode}
+    Writeln ('Resident[Destroy]: Queue is not empty, yet!');
+{$endif}
+    Sleep (100);
+
+  end;
+
+  {$ifdef DebugMode}
+  Writeln ('Resident[Destroy]: At last, Queue became empty!');
+  Writeln ('Resident[Destroy]:');
+  Writeln ('Resident[Destroy]:');
+  {$endif}
+
+  ThreadPool.Free;
+
+{$ifdef DebugMode}
+  WriteLn ('Resident[Destroy]: At the end');
+{$endif}
+
+  FRequestQueue.Free;
+
+  inherited Destroy;
 
 end;
 

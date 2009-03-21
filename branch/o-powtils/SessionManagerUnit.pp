@@ -61,8 +61,6 @@ type
     procedure DeleteVariable (VariableName: String);
     procedure AddValue (AName, AValue: String);
     
-    function VariableExists (VariableName: String): Boolean;
-
   end;
   
   { TAbstractSessionManager }
@@ -358,7 +356,7 @@ var
   Index: Integer;
   
 begin
-  Index:= GetNameValueIndexByName (VariableName);
+  Index:= IndexOf (VariableName);
   if Index<> -1 then
     Delete (Index);
     
@@ -370,14 +368,8 @@ var
   
 begin
   ANewVariable:= TVariable.Create (AName, AValue);
-  Self.Add (ANewVariable);
+  Self.AddObject (AName, ANewVariable);
   
-end;
-
-function TSession.VariableExists (VariableName: String): Boolean;
-begin
-  Result:= GetNameValueIndexByName (VariableName)<> -1;
-
 end;
 
 { EVariableNotFoundInSession }

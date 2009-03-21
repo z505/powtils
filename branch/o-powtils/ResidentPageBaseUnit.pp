@@ -26,7 +26,7 @@ interface
 
 uses
   Classes, SysUtils, WebUnit, CollectionUnit, XMLNode, AttributeUnit, Unix,
-    BaseUnix, SessionManagerUnit, ResidentApplicationUnit;
+    BaseUnix, SessionManagerUnit, ResidentApplicationUnit, WebHeaderUnit;
   
 type
 
@@ -37,9 +37,6 @@ type
     function GetSession: TSession;
 
   protected
-//    FPersistance: Boolean;
-    MainApplicationInstance: TResident;
-    FMainPipeFileName: String;
     FPageName: String;
     FPipeHandle: cInt;
     FTempPipeFilePath: String;
@@ -110,7 +107,7 @@ type
 
 implementation
 uses
-  ThisProjectGlobalUnit, DateUtils;
+  ThisProjectGlobalUnit, DateUtils, GlobalUnit;
   
 { TResidentPageBase }
 
@@ -151,7 +148,6 @@ procedure TResidentPageBase.SetPipeFileName (const Filename: String);
 begin
   FPipeHandle:= FpOpen (Filename, O_WRONLY);
 
-  WriteProcedure:= @WriteToPipe;
   PipeIsAssigned:= True;
 
 end;
@@ -230,7 +226,7 @@ begin
   begin
     S:= Header.Text;
     Header.Clear;
-    WriteProcedure (S);
+    Write (S);
     
   end;
   
@@ -238,12 +234,11 @@ begin
   begin
     S:= Cookies.Text;
     Cookies.Clear;
-    WriteProcedure (S);
+    Write (S);
 
   end;
 
-  WriteProcedure (#10);
-  WriteProcedure (#10);
+  Write (#10#10);
   HeaderCanBeSent:= False;
 
 end;
@@ -252,7 +247,7 @@ constructor TResidentPageBase.Create (ThisPageName: String;
             ContType: TContentType; PageHost: String; PagePath: String);
 begin
   inherited CreateWithOutGetWebData (PageHost, PagePath, ThisPageName,
-     GlobalObjContainer.WebConfiguration, ContType);
+            ContType);
 
   FSessionID:= EmptySessionID;
   PipeIsAssigned:= False;
@@ -287,7 +282,7 @@ begin
   begin
     WriteHeaders;
     if Buffer.Count<> 0 then
-      WriteProcedure (Buffer.Text);
+      Write (Buffer.Text);
 
     FpClose (FPipeHandle);
     PipeIsAssigned:= False;
@@ -344,9 +339,9 @@ end;
 procedure TXMLResidentPageBase.Flush;
 begin
   if FIndent then
-    WriteProcedure (FXMLRoot.ToStringWithIndent)
+    Write (FXMLRoot.ToStringWithIndent)
   else
-    WriteProcedure (FXMLRoot.ToStringWithOutIndent);
+    Write (FXMLRoot.ToStringWithOutIndent);
 
   inherited;
 

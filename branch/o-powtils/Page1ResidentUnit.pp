@@ -11,13 +11,7 @@ type
   { TMyWebPage1 }
 
   TMyWebPage1= class (TResidentPageBase)
-  private
-    FContentType: TContentType;
-
   published
-    property ContentType: TContentType read FContentType write FContentType;
-    property ForceToSendHeader: Boolean read FForceToSendHeader write FForceToSendHeader;
-    
   public
     constructor Create;
     
@@ -29,6 +23,8 @@ type
   end;
 
 implementation
+uses
+  WebHeaderUnit;
 
 { TMyWebPage1 }
 
@@ -56,10 +52,10 @@ var
 begin
 
   for i:= 0 to 10 do
-    WriteProcedure (IntToStr (i));
+    Write (IntToStr (i));
 
   for i:= 0 to CgiVars.size- 1 do
-    WriteProcedure (CgiVars.CgiVar [i].ToString);
+    Write (CgiVars.CgiVar [i].ToString);
 
 end;
 

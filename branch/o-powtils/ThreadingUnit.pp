@@ -5,7 +5,7 @@ unit ThreadingUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit, RequestsQueue;
+  Classes, SysUtils, CollectionUnit, RequestsQueue, AbstractDispatcherUnit;
   
 type
   { TResidentPageExcecuteThread }
@@ -18,9 +18,8 @@ type
      procedure Execute; override;
 
    public
-
     constructor Create (ReqQueue: TCircularRequestsQueue); overload;
-    procedure Free;
+    destructor Destroy; override;
 
   end;
 
@@ -35,7 +34,7 @@ type
          read GetResidentThread;
 
     constructor Create;
-    procedure Free;
+    destructor Destroy; override;
     
   end;
 
@@ -49,8 +48,9 @@ type
 
     constructor Create (RequestPool: TCircularRequestsQueue;
                        n: Integer);
+    destructor Destroy; override;
+
     procedure Execute;
-    procedure Free;
 
     {This procedure can be implemented in a better way -- using message passing}
     procedure WaitUntilEndOfAllActiveThreads;
@@ -82,7 +82,7 @@ begin
     except
       on e: EQueueIsEmpty do
       begin
-        FRequestQueue.AddOnDelete (Self);
+        FRequestQueue.AddToSuspendedThreads (Self);
         Self.Suspend;
         Continue;
 
@@ -104,13 +104,12 @@ begin
   // MsgParamters must be (PageName) (OutputPipeName) (Get/Put Variable)
       PageInstance:= GetAppropriatePageByPageName (UpperCase (MsgParameter.Argument [0]));
 
+      (*$IFDEF DEBUGMODE*)
       WriteLn ('MsgParameter.Count= ', MsgParameter.Count);
+      (*$ENDIF*)
+
       if 2< MsgParameter.Count then
-      begin
-        WriteLn (MsgParameter.Argument [2]);
         PageInstance.CgiVars.LoadFromString (MsgParameter.Argument [2]);
-        
-      end;
 
       if NewRequest.CookieStr<> '' then
         PageInstance.Cookies.LoadFromString (NewRequest.CookieStr);
@@ -125,7 +124,7 @@ begin
           WriteLn (e.Message);
           
       end;
-      
+
       PageInstance.Free;
 
     end;
@@ -143,7 +142,7 @@ begin
 
 end;
 
-procedure TResidentPageExcecuteThread.Free;
+destructor TResidentPageExcecuteThread.Destroy;
 begin
   FRequestQueue:= nil;
 
@@ -185,8 +184,9 @@ begin
 
 end;
 
-procedure TThreadPool.Free;
+destructor TThreadPool.Destroy;
 begin
+
   FThreadCollection.Free;
 
   inherited;
@@ -232,13 +232,20 @@ begin
   
 end;
 
-procedure TThreadCollection.Free;
+destructor TThreadCollection.Destroy;
 var
   i: Integer;
   
 begin
   for i:= 0 to Size- 1 do
+  begin
+    if ResidentThread [i].Suspended then
+      ResidentThread [i].Resume;
+
+    WaitForThreadTerminate (ResidentThread [i].ThreadID, 0);
     ResidentThread [i].Free;
+
+  end;
 
   inherited;
   
