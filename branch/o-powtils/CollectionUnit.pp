@@ -197,6 +197,8 @@ type
 
     procedure AddNameValue (ANameValue: TNameValue);
 
+    destructor Destroy; override;
+
   end;
   
 
@@ -974,6 +976,17 @@ procedure TNameValueCollection.AddNameValue (ANameValue: TNameValue);
 begin
   AddObject (ANameValue.Name, ANameValue);
 
+end;
+
+destructor TNameValueCollection.Destroy;
+var
+  i: Integer;
+
+begin
+  for i:= 0 to Count- 1 do
+    Objects [i].Free;
+
+  inherited Destroy;
 end;
 
 { EVariableNotFound }

@@ -76,7 +76,7 @@ type
     FSession: TSessionCollection; // Session data
     FCookies: TCookieCollection; // Cookie data
     FRti: TWebRunTimeInformationCollection;  // Run Time Information
-    FHeaders: TWebHeaderCollection;  // Headers
+    FHeaders: THeaderCollection;  // Headers
 
     FUploadedFile: TWebUpFileCollection;    // Uploaded files storage
     FHeaderCanBeSent, // True: iff the newline after headers is not sent
@@ -96,6 +96,10 @@ type
     procedure WriteBuffer;
     procedure FlushBuffer;
 
+    constructor CreateWithOutGetWebData (PageHostName, PagePath, ThisPageName: String;
+                ContType: TContentType);
+
+
  published
     property PageName: String read FPageName write FPageName;
     property HostName: String read FHostName write FHostName;
@@ -106,7 +110,7 @@ type
     property CgiVars: TCgiVariableCollection read FCgi;  // CGI GET/POST data
     property Conf: TWebConfigurationCollection read FConfiguration; // Configuration data
     property Cookies: TCookieCollection read FCookies; // Cookie data
-    property Header: TWebHeaderCollection read FHeaders;  // Headers
+    property Header: THeaderCollection read FHeaders;  // Headers
     property Rti: TWebRunTimeInformationCollection read FRti;  //  Run Time Information
     property Session: TSessionCollection read FSession;// Session data
     property UploadedFile: TWebUpFileCollection read FUploadedFile;    // Uploaded files storage
@@ -116,9 +120,6 @@ type
 
     procedure MyDispatch; virtual; abstract;
 
-    constructor CreateWithOutGetWebData (PageHostName, PagePath, ThisPageName: String;
-                ContType: TContentType= ctTextHTML);
-    
     destructor Destroy; override;
     
     procedure Write (const S: String); virtual;
@@ -229,7 +230,7 @@ begin
 
   FContentType:= ContType;
   Buffers:= TStringList.Create;
-  FHeaders:= TWebHeaderCollection.Create;
+  FHeaders:= THeaderCollection.Create;
   FHeaderCanBeSent:= True;
 
 {--Creating all the variable--

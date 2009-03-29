@@ -61,7 +61,7 @@ implementation
 
 uses
   ResidentApplicationUnit, ResidentPageBaseUnit,
-  ThisApplicationPagesUnit, MyTypes, SessionManagerUnit;
+  ThisApplicationPagesUnit, MyTypes, SessionManagerUnit, ExceptionUnit;
 
 { TResidentPageExcecuteThread }
 
@@ -109,13 +109,15 @@ begin
       (*$ENDIF*)
 
       if 2< MsgParameter.Count then
-        PageInstance.CgiVars.LoadFromString (MsgParameter.Argument [2]);
+        PageInstance.Vars.LoadFromString (MsgParameter.Argument [2]);
 
       if NewRequest.CookieStr<> '' then
         PageInstance.Cookies.LoadFromString (NewRequest.CookieStr);
 
   // Set the pipename in which the current page should write its output
-      PageInstance.PipeFileName:= MsgParameter.Argument [1];
+       raise ENotImplementedYet.Create ('PageInstance', 'SetPipeName');
+
+//      PageInstance.PipeFileName:= MsgParameter.Argument [1];
       try
         PageInstance.MyDispatch;
         

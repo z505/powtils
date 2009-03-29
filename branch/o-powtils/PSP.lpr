@@ -21,7 +21,6 @@ var
 begin
 
   Resident:= TResident.Create (nil);
-//  Resident.
 
   Resident.ExecuteInThread;
 //  Resident.Execute;

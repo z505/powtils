@@ -50,8 +50,8 @@ begin
 //  Cookies.Add (TCookie.Create ('Test', 'TestValue', '05/29/2007', 'Temp', ''));
   Cookies.AddNameValue (TCookie.Create ('Test2', 'TestValue2'));
 
-  for i:= 0 to CgiVars.size- 1 do
-    Self.Write ('*'+ CgiVars.CgiVar [i].ToString);
+  for i:= 0 to Vars.size- 1 do
+    Self.Write ('*'+ Vars.CgiVar [i].ToString);
 
 end;
 

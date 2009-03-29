@@ -26,46 +26,32 @@ interface
 
 uses
   Classes, SysUtils, WebUnit, CollectionUnit, XMLNode, AttributeUnit, Unix,
-    BaseUnix, SessionManagerUnit, ResidentApplicationUnit, WebHeaderUnit;
+    BaseUnix, SessionManagerUnit, ResidentApplicationUnit, WebHeaderUnit,
+    AbstractDispatcherUnit, CookieUnit, CgiVariableUnit;
   
 type
 
   { TResidentPageBase }
 
-  TResidentPageBase= class (TWeb)
+  TResidentPageBase= class (TAbstractDispatcher)
   private
+
     function GetSession: TSession;
 
   protected
-    FPageName: String;
-    FPipeHandle: cInt;
-    FTempPipeFilePath: String;
-    PipeIsAssigned: Boolean;
-    FRequestURI: String;
-    FHostName: String;
-    FForceToSendHeader: Boolean;
-    FSessionID: TSessionID;
-
-    procedure SetPipeFileName (const Filename: String);
-    procedure WriteDirectlyToOutput (const S: String);
-    procedure WriteToBuffer (const S: String);
-    procedure WriteToPipe (const S: String);
-    procedure WriteHeaders;
 
     procedure Clear;
 
   published
-    property PipeFileName: String Write SetPipeFileName;
 
   public
     property Session: TSession read GetSession;
-    
-    constructor Create (ThisPageName: String; ContType: TContentType= ctTextHTML;
-                       PageHost: String= ''; PagePath: String= ''); virtual;
+
+    constructor Create (ThisPageName: String; ContType: TContentType;
+                       PageHost: String= ''; PagePath: String= '');
     destructor Destroy; override;
 
     procedure MyDispatch; virtual; abstract;
-    procedure Flush;
     
   end;
   
@@ -144,129 +130,15 @@ begin
   
 end;
 
-procedure TResidentPageBase.SetPipeFileName (const Filename: String);
-begin
-  FPipeHandle:= FpOpen (Filename, O_WRONLY);
-
-  PipeIsAssigned:= True;
-
-end;
-
-procedure TResidentPageBase.WriteDirectlyToOutput (const S: String);
-  
-begin
-  if not HeaderCanBeSent then
-  begin
-{    WriteLn (FPipeHandle, Header.Text);
-    WriteLn (Cookie.Text);
-}
-
-  end;
-  
-  WriteLn (FPipeHandle, S);
-  HeaderCanBeSent:= False;
-
-end;
-
-procedure TResidentPageBase.WriteToBuffer (const S: String);
-begin
-  Buffer.Add (S);
-
-end;
-
-procedure TResidentPageBase.WriteToPipe (const S: String);
-const
-  NewLine: String= #10#10;
-(*$I+*)
-  BufText: String= '';
-(*$I-*)
-begin
-  if HeaderCanBeSent then
-  begin
-    BufText:= Header.Text+ #10;
-    Header.Clear;
-    FpWrite (FPipeHandle, BufText [1], Length (BufText));
-
-    BufText:= Cookies.Text;
-    Cookies.Clear;
-    FpWrite (FPipeHandle, BufText [1], Length (BufText));
-    
-    FpWrite (FPipeHandle, NewLine [1], 1);
-    HeaderCanBeSent:= False;
-
-  end;
-
-  if HeaderCanBeSent then
-  begin
-    FpWrite (FPipeHandle, NewLine [1], 2);
-    HeaderCanBeSent:= False;
-    
-  end;
-    
-  if Buffer.Count<> 0 then
-  begin
-    BufText:= Buffer.Text;
-    Buffer.Clear;
-
-    FpWrite (FPipeHandle, BufText [1], Length (BufText));
-
-  end;
-  
-  FpWrite (FPipeHandle, S [1], Length (S));
-
-end;
-
-procedure TResidentPageBase.WriteHeaders;
-var
-  S: String;
-
-begin
-  HeaderCanBeSent:= False;
-  if Header.Size<> 0 then
-  begin
-    S:= Header.Text;
-    Header.Clear;
-    Write (S);
-    
-  end;
-  
-  if Cookies.Size<> 0 then
-  begin
-    S:= Cookies.Text;
-    Cookies.Clear;
-    Write (S);
-
-  end;
-
-  Write (#10#10);
-  HeaderCanBeSent:= False;
-
-end;
-
 constructor TResidentPageBase.Create (ThisPageName: String;
             ContType: TContentType; PageHost: String; PagePath: String);
 begin
-  inherited CreateWithOutGetWebData (PageHost, PagePath, ThisPageName,
-            ContType);
+  inherited Create (ThisPageName, False);
 
-  FSessionID:= EmptySessionID;
-  PipeIsAssigned:= False;
-  
-end;
-
-{
-constructor TResidentPageBase.CreateXML (ContType: TContentType; XSLPage: String;
-                ThisPageName: String; PageHost: String;
-                PagePath: String);
-begin
-  inherited CreateWithOutGetWebData (PageHost, PagePath, ThisPageName, ContType);
-  Header.Add ('<?xml-stylesheet href="'+ XSLPage+ '" type= "text/xsl?>');
-
-  PipeIsAssigned:= False;
-
+  if WebConfiguration.ConfigurationByName ['SessionEnabled'].Value= 'YES' then
+    FSessionID:= EmptySessionID;
 
 end;
-}
 
 destructor TResidentPageBase.Destroy;
 begin
@@ -299,12 +171,6 @@ begin
   
 end;
 }
-
-procedure TResidentPageBase.Flush;
-begin
-//  fpFlush (FPipeHandle);??!!
-  
-end;
 
 
 { TBasePageCollection }

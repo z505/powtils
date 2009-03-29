@@ -54,8 +54,8 @@ begin
   for i:= 0 to 10 do
     Write (IntToStr (i));
 
-  for i:= 0 to CgiVars.size- 1 do
-    Write (CgiVars.CgiVar [i].ToString);
+  for i:= 0 to Vars.size- 1 do
+    Write (Vars.CgiVar [i].ToString);
 
 end;
 
