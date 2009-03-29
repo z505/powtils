@@ -53,7 +53,7 @@ type
 
     function CreateNewInstance: TAbstractDispatcher; virtual; abstract;
 
-    procedure Dispatch (const Arguments: String);
+    procedure Dispatch (var ArgumentPtr: PChar);
 
     procedure MyDispatch; virtual; abstract;
 
@@ -182,10 +182,24 @@ begin
 
 end;
 
-procedure TAbstractDispatcher.Dispatch (const Arguments: String);
+procedure TAbstractDispatcher.Dispatch (var ArgumentPtr: PChar);
+const
+  SeparatorChar: char= #$FF;
+var
+  VarString, CookieString: String;
 
   procedure LoadVariables (var CharPtr: PChar);
+  var
+    StartVarPtr, EndVarPtr: PChar;
+
   begin
+    StartVarPtr:= CharPtr;
+
+    while CharPtr^<> SeparatorChar do
+      Inc (CharPtr);
+
+    EndVarPtr:= CharPtr- 1;
+    Inc (CharPtr);
 
   end;
 
@@ -194,11 +208,9 @@ procedure TAbstractDispatcher.Dispatch (const Arguments: String);
 
   end;
 
-var
-  CharPtr: PChar;
-
 begin
-  CharPtr:= @(Arguments [1]);
+  LoadVariables (ArgumentPtr);
+  LoadCookies (ArgumentPtr);
 
   MyDispatch;
 
