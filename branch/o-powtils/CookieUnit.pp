@@ -67,7 +67,7 @@ type
   private
     FHostName: String;
     FPageURI: String;
-    FWebHeaderCollection: TWebHeaderCollection;
+    FWebHeaderCollection: THeaderCollection;
     FIsHeaderSent: PBoolean;
     function GetCookie (Index: Integer): TCookie;
     function GetCookieByName (Name: String): TCookie;
@@ -82,7 +82,7 @@ type
     property PageURI: String read FPageURI;
     property Text: String read GetText;
 
-    constructor Create (HeaderCollection: TWebHeaderCollection; IsHeaderSent: PBoolean;
+    constructor Create (HeaderCollection: THeaderCollection; IsHeaderSent: PBoolean;
        ThisPageHostName, ThisPageURI: String);
 
     destructor Destroy; override;
@@ -183,7 +183,7 @@ begin
 
 end;
 
-constructor TCookieCollection.Create (HeaderCollection: TWebHeaderCollection; IsHeaderSent: PBoolean;
+constructor TCookieCollection.Create (HeaderCollection: THeaderCollection; IsHeaderSent: PBoolean;
        ThisPageHostName, ThisPageURI: String);
 begin
   inherited Create;

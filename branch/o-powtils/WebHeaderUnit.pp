@@ -31,7 +31,7 @@ uses
 type
   { TWebHeader }
 
-  TWebHeader= class (TNameStrValue)
+  THeader= class (TNameStrValue)
   public
     function ToString: String;
 
@@ -42,25 +42,24 @@ type
   }
   TContentType= (ctStart, ctTextHTML, ctTextXML, ctNode);
 
-  { TWebHeaderCollection }
+  { THeaderCollection }
   {
     This class loads and holds the Header information.
   }
-  TWebHeaderCollection= class (TNameValueCollection)
+  THeaderCollection= class (TNameValueCollection)
   private
     function GetText: String;
-    function GetWebHeader (Index: Integer): TWebHeader;
+    function GetHeader (Index: Integer): THeader;
 
   public
-    property WebHeader [Index: Integer]: TWebHeader read GetWebHeader;
+    property Header [Index: Integer]: THeader read GetHeader;
 
     property Text: String read GetText;
 
     procedure Init (Conf: TWebConfigurationCollection;
                PageContentType: TContentType);
 
-    procedure Clear;
-    procedure AddHeader (NewHeader: TWebHeader); overload;
+    procedure AddHeader (NewHeader: THeader); overload;
 
   end;
 
@@ -69,7 +68,7 @@ implementation
 
 { TWebHeader }
 
-function TWebHeader.ToString: String;
+function THeader.ToString: String;
 begin
   Result:= FName+ ':'+ Value;
 
@@ -77,32 +76,26 @@ end;
 
 { TWebHeaderCollection }
 
-function TWebHeaderCollection.GetText: String;
+function THeaderCollection.GetText: String;
 begin
   raise ENotImplementedYet.Create ('TWebHeaderCollection', 'GetText');
 
 end;
 
-function TWebHeaderCollection.GetWebHeader (Index: Integer): TWebHeader;
+function THeaderCollection.GetHeader (Index: Integer): THeader;
 begin
-  Result:= NameValue [Index] as TWebHeader;
+  Result:= NameValue [Index] as THeader;
 
 end;
 
-procedure TWebHeaderCollection.Init(Conf: TWebConfigurationCollection;
+procedure THeaderCollection.Init (Conf: TWebConfigurationCollection;
   PageContentType: TContentType);
 begin
   raise ENotImplementedYet.Create ('TWebConfigurationCollection', 'Init');
 
 end;
 
-procedure TWebHeaderCollection.Clear;
-begin
-  Clear;
-
-end;
-
-procedure TWebHeaderCollection.AddHeader (NewHeader: TWebHeader);
+procedure THeaderCollection.AddHeader (NewHeader: THeader);
 begin
   AddNameValue (NewHeader);
 
