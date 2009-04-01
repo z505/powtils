@@ -40,13 +40,13 @@ uses
 
 function TzServer.TryBind: boo;
 begin
-  result:= bind(mainsock, saddr, SizeOf(saddr));
+  result:= Bind(mainsock, saddr, sizeof(saddr));
 end;
 
 constructor TzServer.Create;
 begin
   inherited create;
-  ccount := 0;
+  ccount:= 0;
 end;
 
 { User must call this after constructing, to bind IP and Port. 
@@ -98,7 +98,7 @@ begin
   if (socket_index < ccount) and (socket_index >= 0) then 
     csock := conn[socket_index]
   else
-    Errln('Socket index out of bounds!');
+    Errln('Server Select: Socket index invalid');
 end;
 
 function TzServer.GetIp;
@@ -124,7 +124,7 @@ end;
 procedure TzServer.sWrite;
 var i, len: int32;
 begin
-  len:= length(s);
+  len:= Length(s);
   if len < packet_size then i:= len else i:= packet_size;
   { write data in packet_size chunks, until string is emptied to zero }
   while len > 0 do begin
@@ -151,6 +151,15 @@ begin
 end;  
 *)
 
+{ NOTE:
+"hi!
+about the aservia project - i found a bug in the server read  proc:
+if  data writed by the cleint is > max packet size then the data is truncated yo max_packet_size.
+you must use a loop until recv=0 and optionally grow the recv buffer.
+
+best regards,
+blestan tabakov "
+}
 function TzServer.sRead;
 var buf  : array [0..packet_size-1] of char;
     count: int32;
