@@ -190,16 +190,30 @@ var
 
   procedure LoadVariables (var CharPtr: PChar);
   var
-    StartVarPtr, EndVarPtr: PChar;
+    StartIndicator: PChar;
+    CgiVar: TCgiVar;
+    VarName, VarValue: String;
 
   begin
-    StartVarPtr:= CharPtr;
 
     while CharPtr^<> SeparatorChar do
-      Inc (CharPtr);
+    begin
+      StartIndicator:= CharPtr;
 
-    EndVarPtr:= CharPtr- 1;
-    Inc (CharPtr);
+      while CharPtr^<> '=' do
+        Inc (CharPtr);
+      Inc (CharPtr);
+      SetString (VarName, StartIndicator, CharPtr- StartIndicator);
+
+      StartIndicator:= CharPtr;
+
+      while CharPtr^<> '&' do
+        Inc (CharPtr);
+      Inc (CharPtr);
+      SetString (VarValue, StartIndicator, CharPtr- StartIndicator);
+      CgiVar:= TCgiVar.Create (VarName, VarValue);
+
+    end;
 
   end;
 
@@ -209,8 +223,13 @@ var
   end;
 
 begin
+  FVars.Free;
+  FVars:= TCgiVariableCollection.Create;
+//  FCookies.Free;
+//  FCookies:= TCookieCollection.Create;
+
   LoadVariables (ArgumentPtr);
-  LoadCookies (ArgumentPtr);
+//  LoadCookies (ArgumentPtr);
 
   MyDispatch;
 

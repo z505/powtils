@@ -16,10 +16,10 @@ type
   Web_TVariables = array of Web_TVariable;
 
 const
-  PipesPath: String= '/var/www/cgi-bin/WebCMD/Pipes/';//Apache's user should be able to read and write on this dir. (The last char must be an slash)
-  MainPipeName: String= '/var/www/cgi-bin/WebCMD/MainPipe4WebCMD';
+  PipesPath: String= '/var/www/cgi-bin/Test/Pipes/';//Apache's user should be able to read and write on this dir. (The last char must be an slash)
+  MainPipeName: String= '/var/www/cgi-bin/Test/MainPipe4Test';
   TempPipeLen: Integer= 10;
-  PageName: String= 'INDEXPAGE.PSP';
+  PageName: String= 'INDEX.PSP';
 
 var
   S: String;
@@ -115,10 +115,10 @@ begin
 
     val (GetEnvVar ('CONTENT_LENGTH'), ContLen);
 
-     for i:= 1 to ContLen do
+     while Length (Result)< ContLen do
      begin
        Read (TempStr);
-       Result:= Result+ TempStr+ ';';
+       Result:= Result+ TempStr;
 
      end;
 

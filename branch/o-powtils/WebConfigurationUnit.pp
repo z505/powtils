@@ -37,7 +37,7 @@ type
 
 implementation
 uses
-  ExceptionUnit;
+  ExceptionUnit, SysUtils;
 
 { TWebConfigurationCollection }
 
@@ -60,8 +60,24 @@ begin
 end;
 
 function TWebConfigurationCollection.ParseWebConfig (const ConfigFilename: String): Boolean;
+var
+  InputFile: TextFile;
+  S: String;
+
 begin
-  raise ENotImplementedYet.Create ('TWebConfigurationCollection', 'ParseWebConfig');
+  AssignFile (InputFile, ConfigFilename);
+  Reset (InputFile);
+
+  while not EoF (InputFile) do
+  begin
+    ReadLn (InputFile, S);
+    S:= Trim (S);
+    if S<> '' then
+      Self.Add (TWebConfiguration.Create (S));
+
+  end;
+
+  CloseFile (InputFile);
 
 end;
 
