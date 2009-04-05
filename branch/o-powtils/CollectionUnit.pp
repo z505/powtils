@@ -173,7 +173,9 @@ type
   public
     property Value: String read GetValue;
 
-    constructor Create (AName: String; AValue: String);
+    constructor Create (const AName: String; const AValue: String); overload;
+    constructor Create (const ANameValueStr: String); overload;
+
     destructor Destroy; override;
   end;
 
@@ -196,6 +198,7 @@ type
     function IsExists (Name: String): Boolean;
 
     procedure AddNameValue (ANameValue: TNameValue);
+    procedure Add (ANameValue: TNameValue);
 
     destructor Destroy; override;
 
@@ -978,6 +981,11 @@ begin
 
 end;
 
+procedure TNameValueCollection.Add (ANameValue: TNameValue);
+begin
+  AddNameValue (ANameValue);
+end;
+
 destructor TNameValueCollection.Destroy;
 var
   i: Integer;
@@ -1026,11 +1034,27 @@ begin
 
 end;
 
-constructor TNameStrValue.Create (AName: String; AValue: String);
+constructor TNameStrValue.Create (const AName: String; const AValue: String);
 var
   PVal: PString;
 
 begin
+  New (PVal);
+  PVal^:= AValue;
+
+  inherited Create (AName, TObject (PVal));
+
+end;
+
+constructor TNameStrValue.Create (const ANameValueStr: String);
+var
+  AName, AValue: String;
+  PVal: PString;
+
+begin
+  AName:= Copy (ANameValueStr, 1, Pos ('=', ANameValueStr)- 1);
+  AValue:= Copy (ANameValueStr, Pos ('=', ANameValueStr)+ 1, Length (ANameValueStr));
+
   New (PVal);
   PVal^:= AValue;
 

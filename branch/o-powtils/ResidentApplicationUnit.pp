@@ -55,6 +55,14 @@ type
   end;
   
   TOnNewRequestArrived= procedure (Sender: TObject) of object;
+
+  { EInvalidArgument }
+
+  EInvalidArgument= class (Exception)
+    constructor Create (ConfigName: String; Value: Integer); overload;
+    constructor Create (ConfigName: String; Value: String); overload;
+
+  end;
   
   { TResident }
   
@@ -76,6 +84,7 @@ type
     ThreadPool: TThreadPool;
 
     procedure SetMainPipeFileName (const AValue: String);
+    procedure SetNumberOfActiveThread(const AValue: Integer);
     procedure SetRestartInterval (const AValue: Integer);
     
   published
@@ -85,7 +94,7 @@ type
     property BeforeRestart: TNotifyEvent read FBeforeRestart write FBeforeRestart;
 //    property RestartInterval: Integer read FRestartInterval write SetRestartInterval;
     property RemainedToRestart: Integer read FRemainedToRestart;
-    property NumberOfActiveThread: Integer read FNumberOfActiveThread;
+    property NumberOfActiveThread: Integer read FNumberOfActiveThread write SetNumberOfActiveThread;
     property RequestQueueSize: Integer read FRequestQueueSize;
     property UsingSessionManager: Boolean read FUsingSessionManager;
 
@@ -174,6 +183,15 @@ procedure TResident.SetMainPipeFileName (const AValue: String);
 begin
   FMainPipeFileName:= AValue;
   
+end;
+
+procedure TResident.SetNumberOfActiveThread (const AValue: Integer);
+begin
+  if AValue<= 0 then
+    raise EInvalidArgument.Create ('Maximum of Active threads', AValue);
+
+  FNumberOfActiveThread:= AValue;
+
 end;
 
 procedure TResident.SetRestartInterval (const AValue: Integer);
@@ -417,7 +435,6 @@ constructor TResident.Create (AOwner: TComponent);
     AssignFile (ConfigFileHandle, 'PSP.conf');
     Reset (ConfigFileHandle);
 
-
     while not Eof (ConfigFileHandle) do
     begin
       ReadLn (ConfigFileHandle, TempString);
@@ -441,7 +458,7 @@ constructor TResident.Create (AOwner: TComponent);
       raise EMainPipeNotFound.Create (FMainPipeFileName);
       
     TempPipeFilePath:= WebConfiguration.ConfigurationByName ['TemproraryPipesPath'].Value;
-    FNumberOfActiveThread:= StrToInt (WebConfiguration.ConfigurationByName ['MaximumNumberofActiveThreads'].Value);
+    NumberOfActiveThread:= StrToInt (WebConfiguration.ConfigurationByName ['MaximumNumberofActiveThreads'].Value);
     FRequestQueueSize:= StrToInt (WebConfiguration.ConfigurationByName ['MaximumSizeofRequestQueue'].Value);
     
     FRestartInterval:= -1;
@@ -517,9 +534,9 @@ begin
   
   ReadConfigFileInfo;
 
-  FRequestQueue:= TCircularRequestsQueue.Create (FRequestQueueSize, 0);
+  FRequestQueue:= TCircularRequestsQueue.Create (FRequestQueueSize, NumberOfActiveThread);
 
-  ThreadPool:= TThreadPool.Create (FRequestQueue, FNumberOfActiveThread);
+  ThreadPool:= TThreadPool.Create (FRequestQueue, NumberOfActiveThread);
   ThreadPool.Execute;
 
   MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
@@ -570,6 +587,20 @@ constructor EMainPipeNotFound.Create(Name: String);
 begin
   inherited Create ('No pipe with Name= '+ Name+ ' Found!');
   
+end;
+
+{ EInvalidArgument }
+
+constructor EInvalidArgument.Create(ConfigName: String; Value: Integer);
+begin
+  inherited Create (ConfigName+ ' can not be '+ IntToStr (Value));
+
+end;
+
+constructor EInvalidArgument.Create(ConfigName: String; Value: String);
+begin
+  inherited Create (ConfigName+ ' can not be '+ Value);
+
 end;
 
 end.
