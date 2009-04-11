@@ -98,7 +98,7 @@ type
     property RequestQueueSize: Integer read FRequestQueueSize;
     property UsingSessionManager: Boolean read FUsingSessionManager;
 
-    function RegisterRequest (var ARequestString: String): Boolean;
+    function RegisterRequest (const ARequestString: String): Boolean;
 
   public
   
@@ -201,7 +201,7 @@ begin
   
 end;
 
-function TResident.RegisterRequest (var ARequestString: String): Boolean;
+function TResident.RegisterRequest (const ARequestString: String): Boolean;
 var
   NewRequest: TRequest;
 
@@ -329,6 +329,8 @@ var
   SegmentedString: String;
 
 begin
+  MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
+
   SegmentedString:= '';
   StringIsComplete:= False;
   
@@ -348,8 +350,10 @@ begin
         if BufferLen<= 0 then
         begin
           WriteLn ('Closing the pipe!');
+
           FpClose (MainPipeFileHandle);
           MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
+          BufferLen:= 0;
           
           Continue;
 
@@ -359,7 +363,7 @@ begin
 
       end;
 
-      EndOfCurrentRequest:= Pos (EndOfRequestChar, BufferPtr);
+      EndOfCurrentRequest:= Pos (EndOfRequestChar, Buffer);
       if EndOfCurrentRequest<> 0 then
       begin
         for i:= 1 to EndOfCurrentRequest- 1 do
@@ -383,6 +387,8 @@ begin
       
       if StringIsComplete then
       begin
+        WriteLn ('Completed Request:', SegmentedString);
+
         RegisterRequest (SegmentedString);
 
         StringIsComplete:= False;
@@ -538,8 +544,6 @@ begin
 
   ThreadPool:= TThreadPool.Create (FRequestQueue, NumberOfActiveThread);
   ThreadPool.Execute;
-
-  MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
 
   FDispatchedRequestCount:= 0;
 
