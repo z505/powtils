@@ -1,7 +1,7 @@
 program PSP;
 
 {$mode objfpc}{$H+}
-
+{$Define DebugMode}
 uses
 {$ifdef unix}
    cthreads, BaseUnix,

@@ -77,13 +77,17 @@ begin
   begin
     
     try
+      WriteLn ('TResidentPageExcecuteThread.Execute: Before FRequestQueue.Delete', ThreadID);
       NewRequest:= FRequestQueue.Delete;
-      
+
     except
       on e: EQueueIsEmpty do
       begin
+        WriteLn ('TResidentPageExcecuteThread.Execute: RequestQueue is empty!');
         FRequestQueue.AddToSuspendedThreads (Self);
+        WriteLn ('TResidentPageExcecuteThread.Execute: Before suspend!', ThreadID);
         Self.Suspend;
+        WriteLn ('TResidentPageExcecuteThread.Execute: After suspend!', ThreadID);
         Continue;
 
       end;
@@ -104,9 +108,7 @@ begin
   // MsgParamters must be (PageName) (OutputPipeName) (Get/Put Variable)
       PageInstance:= GetAppropriatePageByPageName (UpperCase (MsgParameter.Argument [0]));
 
-      (*$IFDEF DEBUGMODE*)
       WriteLn ('MsgParameter.Count= ', MsgParameter.Count);
-      (*$ENDIF*)
 
       if 2< MsgParameter.Count then
         PageInstance.Vars.LoadFromString (MsgParameter.Argument [2]);
@@ -114,7 +116,7 @@ begin
       if NewRequest.CookieStr<> '' then
         PageInstance.Cookies.LoadFromString (NewRequest.CookieStr);
 
-  // Set the pipename in which the current page should write its output
+// Set the pipename in which current page should write its output
        raise ENotImplementedYet.Create ('PageInstance', 'SetPipeName');
 
 //      PageInstance.PipeFileName:= MsgParameter.Argument [1];

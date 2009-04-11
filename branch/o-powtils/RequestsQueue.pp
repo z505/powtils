@@ -29,7 +29,7 @@ type
     }
     property CookieStr: String read FCookieStr;
     
-    constructor Create (var ParamsAndCookies: String);
+    constructor Create (const ParamsAndCookies: String);
     
   end;
   
@@ -136,7 +136,7 @@ end;
   A #255 used as disjointer between parameters and cookies which are
   written in a line by RequestCollector.
 }
-constructor TRequest.Create (var ParamsAndCookies: String);
+constructor TRequest.Create (const ParamsAndCookies: String);
 const
   ParametersCookiesSeprator: String= #$FE;
   
@@ -149,8 +149,8 @@ begin
   Position:= Pos (ParametersCookiesSeprator, ParamsAndCookies);
 
   FParameters:= Copy (ParamsAndCookies, 1, Position- 1);
-  Delete (ParamsAndCookies, 1, Position+ 1);
-  FCookieStr:= URLDecode (ParamsAndCookies);
+  FCookieStr:= URLDecode (Copy (ParamsAndCookies, Position+ 1,
+          Length (ParamsAndCookies)- Position));
 
 (*$IFDEF DEBUG_MODE*)
   WriteLn ('FParameters=', FParameters);
@@ -231,6 +231,8 @@ begin
   
   if FSuspendedThreads.Size<> 0 then
   begin
+    WriteLn ('TCircularRequestsQueue.Insert FSuspendedThreads.Size=',
+       FSuspendedThreads.Size);
     FSuspendedThreads.Delete;
 
   end;
@@ -245,11 +247,13 @@ begin
   
   if ActiveMemberCount= 0 then
   begin
+    WriteLn ('TCircularRequestsQueue.Delete: ActiveMemberCount= 0');
     LeaveCriticalsection (CS);
     raise EQueueIsEmpty.Create;
     
   end;
 
+  WriteLn ('TCircularRequestsQueue.Delete Successfully!');
   Result:= FMembers [SoQ] as TRequest;
   SoQ:= (SoQ+ 1) mod FSize;
   Dec (ActiveMemberCount);
@@ -272,18 +276,15 @@ end;
 
 procedure TCircularRequestsQueue.AddToSuspendedThreads(AThread: TThread);
 begin
-{$ifdef DebugMode}
-  WriteLn ('RequestQueue:', AThread.ThreadID, ' added to Suspeded Thread');
-{$endif}
+  WriteLn ('TCircularRequestsQueue.AddToSuspendedThreads:', AThread.ThreadID, ' added to Suspeded Thread');
+
   FSuspendedThreads.Insert (AThread);
 
 end;
 
 procedure TCircularRequestsQueue.TryToMakeItEmpty;
 begin
-{$ifdef DebugMode}
-  WriteLn ('TRequestQueue [TryToMakeItEmpty]');
-{$endif}
+  WriteLn ('TCircularRequestsQueue.TryToMakeItEmpty:');
 
   FSuspendedThreads.Delete;
 
@@ -299,7 +300,7 @@ var
 begin
   inherited Create;
 
-  Allocate (_Size);
+  Allocate (_Size+ 1);
 
   Top:= 0;
   Bot:= 0;
@@ -324,9 +325,7 @@ begin
 
   if not Result then
   begin
-{$ifdef DebugMode}
-    WriteLn ('TSuspendedThreads[Delete]: Not Empty');
-{$endif}
+    WriteLn ('TSuspendedThreads.Delete: Not Empty');
 
     ((FMembers [Bot]) as TThread).Resume;
     Bot:= (Bot+ 1) mod FSize;
@@ -334,9 +333,8 @@ begin
   end
   else
   begin
-{$ifdef DebugMode}
-    WriteLn ('TSuspendedThreads[Delete]: Is Empty');
-{$endif}
+    WriteLn ('TSuspendedThreads.Delete: Is Empty');
+
   end;
 
   LeaveCriticalsection (CS);
@@ -346,9 +344,8 @@ end;
 procedure TSuspendedThreads.Insert (NewThread: TThread);
 begin
   EnterCriticalsection (CS);
-{$ifdef DebugMode}
-  WriteLn ('SuspendedThreadsQueue: ', NewThread.ThreadID, ':', Top, ' ', Bot);
-{$endif}
+
+  WriteLn ('TSuspendedThreads.Insert: ', NewThread.ThreadID, ':', Top, ' ', Bot);
 
   if not IsFull then
   begin
@@ -358,9 +355,7 @@ begin
   end
   else
   begin
-{$ifdef DebugMode}
-    WriteLn ('SuspendedThreadsQueue: SuspendThread Queue is full!');
-{$endif}
+    WriteLn ('TSuspendedThreads.Insert: SuspendThread Queue is full!');
 
   end;
 
