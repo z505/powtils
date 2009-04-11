@@ -5,7 +5,14 @@ unit MainPageUnit;
 interface
 
 uses
-  Classes, SysUtils; 
+  Classes, SysUtils, AbstractDispatcherUnit;
+
+type
+  TMainPageDispatcher= class (TAbstractDispatcher)
+  private
+
+  public
+  end;
 
 implementation
 
