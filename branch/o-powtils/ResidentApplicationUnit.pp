@@ -42,7 +42,7 @@ interface
 uses
   Classes, SysUtils, CollectionUnit, ThreadingUnit,
   CustApp, WebUnit, RequestsQueue,
-  BaseUnix, SessionManagerUnit;
+  BaseUnix, SessionManagerUnit, ResidentPageBaseUnit;
 
 type
   EConfigFileNotFound= class (Exception);
@@ -81,6 +81,7 @@ type
     FRequestQueue: TCircularRequestsQueue;
     FDispatchedRequestCount: Integer;
 
+    FAllResidentPages: TResidentPageCollection;
     ThreadPool: TThreadPool;
 
     procedure SetMainPipeFileName (const AValue: String);
@@ -108,7 +109,9 @@ type
     constructor Create (AOwner : TComponent);
     destructor Destroy; override;
 
-//    procedure RegisterADisptacher ();
+    procedure RegisterResidentDisptacher (ADispatcher: TResidentPageBase);
+    procedure RegisterResidentDisptacher (const AName: String;
+                          ADispatcher: TResidentPageBase); overload;
 
   end;
 
@@ -547,6 +550,7 @@ begin
 
   FDispatchedRequestCount:= 0;
 
+  FAllResidentPages:= TResidentPageCollection.Create;
 
 end;
 
@@ -582,6 +586,19 @@ begin
   FRequestQueue.Free;
 
   inherited Destroy;
+
+end;
+
+procedure TResident.RegisterResidentDisptacher (ADispatcher: TResidentPageBase);
+begin
+  RegisterResidentDisptacher (ADispatcher.PageName, ADispatcher);
+
+end;
+
+procedure TResident.RegisterResidentDisptacher (const AName: String;
+  ADispatcher: TResidentPageBase);
+begin
+  FAllResidentPages.AddPage (ADispatcher.PageName, ADispatcher);
 
 end;
 
