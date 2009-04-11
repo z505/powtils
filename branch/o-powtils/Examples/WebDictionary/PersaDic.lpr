@@ -13,7 +13,7 @@ uses
   WebStringUnit, RequestsQueue, XMLNode, AttributeUnit, ThisProjectGlobalUnit,
   ExceptionUnit, AbstractDispatcherUnit, CookieUnit, WebHeaderUnit,
   WebConfigurationUnit, SessionUnit, CgiVariableUnit,
-WebRunTimeInformationUnit, WebUploadedFileUnit;
+WebRunTimeInformationUnit, WebUploadedFileUnit, MainPageUnit;
   
 var
   Resident: TResident;

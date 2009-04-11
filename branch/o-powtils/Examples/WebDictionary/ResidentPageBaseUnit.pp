@@ -26,7 +26,7 @@ interface
 
 uses
   Classes, SysUtils, WebUnit, CollectionUnit, XMLNode, AttributeUnit, Unix,
-    BaseUnix, SessionManagerUnit, ResidentApplicationUnit, WebHeaderUnit,
+    BaseUnix, SessionManagerUnit, WebHeaderUnit,
     AbstractDispatcherUnit, CookieUnit, CgiVariableUnit;
   
 type
@@ -35,11 +35,9 @@ type
 
   TResidentPageBase= class (TAbstractDispatcher)
   private
-
     function GetSession: TSession;
 
   protected
-
     procedure Clear;
 
   published
@@ -51,8 +49,6 @@ type
                        PageHost: String= ''; PagePath: String= '');
     destructor Destroy; override;
 
-    procedure MyDispatch; virtual; abstract;
-    
   end;
   
   { THTMLResidentPageBase }
@@ -81,14 +77,32 @@ type
 
   end;
 
-  { TBasePageCollection }
+  { TPageCollection }
 
-  TBasePageCollection= class (TBaseCollection)
+  TResidentPageCollection= class (TStringList)
   private
-    function GetPage(Index: Integer): TResidentPageBase;
+    function GetPage (Index: Integer): TResidentPageBase;
+    function GetPageByName (const AName: String): TResidentPageBase;
+
+
   public
     property Page [Index: Integer]: TResidentPageBase read GetPage;
-    
+    property PageByName [const AName: String]: TResidentPageBase read GetPageByName;
+
+    procedure AddPage (const AName: String;
+                      const APageDispatcher: TResidentPageBase);
+
+    constructor Create;
+    destructor Destroy; override;
+
+  end;
+
+  { EPageNotFound }
+
+  EPageNotFound= class (Exception)
+  public
+    constructor Create (const Name: String);
+
   end;
 
 implementation
@@ -150,35 +164,13 @@ end;
 
 procedure TResidentPageBase.Clear;
 begin
-  if PipeIsAssigned then
-  begin
-    WriteHeaders;
-    if Buffer.Count<> 0 then
-      Write (Buffer.Text);
+  WriteHeaders;
+  if Buffer.Count<> 0 then
+    Write (Buffer.Text);
 
-    FpClose (FPipeHandle);
-    PipeIsAssigned:= False;
-    
-  end;
+  FpClose (FPipeHandle);
+  PipeIsAssigned:= False;
 
-end;
-
-{
-procedure TResidentPageBase.Dispatch (CgiVar: Pointer);
-begin
-  MyDispatch (TCgiVariableCollection (CgiVar));
-  
-  
-end;
-}
-
-
-{ TBasePageCollection }
-
-function TBasePageCollection.GetPage (Index: Integer): TResidentPageBase;
-begin
-  Result:= Member [Index] as TResidentPageBase;
-  
 end;
 
 { TXMLResidentPageBase }
@@ -220,6 +212,62 @@ begin
   
   inherited;
   
+end;
+
+{ TResidentPageCollection }
+
+function TResidentPageCollection.GetPage (Index: Integer): TResidentPageBase;
+begin
+  Result:= Objects [Index] as TResidentPageBase;
+
+end;
+
+function TResidentPageCollection.GetPageByName (const AName: String): TResidentPageBase;
+var
+  Index: Integer;
+
+begin
+  Index:= Self.IndexOf (AName);
+  if 0<= Index then
+    Result:= GetPage (Index)
+  else
+    raise EPageNotFound.Create (AName);
+
+end;
+
+procedure TResidentPageCollection.AddPage (const AName: String;
+  const APageDispatcher: TResidentPageBase);
+begin
+  AddObject (AName, APageDispatcher);
+  Sort;
+
+end;
+
+constructor TResidentPageCollection.Create;
+begin
+  inherited Create;
+
+end;
+
+destructor TResidentPageCollection.Destroy;
+var
+  i: Integer;
+
+begin
+  for i:= 0 to Count- 1 do
+    Objects [i].Free;
+
+  Clear;
+
+  inherited Destroy;
+end;
+
+{ EPageNotFound }
+
+constructor EPageNotFound.Create (const Name: String);
+begin
+  inherited Create ('No page with name= '+ Name+ ' exists in collection!');
+
 end;
 
 end.
