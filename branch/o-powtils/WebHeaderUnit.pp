@@ -70,15 +70,24 @@ implementation
 
 function THeader.ToString: String;
 begin
-  Result:= FName+ ':'+ Value;
+  Result:= FName+ ':'+ Value+ #10;
 
 end;
 
 { TWebHeaderCollection }
 
 function THeaderCollection.GetText: String;
+var
+  i: Integer;
+
 begin
-  raise ENotImplementedYet.Create ('TWebHeaderCollection', 'GetText');
+  if Count<> 0 then
+    Result:= Header [0].ToString
+  else
+  Result:= '';
+
+  for i:= 1 to Count- 1 do
+    Result+= Header [i].ToString;
 
 end;
 

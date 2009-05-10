@@ -1,0 +1,293 @@
+{
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+                    PSP 1.6.x PageHandlerBaseUnit
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+--------------------------------------------------------------------------------
+ Collection Unit
+--------------------------------------------------------------------------------
+
+ PSP 1.6.x
+ ---------
+
+  [30/MAR/2006 - Amir]
+   - This unit contains the classes, variables which is need for a Resident page.
+   By resident page, we mean that these pages will be used on non-CGI mode (in which
+   on every request all the allocation must be done)
+}
+
+unit PageHandlerBaseUnit;
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils, WebUnit, CollectionUnit, XMLNode, AttributeUnit, Unix,
+    BaseUnix, SessionManagerUnit, WebHeaderUnit,
+    AbstractHandlerUnit, CookieUnit, CgiVariableUnit;
+  
+type
+
+  { THandlerPageBase }
+
+  THandlerPageBase= class (TAbstractHandler)
+  private
+    function GetSession: TSession;
+
+  protected
+    procedure Clear;
+
+  published
+
+  public
+    property Session: TSession read GetSession;
+
+    constructor Create (ContType: TContentType);
+    destructor Destroy; override;
+
+    function CreateNewInstance: TAbstractHandler; override;
+
+  end;
+  
+  { THTMLHandlerPageBase }
+  THTMLHandlerPageBase= class (THandlerPageBase)
+  public
+    constructor Create;
+
+  end;
+
+  
+  { TXMLHandlerBase }
+
+  TXMLHandlerBase= class (THandlerPageBase)
+  private
+    FXSLPath: String;
+    FIndent: Boolean;
+
+  protected
+    FXMLRoot: TXMLNode;
+
+  public
+    property XSLPath: String read FXSLPath;
+
+    constructor Create (XSLPage: String;
+                ThisPageName: String; Encoding: String= 'UTF-8';
+                Version: String= '1.0'; PageHost: String= '';
+                PagePath: String= ''; Indent: Boolean= False);
+
+    destructor Destroy; override;
+    procedure Flush;
+
+  end;
+
+  { TAbstractHandlerCollection }
+
+  TAbstractHandlerCollection= class (TStringList)
+  private
+    function GetPageHandler (Index: Integer): TAbstractHandler;
+    function GetPageHandlerByName (const AName: String): TAbstractHandler;
+
+
+  public
+    property PageHandler [Index: Integer]: TAbstractHandler read GetPageHandler;
+    property PageHandlerByName [const AName: String]: TAbstractHandler
+            read GetPageHandlerByName;
+
+    procedure AddPageHandler (const AName: String;
+                      const APageHandler: TAbstractHandler);
+
+    constructor Create;
+    destructor Destroy; override;
+
+  end;
+
+  { EPageNotFound }
+
+  EPageNotFound= class (Exception)
+  public
+    constructor Create (const Name: String);
+
+  end;
+
+implementation
+uses
+  ThisProjectGlobalUnit, DateUtils, GlobalUnit, ExceptionUnit;
+  
+{ THandlerPageBase }
+
+function THandlerPageBase.GetSession: TSession;
+(*$I+*)
+const
+  SessionIDVarName: String= '';
+(*$I-*)
+var
+  SessionIDInCookie: String;
+  
+begin
+  if SessionIDVarName= '' then
+    SessionIDVarName:= WebConfiguration.ConfigurationValueByName ['SessionIDVarName'];
+
+  if IsEqualGUID (FSessionID, EmptySessionID) then
+  begin
+    SessionIDInCookie:= Cookies.CookieValueByName [SessionIDVarName];
+    try
+      FSessionID:= StringToGUID (SessionIDInCookie);
+      
+    except
+      on e: EConvertError do
+        FSessionID:= EmptySessionID;
+       
+    end;
+    
+  end;
+
+  Result:= SessionManagerUnit.GetSession (FSessionID);
+  FSessionID:= Result.SessionID;
+  Cookies.Add (SessionIDVarName, GUIDToString (FSessionID),
+                    Now+ 1.0/ 24);
+  
+end;
+
+constructor THandlerPageBase.Create (ContType: TContentType);
+begin
+  inherited Create (ContType, False);
+
+  if WebConfiguration.ConfigurationValueByName ['SessionEnabled']= 'YES' then
+    FSessionID:= EmptySessionID;
+
+end;
+
+destructor THandlerPageBase.Destroy;
+begin
+  Clear;
+  
+  inherited;
+  
+end;
+
+function THandlerPageBase.CreateNewInstance: TAbstractHandler;
+begin
+  raise EShouldNotBeCalled.Create ('THandlerPageBase', 'CreateNewInstance');
+
+end;
+
+procedure THandlerPageBase.Clear;
+begin
+  WriteHeaders;
+  if Buffer.Count<> 0 then
+    Write (Buffer.Text);
+
+  FpClose (PipeHandle);
+  PipeIsAssigned:= False;
+
+end;
+
+{ TXMLHandlerBase }
+
+constructor TXMLHandlerBase.Create ( XSLPage: String;
+  ThisPageName: String; Encoding: String; Version: String;
+  PageHost: String; PagePath: String; Indent: Boolean= False);
+begin
+  inherited Create (ctTextXML);
+
+  FXSLPath:= XSLPage;
+  FIndent:= Indent;
+  
+  FXMLRoot:= TXMLNode.Create (ThisPageName);
+{  Header.AddHeader (TWebHeader.Create ('', '<?xml version="'+ Version+ '" encoding="'+ Encoding+ '" ?>'));
+  Header.AddHeader (TWebHeader.Create ('', '<?xml-stylesheet href="'+ XSLPath+ '" type= "text/xsl" ?>'));
+}
+  Buffer.Add ('<?xml version="'+ Version+ '" encoding="'+ Encoding+ '" ?>');
+  Buffer.Add ('<?xml-stylesheet href="'+ XSLPath+ '" type= "text/xsl" ?>');
+
+end;
+
+procedure TXMLHandlerBase.Flush;
+begin
+  if FIndent then
+    Write (FXMLRoot.ToStringWithIndent)
+  else
+    Write (FXMLRoot.ToStringWithOutIndent);
+
+  inherited;
+
+end;
+
+destructor TXMLHandlerBase.Destroy;
+begin
+  Flush;
+  FXMLRoot.Free;
+  
+  inherited;
+  
+end;
+
+{ TAbstractHandlerCollection }
+
+function TAbstractHandlerCollection.GetPageHandler (Index: Integer): TAbstractHandler;
+begin
+  Result:= Objects [Index] as TAbstractHandler;
+
+end;
+
+function TAbstractHandlerCollection.GetPageHandlerByName (const AName: String): TAbstractHandler;
+var
+  Index: Integer;
+
+begin
+  Index:= Self.IndexOf (AName);
+  if 0<= Index then
+    Result:= GetPageHandler (Index)
+  else
+    raise EPageNotFound.Create (AName);
+
+end;
+
+procedure TAbstractHandlerCollection.AddPageHandler (const AName: String;
+  const APageHandler: TAbstractHandler);
+begin
+  AddObject (AName, APageHandler);
+  Sort;
+
+end;
+
+constructor TAbstractHandlerCollection.Create;
+begin
+  inherited Create;
+
+end;
+
+destructor TAbstractHandlerCollection.Destroy;
+var
+  i: Integer;
+
+begin
+  for i:= 0 to Count- 1 do
+    Objects [i].Free;
+
+  Clear;
+
+  inherited Destroy;
+end;
+
+{ EPageNotFound }
+
+constructor EPageNotFound.Create (const Name: String);
+begin
+  inherited Create ('No page with name= '+ Name+ ' exists in collection!');
+
+end;
+
+{ THTMLHandlerPageBaseBase }
+
+constructor THTMLHandlerPageBase.Create;
+begin
+  inherited Create (ctTextHTML);
+
+end;
+
+end.
+

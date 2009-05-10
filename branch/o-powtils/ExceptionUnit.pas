@@ -24,6 +24,14 @@ type
 
   end;
 
+  { EShouldNotBeCalled }
+
+  EShouldNotBeCalled= class (Exception)
+  public
+    constructor Create (const AClassName, AMethodName: String);
+
+  end;
+
 implementation
 
 { ERangeCheckError }
@@ -54,6 +62,14 @@ constructor ENotImplementedYet.Create (CName, MName: String);
 begin
   inherited Create ('the method '+ MName+ ' in class '+ CName+ ' is not implemented, yet!');
 
+end;
+
+{ EShouldNotBeCalled }
+
+constructor EShouldNotBeCalled.Create (const AClassName, AMethodName: String);
+begin
+  inherited Create ('Method '+ AMethodName+ ' from class '+ AClassName+
+             ' should never be called!');
 end;
 
 end.

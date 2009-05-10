@@ -5,19 +5,30 @@ unit ThreadingUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit, RequestsQueue, AbstractDispatcherUnit;
+  Classes, SysUtils, CollectionUnit, RequestsQueue, BaseUnix;
   
 type
-  { TResidentPageExcecuteThread }
+  { TDispactherThread }
 
-  TResidentPageExcecuteThread= class (TThread)
+  TDispactherThread= class (TThread)
   private
+    FOutputPipeHandle: cint;
+    FOutputPipeName: String;
     FRequestQueue: TCircularRequestsQueue;
 
+    procedure SetOutputPipeName(const AValue: String);
+
    protected
+     {
+       Name and location of the pipe in which the output should be written.
+     }
+     property OutputPipeName: String read FOutputPipeName write SetOutputPipeName;
+
      procedure Execute; override;
 
    public
+     property OutputPipeHandle: cint read FOutputPipeHandle;
+
     constructor Create (ReqQueue: TCircularRequestsQueue); overload;
     destructor Destroy; override;
 
@@ -27,11 +38,11 @@ type
 
   TThreadCollection= class (TBaseCollection)
   private
-    function GetResidentThread (Index: Integer): TResidentPageExcecuteThread;
+    function GetThread (Index: Integer): TDispactherThread;
 
   public
-    property ResidentThread [Index: Integer]: TResidentPageExcecuteThread
-         read GetResidentThread;
+    property Thread [Index: Integer]: TDispactherThread
+         read GetThread;
 
     constructor Create;
     destructor Destroy; override;
@@ -60,16 +71,24 @@ type
 implementation
 
 uses
-  ResidentApplicationUnit, ResidentPageBaseUnit,
-  ThisApplicationPagesUnit, MyTypes, SessionManagerUnit, ExceptionUnit;
+  ResidentApplicationUnit, PageHandlerBaseUnit,
+  MyTypes, SessionManagerUnit, ExceptionUnit, AbstractHandlerUnit;
 
-{ TResidentPageExcecuteThread }
 
-procedure TResidentPageExcecuteThread.Execute;
+{ TDispactherThread }
+
+procedure TDispactherThread.SetOutputPipeName (const AValue: String);
+begin
+  FOutputPipeName:= AValue;
+
+  FOutputPipeHandle:= FpOpen (FOutputPipeName, O_WRONLY);
+
+end;
+
+procedure TDispactherThread.Execute;
 var
   NewRequest: TRequest;
-  MsgParameter: TParameter;
-  PageInstance: TResidentPageBase;
+  PageInstance: TAbstractHandler;
   
 begin
 
@@ -77,67 +96,44 @@ begin
   begin
     
     try
-      WriteLn ('TResidentPageExcecuteThread.Execute: Before FRequestQueue.Delete', ThreadID);
+      WriteLn ('TDispactherThread.Execute: Before FRequestQueue.Delete', ThreadID);
       NewRequest:= FRequestQueue.Delete;
 
     except
       on e: EQueueIsEmpty do
       begin
-        WriteLn ('TResidentPageExcecuteThread.Execute: RequestQueue is empty!');
+        WriteLn ('TDispactherThread.Execute: RequestQueue is empty!');
         FRequestQueue.AddToSuspendedThreads (Self);
-        WriteLn ('TResidentPageExcecuteThread.Execute: Before suspend!', ThreadID);
+        WriteLn ('TDispactherThread.Execute: Before suspend!', ThreadID);
         Self.Suspend;
-        WriteLn ('TResidentPageExcecuteThread.Execute: After suspend!', ThreadID);
+        WriteLn ('TDispactherThread.Execute: After suspend!', ThreadID);
         Continue;
 
       end;
       
     end;
     
-    MsgParameter:= TParameter.Create (NewRequest.Parameters);
+    WriteLn ('TDispactherThread.Execute: Request to be Served is (', NewRequest.ToString, ')');
+    PageInstance:= Resident.GetPageHandler (UpperCase (NewRequest.PageName));
+    OutputPipeName:= NewRequest.OutputPipe;
+    PageInstance.RegisterThread (Self);
 
-    if MsgParameter.Count<= 1 then// Invalid parameters
-    begin
-      Writeln ('Error', NewRequest.Parameters, ' ', NewRequest.CookieStr);
-      MsgParameter.Free;
-      Continue;
+    try
+      PageInstance.Dispatch (NewRequest);
 
-    end
-    else // request is in correct form
-    begin
-  // MsgParamters must be (PageName) (OutputPipeName) (Get/Put Variable)
-      PageInstance:= GetAppropriatePageByPageName (UpperCase (MsgParameter.Argument [0]));
-
-      WriteLn ('MsgParameter.Count= ', MsgParameter.Count);
-
-      if 2< MsgParameter.Count then
-        PageInstance.Vars.LoadFromString (MsgParameter.Argument [2]);
-
-      if NewRequest.CookieStr<> '' then
-        PageInstance.Cookies.LoadFromString (NewRequest.CookieStr);
-
-// Set the pipename in which current page should write its output
-       raise ENotImplementedYet.Create ('PageInstance', 'SetPipeName');
-
-//      PageInstance.PipeFileName:= MsgParameter.Argument [1];
-      try
-        PageInstance.MyDispatch;
-        
-      except
-        on e: Exception do
-          WriteLn (e.Message);
-          
-      end;
-
-      PageInstance.Free;
+    except
+      on e: Exception do
+        WriteLn (e.Message);
 
     end;
+
+    PageInstance.Free;
 
   end;
 
 end;
 
-constructor TResidentPageExcecuteThread.Create (ReqQueue: TCircularRequestsQueue);
+constructor TDispactherThread.Create (ReqQueue: TCircularRequestsQueue);
 begin
   inherited Create (True);
 
@@ -146,7 +142,7 @@ begin
 
 end;
 
-destructor TResidentPageExcecuteThread.Destroy;
+destructor TDispactherThread.Destroy;
 begin
   FRequestQueue:= nil;
 
@@ -171,7 +167,7 @@ begin
   
   for i:= 0 to n- 1 do
   begin
-    Ptr^:= TResidentPageExcecuteThread.Create (RequestPool);
+    Ptr^:= TDispactherThread.Create (RequestPool);
     Inc (Ptr);
     
   end;
@@ -184,7 +180,7 @@ var
 
 begin
   for i:= 0 to FThreadCollection.Size- 1 do
-    FThreadCollection.ResidentThread [i].Resume;
+    FThreadCollection.Thread [i].Resume;
 
 end;
 
@@ -223,10 +219,9 @@ end;
 
 { TThreadCollection }
 
-function TThreadCollection.GetResidentThread (Index: Integer
-  ): TResidentPageExcecuteThread;
+function TThreadCollection.GetThread (Index: Integer): TDispactherThread;
 begin
-  Result:= Member [Index] as TResidentPageExcecuteThread;
+  Result:= Member [Index] as TDispactherThread;
   
 end;
 
@@ -243,11 +238,11 @@ var
 begin
   for i:= 0 to Size- 1 do
   begin
-    if ResidentThread [i].Suspended then
-      ResidentThread [i].Resume;
+    if Thread [i].Suspended then
+      Thread [i].Resume;
 
-    WaitForThreadTerminate (ResidentThread [i].ThreadID, 0);
-    ResidentThread [i].Free;
+    WaitForThreadTerminate (Thread [i].ThreadID, 0);
+    Thread [i].Free;
 
   end;
 

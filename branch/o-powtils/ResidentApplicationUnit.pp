@@ -25,11 +25,10 @@
       reading from pipe. But, there was a risk of missing a request. Now, it uses
       the FpOpen and FpRead.
 
-  [28/APR/2008 - Amir]
-   - A big change in TResident.ExecuteInThread:
-      In the previous version, I tried to use AssignFile and Reset to handle the
-      reading from pipe. But, there was a risk of missing a request. Now, it uses
-      the FpOpen and FpRead.
+  [12/APR/2009 - Amir]
+   - A big change in TResident:
+     Now, every dispatcher should register itself in TResident. By this way, there
+     is no need to have ThisApplicationPagesUnit.
 
 }
 
@@ -41,8 +40,8 @@ interface
 
 uses
   Classes, SysUtils, CollectionUnit, ThreadingUnit,
-  CustApp, WebUnit, RequestsQueue,
-  BaseUnix, SessionManagerUnit, ResidentPageBaseUnit;
+  CustApp, WebUnit, RequestsQueue, AbstractHandlerUnit,
+  BaseUnix, SessionManagerUnit, PageHandlerBaseUnit;
 
 type
   EConfigFileNotFound= class (Exception);
@@ -63,7 +62,7 @@ type
     constructor Create (ConfigName: String; Value: String); overload;
 
   end;
-  
+{$STATIC ON}
   { TResident }
   
   TResident= class (TCustomApplication)
@@ -81,7 +80,7 @@ type
     FRequestQueue: TCircularRequestsQueue;
     FDispatchedRequestCount: Integer;
 
-    FAllResidentPages: TResidentPageCollection;
+    FAllHandlers: TAbstractHandlerCollection;
     ThreadPool: TThreadPool;
 
     procedure SetMainPipeFileName (const AValue: String);
@@ -106,17 +105,17 @@ type
     procedure Execute;
     procedure ExecuteInThread;
   
-    constructor Create (AOwner : TComponent);
+    constructor Create;
     destructor Destroy; override;
 
-    procedure RegisterResidentDisptacher (ADispatcher: TResidentPageBase);
-    procedure RegisterResidentDisptacher (const AName: String;
-                          ADispatcher: TResidentPageBase); overload;
+    procedure RegisterPageHandlerHandler (const AName: String;
+                          AHandler: TAbstractHandler);
+    function GetPageHandler (const AName: String): TAbstractHandler;
 
   end;
 
   { TParameter }
-
+(*
   TParameter= class (TStringList)
   private
     function GetArgument (Index: Integer): String;
@@ -127,18 +126,18 @@ type
     constructor Create (Str: String); overload;
 
   end;
-
+*)
 var
   Resident: TResident;
   
 
 implementation
 uses
-  ThisApplicationPagesUnit, ExceptionUnit, URLEnc, WebConfigurationUnit,
+  ExceptionUnit, URLEnc, WebConfigurationUnit,
   GlobalUnit;
   
 { TParameter }
-
+(*
 function TParameter.GetArgument (Index: Integer): String;
 begin
   Result:= Strings [Index];
@@ -179,7 +178,7 @@ begin
   end;
 
 end;
-
+*)
 { TResident }
 
 procedure TResident.SetMainPipeFileName (const AValue: String);
@@ -422,13 +421,24 @@ end;
    application after a number of specific executaion, which is a great help specially
    about memory leak. But till now, I can't find any way to do this.
 }
-constructor TResident.Create (AOwner: TComponent);
+constructor TResident.Create;
 
 {
   The configfilename must be PSP.conf and be in the same path as the application.
 }
 
   procedure ReadConfigFileInfo;
+  const
+  {Default values for Webconfiguration:
+  }
+    DefaultConfigurationValues: array [1..5] of array [1..2] of String=
+           (
+            ('charset', 'iso8859-1'),//Default Charset
+            ('RestartInterval', '-1'),//Default RestartInterval
+            ('SessionIDLen', '20'),// Default SessionIDLen
+            ('SessionVarName', 'PSPSESS'),// Default SessionVarName
+            ('SessionUseCookie', 'TRUE')//Dafault SessionUseCookie
+            );
   var
     ConfigFileHandle: TextFile;
     TempInt: Integer;
@@ -436,6 +446,7 @@ constructor TResident.Create (AOwner: TComponent);
     SessionIDLen: Integer;
     SessionVarName: String;
     SessionUseCookie: Boolean;
+    i: Integer;
     
   begin
     if not FileExists ('PSP.conf') then
@@ -460,27 +471,33 @@ constructor TResident.Create (AOwner: TComponent);
       end;
       
     end;
+
+    for i:= Low (DefaultConfigurationValues) to High (DefaultConfigurationValues) do
+      if WebConfiguration.ConfigurationValueByName [DefaultConfigurationValues [i][1]]= '' then
+        WebConfiguration.Add (TWebConfiguration.Create (DefaultConfigurationValues [i][1],
+                             DefaultConfigurationValues [i][2]));
+
     CloseFile (ConfigFileHandle);
     
-    MainPipeFileName:= WebConfiguration.ConfigurationByName ['MainPipeFileName'].Value;
+    MainPipeFileName:= WebConfiguration.ConfigurationValueByName ['MainPipeFileName'];
     if not FileExists (FMainPipeFileName) then
       raise EMainPipeNotFound.Create (FMainPipeFileName);
       
-    TempPipeFilePath:= WebConfiguration.ConfigurationByName ['TemproraryPipesPath'].Value;
-    NumberOfActiveThread:= StrToInt (WebConfiguration.ConfigurationByName ['MaximumNumberofActiveThreads'].Value);
-    FRequestQueueSize:= StrToInt (WebConfiguration.ConfigurationByName ['MaximumSizeofRequestQueue'].Value);
+    TempPipeFilePath:= WebConfiguration.ConfigurationValueByName ['TemproraryPipesPath'];
+    NumberOfActiveThread:= StrToInt (WebConfiguration.ConfigurationValueByName ['MaximumNumberofActiveThreads']);
+    FRequestQueueSize:= StrToInt (WebConfiguration.ConfigurationValueByName ['MaximumSizeofRequestQueue']);
     
     FRestartInterval:= -1;
     FUsingSessionManager:= False;
     try
-      FRestartInterval:= StrToInt (WebConfiguration.ConfigurationByName ['RestartInterval'].Value);
+      FRestartInterval:= StrToInt (WebConfiguration.ConfigurationValueByName ['RestartInterval']);
       
     except
     
     end;
 
     try
-      FUsingSessionManager:= UpperCase (WebConfiguration.ConfigurationByName ['SessionManager'].Value)= 'TRUE';
+      FUsingSessionManager:= UpperCase (WebConfiguration.ConfigurationValueByName ['SessionManager'])= 'TRUE';
 
     except
       on e: ENameNotFound do
@@ -491,8 +508,7 @@ constructor TResident.Create (AOwner: TComponent);
     if FUsingSessionManager then
     begin
       try
-        SessionIDLen:= DefualtSessionIDLen;
-        SessionIDLen:= StrToInt (WebConfiguration.ConfigurationByName ['SessionIDLen'].Value);
+        SessionIDLen:= StrToInt (WebConfiguration.ConfigurationValueByName ['SessionIDLen']);
 
       except
         on e: ENameNotFound do;
@@ -504,32 +520,11 @@ constructor TResident.Create (AOwner: TComponent);
 
       end;
 
-      try
-        SessionVarName:= WebConfiguration.ConfigurationByName ['SessionIDVarName'].Value;
+      SessionVarName:= WebConfiguration.ConfigurationValueByName ['SessionIDVarName'];
 
-      except
-        on e: ENameNotFound do
-        begin
-          SessionVarName:= DefualtSessionVarName;
-
-        end;
-
-      end;
-
-
-      try
-        SessionUseCookie:=
-          UpperCase (WebConfiguration.ConfigurationByName ['SessionUseCookie'].Value)
-            = 'TRUE';
-
-      except
-        on e: ENameNotFound do
-        begin
-          SessionUseCookie:= True;
-
-        end;
-
-      end;
+      SessionUseCookie:=
+        UpperCase (WebConfiguration.ConfigurationValueByName ['SessionUseCookie'])
+          = 'TRUE';
 
       SessionManagerUnit.SessionManager:= TBasicSessionManager.Create (
         SessionIDLen, SessionVarName, SessionUseCookie);
@@ -539,7 +534,7 @@ constructor TResident.Create (AOwner: TComponent);
   end;
 
 begin
-  inherited Create (AOwner);
+  inherited Create (nil);
   
   ReadConfigFileInfo;
 
@@ -550,7 +545,7 @@ begin
 
   FDispatchedRequestCount:= 0;
 
-  FAllResidentPages:= TResidentPageCollection.Create;
+  FAllHandlers:= TAbstractHandlerCollection.Create;
 
 end;
 
@@ -564,41 +559,36 @@ begin
   begin
     FRequestQueue.TryToMakeItEmpty;
 
-{$ifdef DebugMode}
     Writeln ('Resident[Destroy]: Queue is not empty, yet!');
-{$endif}
+
     Sleep (100);
 
   end;
 
-  {$ifdef DebugMode}
   Writeln ('Resident[Destroy]: At last, Queue became empty!');
   Writeln ('Resident[Destroy]:');
-  Writeln ('Resident[Destroy]:');
-  {$endif}
 
   ThreadPool.Free;
 
-{$ifdef DebugMode}
   WriteLn ('Resident[Destroy]: At the end');
-{$endif}
 
   FRequestQueue.Free;
+  FAllHandlers.Free;
 
   inherited Destroy;
 
 end;
 
-procedure TResident.RegisterResidentDisptacher (ADispatcher: TResidentPageBase);
+procedure TResident.RegisterPageHandlerHandler (const AName: String;
+  AHandler: TAbstractHandler);
 begin
-  RegisterResidentDisptacher (ADispatcher.PageName, ADispatcher);
+  FAllHandlers.AddPageHandler (UpperCase (AName), AHandler);
 
 end;
 
-procedure TResident.RegisterResidentDisptacher (const AName: String;
-  ADispatcher: TResidentPageBase);
+function TResident.GetPageHandler (const AName: String): TAbstractHandler;
 begin
-  FAllResidentPages.AddPage (ADispatcher.PageName, ADispatcher);
+  Result:= FAllHandlers.PageHandlerByName [AName].CreateNewInstance;
 
 end;
 

@@ -15,21 +15,32 @@ type
 
   TRequest= class (TObject)
   private
-    FParameters: String;
+    FOutputPipe: String;
+    FPageName: String;
     FCookieStr: String;
+    FVariables: String;
     
   public
-    {Parameters is a string which contains all the GET/POST variables
-      and some of environment variables which are seprated by & from each other.
+    {Variables is a string which contains all the GET/POST variables
+      and maybe some of environment variables which are seprated by & from each other.
     }
-    property Parameters: String read FParameters;
-    
+    property Variables: String read FVariables;
     {CookiStr is a string which contains all Cookie values
       which are seprated by & from each other.
     }
     property CookieStr: String read FCookieStr;
+
+    {PageName is the name of the requested page.
+    }
+    property PageName: String read FPageName;
+    {PageName is the name of the pipe in which the output should be written to.
+    }
+
+    property OutputPipe: String read FOutputPipe;
     
     constructor Create (const ParamsAndCookies: String);
+
+    function ToString: String;
     
   end;
   
@@ -100,63 +111,59 @@ uses
   
 { TRequest }
 {
-  Loads the Parameters and Cookies from MainPipe.
-  A #255#255 used as disjointer between parameters and cookies which are
-  written in a line by RequestCollector.
-}
-{
-constructor TRequest.Create (var MainPipeHanlde: TextFile);
-const
-  ParametersCookiesSeprator: String= #$FE#$FE;
-var
-  ParamsAndCookies: String;
-  Position: Integer;
-  
-begin
-  inherited Create;
-  
-  ReadLn (MainPipeHanlde, ParamsAndCookies);
-  Position:= Pos (ParametersCookiesSeprator, ParamsAndCookies);
-  
-  FParameters:= Copy (ParamsAndCookies, 1, Position- 1);
-  Delete (ParamsAndCookies, 1, Position+ 1);
-  FCookieStr:= URLDecode (ParamsAndCookies);
-
-  
-(*$IFDEF DEBUG_MODE*)
-  WriteLn ('FParameters=', FParameters);
-  WriteLn ('FCookieStr=', FCookieStr);
-(*$ENDIF*)
-
-end;
-}
-
-{
   Loads the Parameters and Cookies from an string (ParamsAndCookies).
   A #255 used as disjointer between parameters and cookies which are
   written in a line by RequestCollector.
 }
 constructor TRequest.Create (const ParamsAndCookies: String);
+  function CharPos (StartIndx: Integer; Ch: Char; const Source: String): Integer;
+  var
+    CharPtr: PChar;
+    i: Integer;
+
+  begin
+    CharPtr:= @(Source [StartIndx]);
+
+    for i:= StartIndx to Length (Source) do
+    begin
+      if CharPtr^= Ch then
+        Exit (i);
+
+      Inc (CharPtr);
+    end;
+    Result:= -1;
+
+  end;
+
 const
-  ParametersCookiesSeprator: String= #$FE;
+  Seprator: char= #$FF;
   
 var
-  Position: Integer;
+  Position1, Position2: Integer;
 
 begin
   inherited Create;
 
-  Position:= Pos (ParametersCookiesSeprator, ParamsAndCookies);
+  Position2:= 0;
+  Position1:= CharPos (Position2+ 1, Seprator, ParamsAndCookies);
+  FPageName:= Copy (ParamsAndCookies, Position2+ 1, Position1- 1);
 
-  FParameters:= Copy (ParamsAndCookies, 1, Position- 1);
-  FCookieStr:= URLDecode (Copy (ParamsAndCookies, Position+ 1,
-          Length (ParamsAndCookies)- Position));
+  Position2:= CharPos (Position1+ 1, Seprator, ParamsAndCookies);
+  FOutputPipe:= Copy (ParamsAndCookies, Position1+ 1, Position2- Position1- 1);
 
-(*$IFDEF DEBUG_MODE*)
-  WriteLn ('FParameters=', FParameters);
-  WriteLn ('FCookieStr=', FCookieStr);
-  
-(*$ENDIF*)
+  Position1:= CharPos (Position2+ 1, Seprator, ParamsAndCookies);
+  FVariables:= Copy (ParamsAndCookies, Position2+ 1, Position1- Position2- 1);
+
+  Position2:= CharPos (Position1+ 1, Seprator, ParamsAndCookies);
+  FCookieStr:= Copy (ParamsAndCookies, Position1+ 1, Position2- Position1- 1);
+
+end;
+
+function TRequest.ToString: String;
+begin
+  Result:= 'FPageName='+ FPageName+ ' OutputPipe= '+ FOutputPipe+
+       'Variables= '+ FVariables+ ' CookieStr= '+ FCookieStr;
+
 
 end;
 

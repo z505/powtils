@@ -26,10 +26,13 @@ type
     function GetConfigurationValueByName (Name: String): String;
 
     function ParseWebConfig (const ConfigFilename: String): Boolean;
-  public
-    property ConfigurationValueByName [Name: String]: String read GetConfigurationValueByName;
+
+  protected
     property ConfigurationByName [Name: String]: TWebConfiguration read GetConfigurationByName;
     property Configuration [Index: Integer]: TWebConfiguration read GetConfigurationByIndex;
+
+  public
+    property ConfigurationValueByName [Name: String]: String read GetConfigurationValueByName;
 
     constructor Create (const CofigFilename: String);
 
@@ -37,7 +40,7 @@ type
 
 implementation
 uses
-  ExceptionUnit, SysUtils;
+  SysUtils;
 
 { TWebConfigurationCollection }
 
@@ -55,7 +58,12 @@ end;
 
 function TWebConfigurationCollection.GetConfigurationValueByName (Name: String): String;
 begin
-  Result:= ConfigurationByName [Name].Value;
+  try
+    Result:= ConfigurationByName [Name].Value;
+  except
+    on e: ENameNotFound do
+      Result:= '';
+  end;
 
 end;
 
@@ -65,6 +73,7 @@ var
   S: String;
 
 begin
+  Result:= True;
   AssignFile (InputFile, ConfigFilename);
   Reset (InputFile);
 
