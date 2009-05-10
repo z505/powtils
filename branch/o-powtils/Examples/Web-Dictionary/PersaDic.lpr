@@ -8,19 +8,17 @@ uses
  {$endif}
   Classes, heaptrc
   { add your units here }, ResidentApplicationUnit,
-  Page1ResidentUnit, CollectionUnit, WebUnit, Page2ResidentUnit,
-  ThisApplicationPagesUnit, PipeWrapperUnit, URLEnc, SessionManagerUnit,
+  CollectionUnit, WebUnit, ThreadingUnit,
+  PipeWrapperUnit, URLEnc, SessionManagerUnit,
   WebStringUnit, RequestsQueue, XMLNode, AttributeUnit, ThisProjectGlobalUnit,
-  ExceptionUnit, AbstractDispatcherUnit, CookieUnit, WebHeaderUnit,
+  ExceptionUnit, AbstractHandlerUnit, CookieUnit, WebHeaderUnit,
   WebConfigurationUnit, SessionUnit, CgiVariableUnit,
-WebRunTimeInformationUnit, WebUploadedFileUnit, MainPageUnit;
-  
-var
-  Resident: TResident;
+  WebRunTimeInformationUnit, WebUploadedFileUnit, MainPageUnit;
   
 begin
 
-  Resident:= TResident.Create (nil);
+  Resident:= TResident.Create;
+  Resident.RegisterPageHandlerHandler ('MainPage.psp', TMainPageDispatcher.Create);
 
   Resident.ExecuteInThread;
 //  Resident.Execute;

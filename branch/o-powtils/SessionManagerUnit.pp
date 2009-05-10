@@ -113,10 +113,6 @@ const
 
 function GetSession (SessionID: TSessionID): TSession;
 
-const
-  DefualtSessionIDLen: Integer= 20;
-  DefualtSessionVarName: String= 'PSPSESS';
-  
 var
   SessionManager: TAbstractSessionManager;// Will be created in TResident constructor
   
