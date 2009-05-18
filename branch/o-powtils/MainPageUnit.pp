@@ -11,9 +11,8 @@ type
 
   { TMainPageDispatcher }
 
-  TMainPageDispatcher= class (THTMLHandlerPageBase)
+  TMainPageDispatcher= class (TXMLHandlerPage)
   private
-    MainPage_HTMLData: TFileString;
 
   public
     constructor Create;
@@ -30,22 +29,19 @@ implementation
 { TMainPageDispatcher }
 constructor TMainPageDispatcher.Create;
 begin
-  inherited Create;
-
-  MainPage_HTMLData:= TFileString.Create ('HTMLPages/MainPage.html', 'MainPage');
+  inherited Create ('PersaDic', 'Persadic.xsl');
 
 end;
 
 destructor TMainPageDispatcher.Destroy;
 begin
-  MainPage_HTMLData.Free;
-
   inherited Destroy;
+
 end;
 
 procedure TMainPageDispatcher.MyDispatch;
 begin
-  WriteLn (MainPage_HTMLData.DataInFile);
+  WriteLn (Vars.Text);
 
 end;
 

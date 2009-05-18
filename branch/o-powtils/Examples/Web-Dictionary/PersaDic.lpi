@@ -11,7 +11,7 @@
       <MainUnit Value="0"/>
       <TargetFileExt Value=""/>
       <Title Value="PersaDic"/>
-      <ActiveEditorIndexAtStart Value="10"/>
+      <ActiveEditorIndexAtStart Value="6"/>
     </General>
     <PublishOptions>
       <Version Value="2"/>
@@ -27,12 +27,12 @@
         <Display Use="True"/>
       </local>
     </RunParams>
-    <Units Count="46">
+    <Units Count="47">
       <Unit0>
         <Filename Value="PersaDic.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PersaDic"/>
-        <CursorPos X="1" Y="18"/>
+        <CursorPos X="22" Y="23"/>
         <TopLine Value="1"/>
         <EditorIndex Value="0"/>
         <UsageCount Value="211"/>
@@ -51,9 +51,9 @@
         <Filename Value="ResidentApplicationUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ResidentApplicationUnit"/>
-        <CursorPos X="1" Y="591"/>
-        <TopLine Value="576"/>
-        <EditorIndex Value="9"/>
+        <CursorPos X="3" Y="392"/>
+        <TopLine Value="358"/>
+        <EditorIndex Value="1"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
@@ -86,11 +86,9 @@
         <Filename Value="CollectionUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="CollectionUnit"/>
-        <CursorPos X="3" Y="227"/>
-        <TopLine Value="208"/>
-        <EditorIndex Value="11"/>
+        <CursorPos X="1" Y="1035"/>
+        <TopLine Value="1018"/>
         <UsageCount Value="210"/>
-        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
@@ -113,14 +111,12 @@
         <Filename Value="../../PageHandlerBaseUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PageHandlerBaseUnit"/>
-        <CursorPos X="31" Y="36"/>
-        <TopLine Value="16"/>
-        <EditorIndex Value="8"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
         <UsageCount Value="200"/>
         <Bookmarks Count="1">
           <Item0 X="1" Y="152" ID="3"/>
         </Bookmarks>
-        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
@@ -181,14 +177,12 @@
         <Filename Value="RequestsQueue.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="RequestsQueue"/>
-        <CursorPos X="17" Y="41"/>
-        <TopLine Value="26"/>
-        <EditorIndex Value="6"/>
+        <CursorPos X="1" Y="259"/>
+        <TopLine Value="242"/>
         <UsageCount Value="250"/>
         <Bookmarks Count="1">
           <Item0 X="1" Y="255" ID="2"/>
         </Bookmarks>
-        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit16>
       <Unit17>
@@ -210,10 +204,10 @@
       <Unit19>
         <Filename Value="ThreadingUnit.pp"/>
         <UnitName Value="ThreadingUnit"/>
-        <CursorPos X="26" Y="122"/>
-        <TopLine Value="107"/>
-        <EditorIndex Value="4"/>
-        <UsageCount Value="98"/>
+        <CursorPos X="21" Y="122"/>
+        <TopLine Value="113"/>
+        <EditorIndex Value="5"/>
+        <UsageCount Value="100"/>
         <Bookmarks Count="1">
           <Item0 X="40" Y="118" ID="1"/>
         </Bookmarks>
@@ -226,9 +220,7 @@
         <UnitName Value="ThisProjectGlobalUnit"/>
         <CursorPos X="29" Y="8"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="1"/>
         <UsageCount Value="219"/>
-        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit20>
       <Unit21>
@@ -254,9 +246,9 @@
         <Filename Value="AbstractHandlerUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="AbstractHandlerUnit"/>
-        <CursorPos X="20" Y="136"/>
-        <TopLine Value="129"/>
-        <EditorIndex Value="5"/>
+        <CursorPos X="25" Y="236"/>
+        <TopLine Value="222"/>
+        <EditorIndex Value="6"/>
         <UsageCount Value="271"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
@@ -274,11 +266,9 @@
         <Filename Value="WebHeaderUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="WebHeaderUnit"/>
-        <CursorPos X="14" Y="90"/>
+        <CursorPos X="18" Y="96"/>
         <TopLine Value="79"/>
-        <EditorIndex Value="10"/>
         <UsageCount Value="270"/>
-        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit25>
       <Unit26>
@@ -315,9 +305,11 @@
         <Filename Value="CgiVariableUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="CgiVariableUnit"/>
-        <CursorPos X="3" Y="29"/>
-        <TopLine Value="14"/>
+        <CursorPos X="1" Y="90"/>
+        <TopLine Value="72"/>
+        <EditorIndex Value="4"/>
         <UsageCount Value="266"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit29>
       <Unit30>
@@ -342,10 +334,10 @@
         <Filename Value="MainPageUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MainPageUnit"/>
-        <CursorPos X="1" Y="48"/>
-        <TopLine Value="33"/>
-        <EditorIndex Value="7"/>
-        <UsageCount Value="77"/>
+        <CursorPos X="20" Y="44"/>
+        <TopLine Value="25"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="81"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit32>
@@ -388,8 +380,8 @@
       </Unit38>
       <Unit39>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/2.2.2/rtl/inc/systemh.inc"/>
-        <CursorPos X="11" Y="589"/>
-        <TopLine Value="574"/>
+        <CursorPos X="11" Y="558"/>
+        <TopLine Value="541"/>
         <UsageCount Value="10"/>
       </Unit39>
       <Unit40>
@@ -397,9 +389,7 @@
         <UnitName Value="GlobalUnit"/>
         <CursorPos X="31" Y="15"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="2"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="13"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit40>
       <Unit41>
@@ -407,17 +397,17 @@
         <UnitName Value="FileStringsUnit"/>
         <CursorPos X="61" Y="17"/>
         <TopLine Value="17"/>
-        <EditorIndex Value="3"/>
-        <UsageCount Value="12"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="13"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit41>
       <Unit42>
         <Filename Value="PageHandlerBaseUnit.pp"/>
         <UnitName Value="PageHandlerBaseUnit"/>
-        <CursorPos X="1" Y="169"/>
-        <TopLine Value="154"/>
-        <UsageCount Value="11"/>
+        <CursorPos X="14" Y="92"/>
+        <TopLine Value="75"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit42>
       <Unit43>
@@ -440,104 +430,134 @@
         <TopLine Value="17"/>
         <UsageCount Value="10"/>
       </Unit45>
+      <Unit46>
+        <Filename Value="../../../../../../../../usr/share/fpcsrc/2.2.2/rtl/inc/astrings.inc"/>
+        <CursorPos X="13" Y="1028"/>
+        <TopLine Value="1017"/>
+        <UsageCount Value="10"/>
+      </Unit46>
     </Units>
-    <JumpHistory Count="24" HistoryIndex="23">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="124" Column="1" TopLine="109"/>
+        <Filename Value="PageHandlerBaseUnit.pp"/>
+        <Caret Line="296" Column="5" TopLine="262"/>
       </Position1>
       <Position2>
-        <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="149" Column="1" TopLine="134"/>
+        <Filename Value="PageHandlerBaseUnit.pp"/>
+        <Caret Line="300" Column="1" TopLine="266"/>
       </Position2>
       <Position3>
-        <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="157" Column="1" TopLine="142"/>
+        <Filename Value="MainPageUnit.pp"/>
+        <Caret Line="44" Column="20" TopLine="25"/>
       </Position3>
       <Position4>
-        <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="158" Column="1" TopLine="143"/>
+        <Filename Value="CgiVariableUnit.pp"/>
+        <Caret Line="88" Column="34" TopLine="81"/>
       </Position4>
       <Position5>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="160" Column="1" TopLine="145"/>
+        <Caret Line="220" Column="46" TopLine="201"/>
       </Position5>
       <Position6>
-        <Filename Value="MainPageUnit.pp"/>
-        <Caret Line="48" Column="1" TopLine="33"/>
+        <Filename Value="AbstractHandlerUnit.pp"/>
+        <Caret Line="235" Column="52" TopLine="208"/>
       </Position6>
       <Position7>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="130" Column="1" TopLine="115"/>
+        <Caret Line="220" Column="1" TopLine="218"/>
       </Position7>
       <Position8>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="131" Column="1" TopLine="116"/>
+        <Caret Line="202" Column="23" TopLine="189"/>
       </Position8>
       <Position9>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="90" Column="1" TopLine="75"/>
+        <Caret Line="214" Column="9" TopLine="196"/>
       </Position9>
       <Position10>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="91" Column="1" TopLine="76"/>
+        <Caret Line="200" Column="23" TopLine="183"/>
       </Position10>
       <Position11>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="106" Column="1" TopLine="91"/>
+        <Caret Line="215" Column="40" TopLine="196"/>
       </Position11>
       <Position12>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="113" Column="1" TopLine="98"/>
+        <Caret Line="243" Column="54" TopLine="215"/>
       </Position12>
       <Position13>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="123" Column="27" TopLine="107"/>
+        <Caret Line="241" Column="22" TopLine="224"/>
       </Position13>
       <Position14>
-        <Filename Value="MainPageUnit.pp"/>
-        <Caret Line="48" Column="1" TopLine="33"/>
+        <Filename Value="AbstractHandlerUnit.pp"/>
+        <Caret Line="233" Column="14" TopLine="201"/>
       </Position14>
       <Position15>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="193" Column="1" TopLine="178"/>
+        <Caret Line="239" Column="7" TopLine="208"/>
       </Position15>
       <Position16>
-        <Filename Value="MainPageUnit.pp"/>
-        <Caret Line="48" Column="1" TopLine="33"/>
+        <Filename Value="AbstractHandlerUnit.pp"/>
+        <Caret Line="244" Column="1" TopLine="227"/>
       </Position16>
       <Position17>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="124" Column="1" TopLine="109"/>
+        <Caret Line="243" Column="5" TopLine="226"/>
       </Position17>
       <Position18>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="125" Column="1" TopLine="110"/>
+        <Caret Line="260" Column="19" TopLine="241"/>
       </Position18>
       <Position19>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="91" Column="1" TopLine="76"/>
+        <Caret Line="190" Column="1" TopLine="174"/>
       </Position19>
       <Position20>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="92" Column="1" TopLine="77"/>
+        <Caret Line="23" Column="5" TopLine="6"/>
       </Position20>
       <Position21>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="174" Column="3" TopLine="155"/>
+        <Caret Line="252" Column="23" TopLine="219"/>
       </Position21>
       <Position22>
-        <Filename Value="MainPageUnit.pp"/>
-        <Caret Line="48" Column="1" TopLine="33"/>
+        <Filename Value="AbstractHandlerUnit.pp"/>
+        <Caret Line="228" Column="35" TopLine="202"/>
       </Position22>
       <Position23>
         <Filename Value="AbstractHandlerUnit.pp"/>
-        <Caret Line="136" Column="20" TopLine="129"/>
+        <Caret Line="235" Column="36" TopLine="202"/>
       </Position23>
       <Position24>
-        <Filename Value="WebHeaderUnit.pp"/>
-        <Caret Line="85" Column="27" TopLine="79"/>
+        <Filename Value="AbstractHandlerUnit.pp"/>
+        <Caret Line="189" Column="1" TopLine="189"/>
       </Position24>
+      <Position25>
+        <Filename Value="AbstractHandlerUnit.pp"/>
+        <Caret Line="241" Column="23" TopLine="224"/>
+      </Position25>
+      <Position26>
+        <Filename Value="AbstractHandlerUnit.pp"/>
+        <Caret Line="246" Column="21" TopLine="224"/>
+      </Position26>
+      <Position27>
+        <Filename Value="AbstractHandlerUnit.pp"/>
+        <Caret Line="195" Column="27" TopLine="179"/>
+      </Position27>
+      <Position28>
+        <Filename Value="AbstractHandlerUnit.pp"/>
+        <Caret Line="246" Column="23" TopLine="229"/>
+      </Position28>
+      <Position29>
+        <Filename Value="AbstractHandlerUnit.pp"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position29>
+      <Position30>
+        <Filename Value="AbstractHandlerUnit.pp"/>
+        <Caret Line="195" Column="22" TopLine="178"/>
+      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -555,23 +575,11 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <BreakPoints Count="4">
+    <BreakPoints Count="1">
       <Item1>
-        <Source Value="WebUnit.pp"/>
-        <Line Value="326"/>
+        <Source Value="PageHandlerBaseUnit.pp"/>
+        <Line Value="295"/>
       </Item1>
-      <Item2>
-        <Source Value="PSP.lpr"/>
-        <Line Value="25"/>
-      </Item2>
-      <Item3>
-        <Source Value="PSP.lpr"/>
-        <Line Value="23"/>
-      </Item3>
-      <Item4>
-        <Source Value="../../AbstractHandlerUnit.pp"/>
-        <Line Value="235"/>
-      </Item4>
     </BreakPoints>
     <Watches Count="3">
       <Item1>

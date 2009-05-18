@@ -18,7 +18,7 @@ uses
 begin
 
   Resident:= TResident.Create;
-  Resident.RegisterPageHandlerHandler ('MainPage.psp', TMainPageDispatcher.Create);
+  Resident.RegisterPageHandlerHandler ('PersaDic.psp', TMainPageDispatcher.Create);
 
   Resident.ExecuteInThread;
 //  Resident.Execute;

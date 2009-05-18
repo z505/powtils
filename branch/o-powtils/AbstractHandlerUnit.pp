@@ -54,6 +54,7 @@ type
     destructor Destroy; override;
 
     function CreateNewInstance: TAbstractHandler; virtual; abstract;
+    procedure Flush; virtual; abstract;
 
     procedure Dispatch (RequestInfo: TRequest);
     procedure RegisterThread (AThread: TDispactherThread);
@@ -64,7 +65,7 @@ type
 
 implementation
 uses
-  ExceptionUnit, BaseUnix, GlobalUnit;
+  BaseUnix, GlobalUnit;
 
 { TAbstractHandler }
 
@@ -186,53 +187,91 @@ begin
 end;
 
 procedure TAbstractHandler.Dispatch (RequestInfo: TRequest);
-var
-  VarString, CookieString: String;
 
   function LoadVariables (const VariablesStr: AnsiString): TCgiVariableCollection;
   var
-    StartIndicator, CharPtr: PChar;
-    CgiVar: TCgiVar;
-    VarName, VarValue: String;
-    ReminderLen: Integer;
+    VariablesStrLen: Integer;
+
+    function LoadAVariable (var CharPtr: PChar; var Index: Integer): TCgiVar;
+    var
+      i: Integer;
+      StartingPosition: PChar;
+      Flag: Boolean;
+      VarName, VarValue: String;
+
+    begin
+      VarName:= '';
+      StartingPosition:= CharPtr;
+      Flag:= False;
+      System.WriteLn ('Index=' , Index);
+
+      for i:= Index to VariablesStrLen do
+      begin
+        if CharPtr^= '=' then
+        begin
+          SetString (VarName, StartingPosition, i- Index);
+          Index:= i+ 1;
+          Flag:= True;
+          break;
+
+        end;
+        Inc (CharPtr);
+
+      end;
+
+      if not Flag then
+        Exit (nil);
+
+      VarValue:= '';
+      Inc (CharPtr);
+      StartingPosition:= CharPtr;
+      Flag:= False;
+
+      for i:= Index to VariablesStrLen do
+      begin
+        if CharPtr^= '&' then
+        begin
+          SetString (VarValue, StartingPosition, i- Index);
+          Index:= i+ 1;
+          Inc (CharPtr);
+          Flag:= True;
+          break;
+
+        end;
+        Inc (CharPtr);
+
+      end;
+
+      if not Flag then
+      begin
+        SetString (VarValue, StartingPosition, VariablesStrLen- Index+ 1);
+        Index:= VariablesStrLen;
+
+      end;
+
+      Result:= TCgiVar.Create (VarName, VarValue);
+
+    end;
+
+  var
+    CharPtr: PChar;
+    ActiveIndex: Integer;
+    AVar: TCgiVar;
 
   begin
     Result:= TCgiVariableCollection.Create;
 
     CharPtr:= @VariablesStr [1];
-    ReminderLen:= Length (VariablesStr);
+    ActiveIndex:= 1;
+    VariablesStrLen:= Length (VariablesStr);
 
-    while 0< ReminderLen do
+    while ActiveIndex< VariablesStrLen do
     begin
-      StartIndicator:= CharPtr;
-
-      while CharPtr^<> '=' do
-      begin
-        Inc (CharPtr);
-        Dec (ReminderLen);
-
-      end;
-      Inc (CharPtr);
-      Dec (ReminderLen);
-
-      SetString (VarName, StartIndicator, CharPtr- StartIndicator);
-
-      StartIndicator:= CharPtr;
-
-      while CharPtr^<> '&' do
-      begin
-        Inc (CharPtr);
-        Dec (ReminderLen);
-
-      end;
-
-      Inc (CharPtr);
-      Dec (ReminderLen);
-
-      SetString (VarValue, StartIndicator, CharPtr- StartIndicator);
-      CgiVar:= TCgiVar.Create (VarName, VarValue);
-
-      Result.Add (CgiVar);
+      AVar:= LoadAVariable (CharPtr, ActiveIndex);
+      if AVar<> nil then
+        Result.Add (AVar)
+      else
+        Break;
 
     end;
 
@@ -240,7 +279,7 @@ var
 
   procedure LoadCookies (var CharPtr: PChar);
   begin
-
+    CharPtr:= nil;
   end;
 
 begin

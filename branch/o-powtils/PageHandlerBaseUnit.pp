@@ -52,17 +52,18 @@ type
 
   end;
   
-  { THTMLHandlerPageBase }
-  THTMLHandlerPageBase= class (THandlerPageBase)
+  { THTMLHandlerPage }
+  THTMLHandlerPage= class (THandlerPageBase)
   public
     constructor Create;
+    procedure Flush; override;
 
   end;
 
   
-  { TXMLHandlerBase }
+  { TXMLHandlerPage }
 
-  TXMLHandlerBase= class (THandlerPageBase)
+  TXMLHandlerPage= class (THandlerPageBase)
   private
     FXSLPath: String;
     FIndent: Boolean;
@@ -73,13 +74,13 @@ type
   public
     property XSLPath: String read FXSLPath;
 
-    constructor Create (XSLPage: String;
-                ThisPageName: String; Encoding: String= 'UTF-8';
+    constructor Create (ThisPageName: String; XSLPage: String;
+                Encoding: String= 'UTF-8';
                 Version: String= '1.0'; PageHost: String= '';
                 PagePath: String= ''; Indent: Boolean= False);
 
     destructor Destroy; override;
-    procedure Flush;
+    procedure Flush; override;
 
   end;
 
@@ -187,9 +188,10 @@ end;
 
 { TXMLHandlerBase }
 
-constructor TXMLHandlerBase.Create ( XSLPage: String;
-  ThisPageName: String; Encoding: String; Version: String;
-  PageHost: String; PagePath: String; Indent: Boolean= False);
+constructor TXMLHandlerPage.Create (ThisPageName: String; XSLPage: String;
+             Encoding: String; Version: String;
+             PageHost: String; PagePath: String;
+             Indent: Boolean= False);
 begin
   inherited Create (ctTextXML);
 
@@ -201,22 +203,21 @@ begin
   Header.AddHeader (TWebHeader.Create ('', '<?xml-stylesheet href="'+ XSLPath+ '" type= "text/xsl" ?>'));
 }
   Buffer.Add ('<?xml version="'+ Version+ '" encoding="'+ Encoding+ '" ?>');
-  Buffer.Add ('<?xml-stylesheet href="'+ XSLPath+ '" type= "text/xsl" ?>');
+  if XSLPath<> '' then
+    Buffer.Add ('<?xml-stylesheet href="'+ XSLPath+ '" type= "text/xsl" ?>');
 
 end;
 
-procedure TXMLHandlerBase.Flush;
+procedure TXMLHandlerPage.Flush;
 begin
   if FIndent then
     Write (FXMLRoot.ToStringWithIndent)
   else
     Write (FXMLRoot.ToStringWithOutIndent);
 
-  inherited;
-
 end;
 
-destructor TXMLHandlerBase.Destroy;
+destructor TXMLHandlerPage.Destroy;
 begin
   Flush;
   FXMLRoot.Free;
@@ -281,11 +282,17 @@ begin
 
 end;
 
-{ THTMLHandlerPageBaseBase }
+{ THTMLHandlerPage }
 
-constructor THTMLHandlerPageBase.Create;
+constructor THTMLHandlerPage.Create;
 begin
   inherited Create (ctTextHTML);
+
+end;
+
+procedure THTMLHandlerPage.Flush;
+begin
+  Write (' ');
 
 end;
 
