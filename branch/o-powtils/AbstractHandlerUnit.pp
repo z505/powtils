@@ -65,10 +65,7 @@ type
 
 implementation
 uses
-  BaseUnix, GlobalUnit;
-
-const
-  NewLine: String= #10;
+  BaseUnix, GlobalUnit, ConstantsUnit;
 
 { TAbstractHandler }
 
@@ -94,16 +91,23 @@ const
 begin
   if HeaderCanBeSent then
   begin
-    BufText:= Headers.Text+ NewLine;
-    System.WriteLn ('Headers= "', BufText, '"');
-    Headers.Clear;
-    FpWrite (FPipeHandle, BufText [1], Length (BufText));
+    if Headers.Size<> 0 then
+    begin
+      BufText:= Headers.Text;
+      Headers.Clear;
+      FpWrite (FPipeHandle, BufText [1], Length (BufText));
 
-    BufText:= Cookies.Text;
-    System.WriteLn ('Cookies= "', BufText, '"');
-    Cookies.Clear;
-    FpWrite (FPipeHandle, BufText [1], Length (BufText));
+    end;
 
+    if Cookies.Size<> 0 then
+    begin
+      BufText:= Cookies.Text;
+      Cookies.Clear;
+      FpWrite (FPipeHandle, BufText [1], Length (BufText));
+
+    end;
+
+    FpWrite (FPipeHandle, NewLine [1], 1);
     FpWrite (FPipeHandle, NewLine [1], 1);
 
   end;
@@ -204,7 +208,6 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest);
       VarName:= '';
       StartingPosition:= CharPtr;
       Flag:= False;
-      System.WriteLn ('Index=' , Index);
 
       for i:= Index to VariablesStrLen do
       begin
@@ -289,8 +292,8 @@ begin
 
   FVars:= LoadVariables (RequestInfo.Variables);
 //  LoadCookies (ArgumentPtr);
-
   MyDispatch;
+  Flush;
 
 end;
 

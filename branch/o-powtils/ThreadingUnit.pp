@@ -127,7 +127,6 @@ begin
 
     end;
 
-    PageInstance.Flush;
     PageInstance.Free;
 
   end;

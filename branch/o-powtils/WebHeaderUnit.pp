@@ -65,12 +65,14 @@ type
 
 
 implementation
+uses
+  ConstantsUnit;
 
 { TWebHeader }
 
 function THeader.ToString: String;
 begin
-  Result:= FName+ ':'+ Value+ #10;
+  Result:= FName+ ':'+ Value;
 
 end;
 
@@ -87,7 +89,11 @@ begin
     Result:= '';
 
   for i:= 1 to Count- 1 do
+  begin
+    Result+= NewLine;
     Result+= Header [i].ToString;
+
+  end;
 
 end;
 
@@ -108,7 +114,6 @@ procedure THeaderCollection.AddHeader (NewHeader: THeader);
 begin
   AddNameValue (NewHeader);
 
-  WriteLn ('Headers= "'
 end;
 
 end.
