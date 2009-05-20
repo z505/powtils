@@ -84,7 +84,7 @@ begin
   if Count<> 0 then
     Result:= Header [0].ToString
   else
-  Result:= '';
+    Result:= '';
 
   for i:= 1 to Count- 1 do
     Result+= Header [i].ToString;
@@ -108,6 +108,7 @@ procedure THeaderCollection.AddHeader (NewHeader: THeader);
 begin
   AddNameValue (NewHeader);
 
+  WriteLn ('Headers= "'
 end;
 
 end.
