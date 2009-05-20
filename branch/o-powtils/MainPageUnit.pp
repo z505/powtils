@@ -24,12 +24,13 @@ type
   end;
 
 implementation
-
+uses
+  XMLNode;
 
 { TMainPageDispatcher }
 constructor TMainPageDispatcher.Create;
 begin
-  inherited Create ('PersaDic', 'Persadic.xsl');
+  inherited Create ('PersaDic', 'http://localhost/PersaDic/PersaDic.xsl');
 
 end;
 
@@ -40,8 +41,14 @@ begin
 end;
 
 procedure TMainPageDispatcher.MyDispatch;
+var
+  QueryInfo: TXMLNode;
+
 begin
-  WriteLn (Vars.Text);
+  QueryInfo:= TXMLNode.Create ('QueryInfo');
+  QueryInfo.AddAttribute ('Word', Vars.CgiVarValueByName ['Name']);
+
+  XMLRoot.AddChild (QueryInfo);
 
 end;
 

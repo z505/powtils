@@ -74,7 +74,14 @@ end;
 
 function TCgiVariableCollection.GetCgiVarValueByName (VarName: String): String;
 begin
-  Result:= CgiVarByName [VarName].Value;
+  try
+    Result:= CgiVarByName [VarName].Value
+
+  except
+    on e: ENameNotFound do
+      Result:= '';
+
+  end;
 
 end;
 

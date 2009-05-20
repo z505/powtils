@@ -66,10 +66,11 @@ type
   TXMLHandlerPage= class (THandlerPageBase)
   private
     FXSLPath: String;
+    FXMLRoot: TXMLNode;
     FIndent: Boolean;
 
   protected
-    FXMLRoot: TXMLNode;
+    property XMLRoot: TXMLNode read FXMLRoot;
 
   public
     property XSLPath: String read FXSLPath;
@@ -199,9 +200,7 @@ begin
   FIndent:= Indent;
   
   FXMLRoot:= TXMLNode.Create (ThisPageName);
-{  Header.AddHeader (TWebHeader.Create ('', '<?xml version="'+ Version+ '" encoding="'+ Encoding+ '" ?>'));
-  Header.AddHeader (TWebHeader.Create ('', '<?xml-stylesheet href="'+ XSLPath+ '" type= "text/xsl" ?>'));
-}
+
   Buffer.Add ('<?xml version="'+ Version+ '" encoding="'+ Encoding+ '" ?>');
   if XSLPath<> '' then
     Buffer.Add ('<?xml-stylesheet href="'+ XSLPath+ '" type= "text/xsl" ?>');
@@ -210,6 +209,7 @@ end;
 
 procedure TXMLHandlerPage.Flush;
 begin
+  System.WriteLn ('In TXMLHandlerPage.Flush');
   if FIndent then
     Write (FXMLRoot.ToStringWithIndent)
   else
@@ -219,7 +219,6 @@ end;
 
 destructor TXMLHandlerPage.Destroy;
 begin
-  Flush;
   FXMLRoot.Free;
   
   inherited;
