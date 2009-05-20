@@ -67,6 +67,9 @@ implementation
 uses
   BaseUnix, GlobalUnit;
 
+const
+  NewLine: String= #10;
+
 { TAbstractHandler }
 
 procedure TAbstractHandler.SetPipeHandle (const AValue: cInt);
@@ -84,7 +87,6 @@ end;
 
 procedure TAbstractHandler.Write (const S: String);
 const
-  NewLine: String= #10#10;
 (*$I+*)
   BufText: String= '';
 (*$I-*)
@@ -92,11 +94,13 @@ const
 begin
   if HeaderCanBeSent then
   begin
-    BufText:= Headers.Text+ #10;
+    BufText:= Headers.Text+ NewLine;
+    System.WriteLn ('Headers= "', BufText, '"');
     Headers.Clear;
     FpWrite (FPipeHandle, BufText [1], Length (BufText));
 
     BufText:= Cookies.Text;
+    System.WriteLn ('Cookies= "', BufText, '"');
     Cookies.Clear;
     FpWrite (FPipeHandle, BufText [1], Length (BufText));
 
@@ -119,9 +123,6 @@ begin
 end;
 
 procedure TAbstractHandler.WriteLn (const S: String);
-const
-  NewLine: String= #10;
-
 begin
   Write (S+ NewLine);
 
