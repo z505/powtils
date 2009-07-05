@@ -130,7 +130,7 @@ var
   
 begin
   if SessionIDVarName= '' then
-    SessionIDVarName:= WebConfiguration.ConfigurationValueByName ['SessionIDVarName'];
+    SessionIDVarName:= GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionIDVarName'];
 
   if IsEqualGUID (FSessionID, EmptySessionID) then
   begin
@@ -157,7 +157,7 @@ constructor THandlerPageBase.Create (ContType: TContentType);
 begin
   inherited Create (ContType, False);
 
-  if WebConfiguration.ConfigurationValueByName ['SessionEnabled']= 'YES' then
+  if GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionEnabled']= 'YES' then
     FSessionID:= EmptySessionID;
 
 end;

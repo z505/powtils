@@ -13,47 +13,43 @@ type
   TGlobalObjectContainer= class (TObject)
   private
     FFileStringCollection: TFileStrings;
+    FConfigurations: TWebConfigurationCollection;
     
   public
     property FileStringCollection: TFileStrings read FFileStringCollection;
+    property Configurations: TWebConfigurationCollection read FConfigurations;
     
     constructor Create;
     procedure Free;
     
   end;
 
-var
-  WebConfiguration: TWebConfigurationCollection;
-
 implementation
 
 { TGlobalObjectContainer }
+
+const
+  WebConfigFile: String= 'PWU.conf';
 
 constructor TGlobalObjectContainer.Create;
 begin
   inherited;
   
+  FConfigurations:= TWebConfigurationCollection.Create (WebConfigFile);
   FFileStringCollection:= TFileStrings.Create;
 
 end;
 
 procedure TGlobalObjectContainer.Free;
 begin
-  
   FFileStringCollection.Free;
-  
+  Configurations.Free;
+
   inherited;
   
 end;
 
-const
-  WebConfigFile: String= 'PWU.conf';
-
-initialization
-  WebConfiguration:= TWebConfigurationCollection.Create (WebConfigFile);
-
 finalization
-  WebConfiguration.Free;
 
 end.
 

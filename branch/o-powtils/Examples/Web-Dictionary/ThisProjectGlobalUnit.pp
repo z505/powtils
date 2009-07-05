@@ -13,7 +13,7 @@ type
 
   TMyGlobalObjectContainers= class (TGlobalObjectContainer)
   private
-    PersaDic: TPersaDic;
+    FPersaDic: TPersaDic;
 
   public
     property PersaDic: TPersaDic read FPersaDic;
@@ -32,17 +32,10 @@ uses
 { TMyGlobalObjectContainers }
 
 constructor TMyGlobalObjectContainers.Create;
-var
-  FileString: TFileString;
-  
 begin
   inherited Create;
-  
-{
-  FileString:= TFileString.Create ('Files/WelComePage.html', 'WelComePage');//
-  FileStringCollection.AddFileString (FileString);
-}
 
+  FPersaDic:= TPersaDic.CreateFromTextFile ('');
 end;
 
 initialization

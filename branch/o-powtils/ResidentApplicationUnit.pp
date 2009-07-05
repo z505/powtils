@@ -134,7 +134,7 @@ var
 implementation
 uses
   ExceptionUnit, URLEnc, WebConfigurationUnit,
-  GlobalUnit;
+  ThisProjectGlobalUnit;
   
 { TParameter }
 (*
@@ -464,7 +464,7 @@ constructor TResident.Create;
         ((Length (TempString)= 0) or (TempString [1]<> '#')) then
       begin
         TempInt:= Pos (':', TempString);
-        WebConfiguration.AddNameValue (TWebConfiguration.Create (
+        GlobalObjContainer.Configurations.AddNameValue (TWebConfiguration.Create (
           Copy (TempString, 1, TempInt- 1),
           Copy (TempString, TempInt+ 1, Length (TempString)- TempInt)));
           
@@ -473,31 +473,31 @@ constructor TResident.Create;
     end;
 
     for i:= Low (DefaultConfigurationValues) to High (DefaultConfigurationValues) do
-      if WebConfiguration.ConfigurationValueByName [DefaultConfigurationValues [i][1]]= '' then
-        WebConfiguration.Add (TWebConfiguration.Create (DefaultConfigurationValues [i][1],
+      if GlobalObjContainer.Configurations.ConfigurationValueByName [DefaultConfigurationValues [i][1]]= '' then
+        GlobalObjContainer.Configurations.Add (TWebConfiguration.Create (DefaultConfigurationValues [i][1],
                              DefaultConfigurationValues [i][2]));
 
     CloseFile (ConfigFileHandle);
     
-    MainPipeFileName:= WebConfiguration.ConfigurationValueByName ['MainPipeFileName'];
+    MainPipeFileName:= GlobalObjContainer.Configurations.ConfigurationValueByName ['MainPipeFileName'];
     if not FileExists (FMainPipeFileName) then
       raise EMainPipeNotFound.Create (FMainPipeFileName);
       
-    TempPipeFilePath:= WebConfiguration.ConfigurationValueByName ['TemproraryPipesPath'];
-    NumberOfActiveThread:= StrToInt (WebConfiguration.ConfigurationValueByName ['MaximumNumberofActiveThreads']);
-    FRequestQueueSize:= StrToInt (WebConfiguration.ConfigurationValueByName ['MaximumSizeofRequestQueue']);
+    TempPipeFilePath:= GlobalObjContainer.Configurations.ConfigurationValueByName ['TemproraryPipesPath'];
+    NumberOfActiveThread:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['MaximumNumberofActiveThreads']);
+    FRequestQueueSize:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['MaximumSizeofRequestQueue']);
     
     FRestartInterval:= -1;
     FUsingSessionManager:= False;
     try
-      FRestartInterval:= StrToInt (WebConfiguration.ConfigurationValueByName ['RestartInterval']);
+      FRestartInterval:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['RestartInterval']);
       
     except
     
     end;
 
     try
-      FUsingSessionManager:= UpperCase (WebConfiguration.ConfigurationValueByName ['SessionManager'])= 'TRUE';
+      FUsingSessionManager:= UpperCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionManager'])= 'TRUE';
 
     except
       on e: ENameNotFound do
@@ -508,7 +508,7 @@ constructor TResident.Create;
     if FUsingSessionManager then
     begin
       try
-        SessionIDLen:= StrToInt (WebConfiguration.ConfigurationValueByName ['SessionIDLen']);
+        SessionIDLen:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionIDLen']);
 
       except
         on e: ENameNotFound do;
@@ -520,10 +520,10 @@ constructor TResident.Create;
 
       end;
 
-      SessionVarName:= WebConfiguration.ConfigurationValueByName ['SessionIDVarName'];
+      SessionVarName:= GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionIDVarName'];
 
       SessionUseCookie:=
-        UpperCase (WebConfiguration.ConfigurationValueByName ['SessionUseCookie'])
+        UpperCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionUseCookie'])
           = 'TRUE';
 
       SessionManagerUnit.SessionManager:= TBasicSessionManager.Create (
