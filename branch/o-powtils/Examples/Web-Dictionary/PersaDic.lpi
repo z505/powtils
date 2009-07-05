@@ -27,14 +27,16 @@
         <Display Use="True"/>
       </local>
     </RunParams>
-    <Units Count="46">
+    <Units Count="50">
       <Unit0>
         <Filename Value="PersaDic.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PersaDic"/>
-        <CursorPos X="1" Y="19"/>
+        <CursorPos X="60" Y="23"/>
         <TopLine Value="1"/>
+        <EditorIndex Value="1"/>
         <UsageCount Value="211"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
@@ -205,9 +207,11 @@
         <Filename Value="ThisProjectGlobalUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ThisProjectGlobalUnit"/>
-        <CursorPos X="29" Y="8"/>
+        <CursorPos X="1" Y="16"/>
         <TopLine Value="1"/>
+        <EditorIndex Value="0"/>
         <UsageCount Value="219"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit19>
       <Unit20>
@@ -225,9 +229,7 @@
         <UnitName Value="AbstractHandlerUnit"/>
         <CursorPos X="32" Y="10"/>
         <TopLine Value="3"/>
-        <EditorIndex Value="0"/>
         <UsageCount Value="271"/>
-        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit21>
       <Unit22>
@@ -309,9 +311,11 @@
         <Filename Value="MainPageUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MainPageUnit"/>
-        <CursorPos X="1" Y="50"/>
-        <TopLine Value="30"/>
+        <CursorPos X="15" Y="21"/>
+        <TopLine Value="8"/>
+        <EditorIndex Value="2"/>
         <UsageCount Value="262"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit30>
       <Unit31>
@@ -440,13 +444,54 @@
         <UsageCount Value="62"/>
         <SyntaxHighlighter Value="None"/>
       </Unit45>
+      <Unit46>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PersaDictionaryUnit"/>
+        <CursorPos X="37" Y="67"/>
+        <TopLine Value="54"/>
+        <UsageCount Value="20"/>
+      </Unit46>
+      <Unit47>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="DictionaryTreeUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="20"/>
+      </Unit47>
+      <Unit48>
+        <Filename Value="../../../../../MyUnits/General Purpose Units/StreamUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="StreamUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="20"/>
+      </Unit48>
+      <Unit49>
+        <Filename Value="../../../../../MyUnits/SpellChecker Units/SpellCheckerUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SpellCheckerUnit"/>
+        <CursorPos X="31" Y="13"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="20"/>
+      </Unit49>
     </Units>
-    <JumpHistory Count="0" HistoryIndex="-1"/>
+    <JumpHistory Count="2" HistoryIndex="1">
+      <Position1>
+        <Filename Value="PersaDic.lpr"/>
+        <Caret Line="23" Column="60" TopLine="1"/>
+      </Position1>
+      <Position2>
+        <Filename Value="ThisProjectGlobalUnit.pp"/>
+        <Caret Line="16" Column="26" TopLine="1"/>
+      </Position2>
+    </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="8"/>
     <SearchPaths>
-      <OtherUnitFiles Value="Pages/;Extra/;XML Handler/;/home/Amir/Project/O-PSP-OnGoogle/branch/o-powtils/"/>
+      <OtherUnitFiles Value="Pages/;Extra/;XML Handler/;/home/Amir/Project/O-PSP-OnGoogle/branch/o-powtils/;/home/Amir/Project/MyUnits/PersaDic/;/home/Amir/Project/MyUnits/DictionaryTree/;/home/Amir/Project/MyUnits/General Purpose Units/;/home/Amir/Project/MyUnits/SpellChecker Units/"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>

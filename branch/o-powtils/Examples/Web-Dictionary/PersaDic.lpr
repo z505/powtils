@@ -14,7 +14,8 @@ uses
   ExceptionUnit, AbstractHandlerUnit, CookieUnit, WebHeaderUnit,
   WebConfigurationUnit, SessionUnit, CgiVariableUnit,
   WebRunTimeInformationUnit, WebUploadedFileUnit, MainPageUnit, ConstantsUnit,
-  MeaningUnit;
+  MeaningUnit, PersaDictionaryUnit, DictionaryTreeUnit, StreamUnit,
+  SpellCheckerUnit;
   
 begin
 
