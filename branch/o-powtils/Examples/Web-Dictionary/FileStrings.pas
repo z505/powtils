@@ -1,1 +1,0 @@
-../../FileStrings.pas
