@@ -13,9 +13,9 @@ type
 
   TMyGlobalObjectContainers= class (TGlobalObjectContainer)
   private
-    
+
   public
-    
+
     constructor Create;
 
   end;

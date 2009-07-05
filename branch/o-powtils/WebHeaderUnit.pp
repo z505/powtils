@@ -56,8 +56,7 @@ type
 
     property Text: String read GetText;
 
-    procedure Init (Conf: TWebConfigurationCollection;
-               PageContentType: TContentType);
+    procedure Init (PageContentType: TContentType);
 
     procedure AddHeader (NewHeader: THeader); overload;
 
@@ -103,8 +102,7 @@ begin
 
 end;
 
-procedure THeaderCollection.Init (Conf: TWebConfigurationCollection;
-  PageContentType: TContentType);
+procedure THeaderCollection.Init (PageContentType: TContentType);
 begin
   raise ENotImplementedYet.Create ('TWebConfigurationCollection', 'Init');
 

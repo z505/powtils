@@ -65,7 +65,7 @@ type
 
 implementation
 uses
-  BaseUnix, GlobalUnit, ConstantsUnit;
+  BaseUnix, GlobalUnit, ConstantsUnit, ThisProjectGlobalUnit;
 
 { TAbstractHandler }
 
@@ -174,7 +174,7 @@ begin
 
   Headers.AddHeader (THeader.Create ('X-Powered-By', 'Powtils'));
   Headers.AddHeader (THeader.Create ('Content-Type',
-                'Powtils'+ ';charset= '+ WebConfiguration.ConfigurationValueByName ['CHARSET']
+                'Powtils'+ ';charset= '+ GlobalObjContainer.Configurations.ConfigurationValueByName ['CHARSET']
              ));
   FHeaderCanBeSent:= True;
 

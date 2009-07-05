@@ -72,7 +72,6 @@ type
     FRequestURI: String;
     
     FCgi: TCgiVariableCollection;  // Both CGI GET/POST data
-    FConfiguration: TWebConfigurationCollection; // Configuration data
     FSession: TSessionCollection; // Session data
     FCookies: TCookieCollection; // Cookie data
     FRti: TWebRunTimeInformationCollection;  // Run Time Information
@@ -108,7 +107,6 @@ type
 
  public
     property CgiVars: TCgiVariableCollection read FCgi;  // CGI GET/POST data
-    property Conf: TWebConfigurationCollection read FConfiguration; // Configuration data
     property Cookies: TCookieCollection read FCookies; // Cookie data
     property Header: THeaderCollection read FHeaders;  // Headers
     property Rti: TWebRunTimeInformationCollection read FRti;  //  Run Time Information
@@ -129,7 +127,8 @@ type
 
 implementation
 uses
-  SubStrings, GlobalUnit, ExceptionUnit, Base64_Enc, URLEnc, MyTypes;
+  SubStrings, GlobalUnit, ExceptionUnit, Base64_Enc, URLEnc, MyTypes,
+  ThisProjectGlobalUnit;
 
 { TWeb }
 
@@ -237,25 +236,24 @@ begin
   This can be done on the first use of each variable
 }
   FRti:= TWebRunTimeInformationCollection.Create;
-  FConfiguration:= WebConfiguration;
   FCookies:= TCookieCollection.Create (Header, @FHeaderCanBeSent, PageHostName, PagePath);
   FCgi:= TCgiVariableCollection.Create;
   
-  FSession:= TSessionCollection.Create (FCookies, FConfiguration);
+  FSession:= TSessionCollection.Create (FCookies);
   FUploadedFile:= TWebUpFileCollection.Create;//??!!
 
-  if LowerCase (FConfiguration.ConfigurationValueByName ['error_reporting'])= 'on' then
+  if LowerCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['error_reporting'])= 'on' then
     ErrorReporting:= True
   else
     ErrorReporting:= False;
 
-  if LowerCase (FConfiguration.ConfigurationValueByName ['error_halt']) = 'on' then
+  if LowerCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['error_halt']) = 'on' then
     HaltOnError:= True
   else
     HaltOnError:= False;
 
   // Initialize the main headers since now that there aren't any above errors
-    FHeaders.Init (FConfiguration, FContentType);
+    FHeaders.Init (FContentType);
   
 end;
 
