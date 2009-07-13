@@ -35,6 +35,7 @@
 unit ResidentApplicationUnit;
 
 {$mode objfpc}{$H+}
+(*$DEFINE DebugMode*)
 
 interface
 
@@ -212,8 +213,8 @@ begin
   FRequestQueue.Insert (NewRequest);
   Inc (FDispatchedRequestCount);
 
-(*$IFDEF DEBUGMODE*)
-  WriteLn (FDispatchedRequestCount, ':NewRequest.Parameters=', NewRequest.Parameters);
+(*$IFDEF DebugMode*)
+  WriteLn (FDispatchedRequestCount, ':NewRequest.Parameters=', NewRequest.ToString);
 (*$ENDIF*)
 
 end;
@@ -351,7 +352,9 @@ begin
 
         if BufferLen<= 0 then
         begin
-          WriteLn ('Closing the pipe!');
+(*$IFDEF DebugMode*)
+          WriteLn ('Execute In Thread: BufferLen< 0. Closing the pipe!');
+(*$ENDIF*)
 
           FpClose (MainPipeFileHandle);
           MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
@@ -389,7 +392,9 @@ begin
       
       if StringIsComplete then
       begin
-        WriteLn ('Completed Request:', SegmentedString);
+(*$IFDEF DebugMode*)
+        WriteLn ('Execute In Thread: Completed Request:', SegmentedString);
+(*$ENDIF*)
 
         RegisterRequest (SegmentedString);
 
@@ -401,7 +406,12 @@ begin
 
     except
       on e: EQueueIsFull do
+      begin
+(*$IFDEF DebugMode*)
         WriteLn ('Queue is Full Happened!');
+(*$ENDIF*)
+
+      end;
 
     end;
 
@@ -514,7 +524,9 @@ constructor TResident.Create;
         on e: ENameNotFound do;
         on e: EConvertError do
         begin
+(*$IFDEF DebugMode*)
           WriteLn ('Session id len is not an integer!');
+(*$ENDIF*)
 
         end;
 
@@ -559,18 +571,24 @@ begin
   begin
     FRequestQueue.TryToMakeItEmpty;
 
+(*$IFDEF DebugMode*)
     Writeln ('Resident[Destroy]: Queue is not empty, yet!');
+(*$ENDIF*)
 
     Sleep (100);
 
   end;
 
+(*$IFDEF DebugMode*)
   Writeln ('Resident[Destroy]: At last, Queue became empty!');
   Writeln ('Resident[Destroy]:');
+(*$ENDIF*)
 
   ThreadPool.Free;
 
+(*$IFDEF DebugMode*)
   WriteLn ('Resident[Destroy]: At the end');
+(*$ENDIF*)
 
   FRequestQueue.Free;
   FAllHandlers.Free;

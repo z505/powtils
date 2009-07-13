@@ -6,7 +6,7 @@ uses
 {$ifdef unix}
    cthreads, BaseUnix,
  {$endif}
-  Classes, heaptrc
+  Classes
   { add your units here }, ResidentApplicationUnit,
   CollectionUnit, WebUnit, ThreadingUnit,
   PipeWrapperUnit, URLEnc, SessionManagerUnit,

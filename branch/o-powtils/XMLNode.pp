@@ -121,10 +121,11 @@ begin
   FContent:= '';
   FAttributes:= TAttributeCollection.Create;
   FChilds:= TXMLNodeCollection.Create;
-  
+  FParent.AddChild (Self);
+
 end;
 
-constructor TXMLNode.Create(TagName: String);
+constructor TXMLNode.Create (TagName: String);
 begin
   inherited Create;
 
@@ -133,7 +134,6 @@ begin
   FContent:= '';
   FAttributes:= TAttributeCollection.Create;
   FChilds:= TXMLNodeCollection.Create;
-
 
 end;
 
