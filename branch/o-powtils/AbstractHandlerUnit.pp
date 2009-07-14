@@ -160,6 +160,10 @@ end;
 
 constructor TAbstractHandler.Create (ContType: TContentType;
                    _ShouldBeFreedManually: Boolean);
+const
+  ContentTypeString: array [ctStart..ctNone] of String=
+    ('', 'text/html', 'text/xml', '');
+
 begin
   inherited Create;
 
@@ -174,7 +178,7 @@ begin
 
   Headers.AddHeader (THeader.Create ('X-Powered-By', 'Powtils'));
   Headers.AddHeader (THeader.Create ('Content-Type',
-                'Powtils'+ ';charset= '+ GlobalObjContainer.Configurations.ConfigurationValueByName ['CHARSET']
+               ContentTypeString [ContType] + ';charset='+ GlobalObjContainer.Configurations.ConfigurationValueByName ['CHARSET']
              ));
   FHeaderCanBeSent:= True;
 
@@ -198,6 +202,64 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest);
     VariablesStrLen: Integer;
 
     function LoadAVariable (var CharPtr: PChar; var Index: Integer): TCgiVar;
+
+      function URLDecode (const Str: AnsiString): AnsiString;
+
+        function FindValue (ch: Char): Integer; inline;
+        begin
+          if ch in ['0'..'9'] then
+            Result:= Ord (ch)- 48
+          else if ch in ['A'..'Z'] then
+            Result:= Ord (ch)- 55
+          else if ch in ['a'..'z'] then
+            Result:= Ord (ch)- 87;
+
+        end;
+
+      var
+        CharPtr: PChar;
+        i, Len: Integer;
+        S: Integer;
+
+      begin
+        System.WriteLn ('URLDecode: Str= ', Str);
+
+        CharPtr:= @Str [1];
+        Len:= Length (Str);
+        Result:= '';
+        i:= 1;
+
+        while i<= Len do
+        begin
+          case CharPtr^ of
+            '+':
+              Result+= ' ';
+
+            '%':
+            begin
+              if Len< i+ 2 then
+                Exit;
+              S:= FindValue ((CharPtr+ 1)^)* 16+ FindValue ((CharPtr+ 2)^);
+
+              Inc (CharPtr, 2);
+              Inc (i, 2);
+              Result+= Chr (S);
+
+            end
+            else
+              Result+= CharPtr^;
+
+          end;
+
+          Inc (CharPtr);
+          Inc (i);
+
+        end;
+
+        System.WriteLn ('URLDecode: Result= ', Result);
+
+      end;
+
     var
       i: Integer;
       StartingPosition: PChar;
@@ -253,7 +315,7 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest);
 
       end;
 
-      Result:= TCgiVar.Create (VarName, VarValue);
+      Result:= TCgiVar.Create (URLDecode (VarName), URLDecode (VarValue));
 
     end;
 
@@ -284,6 +346,7 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest);
   procedure LoadCookies (var CharPtr: PChar);
   begin
     CharPtr:= nil;
+
   end;
 
 begin

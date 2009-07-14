@@ -211,7 +211,7 @@ var
 begin
   NewRequest:= TRequest.Create (ARequestString);
   FRequestQueue.Insert (NewRequest);
-  Inc (FDispatchedRequestCount);
+  GlobalObjContainer.NewRequestServed;
 
 (*$IFDEF DebugMode*)
   WriteLn (FDispatchedRequestCount, ':NewRequest.Parameters=', NewRequest.ToString);
@@ -443,7 +443,7 @@ constructor TResident.Create;
   }
     DefaultConfigurationValues: array [1..5] of array [1..2] of String=
            (
-            ('charset', 'iso8859-1'),//Default Charset
+            ('charset', 'UTF-8'),//Default Charset
             ('RestartInterval', '-1'),//Default RestartInterval
             ('SessionIDLen', '20'),// Default SessionIDLen
             ('SessionVarName', 'PSPSESS'),// Default SessionVarName

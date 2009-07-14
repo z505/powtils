@@ -40,7 +40,7 @@ type
   {
     TContentType which is now an enumeration. It can be String, too.
   }
-  TContentType= (ctStart, ctTextHTML, ctTextXML, ctNode);
+  TContentType= (ctStart, ctTextHTML, ctTextXML, ctNone);
 
   { THeaderCollection }
   {

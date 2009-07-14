@@ -30,7 +30,7 @@ uses
 { TMainPageDispatcher }
 constructor TMainPageDispatcher.Create;
 begin
-  inherited Create ('PersaDic', 'http://localhost/PersaDic/PersaDic.xsl');
+  inherited Create ('PersaDic', '/PersaDic/PersaDic.xslt');
 
 end;
 
@@ -76,7 +76,7 @@ begin
   QueryInfo.AddAttribute ('Time', IntToStr (EndTime.Time- StartTime.Time));
 
   QueryInfo.AddAttribute ('StartingTime', DateTimeToStr (GlobalObjContainer.StartTime));
-  QueryInfo.AddAttribute ('AnsweredQuery', IntToStr (GlobalObjContainer.AnsweredQuery));
+  QueryInfo.AddAttribute ('AnsweredQuery', IntToStr (GlobalObjContainer.ServedRequestCount));
 
 end;
 
