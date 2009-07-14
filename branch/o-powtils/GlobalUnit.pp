@@ -14,6 +14,7 @@ type
   private
     FFileStringCollection: TFileStrings;
     FConfigurations: TWebConfigurationCollection;
+    FServedRequestCount: Int64;
     FStartTime: TDateTime;
     function GetCurrentTime: TDateTime;
     
@@ -22,10 +23,13 @@ type
     property Configurations: TWebConfigurationCollection read FConfigurations;
     property StartTime: TDateTime read FStartTime;
     property CurrentTime: TDateTime read GetCurrentTime;
+    property ServedRequestCount: Int64 read FServedRequestCount;
     
     constructor Create;
     procedure Free;
-    
+
+    procedure NewRequestServed;
+
   end;
 
 implementation
@@ -38,6 +42,7 @@ const
 function TGlobalObjectContainer.GetCurrentTime: TDateTime;
 begin
   Result:= Now;
+
 end;
 
 constructor TGlobalObjectContainer.Create;
@@ -47,6 +52,7 @@ begin
   FConfigurations:= TWebConfigurationCollection.Create (WebConfigFile);
   FFileStringCollection:= TFileStrings.Create;
   FStartTime:= Now;
+  FServedRequestCount:= 0;
 
 end;
 
@@ -57,6 +63,12 @@ begin
 
   inherited;
   
+end;
+
+procedure TGlobalObjectContainer.NewRequestServed;
+begin
+  Inc (FServedRequestCount);
+
 end;
 
 finalization
