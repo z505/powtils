@@ -222,8 +222,6 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest);
         S: Integer;
 
       begin
-        System.WriteLn ('URLDecode: Str= ', Str);
-
         CharPtr:= @Str [1];
         Len:= Length (Str);
         Result:= '';
@@ -255,8 +253,6 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest);
           Inc (i);
 
         end;
-
-        System.WriteLn ('URLDecode: Result= ', Result);
 
       end;
 
