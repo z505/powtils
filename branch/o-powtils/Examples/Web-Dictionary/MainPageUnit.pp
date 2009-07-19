@@ -55,7 +55,7 @@ begin
   QueryInfo:= TXMLNode.Create (XMLRoot, 'QueryInfo');
   Word:= Vars.CgiVarValueByName ['Q'];
   QueryInfo.AddAttribute ('Word', Word);
-  System.WriteLn ('TMainPageDispatcher.MyDispatch word= ', Word);
+
   if Word= '' then
     Exit;
 
