@@ -15,12 +15,13 @@ uses
   WebConfigurationUnit, SessionUnit, CgiVariableUnit,
   WebRunTimeInformationUnit, WebUploadedFileUnit, MainPageUnit, ConstantsUnit,
   PersaDictionaryUnit, DictionaryTreeUnit, StreamUnit,
-  SpellCheckerUnit, GlobalUnit;
+  SpellCheckerUnit, GlobalUnit, PuzzlePageUnit;
   
 begin
 
   Resident:= TResident.Create;
   Resident.RegisterPageHandlerHandler ('PersaDic.psp', TMainPageDispatcher.Create);
+  Resident.RegisterPageHandlerHandler ('PersaPuzzle.psp', TPuzzlePageDispatcher.Create);
 
   Resident.ExecuteInThread;
 //  Resident.Execute;

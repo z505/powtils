@@ -6,7 +6,7 @@ uses
   
 type
   TCompareFunction= function (Obj1, Obj2: TObject): Boolean;
-  
+
   TBaseCollection= class (TObject)
   protected
     FMembers: array of TObject;
@@ -39,6 +39,20 @@ type
    // Sort the members based on compare function (which is accept two TObject objects) and return true if the first one is smaller than the second
     procedure Sort (CompareFunction: TCompareFunction);
     procedure Allocate (Size: Integer);
+
+  end;
+
+  { TGenericCollection }
+
+  generic TGenericCollection<T>= class (TBaseCollection)
+  private
+    function GetValueByIndex(Index: Integer): T;
+    procedure SetValueByIndex(Index: Integer; const AValue: T);
+
+  public
+    property ValueByIndex [Index: Integer]: T read GetValueByIndex
+                                              write SetValueByIndex;
+
 
   end;
 
@@ -1067,6 +1081,20 @@ begin
   FValue:= nil;
 
   inherited Destroy;
+
+end;
+
+{ TGenericCollection }
+
+function TGenericCollection.GetValueByIndex (Index: Integer): T;
+begin
+  Result:= (FMembers [Index]);
+
+end;
+
+procedure TGenericCollection.SetValueByIndex(Index: Integer; const AValue: T);
+begin
+  FMembers [Index]:= AValue;
 
 end;
 
