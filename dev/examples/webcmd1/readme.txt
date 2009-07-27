@@ -4,22 +4,20 @@ webcmd1
 A small simple CGI program to run unix commands on your server in a web program.
 
 You do not need SSH/TELNET/SHELL access.. the web program allows you to do
-basically anything telnet would offer. Except you can't run things like
-midnight commander or fp-ide over a web browser.. just console commands that
-are not visual. Nor can you run things that require keyboard prompting, yet.
+basically anything telnet would offer, *except* you can't run things like
+midnight commander or fp-ide over a web browser. Just console commands that
+are not visual. Can't run things that require keyboard prompting, yet either.
 
-It is a simple program for learning purposes.. so you can make improvements.
+It is a simple program for learning purposes.. but you can make improvements.
 
-However it is very powerful little program..
+It is very powerful little program..
 
 Try running some typical unix commands like ls, mv, cp, zip, unzip, etc. Careful
 what you do!
 
 This should work on BSD if you compile it.
 
-Does not work on Windows yet..
-Use ShellExec or ExecuteProcess on windows for a similar effect
-(and remember 'working directory' path as parameter if using ShellExec)
+MS Windows: haven't tried it much but included is an exe
 
 Webcmd sources released under NRCOL public domain.
 Powtils released under Artistic license.
