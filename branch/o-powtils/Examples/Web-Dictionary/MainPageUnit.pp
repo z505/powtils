@@ -52,6 +52,7 @@ var
 begin
   StartTime:= DateTimeToTimeStamp (Time);
 
+  XMLRoot.AddAttribute ('Mode', 'English2Persian');
   QueryInfo:= TXMLNode.Create (XMLRoot, 'QueryInfo');
   Word:= Vars.CgiVarValueByName ['Q'];
   QueryInfo.AddAttribute ('Word', Word);

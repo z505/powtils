@@ -119,7 +119,9 @@ begin
     PageInstance.RegisterThread (Self);
 
     try
+      WriteLn ('TDispactherThread.Execute: Before Dispatch');
       PageInstance.Dispatch (NewRequest);
+      WriteLn ('TDispactherThread.Execute: After Dispatch');
 
     except
       on e: Exception do
