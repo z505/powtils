@@ -19,7 +19,7 @@ const
   PipesPath: String= '/var/www/cgi-bin/PersaDic/Pipes/';//Apache's user should be able to read and write on this dir. (The last char must be an slash)
   MainPipeName: String= '/var/www/cgi-bin/PersaDic/MainPipe4PersaDic';
   TempPipeLen: Integer= 10;
-  PageName: String= 'PersaDicPuzzle.psp';
+  PageName: String= 'PersaPuzzle.psp';
 
 var
   S: String;

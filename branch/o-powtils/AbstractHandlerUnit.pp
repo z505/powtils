@@ -350,8 +350,9 @@ begin
 //  FCookies.Free;
 
   FVars:= LoadVariables (RequestInfo.Variables);
-//  LoadCookies (ArgumentPtr);
+//  FCookies:= LoadCookies (ArgumentPtr);
   MyDispatch;
+
   Flush;
 
 end;

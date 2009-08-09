@@ -32,7 +32,7 @@ uses
 
 constructor TPuzzlePageDispatcher.Create;
 begin
-  inherited Create ('PersaPuzzle', '/PersaDic/PersaPuzzle.xslt');
+  inherited Create ('PersaDic', '/PersaDic/PersaDic.xslt');
 
 end;
 
@@ -52,7 +52,11 @@ var
   StartTime, EndTime: TTimeStamp;
 
 begin
+  System.Flush (Output);
+
   StartTime:= DateTimeToTimeStamp (Time);
+
+  XMLRoot.AddAttribute ('Mode', 'EnglishPuzzle');
 
   QueryInfo:= TXMLNode.Create (XMLRoot, 'QueryInfo');
   Word:= Vars.CgiVarValueByName ['Q'];
