@@ -210,11 +210,22 @@ var
 
 begin
   NewRequest:= TRequest.Create (ARequestString);
-  FRequestQueue.Insert (NewRequest);
-  GlobalObjContainer.NewRequestServed;
+  try
+    FRequestQueue.Insert (NewRequest);
+
+  except
+    on e: EQueueIsFull do
+    begin
+      NewRequest.Free;
+      raise;
+
+    end;
+
+  end;
+  GlobalObjContainer.NewRequestRegistered;
 
 (*$IFDEF DebugMode*)
-  WriteLn (FDispatchedRequestCount, ':NewRequest.Parameters=', NewRequest.ToString);
+//  WriteLn (FDispatchedRequestCount, ':NewRequest.Parameters=', NewRequest.ToString);
 (*$ENDIF*)
 
 end;
@@ -321,6 +332,39 @@ procedure TResident.ExecuteInThread;
 const
   NumOfCharsReadInEachTurn= 1000;
   EndOfRequestChar= #$FD;
+
+  procedure SendQueueIsFullResponse (const RequestStr: AnsiString);
+  const
+    Headers: array [0..1] of AnsiString=
+       ('X-Powered-By: Powtils',
+        'Content-Type: text/html');
+    Response: array [0..0] of AnsiString=
+       ('Sever is too busy!!');
+
+  var
+    Request: TRequest;
+    OutputPipeHanlde: cInt;
+    i: Integer;
+
+  begin
+    Request:= TRequest.Create (RequestStr);
+
+    OutputPipeHanlde:= FpOpen (Request.OutputPipe, O_WRONLY);
+
+    for i:= 0 to High (Headers) do
+      FpWrite (OutputPipeHanlde, Headers [i], Length (Headers [i]));
+    FpWrite (OutputPipeHanlde, #10#10, 2);
+
+    for i:= 0 to High (Response) do
+      FpWrite (OutputPipeHanlde, Response [i], Length (Response [i]));
+
+    FpClose (OutputPipeHanlde);
+
+    GlobalObjContainer.QueueIsFullOccured;
+
+    Request.Free;
+
+  end;
   
 var
   NewRequest: TRequest;
@@ -358,6 +402,9 @@ begin
 
           FpClose (MainPipeFileHandle);
           MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
+(*$IFDEF DebugMode*)
+          WriteLn ('Execute In Thread: BufferLen was 0. Openning the pipe!');
+(*$ENDIF*)
           BufferLen:= 0;
           
           Continue;
@@ -407,6 +454,11 @@ begin
     except
       on e: EQueueIsFull do
       begin
+        SendQueueIsFullResponse (SegmentedString);
+        StringIsComplete:= False;
+        SegmentedString:= '';
+
+
 (*$IFDEF DebugMode*)
         WriteLn ('Queue is Full Happened!');
 (*$ENDIF*)
@@ -443,7 +495,7 @@ constructor TResident.Create;
   }
     DefaultConfigurationValues: array [1..5] of array [1..2] of String=
            (
-            ('charset', 'UTF-8'),//Default Charset
+            ('Charset', 'UTF-8'),//Default Charset
             ('RestartInterval', '-1'),//Default RestartInterval
             ('SessionIDLen', '20'),// Default SessionIDLen
             ('SessionVarName', 'PSPSESS'),// Default SessionVarName

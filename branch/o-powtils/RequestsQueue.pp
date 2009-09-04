@@ -238,8 +238,8 @@ begin
   
   if FSuspendedThreads.Size<> 0 then
   begin
-    WriteLn ('TCircularRequestsQueue.Insert FSuspendedThreads.Size=',
-       FSuspendedThreads.Size);
+//    WriteLn ('TCircularRequestsQueue.Insert FSuspendedThreads.Size=',
+//       FSuspendedThreads.Size);
     FSuspendedThreads.Delete;
 
   end;
@@ -352,7 +352,7 @@ procedure TSuspendedThreads.Insert (NewThread: TThread);
 begin
   EnterCriticalsection (CS);
 
-  WriteLn ('TSuspendedThreads.Insert: ', NewThread.ThreadID, ':', Top, ' ', Bot);
+//  WriteLn ('TSuspendedThreads.Insert: ', NewThread.ThreadID, ':', Top, ' ', Bot);
 
   if not IsFull then
   begin
@@ -362,7 +362,7 @@ begin
   end
   else
   begin
-    WriteLn ('TSuspendedThreads.Insert: SuspendThread Queue is full!');
+//    WriteLn ('TSuspendedThreads.Insert: SuspendThread Queue is full!');
 
   end;
 

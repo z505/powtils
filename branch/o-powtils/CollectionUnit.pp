@@ -198,6 +198,7 @@ type
   TNameValueCollection= class (TStringList)
   private
     function GetSize: Integer;
+
   protected
     function GetNameValue (Index: Integer): TNameValue;
     function GetNameValueByName (AName: String): TNameValue;
@@ -946,6 +947,7 @@ end;
 function TNameValueCollection.GetSize: Integer;
 begin
   Result:= Count;
+
 end;
 
 function TNameValueCollection.GetNameValue(Index: Integer): TNameValue;

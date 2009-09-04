@@ -56,8 +56,7 @@ type
     function CreateNewInstance: TAbstractHandler; virtual; abstract;
     procedure Flush; virtual; abstract;
 
-    procedure Dispatch (RequestInfo: TRequest);
-    procedure RegisterThread (AThread: TDispactherThread);
+    procedure Dispatch (RequestInfo: TRequest; AThread: TDispactherThread);
 
     procedure MyDispatch; virtual; abstract;
 
@@ -109,6 +108,7 @@ begin
 
     FpWrite (FPipeHandle, NewLine [1], 1);
     FpWrite (FPipeHandle, NewLine [1], 1);
+    FHeaderCanBeSent:= False;
 
   end;
 
@@ -120,6 +120,8 @@ begin
     FpWrite (FPipeHandle, BufText [1], Length (BufText));
 
   end;
+
+  System.WriteLn ('Writing::"', S, '"');
 
   FpWrite (FPipeHandle, S [1], Length (S));
   FHeaderCanBeSent:= False;
@@ -153,7 +155,6 @@ begin
 
   end;
 
-  FpWrite (FPipeHandle, S [1], Length (S));
   FHeaderCanBeSent:= False;
 
 end;
@@ -170,12 +171,12 @@ begin
   FShouldBeFreedManually:= _ShouldBeFreedManually;
 
   FBuffer:= TStringList.Create;
-  FVars:= TCgiVariableCollection.Create;
-  FHeaders:= THeaderCollection.Create;
+  FVars:= nil;//TCgiVariableCollection.Create;
 
   FCookies:= TCookieCollection.Create (FHeaders, @FHeaderCanBeSent, '', '');
   FContentType:= ContType;
 
+  FHeaders:= THeaderCollection.Create;
   Headers.AddHeader (THeader.Create ('X-Powered-By', 'Powtils'));
   Headers.AddHeader (THeader.Create ('Content-Type',
                ContentTypeString [ContType] + ';charset='+ GlobalObjContainer.Configurations.ConfigurationValueByName ['CHARSET']
@@ -187,15 +188,14 @@ end;
 destructor TAbstractHandler.Destroy;
 begin
   FBuffer.Free;
-  FCookies.Free;
-  FVars.Free;
   FHeaders.Free;
+  FCookies.Free;
 
   inherited Destroy;
 
 end;
 
-procedure TAbstractHandler.Dispatch (RequestInfo: TRequest);
+procedure TAbstractHandler.Dispatch (RequestInfo: TRequest; AThread: TDispactherThread);
 
   function LoadVariables (const VariablesStr: AnsiString): TCgiVariableCollection;
   var
@@ -346,21 +346,16 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest);
   end;
 
 begin
-  FVars.Free;
-//  FCookies.Free;
-
   FVars:= LoadVariables (RequestInfo.Variables);
 //  FCookies:= LoadCookies (ArgumentPtr);
-  MyDispatch;
 
-  Flush;
-
-end;
-
-procedure TAbstractHandler.RegisterThread (AThread: TDispactherThread);
-begin
   FThread:= AThread;
   PipeHandle:= AThread.OutputPipeHandle;
+
+  MyDispatch;
+
+  FVars.Free;
+
 
 end;
 

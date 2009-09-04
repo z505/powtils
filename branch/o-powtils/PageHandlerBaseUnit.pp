@@ -209,7 +209,6 @@ end;
 
 procedure TXMLHandlerPage.Flush;
 begin
-  System.WriteLn ('In TXMLHandlerPage.Flush');
   if FIndent then
     Write (FXMLRoot.ToStringWithIndent)
   else
@@ -219,6 +218,7 @@ end;
 
 destructor TXMLHandlerPage.Destroy;
 begin
+  Flush;
   FXMLRoot.Free;
   
   inherited;
