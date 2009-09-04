@@ -38,8 +38,8 @@ end;
 
 destructor TPuzzlePageDispatcher.Destroy;
 begin
-
   inherited Destroy;
+
 end;
 
 procedure TPuzzlePageDispatcher.MyDispatch;
@@ -52,8 +52,6 @@ var
   StartTime, EndTime: TTimeStamp;
 
 begin
-  System.Flush (Output);
-
   StartTime:= DateTimeToTimeStamp (Time);
 
   XMLRoot.AddAttribute ('Mode', 'EnglishPuzzle');

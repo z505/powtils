@@ -60,9 +60,11 @@ function TWebConfigurationCollection.GetConfigurationValueByName (Name: String):
 begin
   try
     Result:= ConfigurationByName [Name].Value;
+
   except
     on e: ENameNotFound do
       Result:= '';
+
   end;
 
 end;

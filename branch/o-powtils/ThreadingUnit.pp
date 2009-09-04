@@ -16,7 +16,7 @@ type
     FOutputPipeName: String;
     FRequestQueue: TCircularRequestsQueue;
 
-    procedure SetOutputPipeName(const AValue: String);
+    procedure SetOutputPipeName (const AValue: String);
 
    protected
      {
@@ -94,33 +94,33 @@ begin
 
   while True do
   begin
-    
+
     try
       WriteLn ('TDispactherThread.Execute: Before FRequestQueue.Delete', ThreadID);
       NewRequest:= FRequestQueue.Delete;
+      WriteLn ('TDispactherThread.Execute: After FRequestQueue.Delete', ThreadID);
 
     except
       on e: EQueueIsEmpty do
       begin
-        WriteLn ('TDispactherThread.Execute: RequestQueue is empty!');
+//        WriteLn ('TDispactherThread.Execute: RequestQueue is empty!');
         FRequestQueue.AddToSuspendedThreads (Self);
-        WriteLn ('TDispactherThread.Execute: Before suspend!', ThreadID);
+//        WriteLn ('TDispactherThread.Execute: Before suspend!', ThreadID);
         Self.Suspend;
-        WriteLn ('TDispactherThread.Execute: After suspend!', ThreadID);
+//        WriteLn ('TDispactherThread.Execute: After suspend!', ThreadID);
         Continue;
 
       end;
       
     end;
     
-    WriteLn ('TDispactherThread.Execute: Request to be Served is (', NewRequest.ToString, ')');
+//    WriteLn ('TDispactherThread.Execute: Request to be Served is (', NewRequest.ToString, ')');
     PageInstance:= Resident.GetPageHandler (UpperCase (NewRequest.PageName));
     OutputPipeName:= NewRequest.OutputPipe;
-    PageInstance.RegisterThread (Self);
 
     try
       WriteLn ('TDispactherThread.Execute: Before Dispatch');
-      PageInstance.Dispatch (NewRequest);
+      PageInstance.Dispatch (NewRequest, Self);
       WriteLn ('TDispactherThread.Execute: After Dispatch');
 
     except
@@ -129,7 +129,9 @@ begin
 
     end;
 
+    WriteLn ('TDispactherThread.Execute: Before Freeing PageInstance');
     PageInstance.Free;
+    WriteLn ('TDispactherThread.Execute: After Freeing PageInstance');
 
   end;
 
