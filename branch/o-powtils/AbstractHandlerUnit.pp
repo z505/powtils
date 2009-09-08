@@ -121,8 +121,6 @@ begin
 
   end;
 
-  System.WriteLn ('Writing::"', S, '"');
-
   FpWrite (FPipeHandle, S [1], Length (S));
   FHeaderCanBeSent:= False;
 
@@ -346,15 +344,35 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest; AThread: TDispacther
   end;
 
 begin
+(*$IFDEF DEBUGMODE*)
+  System.WriteLn ('In Dispatch: Before LoadVariables');
+(*$ENDIF*)
+
   FVars:= LoadVariables (RequestInfo.Variables);
 //  FCookies:= LoadCookies (ArgumentPtr);
+
+(*$IFDEF DEBUGMODE*)
+  System.WriteLn ('In Dispatch: After LoadVariables');
+(*$ENDIF*)
 
   FThread:= AThread;
   PipeHandle:= AThread.OutputPipeHandle;
 
+(*$IFDEF DEBUGMODE*)
+  System.WriteLn ('In Dispatch: Before Calling MyDispatch');
+(*$ENDIF*)
+
   MyDispatch;
 
+(*$IFDEF DEBUGMODE*)
+  System.WriteLn ('In Dispatch: After Calling MyDispatch');
+(*$ENDIF*)
+
   FVars.Free;
+
+(*$IFDEF DEBUGMODE*)
+  System.WriteLn ('In Dispatch: After Freeing FVars');
+(*$ENDIF*)
 
 
 end;

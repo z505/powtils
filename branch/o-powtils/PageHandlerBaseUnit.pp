@@ -25,9 +25,9 @@ unit PageHandlerBaseUnit;
 interface
 
 uses
-  Classes, SysUtils, WebUnit, CollectionUnit, XMLNode, AttributeUnit, Unix,
+  Classes, SysUtils, WebUnit, CollectionUnit, XMLNode, Unix,
     BaseUnix, SessionManagerUnit, WebHeaderUnit,
-    AbstractHandlerUnit, CookieUnit, CgiVariableUnit;
+    AbstractHandlerUnit;
   
 type
 

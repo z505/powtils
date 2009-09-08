@@ -11,7 +11,7 @@
       <MainUnit Value="0"/>
       <TargetFileExt Value=""/>
       <Title Value="PersaDic"/>
-      <ActiveEditorIndexAtStart Value="1"/>
+      <ActiveEditorIndexAtStart Value="3"/>
     </General>
     <PublishOptions>
       <Version Value="2"/>
@@ -27,12 +27,12 @@
         <Display Use="True"/>
       </local>
     </RunParams>
-    <Units Count="55">
+    <Units Count="60">
       <Unit0>
         <Filename Value="PersaDic.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PersaDic"/>
-        <CursorPos X="1" Y="20"/>
+        <CursorPos X="1" Y="22"/>
         <TopLine Value="1"/>
         <EditorIndex Value="0"/>
         <UsageCount Value="211"/>
@@ -78,7 +78,7 @@
         <UnitName Value="CollectionBaseUnit"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="94"/>
+        <UsageCount Value="93"/>
       </Unit5>
       <Unit6>
         <Filename Value="CollectionUnit.pp"/>
@@ -102,8 +102,8 @@
         <Filename Value="../../PageHandlerBaseUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PageHandlerBaseUnit"/>
-        <CursorPos X="1" Y="221"/>
-        <TopLine Value="200"/>
+        <CursorPos X="56" Y="28"/>
+        <TopLine Value="11"/>
         <EditorIndex Value="4"/>
         <UsageCount Value="200"/>
         <Bookmarks Count="1">
@@ -126,7 +126,7 @@
         <UnitName Value="ThisApplicationPagesUnit"/>
         <CursorPos X="1" Y="16"/>
         <TopLine Value="16"/>
-        <UsageCount Value="180"/>
+        <UsageCount Value="179"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
@@ -198,7 +198,7 @@
         <UnitName Value="ThreadingUnit"/>
         <CursorPos X="1" Y="130"/>
         <TopLine Value="97"/>
-        <UsageCount Value="37"/>
+        <UsageCount Value="36"/>
         <Bookmarks Count="1">
           <Item0 X="40" Y="118" ID="1"/>
         </Bookmarks>
@@ -208,9 +208,11 @@
         <Filename Value="ThisProjectGlobalUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ThisProjectGlobalUnit"/>
-        <CursorPos X="1" Y="42"/>
-        <TopLine Value="25"/>
+        <CursorPos X="23" Y="45"/>
+        <TopLine Value="28"/>
+        <EditorIndex Value="1"/>
         <UsageCount Value="219"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit19>
       <Unit20>
@@ -310,9 +312,9 @@
         <Filename Value="MainPageUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MainPageUnit"/>
-        <CursorPos X="49" Y="59"/>
-        <TopLine Value="59"/>
-        <EditorIndex Value="2"/>
+        <CursorPos X="1" Y="64"/>
+        <TopLine Value="47"/>
+        <EditorIndex Value="10"/>
         <UsageCount Value="262"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
@@ -331,14 +333,14 @@
         <UnitName Value="MeaningUnit"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="180"/>
+        <UsageCount Value="179"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit32>
       <Unit33>
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/DisjunctiveScheduling/ds2.T"/>
         <CursorPos X="1" Y="99"/>
         <TopLine Value="71"/>
-        <UsageCount Value="175"/>
+        <UsageCount Value="174"/>
         <Bookmarks Count="4">
           <Item0 X="2" Y="58" ID="1"/>
           <Item1 X="3" Y="107" ID="2"/>
@@ -351,35 +353,35 @@
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/KnightTour/kt.3.T"/>
         <CursorPos X="36" Y="241"/>
         <TopLine Value="241"/>
-        <UsageCount Value="19"/>
+        <UsageCount Value="18"/>
         <SyntaxHighlighter Value="None"/>
       </Unit34>
       <Unit35>
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/Graph-Coloring/Col3.T"/>
         <CursorPos X="1" Y="177"/>
         <TopLine Value="151"/>
-        <UsageCount Value="14"/>
+        <UsageCount Value="13"/>
         <SyntaxHighlighter Value="None"/>
       </Unit35>
       <Unit36>
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/Graph-Coloring/TrivialSat.I"/>
         <CursorPos X="8" Y="3"/>
         <TopLine Value="1"/>
-        <UsageCount Value="12"/>
+        <UsageCount Value="11"/>
         <SyntaxHighlighter Value="None"/>
       </Unit36>
       <Unit37>
         <Filename Value="kt.4.t"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="153"/>
+        <UsageCount Value="152"/>
         <SyntaxHighlighter Value="None"/>
       </Unit37>
       <Unit38>
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/HydraulicLeaking/HydraulicLeaking.2.T"/>
         <CursorPos X="14" Y="215"/>
         <TopLine Value="184"/>
-        <UsageCount Value="99"/>
+        <UsageCount Value="98"/>
         <Bookmarks Count="2">
           <Item0 X="21" Y="171" ID="1"/>
           <Item1 X="1" Y="24" ID="2"/>
@@ -390,16 +392,16 @@
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/HydraulicLeaking/trivial.I"/>
         <CursorPos X="7" Y="88"/>
         <TopLine Value="38"/>
-        <UsageCount Value="34"/>
+        <UsageCount Value="33"/>
         <SyntaxHighlighter Value="None"/>
       </Unit39>
       <Unit40>
         <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PersaDictionaryUnit"/>
-        <CursorPos X="1" Y="145"/>
-        <TopLine Value="129"/>
-        <EditorIndex Value="1"/>
+        <CursorPos X="12" Y="476"/>
+        <TopLine Value="451"/>
+        <EditorIndex Value="3"/>
         <UsageCount Value="305"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
@@ -408,9 +410,11 @@
         <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="DictionaryTreeUnit"/>
-        <CursorPos X="1" Y="218"/>
-        <TopLine Value="205"/>
+        <CursorPos X="16" Y="337"/>
+        <TopLine Value="320"/>
+        <EditorIndex Value="7"/>
         <UsageCount Value="305"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit41>
       <Unit42>
@@ -425,20 +429,22 @@
         <Filename Value="../../../../../MyUnits/SpellChecker Units/SpellCheckerUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SpellCheckerUnit"/>
-        <CursorPos X="33" Y="82"/>
-        <TopLine Value="69"/>
+        <CursorPos X="1" Y="182"/>
+        <TopLine Value="165"/>
+        <EditorIndex Value="9"/>
         <UsageCount Value="305"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit43>
       <Unit44>
         <Filename Value="../../ResidentApplicationUnit.pp"/>
         <UnitName Value="ResidentApplicationUnit"/>
-        <CursorPos X="90" Y="376"/>
-        <TopLine Value="365"/>
-        <EditorIndex Value="3"/>
+        <CursorPos X="18" Y="137"/>
+        <TopLine Value="120"/>
+        <EditorIndex Value="5"/>
         <UsageCount Value="122"/>
         <Bookmarks Count="1">
-          <Item0 X="3" Y="446" ID="1"/>
+          <Item0 X="3" Y="471" ID="1"/>
         </Bookmarks>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
@@ -446,19 +452,19 @@
       <Unit45>
         <Filename Value="../../CollectionUnit.pp"/>
         <UnitName Value="CollectionUnit"/>
-        <CursorPos X="1" Y="969"/>
-        <TopLine Value="952"/>
-        <EditorIndex Value="6"/>
-        <UsageCount Value="71"/>
+        <CursorPos X="48" Y="968"/>
+        <TopLine Value="953"/>
+        <EditorIndex Value="11"/>
+        <UsageCount Value="81"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit45>
       <Unit46>
         <Filename Value="../../ThreadingUnit.pp"/>
         <UnitName Value="ThreadingUnit"/>
-        <CursorPos X="1" Y="96"/>
-        <TopLine Value="90"/>
-        <EditorIndex Value="8"/>
+        <CursorPos X="28" Y="74"/>
+        <TopLine Value="58"/>
+        <EditorIndex Value="6"/>
         <UsageCount Value="123"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
@@ -466,21 +472,17 @@
       <Unit47>
         <Filename Value="../../RequestsQueue.pp"/>
         <UnitName Value="RequestsQueue"/>
-        <CursorPos X="1" Y="259"/>
-        <TopLine Value="242"/>
-        <EditorIndex Value="9"/>
+        <CursorPos X="1" Y="262"/>
+        <TopLine Value="245"/>
         <UsageCount Value="121"/>
-        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit47>
       <Unit48>
         <Filename Value="../../AbstractHandlerUnit.pp"/>
         <UnitName Value="AbstractHandlerUnit"/>
-        <CursorPos X="1" Y="360"/>
-        <TopLine Value="327"/>
-        <EditorIndex Value="5"/>
-        <UsageCount Value="72"/>
-        <Loaded Value="True"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="80"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit48>
       <Unit49>
@@ -496,9 +498,11 @@
         <Filename Value="PuzzlePageUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PuzzlePageUnit"/>
-        <CursorPos X="1" Y="61"/>
-        <TopLine Value="44"/>
+        <CursorPos X="27" Y="54"/>
+        <TopLine Value="40"/>
+        <EditorIndex Value="2"/>
         <UsageCount Value="287"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit50>
       <Unit51>
@@ -506,154 +510,187 @@
         <UnitName Value="MapUnit"/>
         <CursorPos X="11" Y="14"/>
         <TopLine Value="1"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit51>
       <Unit52>
         <Filename Value="../../../../../MyUnits/DictionaryTree/StringKeyUnit.pp"/>
         <UnitName Value="StringKeyUnit"/>
-        <CursorPos X="1" Y="67"/>
-        <TopLine Value="54"/>
-        <UsageCount Value="56"/>
+        <CursorPos X="18" Y="81"/>
+        <TopLine Value="64"/>
+        <EditorIndex Value="8"/>
+        <UsageCount Value="55"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit52>
       <Unit53>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/inc/threadh.inc"/>
         <CursorPos X="11" Y="146"/>
         <TopLine Value="128"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
       </Unit53>
       <Unit54>
         <Filename Value="../../WebConfigurationUnit.pp"/>
         <UnitName Value="WebConfigurationUnit"/>
         <CursorPos X="1" Y="66"/>
         <TopLine Value="49"/>
-        <EditorIndex Value="7"/>
-        <UsageCount Value="64"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="72"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit54>
+      <Unit55>
+        <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/unix/bunxovlh.inc"/>
+        <CursorPos X="11" Y="29"/>
+        <TopLine Value="12"/>
+        <UsageCount Value="9"/>
+      </Unit55>
+      <Unit56>
+        <Filename Value="../../../../../../../../usr/share/fpcsrc/packages/fcl-base/src/custapp.pp"/>
+        <UnitName Value="CustApp"/>
+        <CursorPos X="17" Y="46"/>
+        <TopLine Value="29"/>
+        <UsageCount Value="10"/>
+      </Unit56>
+      <Unit57>
+        <Filename Value="../../CgiVariableUnit.pp"/>
+        <UnitName Value="CgiVariableUnit"/>
+        <CursorPos X="44" Y="28"/>
+        <TopLine Value="16"/>
+        <UsageCount Value="11"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit57>
+      <Unit58>
+        <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/sysstrh.inc"/>
+        <CursorPos X="10" Y="95"/>
+        <TopLine Value="78"/>
+        <UsageCount Value="10"/>
+      </Unit58>
+      <Unit59>
+        <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/sysstr.inc"/>
+        <CursorPos X="3" Y="530"/>
+        <TopLine Value="527"/>
+        <UsageCount Value="10"/>
+      </Unit59>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="164" Column="1" TopLine="147"/>
+        <Caret Line="479" Column="1" TopLine="462"/>
       </Position1>
       <Position2>
         <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="190" Column="1" TopLine="173"/>
+        <Caret Line="481" Column="1" TopLine="464"/>
       </Position2>
       <Position3>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="143" Column="1" TopLine="126"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="566" Column="1" TopLine="549"/>
       </Position3>
       <Position4>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="164" Column="1" TopLine="147"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="569" Column="1" TopLine="552"/>
       </Position4>
       <Position5>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="167" Column="1" TopLine="150"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="570" Column="1" TopLine="553"/>
       </Position5>
       <Position6>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="190" Column="1" TopLine="173"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="573" Column="1" TopLine="556"/>
       </Position6>
       <Position7>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="159" Column="22" TopLine="142"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="574" Column="1" TopLine="557"/>
       </Position7>
       <Position8>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="165" Column="19" TopLine="142"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="573" Column="1" TopLine="556"/>
       </Position8>
       <Position9>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="159" Column="17" TopLine="142"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="574" Column="1" TopLine="557"/>
       </Position9>
       <Position10>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="142" Column="1" TopLine="125"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="571" Column="1" TopLine="554"/>
       </Position10>
       <Position11>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="145" Column="1" TopLine="128"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="573" Column="1" TopLine="556"/>
       </Position11>
       <Position12>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="146" Column="1" TopLine="129"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="574" Column="1" TopLine="557"/>
       </Position12>
       <Position13>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="148" Column="1" TopLine="131"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="571" Column="1" TopLine="554"/>
       </Position13>
       <Position14>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="151" Column="1" TopLine="134"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="573" Column="1" TopLine="556"/>
       </Position14>
       <Position15>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="152" Column="1" TopLine="135"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="577" Column="1" TopLine="557"/>
       </Position15>
       <Position16>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="148" Column="1" TopLine="131"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="573" Column="1" TopLine="556"/>
       </Position16>
       <Position17>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="151" Column="1" TopLine="134"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="577" Column="1" TopLine="560"/>
       </Position17>
       <Position18>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="152" Column="1" TopLine="135"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="564" Column="1" TopLine="549"/>
       </Position18>
       <Position19>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="148" Column="1" TopLine="131"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position19>
       <Position20>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="151" Column="1" TopLine="134"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="244" Column="29" TopLine="227"/>
       </Position20>
       <Position21>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="152" Column="1" TopLine="135"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="252" Column="10" TopLine="243"/>
       </Position21>
       <Position22>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="148" Column="1" TopLine="131"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="18" Column="18" TopLine="9"/>
       </Position22>
       <Position23>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="151" Column="1" TopLine="134"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="252" Column="16" TopLine="235"/>
       </Position23>
       <Position24>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="152" Column="1" TopLine="135"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Caret Line="311" Column="16" TopLine="294"/>
       </Position24>
       <Position25>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="148" Column="1" TopLine="131"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/StringKeyUnit.pp"/>
+        <Caret Line="55" Column="1" TopLine="38"/>
       </Position25>
       <Position26>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="155" Column="1" TopLine="138"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/StringKeyUnit.pp"/>
+        <Caret Line="20" Column="23" TopLine="3"/>
       </Position26>
       <Position27>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="157" Column="1" TopLine="140"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/StringKeyUnit.pp"/>
+        <Caret Line="57" Column="30" TopLine="40"/>
       </Position27>
       <Position28>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="159" Column="1" TopLine="142"/>
+        <Filename Value="../../../../../MyUnits/DictionaryTree/StringKeyUnit.pp"/>
+        <Caret Line="74" Column="18" TopLine="57"/>
       </Position28>
       <Position29>
         <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="160" Column="1" TopLine="143"/>
+        <Caret Line="481" Column="1" TopLine="464"/>
       </Position29>
       <Position30>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="159" Column="1" TopLine="142"/>
+        <Filename Value="ThisProjectGlobalUnit.pp"/>
+        <Caret Line="45" Column="23" TopLine="28"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
@@ -672,7 +709,7 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <BreakPoints Count="3">
+    <BreakPoints Count="7">
       <Item1>
         <Source Value="PageHandlerBaseUnit.pp"/>
         <Line Value="295"/>
@@ -682,9 +719,25 @@
         <Line Value="54"/>
       </Item2>
       <Item3>
-        <Source Value="../../ThreadingUnit.pp"/>
-        <Line Value="131"/>
+        <Source Value="MainPageUnit.pp"/>
+        <Line Value="53"/>
       </Item3>
+      <Item4>
+        <Source Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Line Value="565"/>
+      </Item4>
+      <Item5>
+        <Source Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Line Value="481"/>
+      </Item5>
+      <Item6>
+        <Source Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Line Value="554"/>
+      </Item6>
+      <Item7>
+        <Source Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
+        <Line Value="577"/>
+      </Item7>
     </BreakPoints>
     <Watches Count="3">
       <Item1>
@@ -697,7 +750,7 @@
         <Expression Value="FSize"/>
       </Item3>
     </Watches>
-    <Exceptions Count="5">
+    <Exceptions Count="6">
       <Item1>
         <Name Value="ECodetoolError"/>
       </Item1>
@@ -713,6 +766,9 @@
       <Item5>
         <Name Value="ENameNotFound"/>
       </Item5>
+      <Item6>
+        <Name Value="EConvertError"/>
+      </Item6>
     </Exceptions>
   </Debugging>
 </CONFIG>

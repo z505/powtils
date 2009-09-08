@@ -45,7 +45,7 @@ end;
 procedure TPuzzlePageDispatcher.MyDispatch;
 var
   QueryInfo: TXMLNode;
-  Word: String;
+  Word: AnsiString;
   QueryResult: TQueryResult;
   i: Integer;
   Answers, Answer: TXMLNode;
@@ -64,6 +64,7 @@ begin
     Exit;
 
   QueryResult:= TQueryResult.Create (Word);
+  Word:= LowerCase (Word);
   GlobalObjContainer.PersaDic.FindWords (Word, QueryResult);
 
   Answers:= TXMLNode.Create (QueryInfo, 'Answers');

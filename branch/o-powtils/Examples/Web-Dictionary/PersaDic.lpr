@@ -1,7 +1,7 @@
 program PersaDic;
 
 {$mode objfpc}{$H+}
-{$Define DebugMode}
+//{$Define DebugMode}
 uses
 {$ifdef unix}
    cthreads, BaseUnix,
@@ -19,7 +19,7 @@ uses
   
 begin
 
-  Resident:= TResident.Create;
+  Resident:= TResident.Create (nil);
   Resident.RegisterPageHandlerHandler ('PersaDic.psp', TMainPageDispatcher.Create);
   Resident.RegisterPageHandlerHandler ('PersaPuzzle.psp', TPuzzlePageDispatcher.Create);
 
