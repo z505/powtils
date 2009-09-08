@@ -35,13 +35,13 @@
 unit ResidentApplicationUnit;
 
 {$mode objfpc}{$H+}
-(*$DEFINE DebugMode*)
+//(*$DEFINE DebugMode*)
 
 interface
 
 uses
   Classes, SysUtils, CollectionUnit, ThreadingUnit,
-  CustApp, WebUnit, RequestsQueue, AbstractHandlerUnit,
+  CustApp, RequestsQueue, AbstractHandlerUnit,
   BaseUnix, SessionManagerUnit, PageHandlerBaseUnit;
 
 type
@@ -106,7 +106,7 @@ type
     procedure Execute;
     procedure ExecuteInThread;
   
-    constructor Create;
+    constructor Create (AnOwner: TComponent);
     destructor Destroy; override;
 
     procedure RegisterPageHandlerHandler (const AName: String;
@@ -134,7 +134,7 @@ var
 
 implementation
 uses
-  ExceptionUnit, URLEnc, WebConfigurationUnit,
+  ExceptionUnit, WebConfigurationUnit,
   ThisProjectGlobalUnit;
   
 { TParameter }
@@ -209,6 +209,8 @@ var
   NewRequest: TRequest;
 
 begin
+  Result:= True;
+
   NewRequest:= TRequest.Create (ARequestString);
   try
     FRequestQueue.Insert (NewRequest);
@@ -216,16 +218,18 @@ begin
   except
     on e: EQueueIsFull do
     begin
+      Result:= False;
       NewRequest.Free;
       raise;
 
     end;
 
   end;
+
   GlobalObjContainer.NewRequestRegistered;
 
 (*$IFDEF DebugMode*)
-//  WriteLn (FDispatchedRequestCount, ':NewRequest.Parameters=', NewRequest.ToString);
+  WriteLn (FDispatchedRequestCount, ':NewRequest.Parameters=', NewRequest.ToString);
 (*$ENDIF*)
 
 end;
@@ -352,11 +356,11 @@ const
     OutputPipeHanlde:= FpOpen (Request.OutputPipe, O_WRONLY);
 
     for i:= 0 to High (Headers) do
-      FpWrite (OutputPipeHanlde, Headers [i], Length (Headers [i]));
+      FpWrite (OutputPipeHanlde, Headers [i][1], Length (Headers [i]));
     FpWrite (OutputPipeHanlde, #10#10, 2);
 
     for i:= 0 to High (Response) do
-      FpWrite (OutputPipeHanlde, Response [i], Length (Response [i]));
+      FpWrite (OutputPipeHanlde, Response [i][1], Length (Response [i]));
 
     FpClose (OutputPipeHanlde);
 
@@ -367,7 +371,6 @@ const
   end;
   
 var
-  NewRequest: TRequest;
   i, EndOfCurrentRequest,
   BufferLen: Integer;
   Buffer: AnsiString;
@@ -381,9 +384,7 @@ begin
   SegmentedString:= '';
   StringIsComplete:= False;
   
-  Buffer:= '';
-  for i:= 1 to NumOfCharsReadInEachTurn+ 1 do
-    Buffer:= Buffer+ ' ';
+  Buffer:= StringOfChar (' ', NumOfCharsReadInEachTurn+ 1);
   BufferLen:= 0;
 
   while True do
@@ -402,12 +403,23 @@ begin
 
           FpClose (MainPipeFileHandle);
           MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
+
 (*$IFDEF DebugMode*)
           WriteLn ('Execute In Thread: BufferLen was 0. Openning the pipe!');
 (*$ENDIF*)
+
           BufferLen:= 0;
-          
           Continue;
+
+        end
+        else
+        begin
+(*$IFDEF DebugMode*)
+          Write ('Read String:');
+          for i:= 1 to BufferLen do
+            Write (Buffer [i]);
+          WriteLn ('.');
+(*$ENDIF*)
 
         end;
 
@@ -415,7 +427,7 @@ begin
 
       end;
 
-      EndOfCurrentRequest:= Pos (EndOfRequestChar, Buffer);
+      EndOfCurrentRequest:= Pos (EndOfRequestChar, BufferPtr);
       if EndOfCurrentRequest<> 0 then
       begin
         for i:= 1 to EndOfCurrentRequest- 1 do
@@ -431,10 +443,23 @@ begin
       end
       else
       begin
-        SegmentedString:= SegmentedString+ Buffer;
-        Buffer:= '';
+(*$IFDEF DebugMode*)
+        WriteLn ('EndOfRequestChar has not been found in BufferPtr!');
+        WriteLn ('Active Buffer= ', BufferPtr, '.');
+(*$ENDIF*)
+
+        for i:= BufferLen downto 1 do
+        begin
+          SegmentedString:= SegmentedString+ BufferPtr^;
+          Inc (BufferPtr);
+
+        end;
         BufferLen:= 0;
-        
+
+(*$IFDEF DebugMode*)
+        WriteLn ('New SegmentedString is: ', SegmentedString, '.');
+(*$ENDIF*)
+
       end;
       
       if StringIsComplete then
@@ -483,7 +508,7 @@ end;
    application after a number of specific executaion, which is a great help specially
    about memory leak. But till now, I can't find any way to do this.
 }
-constructor TResident.Create;
+constructor TResident.Create (AnOwner: TComponent);
 
 {
   The configfilename must be PSP.conf and be in the same path as the application.
@@ -598,7 +623,7 @@ constructor TResident.Create;
   end;
 
 begin
-  inherited Create (nil);
+  inherited Create (AnOwner);
   
   ReadConfigFileInfo;
 
@@ -614,9 +639,6 @@ begin
 end;
 
 destructor TResident.Destroy;
-var
-  i: Integer;
-
 begin
 
   while not FRequestQueue.IsEmpty do

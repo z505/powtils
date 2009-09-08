@@ -9,14 +9,13 @@ uses
 
 type
 
-
   { TCgiVar }
 
   TCgiVar= class (TNameStrValue)
   private
 
   public
-    function ToString: String;
+    function ToString: AnsiString;
 
   end;
 
@@ -29,18 +28,18 @@ type
   TCgiVariableCollection= class (TNameValueCollection)
   private
     function GetCgiVar (Index: Integer): TCgiVar;
-    function GetCgiVarByName (VarName: String): TCgiVar;
-    function GetCgiVarValueByName (VarName: String): String;
-    function GetText: String;
+    function GetCgiVarByName (VarName: AnsiString): TCgiVar;
+    function GetCgiVarValueByName (VarName: AnsiString): AnsiString;
+    function GetText: AnsiString;
 
   public
     property CgiVar [Index: Integer]: TCgiVar read GetCgiVar;
-    property CgiVarByName [VarName: String]: TCgiVar read GetCgiVarByName;
-    property CgiVarValueByName [VarName: String]: String read GetCgiVarValueByName;
+    property CgiVarByName [VarName: AnsiString]: TCgiVar read GetCgiVarByName;
+    property CgiVarValueByName [VarName: AnsiString]: AnsiString read GetCgiVarValueByName;
 
-    property Text: String read GetText;
+    property Text: AnsiString read GetText;
 
-    procedure LoadFromString (const Str: String);
+    procedure LoadFromString (const Str: AnsiString);
 
   end;
 
@@ -52,7 +51,7 @@ uses
 
 { TCgiVar }
 
-function TCgiVar.ToString: String;
+function TCgiVar.ToString: AnsiString;
 begin
   Result:= FName+ ':'+ Value;
 
@@ -66,13 +65,13 @@ begin
 
 end;
 
-function TCgiVariableCollection.GetCgiVarByName (VarName: String): TCgiVar;
+function TCgiVariableCollection.GetCgiVarByName (VarName: AnsiString): TCgiVar;
 begin
   Result:= NameValueByName [VarName] as TCgiVar;
 
 end;
 
-function TCgiVariableCollection.GetCgiVarValueByName (VarName: String): String;
+function TCgiVariableCollection.GetCgiVarValueByName (VarName: AnsiString): AnsiString;
 begin
   try
     Result:= CgiVarByName [VarName].Value
@@ -85,7 +84,7 @@ begin
 
 end;
 
-function TCgiVariableCollection.GetText: String;
+function TCgiVariableCollection.GetText: AnsiString;
 var
   i: Integer;
 
@@ -96,9 +95,9 @@ begin
 
 end;
 
-procedure TCgiVariableCollection.LoadFromString (const Str: String);
+procedure TCgiVariableCollection.LoadFromString (const Str: AnsiString);
 var
-  VarName, VarValue: String;
+  VarName, VarValue: AnsiString;
   PCh, PEndChar: PChar;
 
 begin

@@ -254,13 +254,19 @@ begin
   
   if ActiveMemberCount= 0 then
   begin
+(*$IFDEF DebugMode*)
     WriteLn ('TCircularRequestsQueue.Delete: ActiveMemberCount= 0');
+(*$ENDIF*)
+
     LeaveCriticalsection (CS);
     raise EQueueIsEmpty.Create;
     
   end;
 
+(*$IFDEF DebugMode*)
   WriteLn ('TCircularRequestsQueue.Delete Successfully!');
+(*$ENDIF*)
+
   Result:= FMembers [SoQ] as TRequest;
   SoQ:= (SoQ+ 1) mod FSize;
   Dec (ActiveMemberCount);
@@ -283,7 +289,9 @@ end;
 
 procedure TCircularRequestsQueue.AddToSuspendedThreads(AThread: TThread);
 begin
+(*$IFDEF DebugMode*)
   WriteLn ('TCircularRequestsQueue.AddToSuspendedThreads:', AThread.ThreadID, ' added to Suspeded Thread');
+(*$Endif*)
 
   FSuspendedThreads.Insert (AThread);
 
@@ -291,7 +299,9 @@ end;
 
 procedure TCircularRequestsQueue.TryToMakeItEmpty;
 begin
+(*$IFDEF DebugMode*)
   WriteLn ('TCircularRequestsQueue.TryToMakeItEmpty:');
+(*$Endif*)
 
   FSuspendedThreads.Delete;
 
@@ -332,7 +342,9 @@ begin
 
   if not Result then
   begin
+(*$IFDEF DebugMode*)
     WriteLn ('TSuspendedThreads.Delete: Not Empty');
+(*$ENDIF*)
 
     ((FMembers [Bot]) as TThread).Resume;
     Bot:= (Bot+ 1) mod FSize;
@@ -340,7 +352,9 @@ begin
   end
   else
   begin
+(*$IFDEF DebugMode*)
     WriteLn ('TSuspendedThreads.Delete: Is Empty');
+(*$ENDIF*)
 
   end;
 

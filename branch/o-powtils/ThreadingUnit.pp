@@ -71,8 +71,7 @@ type
 implementation
 
 uses
-  ResidentApplicationUnit, PageHandlerBaseUnit,
-  MyTypes, SessionManagerUnit, ExceptionUnit, AbstractHandlerUnit;
+  ResidentApplicationUnit, MyTypes, AbstractHandlerUnit;
 
 
 { TDispactherThread }
@@ -96,32 +95,50 @@ begin
   begin
 
     try
-      WriteLn ('TDispactherThread.Execute: Before FRequestQueue.Delete', ThreadID);
       NewRequest:= FRequestQueue.Delete;
-      WriteLn ('TDispactherThread.Execute: After FRequestQueue.Delete', ThreadID);
 
     except
       on e: EQueueIsEmpty do
       begin
-//        WriteLn ('TDispactherThread.Execute: RequestQueue is empty!');
+(*$IFDEF DebugMode*)
+        WriteLn ('TDispactherThread.Execute: RequestQueue is empty!');
+(*$ENDIF*)
+
         FRequestQueue.AddToSuspendedThreads (Self);
-//        WriteLn ('TDispactherThread.Execute: Before suspend!', ThreadID);
+
+(*$IFDEF DebugMode*)
+        WriteLn ('TDispactherThread.Execute: Before suspend!', ThreadID);
+(*$ENDIF*)
+
         Self.Suspend;
-//        WriteLn ('TDispactherThread.Execute: After suspend!', ThreadID);
+
+(*$IFDEF DebugMode*)
+        WriteLn ('TDispactherThread.Execute: After suspend!', ThreadID);
+(*$ENDIF*)
+
         Continue;
 
       end;
       
     end;
     
-//    WriteLn ('TDispactherThread.Execute: Request to be Served is (', NewRequest.ToString, ')');
+(*$IFDEF DebugMode*)
+    WriteLn ('TDispactherThread.Execute: Request to be Served is (', NewRequest.ToString, ')');
+(*$ENDIF*)
+
     PageInstance:= Resident.GetPageHandler (UpperCase (NewRequest.PageName));
     OutputPipeName:= NewRequest.OutputPipe;
 
     try
+(*$IFDEF DebugMode*)
       WriteLn ('TDispactherThread.Execute: Before Dispatch');
+(*$ENDIF*)
+
       PageInstance.Dispatch (NewRequest, Self);
+
+(*$IFDEF DebugMode*)
       WriteLn ('TDispactherThread.Execute: After Dispatch');
+(*$ENDIF*)
 
     except
       on e: Exception do
@@ -129,9 +146,15 @@ begin
 
     end;
 
+(*$IFDEF DebugMode*)
     WriteLn ('TDispactherThread.Execute: Before Freeing PageInstance');
+(*$ENDIF*)
+
     PageInstance.Free;
+
+(*$IFDEF DebugMode*)
     WriteLn ('TDispactherThread.Execute: After Freeing PageInstance');
+(*$ENDIF*)
 
   end;
 

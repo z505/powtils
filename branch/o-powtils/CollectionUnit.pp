@@ -166,15 +166,15 @@ type
 
   TNameValue= class (TObject)
   protected
-    FName: String;
-    FNameInUpperCase: String;
+    FName: AnsiString;
+    FNameInUpperCase: AnsiString;
     FValue: TObject;
     
   public
-    property Name: String read FName;
+    property Name: AnsiString read FName;
     property Value: TObject read FValue;
 
-    constructor Create (Nam: String; Value: TObject);
+    constructor Create (Nam: AnsiString; Value: TObject);
     destructor Destroy; override;
     
   end;
@@ -183,12 +183,13 @@ type
 
   TNameStrValue= class (TNameValue)
   private
-    function GetValue: String;
-  public
-    property Value: String read GetValue;
+    function GetValue: AnsiString;
 
-    constructor Create (const AName: String; const AValue: String); overload;
-    constructor Create (const ANameValueStr: String); overload;
+  public
+    property Value: AnsiString read GetValue;
+
+    constructor Create (const AName: AnsiString; const AValue: AnsiString); overload;
+    constructor Create (const ANameValueStr: AnsiString); overload;
 
     destructor Destroy; override;
   end;
@@ -201,16 +202,16 @@ type
 
   protected
     function GetNameValue (Index: Integer): TNameValue;
-    function GetNameValueByName (AName: String): TNameValue;
+    function GetNameValueByName (AName: AnsiString): TNameValue;
     
-    procedure RemoveValueByName (Name: String);
+    procedure RemoveValueByName (Name: AnsiString);
     
   public
-    property NameValueByName [AName: String]: TNameValue read GetNameValueByName;
+    property NameValueByName [AName: AnsiString]: TNameValue read GetNameValueByName;
     property NameValue [Index: Integer]: TNameValue read GetNameValue;
     property Size: Integer read GetSize;
     
-    function IsExists (Name: String): Boolean;
+    function IsExists (Name: AnsiString): Boolean;
 
     procedure AddNameValue (ANameValue: TNameValue);
     procedure Add (ANameValue: TNameValue);
@@ -224,7 +225,7 @@ type
 
   ENameNotFound= class (Exception)
   public
-    constructor Create (AName: String);
+    constructor Create (AName: AnsiString);
     
   end;
   
@@ -956,7 +957,7 @@ begin
   
 end;
 
-function TNameValueCollection.GetNameValueByName (AName: String): TNameValue;
+function TNameValueCollection.GetNameValueByName (AName: AnsiString): TNameValue;
 var
   Index: Integer;
 
@@ -970,7 +971,7 @@ begin
   
 end;
 
-procedure TNameValueCollection.RemoveValueByName (Name: String);
+procedure TNameValueCollection.RemoveValueByName (Name: AnsiString);
 var
   Index: Integer;
   
@@ -980,7 +981,7 @@ begin
   
 end;
 
-function TNameValueCollection.IsExists (Name: String): Boolean;
+function TNameValueCollection.IsExists (Name: AnsiString): Boolean;
 var
   Index: Integer;
   
@@ -1015,7 +1016,7 @@ end;
 
 { EVariableNotFound }
 
-constructor ENameNotFound.Create(AName: String);
+constructor ENameNotFound.Create (AName: AnsiString);
 begin
   inherited Create (AName+ ' not found in collection!');
   
@@ -1023,7 +1024,7 @@ end;
 
 { TNameValue }
 
-constructor TNameValue.Create (Nam: String; Value: TObject);
+constructor TNameValue.Create (Nam: AnsiString; Value: TObject);
 begin
   inherited Create;
   
@@ -1044,15 +1045,15 @@ end;
 
 { TNameStrValue }
 
-function TNameStrValue.GetValue: String;
+function TNameStrValue.GetValue: AnsiString;
 begin
-  Result:= (PString (PByte (FValue)))^;
+  Result:= (PAnsiString (PByte (FValue)))^;
 
 end;
 
-constructor TNameStrValue.Create (const AName: String; const AValue: String);
+constructor TNameStrValue.Create (const AName: AnsiString; const AValue: String);
 var
-  PVal: PString;
+  PVal: PAnsiString;
 
 begin
   New (PVal);
@@ -1062,10 +1063,10 @@ begin
 
 end;
 
-constructor TNameStrValue.Create (const ANameValueStr: String);
+constructor TNameStrValue.Create (const ANameValueStr: AnsiString);
 var
-  AName, AValue: String;
-  PVal: PString;
+  AName, AValue: AnsiString;
+  PVal: PAnsiString;
 
 begin
   AName:= Copy (ANameValueStr, 1, Pos ('=', ANameValueStr)- 1);

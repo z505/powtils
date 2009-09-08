@@ -36,8 +36,13 @@ constructor TMyGlobalObjectContainers.Create;
 begin
   inherited Create;
 
-  FPersaDic:= TPersaDic.CreateFromTextFile (
-        Configurations.ConfigurationValueByName ['DicFileName']);
+  FPersaDic:= TPersaDic.Create;
+  FPersaDic.LoadFromTextFile1 ('NewDic.txt');
+//  FPersaDic.LoadFromTextFile (
+//        Configurations.ConfigurationValueByName ['DicFileName']);
+  FPersaDic.Prepare;
+
+  FPersaDic.SaveAsTextFile ('MergedDic.txt');
 
 end;
 
