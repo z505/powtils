@@ -37,9 +37,11 @@ begin
   inherited Create;
 
   FPersaDic:= TPersaDic.Create;
+{
   FPersaDic.LoadFromTextFile1 ('NewDic.txt');
-//  FPersaDic.LoadFromTextFile (
-//        Configurations.ConfigurationValueByName ['DicFileName']);
+  FPersaDic.LoadFromTextFile ('NDic.txt');
+  FPersaDic.SaveAsTextFile ('MergedDic.txt');
+}
   FPersaDic.Prepare;
 
   FPersaDic.SaveAsTextFile ('MergedDic.txt');
@@ -55,6 +57,7 @@ end;
 
 initialization
   GlobalObjContainer:= TMyGlobalObjectContainers.Create;
+  halt;
   
 finalization
   GlobalObjContainer.Free;
