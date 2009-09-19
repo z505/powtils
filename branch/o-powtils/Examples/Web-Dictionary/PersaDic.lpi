@@ -32,7 +32,7 @@
         <Filename Value="PersaDic.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PersaDic"/>
-        <CursorPos X="1" Y="22"/>
+        <CursorPos X="11" Y="24"/>
         <TopLine Value="1"/>
         <EditorIndex Value="0"/>
         <UsageCount Value="211"/>
@@ -208,8 +208,8 @@
         <Filename Value="ThisProjectGlobalUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ThisProjectGlobalUnit"/>
-        <CursorPos X="36" Y="59"/>
-        <TopLine Value="31"/>
+        <CursorPos X="2" Y="46"/>
+        <TopLine Value="30"/>
         <EditorIndex Value="1"/>
         <UsageCount Value="219"/>
         <Loaded Value="True"/>
@@ -399,12 +399,13 @@
         <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PersaDictionaryUnit"/>
-        <CursorPos X="1" Y="304"/>
-        <TopLine Value="274"/>
+        <CursorPos X="1" Y="281"/>
+        <TopLine Value="264"/>
         <EditorIndex Value="3"/>
         <UsageCount Value="305"/>
-        <Bookmarks Count="1">
-          <Item0 X="17" Y="272" ID="1"/>
+        <Bookmarks Count="2">
+          <Item0 X="1" Y="343" ID="1"/>
+          <Item1 X="3" Y="572" ID="2"/>
         </Bookmarks>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
@@ -413,8 +414,8 @@
         <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="DictionaryTreeUnit"/>
-        <CursorPos X="1" Y="301"/>
-        <TopLine Value="284"/>
+        <CursorPos X="1" Y="394"/>
+        <TopLine Value="377"/>
         <EditorIndex Value="7"/>
         <UsageCount Value="305"/>
         <Loaded Value="True"/>
@@ -452,10 +453,10 @@
       <Unit45>
         <Filename Value="../../CollectionUnit.pp"/>
         <UnitName Value="CollectionUnit"/>
-        <CursorPos X="48" Y="968"/>
+        <CursorPos X="1" Y="970"/>
         <TopLine Value="953"/>
         <EditorIndex Value="11"/>
-        <UsageCount Value="82"/>
+        <UsageCount Value="84"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit45>
@@ -498,7 +499,7 @@
         <Filename Value="PuzzlePageUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PuzzlePageUnit"/>
-        <CursorPos X="27" Y="54"/>
+        <CursorPos X="38" Y="54"/>
         <TopLine Value="40"/>
         <EditorIndex Value="2"/>
         <UsageCount Value="287"/>
@@ -519,7 +520,7 @@
         <CursorPos X="18" Y="81"/>
         <TopLine Value="61"/>
         <EditorIndex Value="8"/>
-        <UsageCount Value="56"/>
+        <UsageCount Value="58"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit52>
@@ -574,123 +575,123 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="364" Column="9" TopLine="352"/>
+        <Caret Line="286" Column="1" TopLine="269"/>
       </Position1>
       <Position2>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="397" Column="27" TopLine="388"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="225" Column="1" TopLine="208"/>
       </Position2>
       <Position3>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="59" Column="20" TopLine="42"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="227" Column="1" TopLine="210"/>
       </Position3>
       <Position4>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="61" Column="29" TopLine="42"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="228" Column="1" TopLine="211"/>
       </Position4>
       <Position5>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="558" Column="9" TopLine="547"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="229" Column="1" TopLine="212"/>
       </Position5>
       <Position6>
         <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="364" Column="9" TopLine="352"/>
+        <Caret Line="231" Column="1" TopLine="214"/>
       </Position6>
       <Position7>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="15" Column="15" TopLine="1"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="232" Column="1" TopLine="215"/>
       </Position7>
       <Position8>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="566" Column="19" TopLine="550"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="234" Column="1" TopLine="217"/>
       </Position8>
       <Position9>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="53" Column="29" TopLine="50"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="237" Column="1" TopLine="220"/>
       </Position9>
       <Position10>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="90" Column="92" TopLine="73"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="250" Column="1" TopLine="233"/>
       </Position10>
       <Position11>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="223" Column="24" TopLine="221"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="251" Column="15" TopLine="236"/>
       </Position11>
       <Position12>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="505" Column="3" TopLine="503"/>
+        <Filename Value="ThisProjectGlobalUnit.pp"/>
+        <Caret Line="44" Column="1" TopLine="27"/>
       </Position12>
       <Position13>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="251" Column="1" TopLine="234"/>
       </Position13>
       <Position14>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="30" Column="10" TopLine="1"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="253" Column="1" TopLine="236"/>
       </Position14>
       <Position15>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="57" Column="28" TopLine="40"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="256" Column="1" TopLine="239"/>
       </Position15>
       <Position16>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="58" Column="40" TopLine="40"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="269" Column="1" TopLine="252"/>
       </Position16>
       <Position17>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="59" Column="20" TopLine="40"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="571" Column="1" TopLine="554"/>
       </Position17>
       <Position18>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="61" Column="29" TopLine="40"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="572" Column="1" TopLine="555"/>
       </Position18>
       <Position19>
-        <Filename Value="ThisProjectGlobalUnit.pp"/>
-        <Caret Line="47" Column="1" TopLine="30"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="573" Column="1" TopLine="556"/>
       </Position19>
       <Position20>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="578" Column="1" TopLine="553"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="575" Column="1" TopLine="558"/>
       </Position20>
       <Position21>
         <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Caret Line="394" Column="1" TopLine="377"/>
       </Position21>
       <Position22>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="68" Column="23" TopLine="51"/>
+        <Filename Value="ThisProjectGlobalUnit.pp"/>
+        <Caret Line="44" Column="1" TopLine="27"/>
       </Position22>
       <Position23>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="278" Column="1" TopLine="261"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="273" Column="1" TopLine="256"/>
       </Position23>
       <Position24>
-        <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <Caret Line="289" Column="18" TopLine="261"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="274" Column="1" TopLine="257"/>
       </Position24>
       <Position25>
         <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="356" Column="1" TopLine="352"/>
+        <Caret Line="275" Column="1" TopLine="258"/>
       </Position25>
       <Position26>
         <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="401" Column="44" TopLine="384"/>
+        <Caret Line="277" Column="1" TopLine="260"/>
       </Position26>
       <Position27>
         <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Caret Line="278" Column="1" TopLine="261"/>
       </Position27>
       <Position28>
-        <Filename Value="ThisProjectGlobalUnit.pp"/>
-        <Caret Line="40" Column="26" TopLine="31"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="279" Column="1" TopLine="262"/>
       </Position28>
       <Position29>
-        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Caret Line="77" Column="15" TopLine="60"/>
+        <Filename Value="ThisProjectGlobalUnit.pp"/>
+        <Caret Line="40" Column="1" TopLine="27"/>
       </Position29>
       <Position30>
         <Filename Value="ThisProjectGlobalUnit.pp"/>
-        <Caret Line="41" Column="25" TopLine="31"/>
+        <Caret Line="47" Column="1" TopLine="30"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
@@ -709,7 +710,7 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <BreakPoints Count="5">
+    <BreakPoints Count="3">
       <Item1>
         <Source Value="PageHandlerBaseUnit.pp"/>
         <Line Value="295"/>
@@ -720,16 +721,8 @@
       </Item2>
       <Item3>
         <Source Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Line Value="268"/>
+        <Line Value="342"/>
       </Item3>
-      <Item4>
-        <Source Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <Line Value="262"/>
-      </Item4>
-      <Item5>
-        <Source Value="ThisProjectGlobalUnit.pp"/>
-        <Line Value="57"/>
-      </Item5>
     </BreakPoints>
     <Watches Count="3">
       <Item1>

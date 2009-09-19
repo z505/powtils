@@ -42,9 +42,9 @@ begin
   FPersaDic.LoadFromTextFile ('NDic.txt');
   FPersaDic.SaveAsTextFile ('MergedDic.txt');
 }
-  FPersaDic.Prepare;
+  FPersaDic.LoadFromTextFile ('MergedDic.txt');
 
-  FPersaDic.SaveAsTextFile ('MergedDic.txt');
+  FPersaDic.Prepare;
 
 end;
 
@@ -57,7 +57,6 @@ end;
 
 initialization
   GlobalObjContainer:= TMyGlobalObjectContainers.Create;
-  halt;
   
 finalization
   GlobalObjContainer.Free;
