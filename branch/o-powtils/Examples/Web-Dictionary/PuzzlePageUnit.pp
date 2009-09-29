@@ -11,7 +11,7 @@ type
 
   { TPuzzlePageDispatcher }
 
-  TPuzzlePageDispatcher= class (TXMLHandlerPage)
+  TPuzzlePageDispatcher= class (TXMLHandler)
   private
 
   public

@@ -30,6 +30,16 @@
      Now, every dispatcher should register itself in TResident. By this way, there
      is no need to have ThisApplicationPagesUnit.
 
+  [01/AUG/2009 - Amir]
+   - I have done a depth debug and remove some minor bugs.
+
+  [10/SEP/2009 - Amir]
+   - Install function have been implemented in TResident class. This function tries
+   to install the application. In the current implementation, it creates a directory
+   where the Temproray pipefile should be stored-in along with the "Mainpipe". It also
+   tries to create and compile the "RequestCollector" pages in.
+
+
 }
 
 unit ResidentApplicationUnit;
@@ -74,7 +84,8 @@ type
     FRestartInterval: Integer;
     FMainPipeFileName: String;
     FOnNewRequest: TOnNewRequestArrived;
-    FTempPipeFilePath: String;
+    FStatPagePath: AnsiString;
+    FTempPipeFilesPath: String;
     FRemainedToRestart: Integer;
     FUsingSessionManager: Boolean;
     MainPipeFileHandle: cInt;
@@ -87,10 +98,14 @@ type
     procedure SetMainPipeFileName (const AValue: String);
     procedure SetNumberOfActiveThread(const AValue: Integer);
     procedure SetRestartInterval (const AValue: Integer);
-    
+
+  private
+    property AllHandlers: TAbstractHandlerCollection read FAllHandlers;
+    property StatPagePath: AnsiString read FStatPagePath;
+
   published
     property MainPipeFileName: String read FMainPipeFileName write SetMainPipeFileName ;
-    property TempPipeFilePath: String read FTempPipeFilePath write FTempPipeFilePath;
+    property TempPipeFilesPath: String read FTempPipeFilesPath write FTempPipeFilesPath;
     property OnNewPageRequest: TOnNewRequestArrived read FOnNewRequest write FOnNewRequest;
     property BeforeRestart: TNotifyEvent read FBeforeRestart write FBeforeRestart;
 //    property RestartInterval: Integer read FRestartInterval write SetRestartInterval;
@@ -100,6 +115,8 @@ type
     property UsingSessionManager: Boolean read FUsingSessionManager;
 
     function RegisterRequest (const ARequestString: String): Boolean;
+
+    function Install: Boolean;
 
   public
   
@@ -135,6 +152,7 @@ var
 implementation
 uses
   ExceptionUnit, WebConfigurationUnit,
+  StatisticsDispatcherUnit,
   ThisProjectGlobalUnit;
   
 { TParameter }
@@ -231,6 +249,65 @@ begin
 (*$IFDEF DebugMode*)
   WriteLn (FDispatchedRequestCount, ':NewRequest.Parameters=', NewRequest.ToString);
 (*$ENDIF*)
+
+end;
+
+function TResident.Install: Boolean;
+  function DeleteDir (const DirPath: AnsiString): Boolean;
+  var
+    Path: String;
+    SR: TSearchRec;
+    Filename: AnsiString;
+
+  begin
+    Path:= DirPath;
+    if Length (Path)<> 0 then
+      if Path [Length (Path)]<> '/' then
+        Path+= '/';
+
+    if FindFirst (Path+ '*', faAnyFile, SR)= 0 then
+    begin
+      repeat
+        if (SR.Name<> '.') and (SR.Name<> '..') then
+        begin
+          Filename:= Path+ SR.Name;
+          if not DeleteFile (Filename) then
+            Exit (False);
+
+        end;
+
+      until 0<> FindNext (SR);
+
+    end;
+
+    RemoveDir (DirPath);
+
+  end;
+
+  function CheckForCorrectness: Boolean;
+  begin
+    if not FileExists (MainPipeFileName) then
+      Exit (False);
+
+    if not DirectoryExists (TempPipeFilesPath) then
+      Exit (False);
+
+  end;
+
+var
+  i: Integer;
+
+begin
+  if FileExists (MainPipeFileName) then
+    DeleteFile (MainPipeFileName);
+
+  FpMkfifo (MainPipeFileName, $1B4);//664.
+  if DirectoryExists (TempPipeFilesPath) then
+    DeleteDir (TempPipeFilesPath);
+
+  FpMkdir (TempPipeFilesPath, $1F8);//770 1 11 11 1 000
+
+  Result:= CheckForCorrectness;
 
 end;
 
@@ -570,7 +647,7 @@ constructor TResident.Create (AnOwner: TComponent);
     if not FileExists (FMainPipeFileName) then
       raise EMainPipeNotFound.Create (FMainPipeFileName);
       
-    TempPipeFilePath:= GlobalObjContainer.Configurations.ConfigurationValueByName ['TemproraryPipesPath'];
+    TempPipeFilesPath:= GlobalObjContainer.Configurations.ConfigurationValueByName ['TemproraryPipesPath'];
     NumberOfActiveThread:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['MaximumNumberofActiveThreads']);
     FRequestQueueSize:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['MaximumSizeofRequestQueue']);
     
@@ -635,6 +712,8 @@ begin
   FDispatchedRequestCount:= 0;
 
   FAllHandlers:= TAbstractHandlerCollection.Create;
+
+  RegisterPageHandlerHandler ('Statistics.psp', TStatisticsPage.Create (StatPagePath));
 
 end;
 

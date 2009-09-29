@@ -20,29 +20,38 @@ type
     FHeaders: THeaderCollection;
     FPipeHandle: cInt;
     FVars: TCgiVariableCollection;
-    FPageName: String;
+    FPageName: AnsiString;
     FShouldBeFreedManually: Boolean;
     FContentType: TContentType;
-
     FThread: TDispactherThread;
-    procedure SetPipeHandle (const AValue: cInt);
+    FRelativePath: AnsiString;
+    FTempPipeFilePath: AnsiString;
+    FRequestURI: AnsiString;
+    FHostName: AnsiString;
+    FForceToSendHeader: Boolean;
 
   protected
+    PipeIsAssigned: Boolean;
+    FSessionID: TSessionID;
+
+  private
+    procedure SetPipeHandle (const AValue: cInt);
+
+  published
+    property PageName: AnsiString read FPageName write FPageName;
+    property RelativePath: AnsiString read FRelativePath write FRelativePath;
     property ShouldBeFreedManually: Boolean read FShouldBeFreedManually;
     property Buffer: TStringList read FBuffer;
     property PipeHandle: cInt read FPipeHandle write SetPipeHandle;
 
-    FTempPipeFilePath: String;
-    PipeIsAssigned: Boolean;
-    FRequestURI: String;
-    FHostName: String;
-    FForceToSendHeader: Boolean;
-    FSessionID: TSessionID;
-
-    procedure WriteToBuffer (const S: String);
-    procedure Write (const S: String);
-    procedure WriteLn (const S: String);
+  protected
+    procedure WriteToBuffer (const S: AnsiString);
+    procedure Write (const S: AnsiString);
+    procedure WriteLn (const S: AnsiString);
     procedure WriteHeaders;
+
+  protected
+    property SessionID: TSessionID read FSessionID;
 
   public
     property Cookies: TCookieCollection read FCookies;
@@ -50,7 +59,8 @@ type
     property Vars: TCgiVariableCollection read FVars;
     property HeaderCanBeSent: Boolean read FHeaderCanBeSent;
 
-    constructor Create (ContType: TContentType;_ShouldBeFreedManually: Boolean);
+    constructor Create (ContType: TContentType; ThisPageName, ThisPagePath: AnsiString;
+                             _ShouldBeFreedManually: Boolean);
     destructor Destroy; override;
 
     function CreateNewInstance: TAbstractHandler; virtual; abstract;
@@ -75,16 +85,16 @@ begin
 
 end;
 
-procedure TAbstractHandler.WriteToBuffer (const S: String);
+procedure TAbstractHandler.WriteToBuffer (const S: AnsiString);
 begin
   FBuffer.Add (S);
 
 end;
 
-procedure TAbstractHandler.Write (const S: String);
+procedure TAbstractHandler.Write (const S: AnsiString);
 const
 (*$I+*)
-  BufText: String= '';
+  BufText: AnsiString= '';
 (*$I-*)
 
 begin
@@ -126,7 +136,7 @@ begin
 
 end;
 
-procedure TAbstractHandler.WriteLn (const S: String);
+procedure TAbstractHandler.WriteLn (const S: AnsiString);
 begin
   Write (S+ NewLine);
 
@@ -134,7 +144,7 @@ end;
 
 procedure TAbstractHandler.WriteHeaders;
 var
-  S: String;
+  S: AnsiString;
 
 begin
   if Headers.Size<> 0 then
@@ -157,8 +167,8 @@ begin
 
 end;
 
-constructor TAbstractHandler.Create (ContType: TContentType;
-                   _ShouldBeFreedManually: Boolean);
+constructor TAbstractHandler.Create(ContType: TContentType; ThisPAgeName,
+  ThisPagePath: AnsiString; _ShouldBeFreedManually: Boolean);
 const
   ContentTypeString: array [ctStart..ctNone] of String=
     ('', 'text/html', 'text/xml', '');
@@ -167,6 +177,8 @@ begin
   inherited Create;
 
   FShouldBeFreedManually:= _ShouldBeFreedManually;
+  FPageName:= ThisPAgeName;
+  FRelativePath:= ThisPagePath;
 
   FBuffer:= TStringList.Create;
   FVars:= nil;//TCgiVariableCollection.Create;
@@ -258,7 +270,7 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest; AThread: TDispacther
       i: Integer;
       StartingPosition: PChar;
       Flag: Boolean;
-      VarName, VarValue: String;
+      VarName, VarValue: AnsiString;
 
     begin
       VarName:= '';

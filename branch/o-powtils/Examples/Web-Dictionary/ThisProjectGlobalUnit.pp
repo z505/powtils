@@ -37,11 +37,6 @@ begin
   inherited Create;
 
   FPersaDic:= TPersaDic.Create;
-{
-  FPersaDic.LoadFromTextFile1 ('NewDic.txt');
-  FPersaDic.LoadFromTextFile ('NDic.txt');
-  FPersaDic.SaveAsTextFile ('MergedDic.txt');
-}
   FPersaDic.LoadFromTextFile ('MergedDic.txt');
 
   FPersaDic.Prepare;
