@@ -31,31 +31,31 @@ uses
   
 type
 
-  { THandlerPageBase }
+  { THandlerBase }
 
-  THandlerPageBase= class (TAbstractHandler)
+  THandlerBase= class (TAbstractHandler)
   private
     function GetSession: TSession;
+
 
   protected
     procedure Clear;
 
-  published
-
   public
     property Session: TSession read GetSession;
 
-    constructor Create (ContType: TContentType);
+    constructor Create (ContType: TContentType; ThisPageName: Ansistring;
+                                ThisPagePath: AnsiString);
     destructor Destroy; override;
 
-    function CreateNewInstance: TAbstractHandler; override;
+//    function CreateNewInstance: TAbstractHandler; override;
 
   end;
   
   { THTMLHandlerPage }
-  THTMLHandlerPage= class (THandlerPageBase)
+  THTMLHandler= class (THandlerBase)
   public
-    constructor Create;
+    constructor Create (ThisPageName: AnsiString; ThisPagePath: AnsiString= '');
     procedure Flush; override;
 
   end;
@@ -63,7 +63,7 @@ type
   
   { TXMLHandlerPage }
 
-  TXMLHandlerPage= class (THandlerPageBase)
+  TXMLHandler= class (THandlerBase)
   private
     FXSLPath: String;
     FXMLRoot: TXMLNode;
@@ -76,9 +76,10 @@ type
     property XSLPath: String read FXSLPath;
 
     constructor Create (ThisPageName: String; XSLPage: String;
-                Encoding: String= 'UTF-8';
-                Version: String= '1.0'; PageHost: String= '';
-                PagePath: String= ''; Indent: Boolean= False);
+                RelativePagePath: String= '';
+                Encoding: String= 'UTF-8';                                    
+                Version: String= '1.0';
+                Indent: Boolean= False);
 
     destructor Destroy; override;
     procedure Flush; override;
@@ -118,9 +119,9 @@ implementation
 uses
   ThisProjectGlobalUnit, DateUtils, GlobalUnit, ExceptionUnit;
   
-{ THandlerPageBase }
+{ THandlerBase }
 
-function THandlerPageBase.GetSession: TSession;
+function THandlerBase.GetSession: TSession;
 (*$I+*)
 const
   SessionIDVarName: String= '';
@@ -132,7 +133,7 @@ begin
   if SessionIDVarName= '' then
     SessionIDVarName:= GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionIDVarName'];
 
-  if IsEqualGUID (FSessionID, EmptySessionID) then
+  if IsEqualGUID (SessionID, EmptySessionID) then
   begin
     SessionIDInCookie:= Cookies.CookieValueByName [SessionIDVarName];
     try
@@ -153,16 +154,17 @@ begin
   
 end;
 
-constructor THandlerPageBase.Create (ContType: TContentType);
+constructor THandlerBase.Create(ContType: TContentType;
+  ThisPageName: Ansistring; ThisPagePath: AnsiString);
 begin
-  inherited Create (ContType, False);
+  inherited Create (ContType, ThisPageName, ThisPagePath, False);
 
   if GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionEnabled']= 'YES' then
     FSessionID:= EmptySessionID;
 
 end;
 
-destructor THandlerPageBase.Destroy;
+destructor THandlerBase.Destroy;
 begin
   Clear;
   
@@ -170,13 +172,15 @@ begin
   
 end;
 
-function THandlerPageBase.CreateNewInstance: TAbstractHandler;
+{
+function THandlerBase.CreateNewInstance: TAbstractHandler;
 begin
-  raise EShouldNotBeCalled.Create ('THandlerPageBase', 'CreateNewInstance');
+  raise EShouldNotBeCalled.Create ('THandlerBase', 'CreateNewInstance');
 
 end;
+}
 
-procedure THandlerPageBase.Clear;
+procedure THandlerBase.Clear;
 begin
   WriteHeaders;
   if Buffer.Count<> 0 then
@@ -189,16 +193,16 @@ end;
 
 { TXMLHandlerBase }
 
-constructor TXMLHandlerPage.Create (ThisPageName: String; XSLPage: String;
+constructor TXMLHandler.Create (ThisPageName: String; XSLPage: String;
+             RelativePagePath: String;
              Encoding: String; Version: String;
-             PageHost: String; PagePath: String;
              Indent: Boolean= False);
 begin
-  inherited Create (ctTextXML);
+  inherited Create (ctTextXML, ThisPageName, RelativePagePath);
 
   FXSLPath:= XSLPage;
   FIndent:= Indent;
-  
+
   FXMLRoot:= TXMLNode.Create (ThisPageName);
 
   Buffer.Add ('<?xml version="'+ Version+ '" encoding="'+ Encoding+ '" ?>');
@@ -207,7 +211,7 @@ begin
 
 end;
 
-procedure TXMLHandlerPage.Flush;
+procedure TXMLHandler.Flush;
 begin
   if FIndent then
     Write (FXMLRoot.ToStringWithIndent)
@@ -216,7 +220,7 @@ begin
 
 end;
 
-destructor TXMLHandlerPage.Destroy;
+destructor TXMLHandler.Destroy;
 begin
   Flush;
   FXMLRoot.Free;
@@ -281,15 +285,16 @@ begin
 
 end;
 
-{ THTMLHandlerPage }
+{ THTMLHandler }
 
-constructor THTMLHandlerPage.Create;
+constructor THTMLHandler.Create (ThisPageName: AnsiString;
+  ThisPagePath: AnsiString);
 begin
-  inherited Create (ctTextHTML);
+  inherited Create (ctTextHTML, ThisPageName, ThisPagePath);
 
 end;
 
-procedure THTMLHandlerPage.Flush;
+procedure THTMLHandler.Flush;
 begin
   Write (' ');
 

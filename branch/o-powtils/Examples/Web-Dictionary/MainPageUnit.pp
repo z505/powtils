@@ -11,7 +11,7 @@ type
 
   { TMainPageDispatcher }
 
-  TMainPageDispatcher= class (TXMLHandlerPage)
+  TMainPageDispatcher= class (TXMLHandler)
   private
 
   public
