@@ -120,7 +120,6 @@ type
 
   public
   
-    procedure Execute;
     procedure ExecuteInThread;
   
     constructor Create (AnOwner: TComponent);
@@ -294,6 +293,34 @@ function TResident.Install: Boolean;
 
   end;
 
+  function InstallPageHandler (PageHandler: TAbstractHandler): Boolean;
+  const
+    SingleQuote: char= '''';
+
+  var
+    TargetFilename: AnsiString;
+    FileString: TStringList;
+
+  begin
+    TargetFilename:= GlobalObjContainer.Configurations.Values ['TargetDir']+
+                           PageHandler.PageName;
+
+    FileString:= TStringList.Create;
+    FileString.LoadFromFile ('RequestCollectorPage/Page.pp');
+
+    FileString [0]:= 'program '+ PageHandler.PageName+ ';';
+    FileString [18]:= '  PipesPath: String= '+ SingleQuote+ GlobalObjContainer.Configurations.Values ['TemproraryPipesPath']+ SingleQuote+ ';';
+    FileString [19]:= '  MainPipeName: String= '+ SingleQuote+ GlobalObjContainer.Configurations.Values ['MainPipeFileName']+ SingleQuote+ ';';
+    FileString [21]:= '  PageName: String= '+ SingleQuote+ PageHandler.PageName+ SingleQuote+ ';';
+
+    FileString.SaveToFile (GlobalObjContainer.Configurations.Values ['InstallationDicrectory']+ PageHandler.PageName);
+
+//    ShellExecute (nil, nil,
+
+    FileString.Free;
+
+  end;
+
 var
   i: Integer;
 
@@ -307,103 +334,10 @@ begin
 
   FpMkdir (TempPipeFilesPath, $1F8);//770 1 11 11 1 000
 
+  for i:= 0 to FAllHandlers.Count- 1 do
+    InstallPageHandler (FAllHandlers.PageHandler [i]);
+
   Result:= CheckForCorrectness;
-
-end;
-
-procedure TResident.Execute;
-{
-var
-  MessageStr: String;
-  MsgParamenter: TParameter;
-  CookieString: String;
-  CgiVar: TCgiVariableCollection;
-  CurrentPage: TResidentPageBase;
-  ReqCon: Integer;
-  SegmentedString: String;
-  StringIsComplete: Boolean;
-}
-begin
-  raise ENotImplementedYet.Create ('It is not complete');
-{
-  MainPipeFileHandle:= FpOpen (FMainPipeFileName, O_RDONLY);
-  ReqCon:= 0;
-  SegmentedString:= '';
-  StringIsComplete:= False;
-
-  while True do
-  begin
-
-    ReadLn (MainPipeFileHandle, MessageStr);
-(*$IFDEF DEBUG_MODE*)
-    WriteLn ('MessageStr=', MessageStr);
-(*$ENDIF*)
-
-    if MessageStr= '' then
-    begin
-      while MessageStr= '' do
-      begin
-        Reset (MainPipeFileHandle);
-        ReadLn (MainPipeFileHandle, MessageStr);
-
-      end;
-
-    end;
-
-    ReadLn (MainPipeFileHandle, CookieString);
-
-(*$IFDEF DEBUG_MODE*)
-    WriteLn ('CookieString=', CookieString);
-(*$ENDIF*)
-
-    MsgParamenter:= TParameter.Create (MessageStr);
-
-    if MsgParamenter.ArgumentCount<= 1 then// Invalid parameters
-    begin
-      MsgParamenter.Free;
-      Continue;//raise ...
-
-    end
-    else // request is in correct form
-    begin
-
-// Get a new instance of PageName Handler
-// This procedure is defined in ThisApplicationPagesUnit.pas
-      CurrentPage:= GetAppropriatePageByPageName (UpperCase (MsgParamenter.Argument [0]));
-
-// Request paramters must be (PageName) (OutputPipeName) (Get/Put Variable)
-      if MsgParamenter.ArgumentCount= 3 then
-        CurrentPage.CgiVars.LoadFromString (MsgParamenter.Argument [2]);
-
-//Loading Cookies Parameter.
-      CurrentPage.Cookies.LoadFromString (CookieString);
-
-// Set the pipename in which the current page should write its output
-      CurrentPage.PipeFileName:= MsgParamenter.Argument [1];
-
-// Excecure OnNewRequest event
-      if Assigned (FOnNewRequest) then
-        FOnNewRequest (Self, CurrentPage);
-
-      CurrentPage.MyDispatch;
-
-// Free the objects memory
-      CurrentPage.Free;
-
-      MsgParamenter.Free;
-      CgiVar.Free;
-
-// check to see if it is time to restart the application
-      Dec (FRemainedToRestart);
-      if FRemainedToRestart= 0 then
-        Break;
-
-    end;
-
-  end;
-
-  CloseFile (MainPipeFileHandle);
-}
 
 end;
 
@@ -595,13 +529,14 @@ constructor TResident.Create (AnOwner: TComponent);
   const
   {Default values for Webconfiguration:
   }
-    DefaultConfigurationValues: array [1..5] of array [1..2] of String=
+    DefaultConfigurationValues: array [1..6] of array [1..2] of String=
            (
             ('Charset', 'UTF-8'),//Default Charset
             ('RestartInterval', '-1'),//Default RestartInterval
             ('SessionIDLen', '20'),// Default SessionIDLen
             ('SessionVarName', 'PSPSESS'),// Default SessionVarName
-            ('SessionUseCookie', 'TRUE')//Dafault SessionUseCookie
+            ('SessionUseCookie', 'TRUE'),//Dafault SessionUseCookie
+            ('TemproraryPipesFilenameLength', '12')//Dafault Temprorary pipes filename length
             );
   var
     ConfigFileHandle: TextFile;

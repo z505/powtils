@@ -38,7 +38,7 @@ type
 
    // Sort the members based on compare function (which is accept two TObject objects) and return true if the first one is smaller than the second
     procedure Sort (CompareFunction: TCompareFunction);
-    procedure Allocate (Size: Integer);
+    procedure Allocate (_Size: Integer);
 
   end;
 
@@ -174,7 +174,7 @@ type
     property Name: AnsiString read FName;
     property Value: TObject read FValue;
 
-    constructor Create (Nam: AnsiString; Value: TObject);
+    constructor Create (Nam: AnsiString; _Value: TObject);
     destructor Destroy; override;
     
   end;
@@ -268,17 +268,17 @@ begin
 
 end;
 
-procedure TBaseCollection.Allocate (Size: Integer);
+procedure TBaseCollection.Allocate (_Size: Integer);
 var
   Ptr: PObject;
   i: Integer;
   
 begin
-  SetLength (FMembers, Size);
-  FSize:= Size;
+  SetLength (FMembers, _Size);
+  FSize:= _Size;
   
   Ptr:= GetPointerToFirst;
-  for i:= 1 to Size do
+  for i:= 1 to _Size do
   begin
     Ptr^:= nil;
     Inc (Ptr);
@@ -339,7 +339,7 @@ begin
   Ptr:= GetPointerToFirst;
   for i:= 1 to FSize do
   begin
-    Ptr.Free;
+    Ptr^.Free;
     Inc (Ptr);
     
   end;
@@ -373,7 +373,7 @@ begin
     
 end;
 
-procedure TBaseCollection.Sort;
+procedure TBaseCollection.Sort (CompareFunction: TCompareFunction);
 var
   Ptr1, Ptr2: PObject;
   Temp: TObject;
@@ -1024,12 +1024,12 @@ end;
 
 { TNameValue }
 
-constructor TNameValue.Create (Nam: AnsiString; Value: TObject);
+constructor TNameValue.Create (Nam: AnsiString; _Value: TObject);
 begin
   inherited Create;
   
   FName:= Nam;
-  FValue:= Value;
+  FValue:= _Value;
   FNameInUpperCase:= UpperCase (FName);
   
 end;
@@ -1051,7 +1051,7 @@ begin
 
 end;
 
-constructor TNameStrValue.Create (const AName: AnsiString; const AValue: String);
+constructor TNameStrValue.Create (const AName: AnsiString; const AValue: AnsiString);
 var
   PVal: PAnsiString;
 
