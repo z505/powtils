@@ -1,29 +1,30 @@
 program PSP;
 
 {$mode objfpc}{$H+}
-{$Define DebugMode}
+
 uses
 {$ifdef unix}
    cthreads, BaseUnix,
  {$endif}
-  Classes, heaptrc
-  { add your units here }, ResidentApplicationUnit,
-  Page1ResidentUnit, CollectionUnit, WebUnit, Page2ResidentUnit,
-  ThisApplicationPagesUnit, PipeWrapperUnit, URLEnc, SessionManagerUnit,
-  WebStringUnit, RequestsQueue, XMLNode, AttributeUnit, ThisProjectGlobalUnit,
-  ExceptionUnit, AbstractDispatcherUnit, CookieUnit, WebHeaderUnit,
+  Classes, SysUtils
+  {$IFDEF DEBUGMODE}
+  , heaptrc
+  {$ENDIF}
+  { add your units here },
+  CollectionUnit, WebUnit, ThreadingUnit,
+  PipeWrapperUnit, URLEnc, SessionManagerUnit,
+  WebStringUnit, RequestsQueue, ThisProjectGlobalUnit,
+  ExceptionUnit, AbstractHandlerUnit, CookieUnit, WebHeaderUnit,
   WebConfigurationUnit, SessionUnit, CgiVariableUnit,
-WebRunTimeInformationUnit, WebUploadedFileUnit;
-  
-var
-  Resident: TResident;
-  
-begin
+  WebRunTimeInformationUnit, WebUploadedFileUnit, LResources,
+  ResidentApplicationUnit;
 
+begin
   Resident:= TResident.Create (nil);
 
+//  Resident.RegisterPageHandlerHandler ();
+
   Resident.ExecuteInThread;
-//  Resident.Execute;
 
   Resident.Free;
 
