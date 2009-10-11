@@ -1,6 +1,7 @@
 unit ThreadingUnit;
 
 {$mode objfpc}{$H+}
+//{$Define DebugMode}
 
 interface
 
@@ -12,6 +13,8 @@ type
 
   TDispactherThread= class (TThread)
   private
+    FTerminateASAP: Boolean;
+
     FOutputPipeHandle: cint;
     FOutputPipeName: String;
     FRequestQueue: TCircularRequestsQueue;
@@ -19,6 +22,13 @@ type
     procedure SetOutputPipeName (const AValue: String);
 
    protected
+     {
+       TerminateASAP asks the thread to terminate as soon as it doesn't have
+         any request to server. This method is called by TThreadCollection.Destroy
+         and sets the FTerminateASAP flag.
+     }
+     procedure TerminateASAP;
+
      {
        Name and location of the pipe in which the output should be written.
      }
@@ -84,6 +94,12 @@ begin
 
 end;
 
+procedure TDispactherThread.TerminateASAP;
+begin
+  FTerminateASAP:= True;
+
+end;
+
 procedure TDispactherThread.Execute;
 var
   NewRequest: TRequest;
@@ -103,6 +119,13 @@ begin
 (*$IFDEF DebugMode*)
         WriteLn ('TDispactherThread.Execute: RequestQueue is empty!');
 (*$ENDIF*)
+
+(*$IFDEF DebugMode*)
+        WriteLn ('TDispactherThread.Execute: FTerminateASAP=', FTerminateASAP);
+(*$ENDIF*)
+
+        if FTerminateASAP then
+          Break;
 
         FRequestQueue.AddToSuspendedThreads (Self);
 
@@ -158,6 +181,10 @@ begin
 
   end;
 
+(*$IFDEF DebugMode*)
+    WriteLn ('TDispactherThread.Execute: Terminating...');
+(*$ENDIF*)
+
 end;
 
 constructor TDispactherThread.Create (ReqQueue: TCircularRequestsQueue);
@@ -166,6 +193,7 @@ begin
 
   FreeOnTerminate:= False;
   FRequestQueue:= ReqQueue;
+  FTerminateASAP:= False;
 
 end;
 
@@ -213,7 +241,6 @@ end;
 
 destructor TThreadPool.Destroy;
 begin
-
   FThreadCollection.Free;
 
   inherited;
@@ -263,16 +290,35 @@ var
   i: Integer;
   
 begin
+{$IFDEF DebugMode}
+  WriteLn ('In TThreadCollection.Destroy');
+{$ENDIF}
+
   for i:= 0 to Size- 1 do
   begin
+    Thread [i].TerminateASAP;
     if Thread [i].Suspended then
       Thread [i].Resume;
 
+{$IFDEF DebugMode}
+  WriteLn ('Waiting for Thread ', i, ' to terminate');
+{$ENDIF}
+
     WaitForThreadTerminate (Thread [i].ThreadID, 0);
+
+{$IFDEF DebugMode}
+  WriteLn ('Thread ', i, ' is terminated');
+{$ENDIF}
+
     Thread [i].Free;
+
+{$IFDEF DebugMode}
+  WriteLn ('Thread ', i, ' has been freed');
+{$ENDIF}
 
   end;
 
+  Clear;
   inherited;
   
 end;

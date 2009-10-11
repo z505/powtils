@@ -32,7 +32,7 @@ uses
 
 constructor TPuzzlePageDispatcher.Create;
 begin
-  inherited Create ('PersaDic', '/PersaDic/PersaDic.xslt');
+  inherited Create ('PersaPuzzle.psp', '/PersaDic/PersaDic.xslt', 'PersaPuzzle.psp');
 
 end;
 

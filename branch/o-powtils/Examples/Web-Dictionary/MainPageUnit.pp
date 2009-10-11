@@ -30,7 +30,7 @@ uses
 { TMainPageDispatcher }
 constructor TMainPageDispatcher.Create;
 begin
-  inherited Create ('PersaDic', '/PersaDic/PersaDic.xslt');
+  inherited Create ('PersaDic.psp', '/PersaDic/PersaDic.xslt', 'PersaDic.psp');
 
 end;
 

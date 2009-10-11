@@ -59,7 +59,7 @@ type
     property Vars: TCgiVariableCollection read FVars;
     property HeaderCanBeSent: Boolean read FHeaderCanBeSent;
 
-    constructor Create (ContType: TContentType; ThisPageName, ThisPagePath: AnsiString;
+    constructor Create (ContType: TContentType; ThisPageName, ThisPageRelativePath: AnsiString;
                              _ShouldBeFreedManually: Boolean);
     destructor Destroy; override;
 
@@ -150,7 +150,8 @@ begin
   if Headers.Size<> 0 then
   begin
     S:= Headers.Text;
-    Headers.Clear;
+    Headers.Free;
+    FHeaders:= nil;
     FpWrite (FPipeHandle, S [1], Length (S));
 
   end;
@@ -168,7 +169,7 @@ begin
 end;
 
 constructor TAbstractHandler.Create(ContType: TContentType; ThisPAgeName,
-  ThisPagePath: AnsiString; _ShouldBeFreedManually: Boolean);
+  ThisPageRelativePath: AnsiString; _ShouldBeFreedManually: Boolean);
 const
   ContentTypeString: array [ctStart..ctNone] of String=
     ('', 'text/html', 'text/xml', '');
@@ -178,7 +179,7 @@ begin
 
   FShouldBeFreedManually:= _ShouldBeFreedManually;
   FPageName:= ThisPAgeName;
-  FRelativePath:= ThisPagePath;
+  FRelativePath:= ThisPageRelativePath;
 
   FBuffer:= TStringList.Create;
   FVars:= nil;//TCgiVariableCollection.Create;
@@ -191,6 +192,7 @@ begin
   Headers.AddHeader (THeader.Create ('Content-Type',
                ContentTypeString [ContType] + ';charset='+ GlobalObjContainer.Configurations.ConfigurationValueByName ['CHARSET']
              ));
+
   FHeaderCanBeSent:= True;
 
 end;
