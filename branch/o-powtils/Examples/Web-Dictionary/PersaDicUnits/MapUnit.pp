@@ -27,6 +27,12 @@ type
     end;
 
     TIsGreaterThanFunction= function (const a: T; const b: T): Boolean;
+  type public
+    TFindResult= record
+      Data: T;
+      IsValid: Boolean;
+
+    end;
 
   var private
     FIsGreaterThanFunction: TIsGreaterThanFunction;
@@ -40,6 +46,8 @@ type
 
     procedure Insert (NewData: T);
     function IsExists (Data: T): Boolean;
+    function Find (Data: T): TFindResult;
+
   private
     function NewMapNode (d: T): PMapNode;
     procedure DeleteAllMapNode (ANode: PMapNode);
@@ -151,6 +159,64 @@ begin
       Exit (False);
 
     Result:= True;
+
+  end;
+
+end;
+
+function TMap.Find (Data: T): TFindResult;
+var
+  ActiveNode: PMapNode;
+  PrevNode: PMapNode;
+
+begin
+  Result.IsValid:= False;
+
+  if FRoot= nil then
+    Exit (Result)
+  else
+  begin
+    PrevNode:= nil;
+    ActiveNode:= FRoot;
+
+    while ActiveNode<> nil do
+    begin
+      if FIsGreaterThanFunction (ActiveNode^.Data, Data) then
+      begin
+        PrevNode:= ActiveNode;
+        ActiveNode:= ActiveNode^.RightChild;
+
+      end
+      else if FIsGreaterThanFunction (Data, ActiveNode^.Data) then
+      begin
+        PrevNode:= ActiveNode;
+        ActiveNode:= ActiveNode^.LeftChild;
+
+      end
+      else
+      begin
+        if 0< ActiveNode^.Count then
+        begin
+          Result.Data:= ActiveNode^.Data;
+          Result.IsValid:= True;
+          Exit (Result);
+
+        end
+        else
+          Exit (Result);
+
+      end;
+
+    end;
+
+    if FIsGreaterThanFunction (PrevNode^.Data, Data) then
+      Exit (Result);
+
+    if FIsGreaterThanFunction (Data, PrevNode^.Data) then
+      Exit (Result);
+
+    Result.IsValid:= True;
+    Result.Data:= PrevNode^.Data;
 
   end;
 

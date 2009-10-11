@@ -1,0 +1,75 @@
+LazarusResources.Add ('RequestCollectorPage','PP',[
+  'program Page;'#10#10'{$mode objfpc}{$H+}'#10#10'uses'#10'  SysUtils, BaseUni'
+  +'x, Unix;'#10#10'type'#10'  // Associative variable'#10'  Web_TVariable = re'
+  +'cord'#10'    name, value: string;'#10#10'  end;'#10#10'  // Variables assoc'
+  +'iative array'#10'  Web_TVariables = array of Web_TVariable;'#10#10'const'#10
+  +'  PipesPath: String= //Apache''s user should be able to read and write on t'
+  +'his dir. (The last char must be an slash)'#10'    ''/var/www/cgi-bin/'';'#10
+  +'  MainPipeName: String='#10'    ''/var/www/cgi-bin/'';'#10'  TempPipeLen: I'
+  +'nteger='#10'    10;'#10'  PageName: String='#10'    ''INDEXPAGE.PSP'';'#10
+  +#10'var'#10'  S: String;'#10'  Env  // Enironment data'#10'  : Web_TVariable'
+  +'s;'#10#10'{$IFDEF UNIX}'#10'var environ: ppchar; cvar; external;'#10'functi'
+  +'on getenv(const name: PChar): PChar; cdecl; external ''c'' name ''getenv'';'
+  +#10'function setenv(const name, value: pchar; replace: longint): longint; cd'
+  +'ecl; external ''c'' name ''setenv'';'#10'function unsetenv(const name: pcha'
+  +'r): longint; cdecl; external ''c'' name ''unsetenv'';'#10'{$ENDIF}'#10#10'f'
+  +'unction GetEnvVar (const Name: String): String;'#10'var'#10'  i: LongWord;'
+  +#10#10'begin'#10#10'  Result:= '''';'#10#10'  for i:= 0 to High (Env) do'#10
+  +'  begin'#10'    if UpCase (Env [i].Name)= UpCase (Name) then'#10'    begin'
+  +#10'      Result:= Env[i].Value;'#10'      Break;'#10#10'    end;'#10#10'  e'
+  +'nd;'#10#10'end;'#10#10'// Loads up system environment'#10'function LoadEnvV'
+  +'ar: Boolean;'#10'var'#10'{$IFDEF WIN32}'#10'    p, hp: pchar;'#10'{$ENDIF}'
+  +#10'{$IFDEF UNIX}'#10'    p: ppchar;'#10'{$ENDIF}'#10'    s: string;'#10'   '
+  +' i: longint;'#10'begin'#10'  result:= false;'#10'  {$IFDEF WIN32}'#10'  p:='
+  +' GetEnvironmentStrings;'#10'  hp:= p;'#10'  while hp^ <> #0 do'#10'  {$ENDI'
+  +'F}'#10'  {$IFDEF UNIX}'#10'  p:= environ;'#10#10'  while (p^ <> nil) and (p'
+  +'^ <> #0) do'#10'  {$ENDIF}'#10'  begin'#10'    {$IFDEF WIN32}s:= AnsiString'
+  +'(hp);{$ENDIF}'#10'    {$IFDEF UNIX}s:= AnsiString(p^);{$ENDIF}'#10'    i:= '
+  +'Pos (''='', s);'#10#10'    SetLength (env, length(env) + 1);'#10'    // Par'
+  +'sing as name=value'#10'    Env [Length (Env)- 1].name:= UpCase (Copy (S, 1,'
+  +' i- 1));'#10'    Env [Length (Env)- 1].value:= Copy (S, i+ 1, Length (s)- i'
+  +');'#10#10'    // Next entry'#10'    {$IFDEF WIN32}hp:= hp + strlen(hp) + 1;'
+  +'{$ENDIF}'#10'    {$IFDEF UNIX}inc(p);{$ENDIF}'#10'  end;'#10'  {$IFDEF WIN3'
+  +'2}'#10'  FreeEnvironmentStrings(p);'#10'  {$ENDIF}'#10'  result:= true;'#10
+  +'end;'#10#10'function GetParameters: String;'#10'var'#10'  Method,'#10'  Tem'
+  +'pStr: string;'#10'  ContLen,'#10'  i: LongWord;'#10#10'begin'#10'  Result:='
+  +' '''';'#10#10'  // First getting method data'#10'  Method:= GetEnvVar (''RE'
+  +'QUEST_METHOD'');'#10#10'  if Method= ''POST'' then'#10'  begin'#10#10'    v'
+  +'al (GetEnvVar (''CONTENT_LENGTH''), ContLen);'#10#10'     for i:= 1 to Cont'
+  +'Len do'#10'     begin'#10'       Read (TempStr);'#10'       Result:= Result'
+  +'+ TempStr+ '';'';'#10#10'     end;'#10#10'     if ContLen<> 0 then'#10'    '
+  +'   Delete (Result, Length (Result), 1);'#10#10'  end'#10'  else if Method= '
+  +'''GET'' then'#10'    Result:= GetEnvVar(''QUERY_STRING'');'#10#10'end;'#10
+  +#10'function GenerateNewPipe: String;'#10'const'#10'  Letters: String= ''ABC'
+  +'DEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'';'#10#10'var'
+  +#10'  FileName: String;'#10'  ChangeIndex: Integer;'#10'  i: Integer;'#10#10
+  +'begin'#10'  FileName:= '''';'#10#10'  for i:= 1 to TempPipeLen do'#10'    F'
+  +'ileName:= FileName+ Letters [1+ Random (62)];'#10#10'  while FileExists (Pi'
+  +'pesPath+ FileName) do'#10'  begin'#10'    ChangeIndex:= Random (TempPipeLen'
+  +')+ 1;'#10'    FileName [ChangeIndex]:= Letters [1+ Random (62)];'#10#10'  e'
+  +'nd;'#10#10'  FpMkfifo (PipesPath+ FileName, $1B4);//664 1 1011 0100'#10#10
+  +'  Result:= PipesPath+ FileName;'#10#10'end;'#10#10'// Tells whether a envir'
+  +'onment variable is assigned'#10'function IsEnvVar (const Name: String): Boo'
+  +'lean;'#10'var'#10'  i: LongWord;'#10#10'begin'#10'  Result:= False;'#10'  i'
+  +'f Length (Env)= 0 then'#10'    Exit;'#10#10'  for i:= 0 to Length (Env) - 1'
+  +' do'#10'    if UpCase (Env [i].Name)= UpCase (Name) then'#10'    begin'#10
+  +'      Result:= True;'#10'      Break;'#10'    end;'#10'end;'#10#10'var'#10
+  +'  OutputPipeHandle: cInt;'#10'  InputPipeHandle: TextFile;'#10#10'  NewFifo'
+  +'Name,'#10'  CookieString,'#10'  ParametersString,'#10'  AllParameters: Stri'
+  +'ng;'#10#10'begin'#10'  LoadEnvVar;'#10#10'  ParametersString:= GetParameter'
+  +'s;'#10#10'  OutputPipeHandle:= FpOpen (MainPipeName, O_WRONLY);'#10'  fpFlo'
+  +'ck (OutputPipeHandle, LOCK_EX);'#10#10'  NewFifoName:= GenerateNewPipe;'#10
+  +#10'  // Load Cookies'#10'  // If your project doesn''t need to Cookie, you '
+  +'can comment these lines to achieve a better performance.'#10'  if IsEnvVar '
+  +'(''HTTP_COOKIE'') then'#10'    CookieString:= GetEnvVar (''HTTP_COOKIE'')'
+  +#10'  else'#10'    CookieString:= '''';'#10#10'  AllParameters:= PageName+ #'
+  ,'$FF+ NewFifoName+ #$FF+ ParametersString+ #$FF+ CookieString+ #$FD;'#10'  f'
+  +'pWrite (OutputPipeHandle, AllParameters [1], Length (AllParameters));'#10#10
+  +'  fpFlock (OutputPipeHandle, LOCK_UN);'#10'  FpClose (OutputPipeHandle);'#10
+  +#10'  AssignFile (InputPipeHandle, NewFifoName);'#10'  Reset (InputPipeHandl'
+  +'e);'#10#10'  ReadLn (InputPipeHandle, S);'#10'  WriteLn (S);'#10'  while no'
+  +'t Eof (InputPipeHandle) do'#10'  begin'#10'    ReadLn (InputPipeHandle, S);'
+  +#10'    WriteLn (S);'#10#10'  end;'#10#10'  CloseFile (InputPipeHandle);'#10
+  +#10'  if not DeleteFile (NewFifoName) then'#10'    WriteLn (''Error!'');'#10
+  +#10'end.'#10
+]);

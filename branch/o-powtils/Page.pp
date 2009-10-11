@@ -16,10 +16,14 @@ type
   Web_TVariables = array of Web_TVariable;
 
 const
-  PipesPath: String= '/var/www/cgi-bin/WebCMD/Pipes/';//Apache's user should be able to read and write on this dir. (The last char must be an slash)
-  MainPipeName: String= '/var/www/cgi-bin/WebCMD/MainPipe4WebCMD';
-  TempPipeLen: Integer= 10;
-  PageName: String= 'INDEXPAGE.PSP';
+  PipesPath: String= //Apache's user should be able to read and write on this dir. (The last char must be an slash)
+    '/var/www/cgi-bin/';
+  MainPipeName: String=
+    '/var/www/cgi-bin/';
+  TempPipeLen: Integer=
+    10;
+  PageName: String=
+    'INDEXPAGE.PSP';
 
 var
   S: String;
@@ -203,7 +207,7 @@ begin
   else
     CookieString:= '';
 
-  AllParameters:= PageName+ #$FF+ NewFifoName+ #$FF+ ParametersString+ #$FF+ CookieString+ #$FF;
+  AllParameters:= PageName+ #$FF+ NewFifoName+ #$FF+ ParametersString+ #$FF+ CookieString+ #$FD;
   fpWrite (OutputPipeHandle, AllParameters [1], Length (AllParameters));
 
   fpFlock (OutputPipeHandle, LOCK_UN);

@@ -25,7 +25,7 @@ unit PageHandlerBaseUnit;
 interface
 
 uses
-  Classes, SysUtils, WebUnit, CollectionUnit, XMLNode, Unix,
+  Classes, SysUtils, CollectionUnit, XMLNode, Unix,
     BaseUnix, SessionManagerUnit, WebHeaderUnit,
     AbstractHandlerUnit;
   
@@ -45,7 +45,7 @@ type
     property Session: TSession read GetSession;
 
     constructor Create (ContType: TContentType; ThisPageName: Ansistring;
-                                ThisPagePath: AnsiString);
+                                ThisPageRelativePath: AnsiString);
     destructor Destroy; override;
 
 //    function CreateNewInstance: TAbstractHandler; override;
@@ -55,7 +55,7 @@ type
   { THTMLHandlerPage }
   THTMLHandler= class (THandlerBase)
   public
-    constructor Create (ThisPageName: AnsiString; ThisPagePath: AnsiString= '');
+    constructor Create (ThisPageName: AnsiString; ThisPageRelativePath: AnsiString= '');
     procedure Flush; override;
 
   end;
@@ -76,7 +76,7 @@ type
     property XSLPath: String read FXSLPath;
 
     constructor Create (ThisPageName: String; XSLPage: String;
-                RelativePagePath: String= '';
+                RelativePagePath: String;
                 Encoding: String= 'UTF-8';                                    
                 Version: String= '1.0';
                 Indent: Boolean= False);
@@ -92,10 +92,11 @@ type
   private
     function GetPageHandler (Index: Integer): TAbstractHandler;
     function GetPageHandlerByName (const AName: String): TAbstractHandler;
-
+    function GetPageHandlerName(Index: Integer): AnsiString;
 
   public
     property PageHandler [Index: Integer]: TAbstractHandler read GetPageHandler;
+    property PageHandlerName [Index: Integer]: AnsiString read GetPageHandlerName;
     property PageHandlerByName [const AName: String]: TAbstractHandler
             read GetPageHandlerByName;
 
@@ -155,18 +156,16 @@ begin
 end;
 
 constructor THandlerBase.Create(ContType: TContentType;
-  ThisPageName: Ansistring; ThisPagePath: AnsiString);
+  ThisPageName: Ansistring; ThisPageRelativePath: AnsiString);
 begin
-  inherited Create (ContType, ThisPageName, ThisPagePath, False);
-
-  if GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionEnabled']= 'YES' then
-    FSessionID:= EmptySessionID;
+  inherited Create (ContType, ThisPageName, ThisPageRelativePath, False);
 
 end;
 
 destructor THandlerBase.Destroy;
 begin
-  Clear;
+  if PipeIsAssigned then
+    Clear;
   
   inherited;
   
@@ -187,6 +186,7 @@ begin
     Write (Buffer.Text);
 
   FpClose (PipeHandle);
+
   PipeIsAssigned:= False;
 
 end;
@@ -203,7 +203,11 @@ begin
   FXSLPath:= XSLPage;
   FIndent:= Indent;
 
-  FXMLRoot:= TXMLNode.Create (ThisPageName);
+  if ExtractFileExt (ThisPageName)<> '' then
+    FXMLRoot:= TXMLNode.Create (Copy (ThisPageName, 1, Length (ThisPageName)-
+          Length (ExtractFileExt (ThisPageName))))
+  else
+    FXMLRoot:= TXMLNode.Create (ThisPageName);
 
   Buffer.Add ('<?xml version="'+ Version+ '" encoding="'+ Encoding+ '" ?>');
   if XSLPath<> '' then
@@ -222,7 +226,8 @@ end;
 
 destructor TXMLHandler.Destroy;
 begin
-  Flush;
+  if PipeIsAssigned then
+    Flush;
   FXMLRoot.Free;
   
   inherited;
@@ -247,6 +252,12 @@ begin
     Result:= GetPageHandler (Index)
   else
     raise EPageNotFound.Create (AName);
+
+end;
+
+function TAbstractHandlerCollection.GetPageHandlerName (Index: Integer): AnsiString;
+begin
+  Result:= Names [Index];
 
 end;
 
@@ -287,16 +298,15 @@ end;
 
 { THTMLHandler }
 
-constructor THTMLHandler.Create (ThisPageName: AnsiString;
-  ThisPagePath: AnsiString);
+constructor THTMLHandler.Create (ThisPageName: AnsiString; ThisPageRelativePath: AnsiString);
 begin
-  inherited Create (ctTextHTML, ThisPageName, ThisPagePath);
+  inherited Create (ctTextHTML, ThisPageName, ThisPageRelativePath);
 
 end;
 
 procedure THTMLHandler.Flush;
 begin
-  Write (' ');
+  Write ('');
 
 end;
 

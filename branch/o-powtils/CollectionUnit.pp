@@ -1001,6 +1001,7 @@ end;
 procedure TNameValueCollection.Add (ANameValue: TNameValue);
 begin
   AddNameValue (ANameValue);
+
 end;
 
 destructor TNameValueCollection.Destroy;
@@ -1010,8 +1011,10 @@ var
 begin
   for i:= 0 to Count- 1 do
     Objects [i].Free;
+  Clear;
 
   inherited Destroy;
+
 end;
 
 { EVariableNotFound }
@@ -1036,7 +1039,6 @@ end;
 
 destructor TNameValue.Destroy;
 begin
-
   FValue.Free;
   
   inherited Destroy;
@@ -1046,18 +1048,24 @@ end;
 { TNameStrValue }
 
 function TNameStrValue.GetValue: AnsiString;
+var
+  PVal: PString;
+
 begin
-  Result:= (PAnsiString (PByte (FValue)))^;
+  PVal:= PString (FValue);
+  if PVal= nil then
+    Result:= ''
+  else
+    Result:= PVal^;
 
 end;
 
 constructor TNameStrValue.Create (const AName: AnsiString; const AValue: AnsiString);
 var
-  PVal: PAnsiString;
+  PVal: PString;
 
 begin
-  New (PVal);
-  PVal^:= AValue;
+  PVal:= NewStr (AValue);
 
   inherited Create (AName, TObject (PVal));
 
@@ -1066,21 +1074,25 @@ end;
 constructor TNameStrValue.Create (const ANameValueStr: AnsiString);
 var
   AName, AValue: AnsiString;
-  PVal: PAnsiString;
+  PVal: PString;
 
 begin
   AName:= Copy (ANameValueStr, 1, Pos ('=', ANameValueStr)- 1);
   AValue:= Copy (ANameValueStr, Pos ('=', ANameValueStr)+ 1, Length (ANameValueStr));
 
-  New (PVal);
-  PVal^:= AValue;
+  PVal:= NewStr (AValue);
 
   inherited Create (AName, TObject (PVal));
 
 end;
 
 destructor TNameStrValue.Destroy;
+var
+  PVal: PString;
+
 begin
+  PVal:= PString (FValue);
+  DisposeStr (PVal);
   FValue:= nil;
 
   inherited Destroy;

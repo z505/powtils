@@ -5,9 +5,11 @@ unit GlobalUnit;
 interface
 
 uses
-  Classes, SysUtils, FileStringsUnit, WebUnit, WebConfigurationUnit;
+  Classes, SysUtils, FileStringsUnit, WebConfigurationUnit;
   
 type
+  EConfigFileNotFound= class (Exception);
+
   { TGlobalObjectContainer }
 
   TGlobalObjectContainer= class (TObject)
@@ -35,13 +37,14 @@ type
     property QueueIsFullCount: Int64 read FQueueIsFullCount;
 
     constructor Create;
-    procedure Free;
+    destructor Destroy; override;
 
     procedure NewRequestServed;
     procedure NewRequestRegistered;
     procedure QueueIsFullOccured;
 
   end;
+
 
 implementation
 
@@ -57,10 +60,86 @@ begin
 end;
 
 constructor TGlobalObjectContainer.Create;
+
+{
+  The configfilename must be PSP.conf and be in the same path as the application.
+}
+
+  procedure ReadConfigFileInfo;
+  const
+  {Default values for Webconfiguration:
+  }
+    DefaultConfigurationValues: array [1..7] of array [1..2] of String=
+           (
+            ('Charset', 'UTF-8'),//Default Charset
+            ('RestartInterval', '-1'),//Default RestartInterval
+            ('SessionIDLen', '20'),// Default SessionIDLen
+            ('SessionVarName', 'PSPSESS'),// Default SessionVarName
+            ('SessionUseCookie', 'TRUE'),//Dafault SessionUseCookie
+            ('TemproraryPipesFilenameLength', '12'),//Dafault Temprorary pipes filename length
+            ('AdminPage', 'AdminPage')//Dafault path (relative path and filename for AdminPage)
+            );
+  var
+    ConfigFileHandle: TextFile;
+    TempInt: Integer;
+    TempString: String;
+    i: Integer;
+
+  begin
+    if not FileExists ('PSP.conf') then
+      EConfigFileNotFound.Create ('Config File not found!');
+
+    AssignFile (ConfigFileHandle, 'PSP.conf');
+    Reset (ConfigFileHandle);
+
+    while not Eof (ConfigFileHandle) do
+    begin
+      ReadLn (ConfigFileHandle, TempString);
+      TempString:= Trim (TempString);
+
+      if (TempString<> '') and
+        ((Length (TempString)= 0) or (TempString [1]<> '#')) then
+      begin
+        TempInt:= Pos (':', TempString);
+        Configurations.AddNameValue (TWebConfiguration.Create (
+          Copy (TempString, 1, TempInt- 1),
+          Copy (TempString, TempInt+ 1, Length (TempString)- TempInt)));
+
+      end;
+
+    end;
+
+    for i:= Low (DefaultConfigurationValues) to High (DefaultConfigurationValues) do
+      if Configurations.ConfigurationValueByName [DefaultConfigurationValues [i][1]]= '' then
+        Configurations.Add (TWebConfiguration.Create (DefaultConfigurationValues [i][1],
+                             DefaultConfigurationValues [i][2]));
+
+    CloseFile (ConfigFileHandle);
+    for i:= 1 to ParamCount do
+    begin
+      TempString:= Trim (ParamStr (i));
+
+      if (TempString<> '') and
+        ((Length (TempString)= 0) or (TempString [1]<> '#')) then
+      begin
+        TempInt:= Pos (':', TempString);
+        Configurations.AddNameValue (TWebConfiguration.Create (
+          Copy (TempString, 1, TempInt- 1),
+          Copy (TempString, TempInt+ 1, Length (TempString)- TempInt)));
+
+      end;
+
+    end;
+
+
+  end;
+
 begin
   inherited;
   
   FConfigurations:= TWebConfigurationCollection.Create (WebConfigFile);
+  ReadConfigFileInfo;
+
   FFileStringCollection:= TFileStrings.Create;
   FStartTime:= Now;
   FServedRequestCount:= 0;
@@ -69,7 +148,7 @@ begin
 
 end;
 
-procedure TGlobalObjectContainer.Free;
+destructor TGlobalObjectContainer.Destroy;
 begin
   FFileStringCollection.Free;
   Configurations.Free;

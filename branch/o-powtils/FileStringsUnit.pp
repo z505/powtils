@@ -13,7 +13,7 @@ type
 
   EFileNotFound= class (Exception)
   public
-    constructor Create (Filename: String);
+    constructor Create (const Filename: AnsiString);
     
   end;
   
@@ -21,16 +21,15 @@ type
 
   TFileString= class (TObject)
   private
-    FFileName: String;
-    FFileID: String;
+    FFileName: AnsiString;
+    FFileID: AnsiString;
     FDataInFile: AnsiString;
     
   public
-    property FileID: String read FFileID;
+    property FileID: AnsiString read FFileID;
     property DataInFile: AnsiString read FDataInFile;
     
-    constructor Create (FileName, FileIdentifier: String);
-    procedure Free;
+    constructor Create (FileName, FileIdentifier: AnsiString);
     
   end;
   
@@ -38,16 +37,17 @@ type
 
   TFileStrings= class (TBaseCollection)
   private
-    function GetFileString(Index: Integer): TFileString;
-    function GetFileString(Index: String): TFileString;
+    function GetFileString (Index: Integer): TFileString;
+    function GetFileString (const Index: AnsiString): TFileString;
     
   public
     property FileString [Index: Integer]: TFileString read GetFileString;
-    property FileStringByName [Index: String]: TFileString read GetFileString;
+    property FileStringByName [Index: AnsiString]: TFileString read GetFileString;
 
     constructor Create;
-    procedure Free (FreeObj: Boolean= True);
-    
+
+{Add a AFileString to the collectio. The new FileString will be freed by the
+  collection in the TFileString destructor.}
     procedure AddFileString (AFileString: TFileString);
 
   end;
@@ -56,7 +56,7 @@ type
 
   EIDNotFound= class (Exception)
   public
-    constructor Create (ID: String);
+    constructor Create (const ID: String);
     
   end;
   
@@ -70,7 +70,7 @@ begin
   
 end;
 
-function TFileStrings.GetFileString (Index: String): TFileString;
+function TFileStrings.GetFileString (const Index: String): TFileString;
 var
   i: Integer;
   
@@ -91,19 +91,6 @@ end;
 constructor TFileStrings.Create;
 begin
   inherited;
-  
-end;
-
-procedure TFileStrings.Free (FreeObj: Boolean= True);
-var
-  i: Integer;
-  
-begin
-  if FreeObj then
-    for i:= 0 to Size- 1 do
-      FileString [i].Free;
-
-  inherited Free;
   
 end;
 
@@ -138,15 +125,9 @@ begin
   
 end;
 
-procedure TFileString.Free;
-begin
-  inherited;
-  
-end;
-
 { EIDNotFound }
 
-constructor EIDNotFound.Create(ID: String);
+constructor EIDNotFound.Create (const ID: String);
 begin
   inherited Create ('ID= '+ ID+ ' not found in collection!');
   
@@ -154,7 +135,7 @@ end;
 
 { EFileNotFound }
 
-constructor EFileNotFound.Create(Filename: String);
+constructor EFileNotFound.Create (const Filename: AnsiString);
 begin
   inherited Create ('File with name= '+ Filename+ ' is not exist or is unaccessible!');
 end;

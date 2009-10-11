@@ -11,7 +11,7 @@
       <MainUnit Value="0"/>
       <TargetFileExt Value=""/>
       <Title Value="PersaDic"/>
-      <ActiveEditorIndexAtStart Value="1"/>
+      <ActiveEditorIndexAtStart Value="4"/>
     </General>
     <PublishOptions>
       <Version Value="2"/>
@@ -27,15 +27,18 @@
         <Display Use="True"/>
       </local>
     </RunParams>
-    <Units Count="70">
+    <Units Count="91">
       <Unit0>
         <Filename Value="PersaDic.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PersaDic"/>
-        <CursorPos X="66" Y="13"/>
-        <TopLine Value="7"/>
+        <CursorPos X="21" Y="28"/>
+        <TopLine Value="1"/>
         <EditorIndex Value="0"/>
         <UsageCount Value="211"/>
+        <Bookmarks Count="1">
+          <Item0 X="1" Y="11" ID="1"/>
+        </Bookmarks>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit0>
@@ -46,14 +49,14 @@
         <CursorPos X="1" Y="37"/>
         <TopLine Value="9"/>
         <UsageCount Value="211"/>
+        <SyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
         <Filename Value="ResidentApplicationUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="ResidentApplicationUnit"/>
         <CursorPos X="53" Y="526"/>
         <TopLine Value="513"/>
-        <UsageCount Value="211"/>
+        <UsageCount Value="210"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
@@ -72,13 +75,15 @@
         <CursorPos X="34" Y="28"/>
         <TopLine Value="20"/>
         <UsageCount Value="210"/>
+        <SyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
         <Filename Value="CollectionBaseUnit.pp"/>
         <UnitName Value="CollectionBaseUnit"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="88"/>
+        <UsageCount Value="87"/>
+        <SyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
         <Filename Value="CollectionUnit.pp"/>
@@ -100,15 +105,11 @@
       </Unit7>
       <Unit8>
         <Filename Value="../../PageHandlerBaseUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="PageHandlerBaseUnit"/>
-        <CursorPos X="54" Y="98"/>
-        <TopLine Value="81"/>
+        <CursorPos X="49" Y="208"/>
+        <TopLine Value="185"/>
         <EditorIndex Value="4"/>
         <UsageCount Value="200"/>
-        <Bookmarks Count="1">
-          <Item0 X="1" Y="153" ID="3"/>
-        </Bookmarks>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit8>
@@ -126,7 +127,7 @@
         <UnitName Value="ThisApplicationPagesUnit"/>
         <CursorPos X="1" Y="16"/>
         <TopLine Value="16"/>
-        <UsageCount Value="174"/>
+        <UsageCount Value="173"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
@@ -179,26 +180,26 @@
       </Unit15>
       <Unit16>
         <Filename Value="XML Handler/XMLNode.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="XMLNode"/>
         <CursorPos X="1" Y="244"/>
         <TopLine Value="236"/>
-        <UsageCount Value="202"/>
+        <UsageCount Value="201"/>
+        <SyntaxHighlighter Value="Delphi"/>
       </Unit16>
       <Unit17>
         <Filename Value="XML Handler/AttributeUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="AttributeUnit"/>
         <CursorPos X="13" Y="59"/>
         <TopLine Value="45"/>
-        <UsageCount Value="202"/>
+        <UsageCount Value="201"/>
+        <SyntaxHighlighter Value="Delphi"/>
       </Unit17>
       <Unit18>
         <Filename Value="ThreadingUnit.pp"/>
         <UnitName Value="ThreadingUnit"/>
         <CursorPos X="1" Y="130"/>
         <TopLine Value="97"/>
-        <UsageCount Value="31"/>
+        <UsageCount Value="30"/>
         <Bookmarks Count="1">
           <Item0 X="40" Y="118" ID="1"/>
         </Bookmarks>
@@ -208,9 +209,9 @@
         <Filename Value="ThisProjectGlobalUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ThisProjectGlobalUnit"/>
-        <CursorPos X="42" Y="40"/>
-        <TopLine Value="27"/>
-        <EditorIndex Value="1"/>
+        <CursorPos X="1" Y="40"/>
+        <TopLine Value="17"/>
+        <EditorIndex Value="6"/>
         <UsageCount Value="219"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
@@ -312,18 +313,19 @@
         <Filename Value="MainPageUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MainPageUnit"/>
-        <CursorPos X="1" Y="39"/>
-        <TopLine Value="22"/>
+        <CursorPos X="19" Y="33"/>
+        <TopLine Value="11"/>
+        <EditorIndex Value="3"/>
         <UsageCount Value="262"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit30>
       <Unit31>
         <Filename Value="../../ConstantsUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="ConstantsUnit"/>
         <CursorPos X="24" Y="11"/>
         <TopLine Value="1"/>
-        <UsageCount Value="208"/>
+        <UsageCount Value="207"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit31>
       <Unit32>
@@ -331,14 +333,14 @@
         <UnitName Value="MeaningUnit"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="174"/>
+        <UsageCount Value="173"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit32>
       <Unit33>
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/DisjunctiveScheduling/ds2.T"/>
         <CursorPos X="1" Y="99"/>
         <TopLine Value="71"/>
-        <UsageCount Value="169"/>
+        <UsageCount Value="168"/>
         <Bookmarks Count="4">
           <Item0 X="2" Y="58" ID="1"/>
           <Item1 X="3" Y="107" ID="2"/>
@@ -351,35 +353,35 @@
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/KnightTour/kt.3.T"/>
         <CursorPos X="36" Y="241"/>
         <TopLine Value="241"/>
-        <UsageCount Value="13"/>
+        <UsageCount Value="12"/>
         <SyntaxHighlighter Value="None"/>
       </Unit34>
       <Unit35>
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/Graph-Coloring/Col3.T"/>
         <CursorPos X="1" Y="177"/>
         <TopLine Value="151"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
         <SyntaxHighlighter Value="None"/>
       </Unit35>
       <Unit36>
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/Graph-Coloring/TrivialSat.I"/>
         <CursorPos X="8" Y="3"/>
         <TopLine Value="1"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
         <SyntaxHighlighter Value="None"/>
       </Unit36>
       <Unit37>
         <Filename Value="kt.4.t"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="147"/>
+        <UsageCount Value="146"/>
         <SyntaxHighlighter Value="None"/>
       </Unit37>
       <Unit38>
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/HydraulicLeaking/HydraulicLeaking.2.T"/>
         <CursorPos X="14" Y="215"/>
         <TopLine Value="184"/>
-        <UsageCount Value="93"/>
+        <UsageCount Value="92"/>
         <Bookmarks Count="2">
           <Item0 X="21" Y="171" ID="1"/>
           <Item1 X="1" Y="24" ID="2"/>
@@ -390,100 +392,104 @@
         <Filename Value="../../../../../MXG/Code/WorkingRep/Competition-ASP-2009/HydraulicLeaking/trivial.I"/>
         <CursorPos X="7" Y="88"/>
         <TopLine Value="38"/>
-        <UsageCount Value="28"/>
+        <UsageCount Value="27"/>
         <SyntaxHighlighter Value="None"/>
       </Unit39>
       <Unit40>
         <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="PersaDictionaryUnit"/>
-        <CursorPos X="1" Y="281"/>
-        <TopLine Value="264"/>
-        <UsageCount Value="305"/>
+        <CursorPos X="1" Y="629"/>
+        <TopLine Value="607"/>
+        <EditorIndex Value="5"/>
+        <UsageCount Value="304"/>
         <Bookmarks Count="1">
           <Item0 X="3" Y="572" ID="2"/>
         </Bookmarks>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit40>
       <Unit41>
         <Filename Value="../../../../../MyUnits/DictionaryTree/DictionaryTreeUnit.pas"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="DictionaryTreeUnit"/>
-        <CursorPos X="1" Y="394"/>
+        <CursorPos X="27" Y="389"/>
         <TopLine Value="377"/>
-        <UsageCount Value="305"/>
-        <SyntaxHighlighter Value="Delphi"/>
+        <UsageCount Value="304"/>
       </Unit41>
       <Unit42>
         <Filename Value="../../../../../MyUnits/General Purpose Units/StreamUnit.pas"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="StreamUnit"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="305"/>
+        <UsageCount Value="304"/>
+        <SyntaxHighlighter Value="Delphi"/>
       </Unit42>
       <Unit43>
         <Filename Value="../../../../../MyUnits/SpellChecker Units/SpellCheckerUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="SpellCheckerUnit"/>
         <CursorPos X="75" Y="77"/>
         <TopLine Value="76"/>
-        <UsageCount Value="305"/>
+        <UsageCount Value="304"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit43>
       <Unit44>
         <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <IsPartOfProject Value="True"/>
         <UnitName Value="ResidentApplicationUnit"/>
-        <CursorPos X="14" Y="307"/>
-        <TopLine Value="300"/>
-        <EditorIndex Value="2"/>
-        <UsageCount Value="122"/>
-        <Bookmarks Count="1">
-          <Item0 X="7" Y="303" ID="1"/>
-        </Bookmarks>
+        <CursorPos X="1" Y="450"/>
+        <TopLine Value="428"/>
+        <EditorIndex Value="7"/>
+        <UsageCount Value="133"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit44>
       <Unit45>
         <Filename Value="../../CollectionUnit.pp"/>
         <UnitName Value="CollectionUnit"/>
-        <CursorPos X="1" Y="1015"/>
-        <TopLine Value="998"/>
-        <UsageCount Value="84"/>
+        <CursorPos X="1" Y="970"/>
+        <TopLine Value="948"/>
+        <EditorIndex Value="9"/>
+        <UsageCount Value="87"/>
+        <Bookmarks Count="1">
+          <Item0 X="1" Y="1095" ID="3"/>
+        </Bookmarks>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit45>
       <Unit46>
         <Filename Value="../../ThreadingUnit.pp"/>
         <UnitName Value="ThreadingUnit"/>
-        <CursorPos X="1" Y="98"/>
-        <TopLine Value="81"/>
+        <CursorPos X="25" Y="160"/>
+        <TopLine Value="120"/>
+        <EditorIndex Value="1"/>
         <UsageCount Value="119"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit46>
       <Unit47>
         <Filename Value="../../RequestsQueue.pp"/>
         <UnitName Value="RequestsQueue"/>
-        <CursorPos X="1" Y="262"/>
-        <TopLine Value="245"/>
+        <CursorPos X="15" Y="97"/>
+        <TopLine Value="75"/>
+        <EditorIndex Value="12"/>
         <UsageCount Value="116"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit47>
       <Unit48>
         <Filename Value="../../AbstractHandlerUnit.pp"/>
         <UnitName Value="AbstractHandlerUnit"/>
-        <CursorPos X="3" Y="42"/>
-        <TopLine Value="9"/>
-        <EditorIndex Value="5"/>
-        <UsageCount Value="99"/>
+        <CursorPos X="26" Y="326"/>
+        <TopLine Value="317"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="100"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit48>
       <Unit49>
         <Filename Value="../../GlobalUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="GlobalUnit"/>
-        <CursorPos X="1" Y="41"/>
-        <TopLine Value="19"/>
+        <CursorPos X="3" Y="174"/>
+        <TopLine Value="149"/>
         <UsageCount Value="291"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit49>
@@ -491,110 +497,111 @@
         <Filename Value="PuzzlePageUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PuzzlePageUnit"/>
-        <CursorPos X="17" Y="35"/>
-        <TopLine Value="33"/>
+        <CursorPos X="83" Y="35"/>
+        <TopLine Value="13"/>
         <UsageCount Value="287"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit50>
       <Unit51>
         <Filename Value="../../../../../MyUnits/DictionaryTree/StringKeyUnit.pp"/>
         <UnitName Value="StringKeyUnit"/>
-        <CursorPos X="18" Y="81"/>
-        <TopLine Value="61"/>
-        <UsageCount Value="57"/>
+        <CursorPos X="1" Y="55"/>
+        <TopLine Value="33"/>
+        <EditorIndex Value="11"/>
+        <UsageCount Value="56"/>
+        <Loaded Value="True"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit51>
       <Unit52>
         <Filename Value="../../WebConfigurationUnit.pp"/>
         <UnitName Value="WebConfigurationUnit"/>
-        <CursorPos X="1" Y="66"/>
-        <TopLine Value="49"/>
-        <UsageCount Value="67"/>
+        <CursorPos X="1" Y="70"/>
+        <TopLine Value="48"/>
+        <UsageCount Value="69"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit52>
       <Unit53>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/unix/bunxovlh.inc"/>
         <CursorPos X="11" Y="29"/>
         <TopLine Value="12"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
       </Unit53>
       <Unit54>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/packages/fcl-base/src/custapp.pp"/>
         <UnitName Value="CustApp"/>
         <CursorPos X="17" Y="46"/>
         <TopLine Value="29"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit54>
       <Unit55>
         <Filename Value="../../CgiVariableUnit.pp"/>
         <UnitName Value="CgiVariableUnit"/>
-        <CursorPos X="42" Y="28"/>
-        <TopLine Value="11"/>
+        <CursorPos X="37" Y="77"/>
+        <TopLine Value="74"/>
         <UsageCount Value="10"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit55>
       <Unit56>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/sysstrh.inc"/>
-        <CursorPos X="10" Y="95"/>
-        <TopLine Value="78"/>
-        <UsageCount Value="5"/>
+        <CursorPos X="18" Y="28"/>
+        <TopLine Value="6"/>
+        <UsageCount Value="10"/>
       </Unit56>
       <Unit57>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/sysstr.inc"/>
         <CursorPos X="3" Y="530"/>
         <TopLine Value="527"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit57>
       <Unit58>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/diskh.inc"/>
         <CursorPos X="16" Y="22"/>
         <TopLine Value="1"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit58>
       <Unit59>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/unix/sysutils.pp"/>
         <UnitName Value="sysutils"/>
         <CursorPos X="3" Y="505"/>
         <TopLine Value="498"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit59>
       <Unit60>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/sysutils.inc"/>
         <CursorPos X="10" Y="548"/>
         <TopLine Value="519"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit60>
       <Unit61>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/filutilh.inc"/>
         <CursorPos X="19" Y="21"/>
         <TopLine Value="4"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit61>
       <Unit62>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/sysutilh.inc"/>
         <CursorPos X="4" Y="36"/>
         <TopLine Value="19"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit62>
       <Unit63>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/inc/systemh.inc"/>
-        <CursorPos X="11" Y="694"/>
-        <TopLine Value="677"/>
-        <UsageCount Value="6"/>
+        <CursorPos X="37" Y="547"/>
+        <TopLine Value="522"/>
+        <UsageCount Value="10"/>
       </Unit63>
       <Unit64>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/unix/sysdir.inc"/>
         <CursorPos X="3" Y="31"/>
         <TopLine Value="21"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit64>
       <Unit65>
-        <Filename Value="../../StatisticsDispatcherUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="StatisticsDispatcherUnit"/>
-        <CursorPos X="36" Y="26"/>
-        <TopLine Value="1"/>
-        <UsageCount Value="63"/>
+        <Filename Value="../../AdminPageDispatcherUnit.pp"/>
+        <UnitName Value="AdminPageDispatcherUnit"/>
+        <CursorPos X="7" Y="48"/>
+        <TopLine Value="8"/>
+        <UsageCount Value="68"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit65>
       <Unit66>
@@ -602,7 +609,7 @@
         <UnitName Value="XMLNode"/>
         <CursorPos X="1" Y="207"/>
         <TopLine Value="190"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
         <SyntaxHighlighter Value="Delphi"/>
       </Unit66>
       <Unit67>
@@ -610,154 +617,318 @@
         <UnitName Value="Page"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="3"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit67>
       <Unit68>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/inc/objpash.inc"/>
-        <CursorPos X="23" Y="147"/>
-        <TopLine Value="130"/>
+        <CursorPos X="21" Y="156"/>
+        <TopLine Value="134"/>
         <UsageCount Value="10"/>
       </Unit68>
       <Unit69>
         <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/objpas/classes/classesh.inc"/>
-        <CursorPos X="3" Y="636"/>
-        <TopLine Value="619"/>
-        <UsageCount Value="10"/>
+        <CursorPos X="21" Y="640"/>
+        <TopLine Value="611"/>
+        <UsageCount Value="9"/>
       </Unit69>
+      <Unit70>
+        <Filename Value="../../Page.res"/>
+        <CursorPos X="16" Y="28"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="None"/>
+      </Unit70>
+      <Unit71>
+        <Filename Value="../../Page.lrs"/>
+        <CursorPos X="22" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit71>
+      <Unit72>
+        <Filename Value="../../../../../../../../usr/lib/lazarus/lcl/fileutil.pas"/>
+        <UnitName Value="FileUtil"/>
+        <CursorPos X="41" Y="243"/>
+        <TopLine Value="219"/>
+        <UsageCount Value="9"/>
+      </Unit72>
+      <Unit73>
+        <Filename Value="../../FormUnit.pp"/>
+        <ComponentName Value="Form1"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="FormUnit"/>
+        <CursorPos X="7" Y="24"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="22"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit73>
+      <Unit74>
+        <Filename Value="../../../../../../../../usr/lib/lazarus/lcl/lcltype.pp"/>
+        <UnitName Value="LCLType"/>
+        <CursorPos X="19" Y="24"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+      </Unit74>
+      <Unit75>
+        <Filename Value="../../../../../../../../usr/lib/lazarus/lcl/lclproc.pas"/>
+        <UnitName Value="LCLProc"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+      </Unit75>
+      <Unit76>
+        <Filename Value="../../../../../../../../usr/lib/lazarus/lcl/lresources.pp"/>
+        <UnitName Value="LResources"/>
+        <CursorPos X="3" Y="1384"/>
+        <TopLine Value="1380"/>
+        <UsageCount Value="9"/>
+      </Unit76>
+      <Unit77>
+        <Filename Value="../../Page.pp"/>
+        <UnitName Value="Page"/>
+        <CursorPos X="23" Y="20"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit77>
+      <Unit78>
+        <Filename Value="../../WebCMD/PWU.conf"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="None"/>
+      </Unit78>
+      <Unit79>
+        <Filename Value="../../WebCMD/PSP.conf"/>
+        <CursorPos X="31" Y="5"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="None"/>
+      </Unit79>
+      <Unit80>
+        <Filename Value="PSP.conf"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="None"/>
+      </Unit80>
+      <Unit81>
+        <Filename Value="../../../../../../../../usr/share/fpcsrc/rtl/objpas/classes/stringl.inc"/>
+        <CursorPos X="41" Y="868"/>
+        <TopLine Value="858"/>
+        <UsageCount Value="9"/>
+      </Unit81>
+      <Unit82>
+        <Filename Value="../../ThisProjectGlobalUnit.pp"/>
+        <UnitName Value="ThisProjectGlobalUnit"/>
+        <CursorPos X="3" Y="24"/>
+        <TopLine Value="7"/>
+        <UsageCount Value="10"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit82>
+      <Unit83>
+        <Filename Value="../../../../../MyUnits/PersaDic/MeaningUnit.pp"/>
+        <UnitName Value="MeaningUnit"/>
+        <CursorPos X="27" Y="15"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit83>
+      <Unit84>
+        <Filename Value="PersaDicUnits/StreamUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="StreamUnit"/>
+        <CursorPos X="24" Y="15"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="30"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit84>
+      <Unit85>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <UnitName Value="SpellCheckerUnit"/>
+        <CursorPos X="16" Y="309"/>
+        <TopLine Value="277"/>
+        <EditorIndex Value="8"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit85>
+      <Unit86>
+        <Filename Value="PersaDicUnits/MapUnit.pp"/>
+        <UnitName Value="MapUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit86>
+      <Unit87>
+        <Filename Value="../../SessionManagerUnit.pp"/>
+        <UnitName Value="SessionManagerUnit"/>
+        <CursorPos X="23" Y="129"/>
+        <TopLine Value="129"/>
+        <UsageCount Value="11"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit87>
+      <Unit88>
+        <Filename Value="../../FileStringsUnit.pp"/>
+        <UnitName Value="FileStringsUnit"/>
+        <CursorPos X="31" Y="16"/>
+        <TopLine Value="16"/>
+        <UsageCount Value="11"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit88>
+      <Unit89>
+        <Filename Value="../../WebHeaderUnit.pp"/>
+        <UnitName Value="WebHeaderUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="12"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit89>
+      <Unit90>
+        <Filename Value="PersaDicUnits/DictionaryTreeUnit.pp"/>
+        <UnitName Value="DictionaryTreeUnit"/>
+        <CursorPos X="3" Y="51"/>
+        <TopLine Value="29"/>
+        <EditorIndex Value="10"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <SyntaxHighlighter Value="Delphi"/>
+      </Unit90>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="309" Column="20" TopLine="292"/>
+        <Filename Value="MainPageUnit.pp"/>
+        <Caret Line="63" Column="1" TopLine="41"/>
       </Position1>
       <Position2>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="299" Column="15" TopLine="294"/>
+        <Filename Value="MainPageUnit.pp"/>
+        <Caret Line="64" Column="1" TopLine="42"/>
       </Position2>
       <Position3>
-        <Filename Value="RequestCollectorPage/Page.pp"/>
-        <Caret Line="19" Column="147" TopLine="1"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="624" Column="1" TopLine="602"/>
       </Position3>
       <Position4>
-        <Filename Value="RequestCollectorPage/Page.pp"/>
-        <Caret Line="210" Column="1" TopLine="188"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="629" Column="1" TopLine="607"/>
       </Position4>
       <Position5>
-        <Filename Value="RequestCollectorPage/Page.pp"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="195" Column="1" TopLine="173"/>
       </Position5>
       <Position6>
-        <Filename Value="RequestCollectorPage/Page.pp"/>
-        <Caret Line="20" Column="7" TopLine="1"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="197" Column="1" TopLine="175"/>
       </Position6>
       <Position7>
-        <Filename Value="RequestCollectorPage/Page.pp"/>
-        <Caret Line="212" Column="5" TopLine="179"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="206" Column="1" TopLine="184"/>
       </Position7>
       <Position8>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="280" Column="1" TopLine="260"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="195" Column="1" TopLine="185"/>
       </Position8>
       <Position9>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="209" Column="1" TopLine="187"/>
       </Position9>
       <Position10>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="72" Column="70" TopLine="55"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="210" Column="1" TopLine="188"/>
       </Position10>
       <Position11>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="73" Column="69" TopLine="55"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="212" Column="1" TopLine="190"/>
       </Position11>
       <Position12>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="144" Column="47" TopLine="127"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="213" Column="1" TopLine="191"/>
       </Position12>
       <Position13>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="309" Column="20" TopLine="292"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="215" Column="1" TopLine="193"/>
       </Position13>
       <Position14>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="404" Column="33" TopLine="387"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="216" Column="1" TopLine="194"/>
       </Position14>
       <Position15>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="406" Column="7" TopLine="387"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="218" Column="1" TopLine="196"/>
       </Position15>
       <Position16>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="342" Column="1" TopLine="342"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="220" Column="1" TopLine="200"/>
       </Position16>
       <Position17>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="536" Column="50" TopLine="514"/>
+        <Filename Value="MainPageUnit.pp"/>
+        <Caret Line="64" Column="1" TopLine="42"/>
       </Position17>
       <Position18>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="529" Column="44" TopLine="519"/>
+        <Filename Value="MainPageUnit.pp"/>
+        <Caret Line="57" Column="1" TopLine="35"/>
       </Position18>
       <Position19>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="582" Column="105" TopLine="553"/>
+        <Filename Value="MainPageUnit.pp"/>
+        <Caret Line="58" Column="1" TopLine="36"/>
       </Position19>
       <Position20>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Filename Value="MainPageUnit.pp"/>
+        <Caret Line="60" Column="1" TopLine="38"/>
       </Position20>
       <Position21>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="312" Column="123" TopLine="294"/>
+        <Filename Value="MainPageUnit.pp"/>
+        <Caret Line="63" Column="1" TopLine="41"/>
       </Position21>
       <Position22>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="323" Column="34" TopLine="294"/>
+        <Filename Value="MainPageUnit.pp"/>
+        <Caret Line="64" Column="1" TopLine="42"/>
       </Position22>
       <Position23>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="324" Column="33" TopLine="294"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="623" Column="1" TopLine="601"/>
       </Position23>
       <Position24>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="326" Column="29" TopLine="294"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="624" Column="1" TopLine="602"/>
       </Position24>
       <Position25>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="390" Column="49" TopLine="373"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="626" Column="1" TopLine="604"/>
       </Position25>
       <Position26>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="413" Column="57" TopLine="396"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="627" Column="1" TopLine="605"/>
       </Position26>
       <Position27>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="578" Column="21" TopLine="561"/>
+        <Filename Value="../../../../../MyUnits/PersaDic/PersaDictionaryUnit.pp"/>
+        <Caret Line="629" Column="1" TopLine="607"/>
       </Position27>
       <Position28>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="333" Column="22" TopLine="306"/>
+        <Filename Value="PersaDicUnits/SpellCheckerUnit.pp"/>
+        <Caret Line="220" Column="1" TopLine="198"/>
       </Position28>
       <Position29>
-        <Filename Value="../../ResidentApplicationUnit.pp"/>
-        <Caret Line="317" Column="19" TopLine="290"/>
+        <Filename Value="MainPageUnit.pp"/>
+        <Caret Line="33" Column="19" TopLine="11"/>
       </Position29>
       <Position30>
-        <Filename Value="PersaDic.lpr"/>
-        <Caret Line="13" Column="66" TopLine="7"/>
+        <Filename Value="../../PageHandlerBaseUnit.pp"/>
+        <Caret Line="207" Column="111" TopLine="196"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="8"/>
     <SearchPaths>
-      <OtherUnitFiles Value="Pages/;Extra/;XML Handler/;/home/Amir/Project/O-PSP-OnGoogle/branch/o-powtils/;/home/Amir/Project/MyUnits/PersaDic/;/home/Amir/Project/MyUnits/DictionaryTree/;/home/Amir/Project/MyUnits/General Purpose Units/;/home/Amir/Project/MyUnits/SpellChecker Units/"/>
+      <IncludeFiles Value="$(ProjOutDir)/;/usr/lib/lazarus/lcl/include/"/>
+      <OtherUnitFiles Value="/usr/lib/lazarus/lcl/units/i386-linux/;/home/Amir/Project/O-PSP-OnGoogle/branch/o-powtils/;/home/Amir/Project/MyUnits/PersaDic/;/home/Amir/Project/MyUnits/DictionaryTree/;PersaDicUnits/"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
         <SyntaxMode Value="Delphi"/>
+        <CStyleOperator Value="False"/>
       </SyntaxOptions>
     </Parsing>
     <Other>
@@ -765,19 +936,23 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <BreakPoints Count="3">
+    <BreakPoints Count="4">
       <Item1>
-        <Source Value="MainPageUnit.pp"/>
-        <Line Value="60"/>
+        <Source Value="../../../../../../../../usr/share/fpcsrc/rtl/objpas/classes/stringl.inc"/>
+        <Line Value="180"/>
       </Item1>
       <Item2>
-        <Source Value="MainPageUnit.pp"/>
-        <Line Value="39"/>
+        <Source Value="../../PageHandlerBaseUnit.pp"/>
+        <Line Value="256"/>
       </Item2>
       <Item3>
-        <Source Value="ThisProjectGlobalUnit.pp"/>
-        <Line Value="40"/>
+        <Source Value="MainPageUnit.pp"/>
+        <Line Value="63"/>
       </Item3>
+      <Item4>
+        <Source Value="MainPageUnit.pp"/>
+        <Line Value="57"/>
+      </Item4>
     </BreakPoints>
     <Watches Count="3">
       <Item1>

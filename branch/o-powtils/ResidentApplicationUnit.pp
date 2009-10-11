@@ -39,28 +39,28 @@
    where the Temproray pipefile should be stored-in along with the "Mainpipe". It also
    tries to create and compile the "RequestCollector" pages in.
 
+  [10/OCT/2009 - Amir]
+   - Add a resource file (Page.res) which contains the template for RequestCollector pages.
 
 }
 
 unit ResidentApplicationUnit;
 
 {$mode objfpc}{$H+}
-//(*$DEFINE DebugMode*)
+{$DEFINE DebugMode}
 
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit, ThreadingUnit,
+  Classes, SysUtils, ThreadingUnit,
   CustApp, RequestsQueue, AbstractHandlerUnit,
   BaseUnix, SessionManagerUnit, PageHandlerBaseUnit;
 
 type
-  EConfigFileNotFound= class (Exception);
-
   { EMainPipeNotFound }
 
   EMainPipeNotFound= class (Exception)
-    constructor Create (Name: String);
+    constructor Create (Name: AnsiString);
     
   end;
   
@@ -69,8 +69,9 @@ type
   { EInvalidArgument }
 
   EInvalidArgument= class (Exception)
-    constructor Create (ConfigName: String; Value: Integer); overload;
-    constructor Create (ConfigName: String; Value: String); overload;
+    constructor Create (ConfigName: AnsiString; Value: Integer); overload;
+    constructor Create (ConfigName: AnsiString; Value: String); overload;
+    constructor Create (Reason: AnsiString);
 
   end;
 {$STATIC ON}
@@ -84,7 +85,7 @@ type
     FRestartInterval: Integer;
     FMainPipeFileName: String;
     FOnNewRequest: TOnNewRequestArrived;
-    FStatPagePath: AnsiString;
+    FAdminPagePath: AnsiString;
     FTempPipeFilesPath: String;
     FRemainedToRestart: Integer;
     FUsingSessionManager: Boolean;
@@ -100,8 +101,9 @@ type
     procedure SetRestartInterval (const AValue: Integer);
 
   private
+    procedure SetAdminPagePath(const AValue: AnsiString);
+    procedure SetUsingSessionManager(const AValue: Boolean);
     property AllHandlers: TAbstractHandlerCollection read FAllHandlers;
-    property StatPagePath: AnsiString read FStatPagePath;
 
   published
     property MainPipeFileName: String read FMainPipeFileName write SetMainPipeFileName ;
@@ -112,11 +114,12 @@ type
     property RemainedToRestart: Integer read FRemainedToRestart;
     property NumberOfActiveThread: Integer read FNumberOfActiveThread write SetNumberOfActiveThread;
     property RequestQueueSize: Integer read FRequestQueueSize;
-    property UsingSessionManager: Boolean read FUsingSessionManager;
+    property UsingSessionManager: Boolean read FUsingSessionManager write SetUsingSessionManager;
+    property AdminPagePath: AnsiString read FAdminPagePath write SetAdminPagePath;
 
     function RegisterRequest (const ARequestString: String): Boolean;
 
-    function Install: Boolean;
+    procedure Install;
 
   public
   
@@ -125,8 +128,7 @@ type
     constructor Create (AnOwner: TComponent);
     destructor Destroy; override;
 
-    procedure RegisterPageHandlerHandler (const AName: String;
-                          AHandler: TAbstractHandler);
+    procedure RegisterPageHandlerHandler (AHandler: TAbstractHandler);
     function GetPageHandler (const AName: String): TAbstractHandler;
 
   end;
@@ -149,10 +151,10 @@ var
   
 
 implementation
+
 uses
-  ExceptionUnit, WebConfigurationUnit,
-  StatisticsDispatcherUnit,
-  ThisProjectGlobalUnit;
+  AdminPageDispatcherUnit,
+  ThisProjectGlobalUnit, LResources, Process;
   
 { TParameter }
 (*
@@ -221,6 +223,26 @@ begin
   
 end;
 
+procedure TResident.SetAdminPagePath (const AValue: AnsiString);
+begin
+  FAdminPagePath:= AValue;
+  RegisterPageHandlerHandler (TAdminPageHandler.Create (AValue));
+
+end;
+
+procedure TResident.SetUsingSessionManager (const AValue: Boolean);
+begin
+  FUsingSessionManager:= AValue;
+
+if UsingSessionManager then
+  if UpperCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionUseCookie'])= 'TRUE' then
+    SessionManagerUnit.SessionManager:= TBasicSessionManager.Create
+  else
+    raise Exception.Create ('Currently, the only working session manager is TCookiBasedSessionManager!');
+
+
+end;
+
 function TResident.RegisterRequest (const ARequestString: String): Boolean;
 var
   NewRequest: TRequest;
@@ -251,7 +273,8 @@ begin
 
 end;
 
-function TResident.Install: Boolean;
+procedure TResident.Install;
+
   function DeleteDir (const DirPath: AnsiString): Boolean;
   var
     Path: String;
@@ -283,41 +306,66 @@ function TResident.Install: Boolean;
 
   end;
 
-  function CheckForCorrectness: Boolean;
-  begin
-    if not FileExists (MainPipeFileName) then
-      Exit (False);
+  function CreateDir (const DirPath: AnsiString): Boolean;
+  var
+    Path: String;
+    i: Integer;
+    S: String;
 
-    if not DirectoryExists (TempPipeFilesPath) then
-      Exit (False);
+  begin
+    Path:= DirPath;
+    if Length (Path)<> 0 then
+    begin
+      if Path [Length (Path)]<> '/' then
+        Path+= '/';
+
+    end;
+
+    i:= 1;
+    S:= '/';
+    while i< Length (Path) do
+    begin
+      while i< Length (Path) do
+      begin
+        Inc (i);
+        if Path [i]= '/' then
+          Break;
+        S+= Path [i];
+
+      end;
+
+      if not DirectoryExists (S) then
+      begin
+        if FpMkdir (S, $01F8)<> 0 then;//770 1 1110 1000
+             ;//          Exit (False);
+      end;
+      S+= '/';
+
+    end;
+
+    Result:= True;
 
   end;
 
-  function InstallPageHandler (PageHandler: TAbstractHandler): Boolean;
-  const
-    SingleQuote: char= '''';
-
+  procedure CheckForCorrectness;
   var
-    TargetFilename: AnsiString;
-    FileString: TStringList;
+    i: Integer;
 
   begin
-    TargetFilename:= GlobalObjContainer.Configurations.Values ['TargetDir']+
-                           PageHandler.PageName;
+    if not FileExists (MainPipeFileName) then
+      raise EInvalidArgument.Create ('MainPipe ("'+ MainPipeFileName+ '"'+
+           ' does not exist');
 
-    FileString:= TStringList.Create;
-    FileString.LoadFromFile ('RequestCollectorPage/Page.pp');
+    if not DirectoryExists (TempPipeFilesPath) then
+      raise EInvalidArgument.Create ('TempPipe directory ("'+ TempPipeFilesPath+ '"'+
+           ' does not exist');
 
-    FileString [0]:= 'program '+ PageHandler.PageName+ ';';
-    FileString [18]:= '  PipesPath: String= '+ SingleQuote+ GlobalObjContainer.Configurations.Values ['TemproraryPipesPath']+ SingleQuote+ ';';
-    FileString [19]:= '  MainPipeName: String= '+ SingleQuote+ GlobalObjContainer.Configurations.Values ['MainPipeFileName']+ SingleQuote+ ';';
-    FileString [21]:= '  PageName: String= '+ SingleQuote+ PageHandler.PageName+ SingleQuote+ ';';
-
-    FileString.SaveToFile (GlobalObjContainer.Configurations.Values ['InstallationDicrectory']+ PageHandler.PageName);
-
-//    ShellExecute (nil, nil,
-
-    FileString.Free;
+    for i:= 0 to AllHandlers.Count- 1 do
+      if not FileExists (GlobalObjContainer.Configurations.
+             ConfigurationValueByName ['InstallationDirectory']+
+              AllHandlers.PageHandler [i].PageName) then
+        raise EInvalidArgument.Create ('RequestCollector "'+ AllHandlers.PageHandler [i].PageName+ '"'+
+           ' does not exist');
 
   end;
 
@@ -327,17 +375,14 @@ var
 begin
   if FileExists (MainPipeFileName) then
     DeleteFile (MainPipeFileName);
-
-  FpMkfifo (MainPipeFileName, $1B4);//664.
   if DirectoryExists (TempPipeFilesPath) then
     DeleteDir (TempPipeFilesPath);
 
-  FpMkdir (TempPipeFilesPath, $1F8);//770 1 11 11 1 000
+  if not CreateDir (ExtractFileDir (MainPipeFileName)) then
+    WriteLn ('Error while createing "', ExtractFileDir (MainPipeFileName), '"');
+  FpMkfifo (MainPipeFileName, $1B0);//660.//110110000
 
-  for i:= 0 to FAllHandlers.Count- 1 do
-    InstallPageHandler (FAllHandlers.PageHandler [i]);
-
-  Result:= CheckForCorrectness;
+  CreateDir (TempPipeFilesPath);
 
 end;
 
@@ -520,124 +565,24 @@ end;
    about memory leak. But till now, I can't find any way to do this.
 }
 constructor TResident.Create (AnOwner: TComponent);
+begin
+  inherited Create (AnOwner);
 
-{
-  The configfilename must be PSP.conf and be in the same path as the application.
-}
+  MainPipeFileName:= GlobalObjContainer.Configurations.ConfigurationValueByName ['MainPipeFileName'];
 
-  procedure ReadConfigFileInfo;
-  const
-  {Default values for Webconfiguration:
-  }
-    DefaultConfigurationValues: array [1..6] of array [1..2] of String=
-           (
-            ('Charset', 'UTF-8'),//Default Charset
-            ('RestartInterval', '-1'),//Default RestartInterval
-            ('SessionIDLen', '20'),// Default SessionIDLen
-            ('SessionVarName', 'PSPSESS'),// Default SessionVarName
-            ('SessionUseCookie', 'TRUE'),//Dafault SessionUseCookie
-            ('TemproraryPipesFilenameLength', '12')//Dafault Temprorary pipes filename length
-            );
-  var
-    ConfigFileHandle: TextFile;
-    TempInt: Integer;
-    TempString: String;
-    SessionIDLen: Integer;
-    SessionVarName: String;
-    SessionUseCookie: Boolean;
-    i: Integer;
-    
-  begin
-    if not FileExists ('PSP.conf') then
-      EConfigFileNotFound.Create ('Config File not found!');
+  TempPipeFilesPath:= GlobalObjContainer.Configurations.ConfigurationValueByName ['TemproraryPipesPath'];
+  NumberOfActiveThread:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['MaximumNumberofActiveThreads']);
+  FRequestQueueSize:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['MaximumSizeofRequestQueue']);
 
-    AssignFile (ConfigFileHandle, 'PSP.conf');
-    Reset (ConfigFileHandle);
+  FRestartInterval:= -1;
+  try
+    FRestartInterval:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['RestartInterval']);
 
-    while not Eof (ConfigFileHandle) do
-    begin
-      ReadLn (ConfigFileHandle, TempString);
-      TempString:= Trim (TempString);
-      
-      if (TempString<> '') and
-        ((Length (TempString)= 0) or (TempString [1]<> '#')) then
-      begin
-        TempInt:= Pos (':', TempString);
-        GlobalObjContainer.Configurations.AddNameValue (TWebConfiguration.Create (
-          Copy (TempString, 1, TempInt- 1),
-          Copy (TempString, TempInt+ 1, Length (TempString)- TempInt)));
-          
-      end;
-      
-    end;
-
-    for i:= Low (DefaultConfigurationValues) to High (DefaultConfigurationValues) do
-      if GlobalObjContainer.Configurations.ConfigurationValueByName [DefaultConfigurationValues [i][1]]= '' then
-        GlobalObjContainer.Configurations.Add (TWebConfiguration.Create (DefaultConfigurationValues [i][1],
-                             DefaultConfigurationValues [i][2]));
-
-    CloseFile (ConfigFileHandle);
-    
-    MainPipeFileName:= GlobalObjContainer.Configurations.ConfigurationValueByName ['MainPipeFileName'];
-    if not FileExists (FMainPipeFileName) then
-      raise EMainPipeNotFound.Create (FMainPipeFileName);
-      
-    TempPipeFilesPath:= GlobalObjContainer.Configurations.ConfigurationValueByName ['TemproraryPipesPath'];
-    NumberOfActiveThread:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['MaximumNumberofActiveThreads']);
-    FRequestQueueSize:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['MaximumSizeofRequestQueue']);
-    
-    FRestartInterval:= -1;
-    FUsingSessionManager:= False;
-    try
-      FRestartInterval:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['RestartInterval']);
-      
-    except
-    
-    end;
-
-    try
-      FUsingSessionManager:= UpperCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionManager'])= 'TRUE';
-
-    except
-      on e: ENameNotFound do
-        FUsingSessionManager:= False;
-
-    end;
-
-    if FUsingSessionManager then
-    begin
-      try
-        SessionIDLen:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionIDLen']);
-
-      except
-        on e: ENameNotFound do;
-        on e: EConvertError do
-        begin
-(*$IFDEF DebugMode*)
-          WriteLn ('Session id len is not an integer!');
-(*$ENDIF*)
-
-        end;
-
-      end;
-
-      SessionVarName:= GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionIDVarName'];
-
-      SessionUseCookie:=
-        UpperCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionUseCookie'])
-          = 'TRUE';
-
-      SessionManagerUnit.SessionManager:= TBasicSessionManager.Create (
-        SessionIDLen, SessionVarName, SessionUseCookie);
-        
-    end;
+  except
 
   end;
 
-begin
-  inherited Create (AnOwner);
-  
-  ReadConfigFileInfo;
+  UsingSessionManager:= UpperCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionManager'])= 'TRUE';
 
   FRequestQueue:= TCircularRequestsQueue.Create (FRequestQueueSize, NumberOfActiveThread);
 
@@ -648,7 +593,24 @@ begin
 
   FAllHandlers:= TAbstractHandlerCollection.Create;
 
-  RegisterPageHandlerHandler ('Statistics.psp', TStatisticsPage.Create (StatPagePath));
+  RegisterPageHandlerHandler (TAdminPageHandler.Create (AdminPagePath));
+
+  try
+    if UpperCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['Install'])= 'TRUE' then
+    begin
+      Install;
+
+    end;
+
+  except
+    on e: Exception do
+    begin
+      WriteLn ('Installation was not successful. Exiting!');
+      WriteLn (e.Message);
+
+    end;
+
+  end;
 
 end;
 
@@ -670,37 +632,154 @@ begin
 (*$IFDEF DebugMode*)
   Writeln ('Resident[Destroy]: At last, Queue became empty!');
   Writeln ('Resident[Destroy]:');
+
+  Writeln ('Resident[Destroy]: Before ThreadPool.Free' );
 (*$ENDIF*)
 
   ThreadPool.Free;
 
 (*$IFDEF DebugMode*)
+  Writeln ('Resident[Destroy]: After ThreadPool.Free' );
   WriteLn ('Resident[Destroy]: At the end');
 (*$ENDIF*)
 
   FRequestQueue.Free;
-  FAllHandlers.Free;
+  AllHandlers.Free;
 
   inherited Destroy;
 
 end;
 
-procedure TResident.RegisterPageHandlerHandler (const AName: String;
-  AHandler: TAbstractHandler);
+procedure TResident.RegisterPageHandlerHandler ( AHandler: TAbstractHandler);
+
+  procedure InstallPageHandler (PageHandler: TAbstractHandler);
+  const
+    SingleQuote: char= '''';
+
+  var
+    TargetFilename: AnsiString;
+    FileString: TStringList;
+    AStream: TStringStream;
+
+    CompileProc: TProcess;
+    MoveProc: TProcess;
+    RemoveFileProc: TProcess;
+
+    i: Integer;
+    RandomFileName: String;
+
+  begin
+
+    AStream:= TStringStream.Create (
+             LazarusResources.Find ('RequestCollectorPage').Value);
+    FileString:= TStringList.Create;
+    FileString.LoadFromStream (AStream);
+
+    RandomFileName:= '';
+    for i:= 1 to 15 do
+      RandomFileName:= RandomFileName+ Chr (65+ Random (26));
+
+    FileString [0]:= 'program '+ RandomFileName+ ';';
+    FileString [19]:= '      '+   SingleQuote+ GlobalObjContainer.Configurations.ConfigurationValueByName ['TemproraryPipesPath']+ SingleQuote+ ';';
+    FileString [21]:= '      '+SingleQuote+ GlobalObjContainer.Configurations.ConfigurationValueByName ['MainPipeFilename']+ SingleQuote+ ';';
+    FileString [25]:= '  '+ SingleQuote+ PageHandler.PageName+ SingleQuote+ ';';
+
+    FileString.SaveToFile (GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory']+ PageHandler.PageName+ '.pp');
+
+
+    AStream.Free;
+    FileString.Free;
+
+    try
+      CompileProc:= TProcess.Create (nil);
+      CompileProc.CommandLine:= 'fpc "'+ GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory']+ PageHandler.PageName+ '.pp"';
+
+      CompileProc.Options := CompileProc.Options + [poWaitOnExit];
+      CompileProc.Execute;
+
+    finally
+      CompileProc.Free;
+
+    end;
+
+    if PageHandler.RelativePath<> PageHandler.PageName then
+      try
+        if GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory']<> '' then
+        begin
+          if GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory']
+            [Length (GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory'])]= '/' then
+            TargetFilename:= GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory']+
+                                 PageHandler.RelativePath
+          else
+            TargetFilename:= GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory']+
+                                 '/'+ PageHandler.RelativePath;
+
+        end;
+
+        MoveProc:= TProcess.Create (nil);
+        MoveProc.CommandLine:= 'mv "'+ GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory']+ PageHandler.PageName+ '" "'+ TargetFilename+ '"';
+        WriteLn ('---------------------');
+        WriteLn (MoveProc.CommandLine);
+        WriteLn ('---------------------');
+
+        MoveProc.Options := CompileProc.Options + [poWaitOnExit];
+        MoveProc.Execute;
+
+      finally
+        MoveProc.Free;
+
+      end;
+
+    try
+      RemoveFileProc:= TProcess.Create (nil);
+      RemoveFileProc.CommandLine:= 'rm "'+ GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory']+ PageHandler.PageName+ '.pp"';
+
+      RemoveFileProc.Options := CompileProc.Options + [poWaitOnExit];
+      RemoveFileProc.Execute;
+
+      RemoveFileProc.CommandLine:= 'rm "'+ GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory']+ PageHandler.PageName+ '.o"';
+
+      RemoveFileProc.Options := CompileProc.Options + [poWaitOnExit];
+      RemoveFileProc.Execute;
+
+    finally
+      RemoveFileProc.Free;
+
+    end;
+
+  end;
+
 begin
-  FAllHandlers.AddPageHandler (UpperCase (AName), AHandler);
+  AllHandlers.AddPageHandler (UpperCase (AHandler.PageName), AHandler);
+
+  try
+    if UpperCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['Install'])= 'TRUE' then
+    begin
+      InstallPageHandler (AHandler);
+
+    end;
+
+  except
+    on e: Exception do
+    begin
+      WriteLn ('Installation was not successful. Exiting!');
+      WriteLn (e.Message);
+
+    end;
+
+  end;
 
 end;
 
 function TResident.GetPageHandler (const AName: String): TAbstractHandler;
 begin
-  Result:= FAllHandlers.PageHandlerByName [AName].CreateNewInstance;
+  Result:= AllHandlers.PageHandlerByName [AName].CreateNewInstance;
 
 end;
 
 { EMainPipeNotFound }
 
-constructor EMainPipeNotFound.Create(Name: String);
+constructor EMainPipeNotFound.Create (Name: AnsiString);
 begin
   inherited Create ('No pipe with Name= '+ Name+ ' Found!');
   
@@ -708,17 +787,26 @@ end;
 
 { EInvalidArgument }
 
-constructor EInvalidArgument.Create(ConfigName: String; Value: Integer);
+constructor EInvalidArgument.Create(ConfigName: AnsiString; Value: Integer);
 begin
   inherited Create (ConfigName+ ' can not be '+ IntToStr (Value));
 
 end;
 
-constructor EInvalidArgument.Create(ConfigName: String; Value: String);
+constructor EInvalidArgument.Create(ConfigName: AnsiString; Value: AnsiString);
 begin
   inherited Create (ConfigName+ ' can not be '+ Value);
 
 end;
 
-end.
+constructor EInvalidArgument.Create (Reason: Ansistring);
+begin
+  inherited Create (Reason);
 
+end;
+
+initialization
+  {$I Page.lrs}
+
+end.
+8

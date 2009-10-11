@@ -6,36 +6,26 @@ uses
 {$ifdef unix}
    cthreads, BaseUnix,
  {$endif}
-  Classes
-  { add your units here }, ResidentApplicationUnit,
+  Classes, SysUtils
+  {$IFDEF DEBUGMODE}
+  , heaptrc
+  {$ENDIF}
+  { add your units here },
   CollectionUnit, WebUnit, ThreadingUnit,
   PipeWrapperUnit, URLEnc, SessionManagerUnit,
-  WebStringUnit, RequestsQueue, XMLNode, AttributeUnit, ThisProjectGlobalUnit,
+  WebStringUnit, RequestsQueue, ThisProjectGlobalUnit,
   ExceptionUnit, AbstractHandlerUnit, CookieUnit, WebHeaderUnit,
   WebConfigurationUnit, SessionUnit, CgiVariableUnit,
-  WebRunTimeInformationUnit, WebUploadedFileUnit, MainPageUnit, ConstantsUnit,
-  PersaDictionaryUnit, DictionaryTreeUnit, StreamUnit,
-  SpellCheckerUnit, GlobalUnit, PuzzlePageUnit, StatisticsDispatcherUnit;
-
-var
-  PageHandler: TAbstractHandler;
+  WebRunTimeInformationUnit, WebUploadedFileUnit, MainPageUnit, PuzzlePageUnit, LResources,
+  StreamUnit, ResidentApplicationUnit;
 
 begin
-
   Resident:= TResident.Create (nil);
-  PageHandler:= TMainPageDispatcher.Create;
-//  PageHandler.
-  Resident.RegisterPageHandlerHandler ('PersaDic.psp', TMainPageDispatcher.Create);
-  Resident.RegisterPageHandlerHandler ('PersaPuzzle.psp', TPuzzlePageDispatcher.Create);
 
-  if Resident.Install then
-  begin
-    WriteLn ('Installation was successful');
-    Resident.ExecuteInThread;
+  Resident.RegisterPageHandlerHandler (TMainPageDispatcher.Create);
+  Resident.RegisterPageHandlerHandler (TPuzzlePageDispatcher.Create);
 
-  end
-  else
-    WriteLn ('Installation was not successful. Exiting!');
+  Resident.ExecuteInThread;
 
   Resident.Free;
 

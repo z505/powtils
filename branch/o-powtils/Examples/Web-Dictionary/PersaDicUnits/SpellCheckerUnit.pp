@@ -211,6 +211,8 @@ begin
 
   Suggestions.Clear;
   VisitedSearchStatus:= TSearchStatusMap.Create (@CompareTwoSearchStatus);
+  if FDicTree.Root= nil then
+    Exit (False);
 
   InsertToQueue (0, 0, 0, 0, 0, FDicTree.Root);
   MinCost:= MaxInt;
@@ -219,17 +221,6 @@ begin
   begin
     ActiveEntry:= DeleteFromQueue;
 
-    if ActiveEntry.Node.ChildByIndex [StrKey.ValueAt [ActiveEntry.Index]-
-                                        StrKey.PossibleMinValue]<> nil then
-      InsertToQueue (ActiveEntry.Index+ 1,
-                     ActiveEntry.NoOfDeletedChar,
-                     ActiveEntry.NoOfAddedChars,
-                     ActiveEntry.NoOfReplacements,
-                     ActiveEntry.Cost,
-                     ActiveEntry.Node.
-                          ChildByIndex [StrKey.ValueAt [ActiveEntry.Index]-
-                                        StrKey.PossibleMinValue]
-                     );//No change
 
     if ActiveEntry.Node.DataInNode<> nil then
       if ActiveEntry.Cost+ WordLen- ActiveEntry.Index< MinCost then
@@ -243,64 +234,79 @@ begin
       else if (ActiveEntry.Cost+ Abs (WordLen- ActiveEntry.Index)= MinCost) then
         Suggestions.AddObject (FindStringForNode (ActiveEntry.Node), ActiveEntry.Node);
 
-     if WordLen< 2* ActiveEntry.Cost then
-       Continue;
+    if ActiveEntry.Node.Size<> 0 then
+    begin
+      if ActiveEntry.Node.ChildByIndex [StrKey.ValueAt [ActiveEntry.Index]-
+                                          StrKey.PossibleMinValue]<> nil then
+        InsertToQueue (ActiveEntry.Index+ 1,
+                       ActiveEntry.NoOfDeletedChar,
+                       ActiveEntry.NoOfAddedChars,
+                       ActiveEntry.NoOfReplacements,
+                       ActiveEntry.Cost,
+                       ActiveEntry.Node.
+                            ChildByIndex [StrKey.ValueAt [ActiveEntry.Index]-
+                                          StrKey.PossibleMinValue]
+                       );//No change
 
-     if ActiveEntry.Index< WordLen then
-       InsertToQueue (ActiveEntry.Index+ 1,
-                     ActiveEntry.NoOfDeletedChar+ 1,
-                     ActiveEntry.NoOfAddedChars,
+      if WordLen< 2* ActiveEntry.Cost then
+        Continue;
+
+      if ActiveEntry.Index< WordLen then
+        InsertToQueue (ActiveEntry.Index+ 1,
+                         ActiveEntry.NoOfDeletedChar+ 1,
+                         ActiveEntry.NoOfAddedChars,
+                         ActiveEntry.NoOfReplacements,
+                         ActiveEntry.Cost+ 1,
+                         ActiveEntry.Node);//Delete a Char
+
+      for i:= 0 to ActiveEntry.Node.Size- 1 do
+        if ActiveEntry.Node.ChildByIndex [i]<> nil then
+              InsertToQueue (ActiveEntry.Index,
+                     ActiveEntry.NoOfDeletedChar,
+                     ActiveEntry.NoOfAddedChars+ 1,
                      ActiveEntry.NoOfReplacements,
                      ActiveEntry.Cost+ 1,
-                     ActiveEntry.Node);//Delete a Char
+                     ActiveEntry.Node.ChildByIndex [i]);//Insert a Char
 
-        for i:= 0 to ActiveEntry.Node.Size- 1 do
-          if ActiveEntry.Node.ChildByIndex [i]<> nil then
-            InsertToQueue (ActiveEntry.Index,
-                           ActiveEntry.NoOfDeletedChar,
-                           ActiveEntry.NoOfAddedChars+ 1,
-                           ActiveEntry.NoOfReplacements,
-                           ActiveEntry.Cost+ 1,
-                           ActiveEntry.Node.ChildByIndex [i]);//Insert a Char
+      for i:= 0 to ActiveEntry.Node.Size- 1 do
+        if (ActiveEntry.Node.ChildByIndex [i]<> nil) and (AWord [ActiveEntry.Index]<> IntToCharArray [i]) then
+          InsertToQueue (ActiveEntry.Index+ 1,
+                               ActiveEntry.NoOfDeletedChar,
+                               ActiveEntry.NoOfAddedChars,
+                               ActiveEntry.NoOfReplacements+ 1,
+                               ActiveEntry.Cost+ 1,
+                               ActiveEntry.Node.ChildByIndex [i]);//Replace a Char
 
-        for i:= 0 to ActiveEntry.Node.Size- 1 do
-          if (ActiveEntry.Node.ChildByIndex [i]<> nil) and (AWord [ActiveEntry.Index]<> IntToCharArray [i]) then
+
+      if ActiveEntry.Index<= WordLen- 2 then
+        if ActiveEntry.Node.ChildByIndex [StrKey.ValueAt [ActiveEntry.Index+ 1]-
+                                          StrKey.PossibleMinValue]<> nil then
+          if ActiveEntry.Node.ChildByIndex [StrKey.ValueAt [ActiveEntry.Index+ 1]-
+                                          StrKey.PossibleMinValue].
+                ChildByIndex [StrKey.ValueAt [ActiveEntry.Index]-
+                                          StrKey.PossibleMinValue]<> nil then
           begin
-            InsertToQueue (ActiveEntry.Index+ 1,
+            InsertToQueue (ActiveEntry.Index+ 2,
                            ActiveEntry.NoOfDeletedChar,
                            ActiveEntry.NoOfAddedChars,
                            ActiveEntry.NoOfReplacements+ 1,
                            ActiveEntry.Cost+ 1,
-                           ActiveEntry.Node.ChildByIndex [i]);//Replace a Char
+                           ActiveEntry.Node.
+                                ChildByIndex [StrKey.ValueAt [ActiveEntry.Index+ 1]-
+                                          StrKey.PossibleMinValue].
+                                ChildByIndex [StrKey.ValueAt [ActiveEntry.Index]-
+                                          StrKey.PossibleMinValue]
+                           );//Change position of two consecutive chars in AWord
 
           end;
 
-        if ActiveEntry.Index<= WordLen- 2 then
-          if ActiveEntry.Node.ChildByIndex [StrKey.ValueAt [ActiveEntry.Index+ 1]-
-                                            StrKey.PossibleMinValue]<> nil then
-            if ActiveEntry.Node.ChildByIndex [StrKey.ValueAt [ActiveEntry.Index+ 1]-
-                                            StrKey.PossibleMinValue].
-                  ChildByIndex [StrKey.ValueAt [ActiveEntry.Index]-
-                                            StrKey.PossibleMinValue]<> nil then
-            begin
-              InsertToQueue (ActiveEntry.Index+ 2,
-                             ActiveEntry.NoOfDeletedChar,
-                             ActiveEntry.NoOfAddedChars,
-                             ActiveEntry.NoOfReplacements+ 1,
-                             ActiveEntry.Cost+ 1,
-                             ActiveEntry.Node.
-                                  ChildByIndex [StrKey.ValueAt [ActiveEntry.Index+ 1]-
-                                            StrKey.PossibleMinValue].
-                                  ChildByIndex [StrKey.ValueAt [ActiveEntry.Index]-
-                                            StrKey.PossibleMinValue]
-                             );//Change position of two consecutive chars in AWord
+      end;//Node.Size<> 0
 
-            end;
-
-      end;
+  end;//while
 
   StrKey.Free;
   VisitedSearchStatus.Free;
+  Result:= True;
 
 end;
 

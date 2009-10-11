@@ -84,6 +84,10 @@ type
 
     constructor Create (SessionIDLen: Integer; SessIDVarName: String;
         StoreSessIDInCookie: Boolean);
+    {This constructor reads the SessionIdLen, SessionIDVariableName and
+      StoreSessionIdInCookie variables from Configuration in GlobalObjectContainer.
+    }
+    constructor Create;
     destructor Destroy; override;
 
     procedure AddSession (NewSession: TSession);
@@ -108,6 +112,10 @@ type
 
   end;
 
+  TCookiBasedSessionManager= class (TBasicSessionManager)
+  end;
+
+
 const
   EmptySessionID: TGuid= '{5D6D6F68-69C9-11DD-B04C-EB0A56D89593}';
 
@@ -118,7 +126,7 @@ var
   
 implementation
 uses
-  MyTypes;
+  MyTypes, ThisProjectGlobalUnit;
 
 function GetSession (SessionID: TSessionID): TSession;
 begin
@@ -207,6 +215,47 @@ begin
   FSessionIDVarName:= SessIDVarName;
   FStoreSessionIDInCookie:= StoreSessIDInCookie;
   
+end;
+
+constructor TAbstractSessionManager.Create;
+begin
+  inherited Create;
+
+  Load;
+
+  FSessionIDLen:= 20;
+  try
+    FSessionIDLen:= StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionIDLen']);
+
+  except
+    on e: ENameNotFound do;
+    on e: EConvertError do
+      WriteLn ('Session id len is not an integer!');
+
+  end;
+
+  try
+    FSessionIDVarName:= GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionIDVarName'];
+  except
+    on e: ENameNotFound do
+    begin
+      FSessionIDVarName:= 'PSPSESSID';
+
+    end;
+
+  end;
+
+{  if Copy (GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory'],
+    1, 1)<> '/' then
+    raise EInvalidArgument.Create ('InstallationDirectory should be absolute path!');
+
+  end;
+}
+
+{  FSessionIDLen:= SessionIDLen;
+  FSessionIDVarName:= SessIDVarName;
+  FStoreSessionIDInCookie:= StoreSessIDInCookie;
+}
 end;
 
 destructor TAbstractSessionManager.Destroy;
@@ -388,12 +437,14 @@ end;
 
 procedure TBasicSessionManager.Load;
 begin
-  
+  raise Exception.Create ('TBasicSessionManager.Load: Not implemented Yet!');
+
 end;
 
 procedure TBasicSessionManager.Save;
 begin
-  
+  raise Exception.Create ('TBasicSessionManager.Save: Not implemented Yet!');
+
 end;
 
 end.
