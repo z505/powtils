@@ -4,14 +4,17 @@
     <PathDelim Value="/"/>
     <Version Value="7"/>
     <General>
-      <Flags>
-        <AlwaysBuild Value="False"/>
-        <LRSInOutputDirectory Value="False"/>
-      </Flags>
       <MainUnit Value="0"/>
       <TargetFileExt Value=""/>
+      <Icon Value="0"/>
+      <UseXPManifest Value="True"/>
       <ActiveEditorIndexAtStart Value="0"/>
     </General>
+    <VersionInfo>
+      <ProjectVersion Value=""/>
+      <Language Value=""/>
+      <CharSet Value=""/>
+    </VersionInfo>
     <PublishOptions>
       <Version Value="2"/>
       <IgnoreBinaries Value="False"/>
@@ -21,549 +24,114 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value=">Output.txt"/>
         <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
-        <Display Use="True"/>
       </local>
     </RunParams>
-    <Units Count="36">
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="5">
       <Unit0>
         <Filename Value="PSP.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PSP"/>
-        <CursorPos X="1" Y="4"/>
+        <CursorPos X="3" Y="20"/>
         <TopLine Value="1"/>
         <EditorIndex Value="0"/>
-        <UsageCount Value="211"/>
+        <UsageCount Value="20"/>
         <Loaded Value="True"/>
-        <SyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
-        <Filename Value="PipeWrapperUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="PipeWrapperUnit"/>
-        <CursorPos X="1" Y="37"/>
-        <TopLine Value="9"/>
-        <UsageCount Value="211"/>
+        <Filename Value="PSP.lpr"/>
+        <UnitName Value="PSP"/>
+        <CursorPos X="12" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
       </Unit1>
       <Unit2>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ResidentApplicationUnit"/>
-        <CursorPos X="26" Y="209"/>
-        <TopLine Value="194"/>
-        <EditorIndex Value="2"/>
-        <UsageCount Value="211"/>
+        <Filename Value="AdminPageDispatcherUnit.pp"/>
+        <UnitName Value="AdminPageDispatcherUnit"/>
+        <CursorPos X="31" Y="8"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="10"/>
         <Loaded Value="True"/>
-        <SyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
-        <Filename Value="Page1ResidentUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Page1ResidentUnit"/>
-        <CursorPos X="12" Y="58"/>
-        <TopLine Value="33"/>
-        <UsageCount Value="211"/>
-        <SyntaxHighlighter Value="Delphi"/>
+        <Filename Value="ResidentPageBaseUnit.pp"/>
+        <UnitName Value="ResidentPageBaseUnit"/>
+        <CursorPos X="5" Y="30"/>
+        <TopLine Value="13"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
-        <Filename Value="BaseClassUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="BaseClassUnit"/>
-        <CursorPos X="34" Y="28"/>
-        <TopLine Value="20"/>
-        <UsageCount Value="210"/>
-      </Unit4>
-      <Unit5>
-        <Filename Value="CollectionBaseUnit.pp"/>
-        <UnitName Value="CollectionBaseUnit"/>
-        <CursorPos X="1" Y="1"/>
-        <TopLine Value="1"/>
-        <UsageCount Value="171"/>
-      </Unit5>
-      <Unit6>
-        <Filename Value="CollectionUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="CollectionUnit"/>
+        <Filename Value="PipeWrapperUnit.pp"/>
+        <UnitName Value="PipeWrapperUnit"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
         <EditorIndex Value="1"/>
-        <UsageCount Value="210"/>
+        <UsageCount Value="10"/>
         <Loaded Value="True"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit6>
-      <Unit7>
-        <Filename Value="WebUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="WebUnit"/>
-        <CursorPos X="21" Y="242"/>
-        <TopLine Value="218"/>
-        <EditorIndex Value="9"/>
-        <UsageCount Value="208"/>
-        <Loaded Value="True"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit7>
-      <Unit8>
-        <Filename Value="pwu.pp"/>
-        <UnitName Value="pwu"/>
-        <CursorPos X="1" Y="3548"/>
-        <TopLine Value="3530"/>
-        <UsageCount Value="8"/>
-      </Unit8>
-      <Unit9>
-        <Filename Value="ResidentPageBaseUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ResidentPageBaseUnit"/>
-        <CursorPos X="3" Y="201"/>
-        <TopLine Value="185"/>
-        <EditorIndex Value="7"/>
-        <UsageCount Value="200"/>
-        <Bookmarks Count="1">
-          <Item0 X="1" Y="133" ID="3"/>
-        </Bookmarks>
-        <Loaded Value="True"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit9>
-      <Unit10>
-        <Filename Value="Page2ResidentUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Page2ResidentUnit"/>
-        <CursorPos X="22" Y="54"/>
-        <TopLine Value="29"/>
-        <UsageCount Value="214"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit10>
-      <Unit11>
-        <Filename Value="ThisApplicationPagesUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ThisApplicationPagesUnit"/>
-        <CursorPos X="25" Y="47"/>
-        <TopLine Value="36"/>
-        <UsageCount Value="207"/>
-      </Unit11>
-      <Unit12>
-        <Filename Value="substrings.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="SubStrings"/>
-        <CursorPos X="8" Y="137"/>
-        <TopLine Value="121"/>
-        <UsageCount Value="204"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit12>
-      <Unit13>
-        <Filename Value="URLEnc.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="URLEnc"/>
-        <CursorPos X="10" Y="38"/>
-        <TopLine Value="23"/>
-        <UsageCount Value="207"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit13>
-      <Unit14>
-        <Filename Value="SessionManagerUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="SessionManagerUnit"/>
-        <CursorPos X="1" Y="31"/>
-        <TopLine Value="31"/>
-        <UsageCount Value="200"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit14>
-      <Unit15>
-        <Filename Value="WebStringUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="WebStringUnit"/>
-        <CursorPos X="3" Y="53"/>
-        <TopLine Value="31"/>
-        <UsageCount Value="256"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit15>
-      <Unit16>
-        <Filename Value="RequestsQueue.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="RequestsQueue"/>
-        <CursorPos X="20" Y="152"/>
-        <TopLine Value="137"/>
-        <EditorIndex Value="3"/>
-        <UsageCount Value="250"/>
-        <Bookmarks Count="1">
-          <Item0 X="1" Y="248" ID="2"/>
-        </Bookmarks>
-        <Loaded Value="True"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit16>
-      <Unit17>
-        <Filename Value="XML Handler/XMLNode.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="XMLNode"/>
-        <CursorPos X="1" Y="244"/>
-        <TopLine Value="236"/>
-        <UsageCount Value="202"/>
-      </Unit17>
-      <Unit18>
-        <Filename Value="XML Handler/AttributeUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="AttributeUnit"/>
-        <CursorPos X="13" Y="59"/>
-        <TopLine Value="45"/>
-        <UsageCount Value="202"/>
-      </Unit18>
-      <Unit19>
-        <Filename Value="ThreadingUnit.pp"/>
-        <UnitName Value="ThreadingUnit"/>
-        <CursorPos X="30" Y="120"/>
-        <TopLine Value="95"/>
-        <EditorIndex Value="4"/>
-        <UsageCount Value="100"/>
-        <Loaded Value="True"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit19>
-      <Unit20>
-        <Filename Value="ThisProjectGlobalUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ThisProjectGlobalUnit"/>
-        <CursorPos X="1" Y="23"/>
-        <TopLine Value="9"/>
-        <UsageCount Value="219"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit20>
-      <Unit21>
-        <Filename Value="../psp-1.6.x-devel/main/pwumain.pas"/>
-        <UnitName Value="pwumain"/>
-        <CursorPos X="1" Y="673"/>
-        <TopLine Value="670"/>
-        <UsageCount Value="40"/>
-        <Bookmarks Count="1">
-          <Item0 X="1" Y="673" ID="2"/>
-        </Bookmarks>
-      </Unit21>
-      <Unit22>
-        <Filename Value="ExceptionUnit.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ExceptionUnit"/>
-        <CursorPos X="1" Y="1"/>
-        <TopLine Value="1"/>
-        <UsageCount Value="255"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit22>
-      <Unit23>
-        <Filename Value="AbstractDispatcherUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="AbstractDispatcherUnit"/>
-        <CursorPos X="15" Y="58"/>
-        <TopLine Value="41"/>
-        <EditorIndex Value="5"/>
-        <UsageCount Value="271"/>
-        <Loaded Value="True"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit23>
-      <Unit24>
-        <Filename Value="CookieUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="CookieUnit"/>
-        <CursorPos X="3" Y="81"/>
-        <TopLine Value="66"/>
-        <EditorIndex Value="8"/>
-        <UsageCount Value="270"/>
-        <Loaded Value="True"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit24>
-      <Unit25>
-        <Filename Value="WebHeaderUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="WebHeaderUnit"/>
-        <CursorPos X="33" Y="49"/>
-        <TopLine Value="34"/>
-        <EditorIndex Value="6"/>
-        <UsageCount Value="270"/>
-        <Loaded Value="True"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit25>
-      <Unit26>
-        <Filename Value="WebEnvironmentUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="WebEnvironmentUnit"/>
-        <CursorPos X="1" Y="3"/>
-        <TopLine Value="1"/>
-        <UsageCount Value="270"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit26>
-      <Unit27>
-        <Filename Value="WebConfigurationUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="WebConfigurationUnit"/>
-        <CursorPos X="1" Y="88"/>
-        <TopLine Value="59"/>
-        <UsageCount Value="267"/>
-        <Bookmarks Count="1">
-          <Item0 X="3" Y="59" ID="1"/>
-        </Bookmarks>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit27>
-      <Unit28>
-        <Filename Value="SessionUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="SessionUnit"/>
-        <CursorPos X="1" Y="117"/>
-        <TopLine Value="91"/>
-        <UsageCount Value="266"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit28>
-      <Unit29>
-        <Filename Value="CgiVariableUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="CgiVariableUnit"/>
-        <CursorPos X="3" Y="29"/>
-        <TopLine Value="14"/>
-        <EditorIndex Value="10"/>
-        <UsageCount Value="266"/>
-        <Loaded Value="True"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit29>
-      <Unit30>
-        <Filename Value="WebRunTimeInformationUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="WebRunTimeInformationUnit"/>
-        <CursorPos X="1" Y="62"/>
-        <TopLine Value="29"/>
-        <UsageCount Value="266"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit30>
-      <Unit31>
-        <Filename Value="WebUploadedFileUnit.pp"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="WebUploadedFileUnit"/>
-        <CursorPos X="32" Y="51"/>
-        <TopLine Value="28"/>
-        <UsageCount Value="262"/>
-        <SyntaxHighlighter Value="Delphi"/>
-      </Unit31>
-      <Unit32>
-        <Filename Value="../../../../../../usr/share/fpcsrc/2.2.2/rtl/inc/systemh.inc"/>
-        <CursorPos X="11" Y="558"/>
-        <TopLine Value="541"/>
-        <UsageCount Value="1"/>
-      </Unit32>
-      <Unit33>
-        <Filename Value="../../../../../../usr/share/fpcsrc/2.2.2/rtl/inc/astrings.inc"/>
-        <CursorPos X="3" Y="1028"/>
-        <TopLine Value="1020"/>
-        <UsageCount Value="1"/>
-      </Unit33>
-      <Unit34>
-        <Filename Value="../../../../../../usr/share/fpcsrc/2.2.2/rtl/objpas/sysutils/sysstrh.inc"/>
-        <CursorPos X="10" Y="95"/>
-        <TopLine Value="80"/>
-        <UsageCount Value="1"/>
-      </Unit34>
-      <Unit35>
-        <Filename Value="../../../../../../usr/share/fpcsrc/2.2.2/rtl/objpas/sysutils/sysstr.inc"/>
-        <CursorPos X="3" Y="530"/>
-        <TopLine Value="527"/>
-        <UsageCount Value="1"/>
-      </Unit35>
+      </Unit4>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="6" HistoryIndex="5">
       <Position1>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="346" Column="1" TopLine="331"/>
+        <Filename Value="AdminPageDispatcherUnit.pp"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position1>
       <Position2>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="348" Column="1" TopLine="333"/>
+        <Filename Value="ResidentPageBaseUnit.pp"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position2>
       <Position3>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="350" Column="1" TopLine="335"/>
+        <Filename Value="ResidentPageBaseUnit.pp"/>
+        <Caret Line="30" Column="24" TopLine="19"/>
       </Position3>
       <Position4>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="361" Column="1" TopLine="346"/>
+        <Filename Value="ResidentPageBaseUnit.pp"/>
+        <Caret Line="36" Column="30" TopLine="19"/>
       </Position4>
       <Position5>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="350" Column="1" TopLine="335"/>
+        <Filename Value="ResidentPageBaseUnit.pp"/>
+        <Caret Line="30" Column="5" TopLine="13"/>
       </Position5>
       <Position6>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="355" Column="17" TopLine="348"/>
+        <Filename Value="PipeWrapperUnit.pp"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position6>
-      <Position7>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="338" Column="1" TopLine="330"/>
-      </Position7>
-      <Position8>
-        <Filename Value="PSP.lpr"/>
-        <Caret Line="23" Column="1" TopLine="1"/>
-      </Position8>
-      <Position9>
-        <Filename Value="PSP.lpr"/>
-        <Caret Line="25" Column="1" TopLine="1"/>
-      </Position9>
-      <Position10>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="332" Column="1" TopLine="317"/>
-      </Position10>
-      <Position11>
-        <Filename Value="ThreadingUnit.pp"/>
-        <Caret Line="86" Column="1" TopLine="71"/>
-      </Position11>
-      <Position12>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="391" Column="9" TopLine="365"/>
-      </Position12>
-      <Position13>
-        <Filename Value="RequestsQueue.pp"/>
-        <Caret Line="236" Column="28" TopLine="211"/>
-      </Position13>
-      <Position14>
-        <Filename Value="RequestsQueue.pp"/>
-        <Caret Line="329" Column="18" TopLine="322"/>
-      </Position14>
-      <Position15>
-        <Filename Value="CollectionUnit.pp"/>
-        <Caret Line="953" Column="1" TopLine="938"/>
-      </Position15>
-      <Position16>
-        <Filename Value="PSP.lpr"/>
-        <Caret Line="23" Column="1" TopLine="1"/>
-      </Position16>
-      <Position17>
-        <Filename Value="RequestsQueue.pp"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
-      </Position17>
-      <Position18>
-        <Filename Value="RequestsQueue.pp"/>
-        <Caret Line="277" Column="18" TopLine="262"/>
-      </Position18>
-      <Position19>
-        <Filename Value="ThreadingUnit.pp"/>
-        <Caret Line="82" Column="77" TopLine="60"/>
-      </Position19>
-      <Position20>
-        <Filename Value="RequestsQueue.pp"/>
-        <Caret Line="266" Column="1" TopLine="266"/>
-      </Position20>
-      <Position21>
-        <Filename Value="RequestsQueue.pp"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
-      </Position21>
-      <Position22>
-        <Filename Value="RequestsQueue.pp"/>
-        <Caret Line="236" Column="27" TopLine="217"/>
-      </Position22>
-      <Position23>
-        <Filename Value="RequestsQueue.pp"/>
-        <Caret Line="350" Column="14" TopLine="337"/>
-      </Position23>
-      <Position24>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="392" Column="21" TopLine="371"/>
-      </Position24>
-      <Position25>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="101" Column="36" TopLine="86"/>
-      </Position25>
-      <Position26>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="204" Column="42" TopLine="204"/>
-      </Position26>
-      <Position27>
-        <Filename Value="ResidentApplicationUnit.pp"/>
-        <Caret Line="209" Column="26" TopLine="194"/>
-      </Position27>
-      <Position28>
-        <Filename Value="RequestsQueue.pp"/>
-        <Caret Line="32" Column="25" TopLine="17"/>
-      </Position28>
-      <Position29>
-        <Filename Value="RequestsQueue.pp"/>
-        <Caret Line="379" Column="1" TopLine="349"/>
-      </Position29>
-      <Position30>
-        <Filename Value="RequestsQueue.pp"/>
-        <Caret Line="152" Column="20" TopLine="137"/>
-      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="8"/>
     <SearchPaths>
-      <OtherUnitFiles Value="Pages/;Extra/;XML Handler/"/>
+      <IncludeFiles Value="$(ProjOutDir)/"/>
     </SearchPaths>
-    <Parsing>
-      <SyntaxOptions>
-        <SyntaxMode Value="Delphi"/>
-      </SyntaxOptions>
-    </Parsing>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
     <Other>
       <CompilerPath Value="$(CompPath)"/>
     </Other>
   </CompilerOptions>
   <Debugging>
-    <BreakPoints Count="8">
+    <Exceptions Count="3">
       <Item1>
-        <Source Value="WebUnit.pp"/>
-        <Line Value="326"/>
+        <Name Value="EAbort"/>
       </Item1>
       <Item2>
-        <Source Value="PSP.lpr"/>
-        <Line Value="25"/>
-      </Item2>
-      <Item3>
-        <Source Value="ResidentApplicationUnit.pp"/>
-        <Line Value="191"/>
-      </Item3>
-      <Item4>
-        <Source Value="ResidentApplicationUnit.pp"/>
-        <Line Value="346"/>
-      </Item4>
-      <Item5>
-        <Source Value="ResidentApplicationUnit.pp"/>
-        <Line Value="338"/>
-      </Item5>
-      <Item6>
-        <Source Value="ResidentApplicationUnit.pp"/>
-        <Line Value="332"/>
-      </Item6>
-      <Item7>
-        <Source Value="PSP.lpr"/>
-        <Line Value="23"/>
-      </Item7>
-      <Item8>
-        <Source Value="ResidentApplicationUnit.pp"/>
-        <Line Value="334"/>
-      </Item8>
-    </BreakPoints>
-    <Watches Count="3">
-      <Item1>
-        <Expression Value="Str"/>
-      </Item1>
-      <Item2>
-        <Expression Value="Self"/>
-      </Item2>
-      <Item3>
-        <Expression Value="FSize"/>
-      </Item3>
-    </Watches>
-    <Exceptions Count="5">
-      <Item1>
         <Name Value="ECodetoolError"/>
-        <Enabled Value="False"/>
-      </Item1>
-      <Item2>
-        <Name Value="EFOpenError"/>
-        <Enabled Value="False"/>
       </Item2>
       <Item3>
-        <Name Value="EVariableNotFound"/>
-        <Enabled Value="False"/>
+        <Name Value="EFOpenError"/>
       </Item3>
-      <Item4>
-        <Name Value="EQueueIsEmpty"/>
-      </Item4>
-      <Item5>
-        <Name Value="ENameNotFound"/>
-      </Item5>
     </Exceptions>
   </Debugging>
 </CONFIG>
