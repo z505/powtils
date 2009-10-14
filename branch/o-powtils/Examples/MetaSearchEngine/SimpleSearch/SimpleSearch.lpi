@@ -1,0 +1,373 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="7"/>
+    <General>
+      <MainUnit Value="0"/>
+      <TargetFileExt Value=""/>
+      <Icon Value="0"/>
+      <UseXPManifest Value="True"/>
+      <ActiveEditorIndexAtStart Value="3"/>
+    </General>
+    <VersionInfo>
+      <ProjectVersion Value=""/>
+      <Language Value=""/>
+      <CharSet Value=""/>
+    </VersionInfo>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="23">
+      <Unit0>
+        <Filename Value="SimpleSearch.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SimpleSearch"/>
+        <CursorPos X="18" Y="21"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="0"/>
+        <UsageCount Value="22"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="../../../PSP.lpr"/>
+        <UnitName Value="PSP"/>
+        <CursorPos X="1" Y="2"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="../../../WebUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="WebUnit"/>
+        <CursorPos X="17" Y="189"/>
+        <TopLine Value="166"/>
+        <UsageCount Value="22"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="../../../PageHandlerBaseUnit.pp"/>
+        <UnitName Value="PageHandlerBaseUnit"/>
+        <CursorPos X="5" Y="305"/>
+        <TopLine Value="282"/>
+        <UsageCount Value="10"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="../../../SessionManagerUnit.pp"/>
+        <UnitName Value="SessionManagerUnit"/>
+        <CursorPos X="2" Y="293"/>
+        <TopLine Value="275"/>
+        <UsageCount Value="10"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="../../../RequestsQueue.pp"/>
+        <UnitName Value="RequestsQueue"/>
+        <CursorPos X="1" Y="110"/>
+        <TopLine Value="93"/>
+        <UsageCount Value="10"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="../../../ResidentApplicationUnit.pp"/>
+        <UnitName Value="ResidentApplicationUnit"/>
+        <CursorPos X="1" Y="372"/>
+        <TopLine Value="356"/>
+        <UsageCount Value="10"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="JostarPageDispatcher.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="JostarPageDispatcher"/>
+        <CursorPos X="5" Y="15"/>
+        <TopLine Value="5"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="22"/>
+        <Loaded Value="True"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="ThisProjectGlobalUnit.pp"/>
+        <UnitName Value="ThisProjectGlobalUnit"/>
+        <CursorPos X="1" Y="68"/>
+        <TopLine Value="53"/>
+        <UsageCount Value="10"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="Parser/ParserUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ParserUnit"/>
+        <CursorPos X="41" Y="17"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="22"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="../../../../../../../../../usr/share/fpcsrc/packages/aspell/src/spellcheck.pp"/>
+        <UnitName Value="SpellCheck"/>
+        <CursorPos X="1" Y="320"/>
+        <TopLine Value="287"/>
+        <UsageCount Value="10"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="SpellChecker/SpellCheckerUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SpellCheckerUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="22"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="SpellChecker/StringKeyUnit.pp"/>
+        <UnitName Value="StringKeyUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="SpellChecker/DictionaryTreeUnit.pas"/>
+        <UnitName Value="DictionaryTreeUnit"/>
+        <CursorPos X="1" Y="492"/>
+        <TopLine Value="459"/>
+        <UsageCount Value="10"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="../../Web-Dictionary/PersaDicUnits/PersaDictionaryUnit.pp"/>
+        <UnitName Value="PersaDictionaryUnit"/>
+        <CursorPos X="33" Y="263"/>
+        <TopLine Value="260"/>
+        <UsageCount Value="20"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="StreamUnit.pas"/>
+        <UnitName Value="StreamUnit"/>
+        <CursorPos X="17" Y="32"/>
+        <TopLine Value="11"/>
+        <UsageCount Value="10"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="SpellChecker/PersaDictionaryUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PersaDictionaryUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="22"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SearchEnginesQueryManager"/>
+        <CursorPos X="1" Y="35"/>
+        <TopLine Value="35"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="22"/>
+        <Loaded Value="True"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="../../../CollectionUnit.pp"/>
+        <UnitName Value="CollectionUnit"/>
+        <CursorPos X="17" Y="28"/>
+        <TopLine Value="14"/>
+        <EditorIndex Value="6"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="../../../../../../../../../usr/share/fpcsrc/rtl/objpas/classes/classesh.inc"/>
+        <CursorPos X="17" Y="1398"/>
+        <TopLine Value="1384"/>
+        <UsageCount Value="10"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="SpellChecker/StreamUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="StreamUnit"/>
+        <CursorPos X="23" Y="24"/>
+        <TopLine Value="8"/>
+        <EditorIndex Value="5"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="QueryRequestUnit"/>
+        <CursorPos X="3" Y="31"/>
+        <TopLine Value="20"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="../ResultStorageUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="ResultStorageUnit"/>
+        <CursorPos X="33" Y="14"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="4"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit22>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="50" Column="17" TopLine="36"/>
+      </Position1>
+      <Position2>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="43" Column="26" TopLine="29"/>
+      </Position2>
+      <Position3>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="91" Column="29" TopLine="67"/>
+      </Position3>
+      <Position4>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="29" Column="18" TopLine="2"/>
+      </Position4>
+      <Position5>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="49" Column="25" TopLine="35"/>
+      </Position5>
+      <Position6>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="47" Column="30" TopLine="33"/>
+      </Position6>
+      <Position7>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position7>
+      <Position8>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="47" Column="30" TopLine="33"/>
+      </Position8>
+      <Position9>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="29" Column="21" TopLine="1"/>
+      </Position9>
+      <Position10>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="47" Column="31" TopLine="33"/>
+      </Position10>
+      <Position11>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="57" Column="30" TopLine="43"/>
+      </Position11>
+      <Position12>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="43" Column="38" TopLine="29"/>
+      </Position12>
+      <Position13>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="29" Column="36" TopLine="15"/>
+      </Position13>
+      <Position14>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="35" Column="85" TopLine="21"/>
+      </Position14>
+      <Position15>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="47" Column="39" TopLine="33"/>
+      </Position15>
+      <Position16>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="121" Column="1" TopLine="107"/>
+      </Position16>
+      <Position17>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="47" Column="21" TopLine="39"/>
+      </Position17>
+      <Position18>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="153" Column="3" TopLine="135"/>
+      </Position18>
+      <Position19>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="149" Column="18" TopLine="117"/>
+      </Position19>
+      <Position20>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="150" Column="17" TopLine="136"/>
+      </Position20>
+      <Position21>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="39" Column="45" TopLine="25"/>
+      </Position21>
+      <Position22>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="69" Column="11" TopLine="60"/>
+      </Position22>
+      <Position23>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="49" Column="1" TopLine="34"/>
+      </Position23>
+      <Position24>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="54" Column="11" TopLine="40"/>
+      </Position24>
+      <Position25>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="56" Column="1" TopLine="41"/>
+      </Position25>
+      <Position26>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="62" Column="27" TopLine="48"/>
+      </Position26>
+      <Position27>
+        <Filename Value="../QueryRequestUnit.pp"/>
+        <Caret Line="31" Column="20" TopLine="23"/>
+      </Position27>
+      <Position28>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="150" Column="17" TopLine="136"/>
+      </Position28>
+      <Position29>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="160" Column="18" TopLine="143"/>
+      </Position29>
+      <Position30>
+        <Filename Value="../SearchEnginesQueryManager.pp"/>
+        <Caret Line="35" Column="87" TopLine="35"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="8"/>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)/"/>
+      <OtherUnitFiles Value="/home/Amir/Project/O-PSP-OnGoogle/branch/o-powtils/;Parser/;SpellChecker/;/home/Amir/Project/O-PSP-OnGoogle/branch/o-powtils/Examples/MetaSearchEngine/"/>
+    </SearchPaths>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
