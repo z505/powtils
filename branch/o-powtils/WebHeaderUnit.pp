@@ -31,86 +31,87 @@ uses
 type
   { TWebHeader }
 
-  THeader= class (TNameStrValue)
+  THeader = class(TNameStrValue)
   public
-    function ToString: String;
+    function ToString: string;
 
   end;
 
   {
     TContentType which is now an enumeration. It can be String, too.
   }
-  TContentType= (ctStart, ctTextHTML, ctTextXML, ctNone);
+  TContentType = (ctStart, ctTextHTML, ctTextXML, ctNone);
 
   { THeaderCollection }
   {
     This class loads and holds the Header information.
   }
-  THeaderCollection= class (TNameValueCollection)
+  THeaderCollection = class(TNameValueCollection)
   private
-    function GetText: String;
-    function GetHeader (Index: Integer): THeader;
+    function GetText: string;
+    function GetHeader(Index: integer): THeader;
 
   public
-    property Header [Index: Integer]: THeader read GetHeader;
+    property Header[Index: integer]: THeader Read GetHeader;
 
-    property Text: String read GetText;
+    property Text: string Read GetText;
 
-    procedure Init (PageContentType: TContentType);
+    procedure Init(PageContentType: TContentType);
 
-    procedure AddHeader (NewHeader: THeader); overload;
+    procedure AddHeader(NewHeader: THeader); overload;
 
   end;
 
 
 implementation
+
 uses
   ConstantsUnit;
 
 { TWebHeader }
 
-function THeader.ToString: String;
+function THeader.ToString: string;
 begin
-  Result:= FName+ ':'+ Value;
+  Result := FName + ':' + Value;
 
 end;
 
 { TWebHeaderCollection }
 
-function THeaderCollection.GetText: String;
+function THeaderCollection.GetText: ansistring;
 var
-  i: Integer;
+  i: integer;
 
 begin
-  if Count<> 0 then
-    Result:= Header [0].ToString
+  if Count <> 0 then
+    Result := Header[0].ToString
   else
-    Result:= '';
+    Result := '';
 
-  for i:= 1 to Count- 1 do
+  for i := 1 to Count - 1 do
   begin
-    Result+= NewLine;
-    Result+= Header [i].ToString;
+    Result := Result + NewLine;
+    Result := Result + Header[i].ToString;
 
   end;
 
 end;
 
-function THeaderCollection.GetHeader (Index: Integer): THeader;
+function THeaderCollection.GetHeader(Index: integer): THeader;
 begin
-  Result:= NameValue [Index] as THeader;
+  Result := NameValue[Index] as THeader;
 
 end;
 
-procedure THeaderCollection.Init (PageContentType: TContentType);
+procedure THeaderCollection.Init(PageContentType: TContentType);
 begin
-  raise ENotImplementedYet.Create ('TWebConfigurationCollection', 'Init');
+  raise ENotImplementedYet.Create('TWebConfigurationCollection', 'Init');
 
 end;
 
-procedure THeaderCollection.AddHeader (NewHeader: THeader);
+procedure THeaderCollection.AddHeader(NewHeader: THeader);
 begin
-  AddNameValue (NewHeader);
+  AddNameValue(NewHeader);
 
 end;
 

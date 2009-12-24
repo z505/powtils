@@ -288,13 +288,9 @@ end;
 function TAbstractSessionManager.GetNewSessionID: TSessionID;
 
   function GenerateSessionID: TSessionID;
-  const
+{  const
     Letters: String= 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
-    
-  var
-    i: Integer;
-    CharPtr: PChar;
-    
+}
   begin
     CreateGUID (Result);
 {    Result:= Space (FSessionIDLen);

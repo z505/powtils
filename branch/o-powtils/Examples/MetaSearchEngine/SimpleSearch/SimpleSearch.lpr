@@ -18,7 +18,7 @@ uses
   WebUploadedFileUnit, LResources, ResidentApplicationUnit,
   JostarPageDispatcher, StreamUnit, ParserUnit, SpellCheckerUnit,
   PersaDictionaryUnit, SearchEnginesQueryManager, QueryRequestUnit,
-ResultStorageUnit;
+ResultStorageUnit, StringUnit;
 
 begin
   Resident:= TResident.Create (nil);

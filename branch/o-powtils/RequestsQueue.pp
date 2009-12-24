@@ -106,9 +106,7 @@ type
   end;
 
 implementation
-uses
-  URLEnc, MyTypes;
-  
+
 { TRequest }
 {
   Loads the Parameters and Cookies from an string (ParamsAndCookies).
@@ -203,9 +201,6 @@ begin
 end;
 
 destructor TCircularRequestsQueue.Destroy;
-var
-  i: Integer;
-
 begin
   DoneCriticalsection (CS);
   
@@ -216,9 +211,6 @@ begin
 end;
 
 procedure TCircularRequestsQueue.Insert (Request: TRequest);
-var
-  SuspendedThread: TThread;
-
 begin
   EnterCriticalsection (CS);
 
@@ -310,10 +302,6 @@ end;
 { TSuspendedThreads }
 
 constructor TSuspendedThreads.Create (_Size: Integer);
-var
-  i: Integer;
-  Ptr: PObject;
-
 begin
   inherited Create;
 

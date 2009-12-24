@@ -25,7 +25,7 @@ unit PageHandlerBaseUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit, XMLNode, Unix,
+  Classes, SysUtils, XMLNode, Unix,
     BaseUnix, SessionManagerUnit, WebHeaderUnit,
     AbstractHandlerUnit;
   
@@ -118,7 +118,7 @@ type
 
 implementation
 uses
-  ThisProjectGlobalUnit, DateUtils, GlobalUnit, ExceptionUnit;
+  ThisProjectGlobalUnit, DateUtils, GlobalUnit;
   
 { THandlerBase }
 
@@ -300,6 +300,9 @@ end;
 
 constructor THTMLHandler.Create (ThisPageName: AnsiString; ThisPageRelativePath: AnsiString);
 begin
+  if ThisPageRelativePath= '' then
+    ThisPageRelativePath:= ThisPageName;
+
   inherited Create (ctTextHTML, ThisPageName, ThisPageRelativePath);
 
 end;

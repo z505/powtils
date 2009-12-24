@@ -22,6 +22,8 @@ type
   end;
 
 implementation
+uses
+  StringUnit;
 
 { TJostarPageDispatcher }
 
@@ -44,7 +46,6 @@ procedure TJostarPageDispatcher.MyDispatch;
 
   begin
     Result:= TStringList.Create;
-
 
     CharPtr:= @(Query [1]);
     i:= 1;
@@ -108,8 +109,10 @@ procedure TJostarPageDispatcher.MyDispatch;
   end;
 
 var
-  Query, Engines: AnsiString;
+  Query, Engines, Temp: AnsiString;
   Words: TStringList;
+  WordsInEnc: array [0..3] of TStringList;
+  Encoding: Integer;
   StartTime, EndTime: TTimeStamp;
   i: Integer;
 
@@ -117,17 +120,33 @@ begin
   StartTime:= DateTimeToTimeStamp (Time);
 
   Query:= Vars.CgiVarValueByName ['Q'];
-  Engines:= Vars.CgiVarValueByName ['Engines'];
-
   if Query= '' then
     Exit;
 
   Words:= ParseQuery (Query);
+  Engines:= Vars.CgiVarValueByName ['Engines'];
   if Engines= '' then
     Engines:= 'GYM';
 
-  for i:= 1 to Length (Engines) do
+  Temp:= Parameter ['Enc'];
+  try
+    Encoding:= StrToInt (Temp);
 
+  except
+    on e: Exception do
+      Encoding:= 7;
+
+  end;
+
+  FillChar (WordsInEnc, SizeOf (WordsInEnc), 0);
+
+  for i:= 0 to 2 do
+    if Encoding and (1 shl i)<> 0 then
+      WordsInEnc [i]:= EncodeWords (Words, i);
+
+  for i:= 1 to Length (Engines) do
+    if Engines [i]= 'G' then
+//      Goo
 
 
   Words.Free;

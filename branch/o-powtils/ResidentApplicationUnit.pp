@@ -46,7 +46,7 @@
 
 unit ResidentApplicationUnit;
 
-{$mode objfpc}{$H+}
+{$mode objfpc}{$H+}{$M+}
 {$DEFINE DebugMode}
 
 interface
@@ -383,6 +383,8 @@ begin
   FpMkfifo (MainPipeFileName, $1B0);//660.//110110000
 
   CreateDir (TempPipeFilesPath);
+
+  CheckForCorrectness;
 
 end;
 
@@ -809,4 +811,4 @@ initialization
   {$I Page.lrs}
 
 end.
-8
+

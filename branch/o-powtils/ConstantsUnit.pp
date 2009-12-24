@@ -8,7 +8,7 @@ uses
   Classes, SysUtils; 
 
 const
-  NewLine: String= #10;
+  NewLine: AnsiString= #10;
 
 implementation
 
