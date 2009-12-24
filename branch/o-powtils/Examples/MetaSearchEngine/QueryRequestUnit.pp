@@ -28,7 +28,7 @@ type
 
   TQueryRequestQueue= class (TObject)
   private
-//    Mutex:
+    Mutex: TRTLCriticalSection;
     Requests: TList;
 
   public
@@ -36,6 +36,7 @@ type
     destructor Destroy; override;
 
     procedure Add (NewRequest: TQueryRequest);
+    function Delete: TQueryRequest;
 
   end;
 
@@ -46,6 +47,7 @@ constructor TQueryRequestQueue.Create;
 begin
   inherited Create;
 
+  InitCriticalSection (Mutex);
   Requests:= TList.Create;
 
 end;
@@ -55,12 +57,29 @@ begin
   Requests.Clear;
   Requests.Free;
 
+  DoneCriticalsection (Mutex);
+
   inherited Destroy;
 end;
 
 procedure TQueryRequestQueue.Add (NewRequest: TQueryRequest);
 begin
+  EnterCriticalsection (Mutex);
+
   Requests.Add (NewRequest);
+
+  LeaveCriticalsection (Mutex);
+
+end;
+
+function TQueryRequestQueue.Delete: TQueryRequest;
+begin
+  EnterCriticalsection (Mutex);
+
+  Result:= TQueryRequest (Requests.Items [0]);
+  Requests.Delete (0);
+
+  LeaveCriticalsection (Mutex);
 
 end;
 

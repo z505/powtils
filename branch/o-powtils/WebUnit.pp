@@ -29,8 +29,8 @@ unit WebUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit, WebStringUnit, sds, CookieUnit,
-  WebHeaderUnit, CgiVariableUnit, WebConfigurationUnit, SessionUnit,
+  Classes, SysUtils, CookieUnit,
+  WebHeaderUnit, CgiVariableUnit, SessionUnit,
   WebRunTimeInformationUnit, WebUploadedFileUnit;
   
 type
@@ -94,11 +94,11 @@ type
   protected
     procedure WriteBuffer;
     procedure FlushBuffer;
-
+{
     constructor CreateWithOutGetWebData (PageHostName, PagePath, ThisPageName: String;
                 ContType: TContentType);
 
-
+}
  published
     property PageName: String read FPageName write FPageName;
     property HostName: String read FHostName write FHostName;
@@ -127,7 +127,7 @@ type
 
 implementation
 uses
-  SubStrings, GlobalUnit, ExceptionUnit, Base64_Enc, URLEnc, MyTypes,
+  GlobalUnit, ExceptionUnit,
   ThisProjectGlobalUnit;
 
 { TWeb }
@@ -186,7 +186,8 @@ function TWeb.ThrowWebError (const Message: String): Boolean;
 //  s: String;
 
 begin
-  raise ENotImplementedYet.Create ('TWeb', 'ThrowWebError');
+  Result:= True;
+  raise ENotImplementedYet.Create ('TWeb', 'ThrowWebError'+ Message);
 
   // Init
   //Result:= False;
@@ -221,6 +222,7 @@ end;
 
 //This constructor is called by a ResientPageBaseUnit
 //which doesn't need to read the parameters from standard input
+(*
 constructor TWeb.CreateWithOutGetWebData (PageHostName, PagePath, ThisPageName: String;
    ContType: TContentType);
 
@@ -231,12 +233,12 @@ begin
   Buffers:= TStringList.Create;
   FHeaders:= THeaderCollection.Create;
   FHeaderCanBeSent:= True;
-
+  FPageName:= ThisPageName;
 {--Creating all the variable--
   This can be done on the first use of each variable
 }
   FRti:= TWebRunTimeInformationCollection.Create;
-  FCookies:= TCookieCollection.Create (Header, @FHeaderCanBeSent, PageHostName, PagePath);
+  FCookies:= TCookieCollection.Create (Header, @FHeaderCanBeSent, PagePath);
   FCgi:= TCgiVariableCollection.Create;
   
   FSession:= TSessionCollection.Create (FCookies);
@@ -256,6 +258,7 @@ begin
     FHeaders.Init (FContentType);
   
 end;
+*)
 
 // Free the web variables
 destructor TWeb.Destroy;
@@ -303,10 +306,11 @@ end;
 {==============================================================================}
 {================================   Types   ===================================}
 {==============================================================================}
+{
 type
   SDS_Result = Pointer;
   SDS_Array = Pointer;
   SDS_ColumnInfo = Pointer;
-  
+}
 end.
 

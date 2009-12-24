@@ -11,13 +11,12 @@ uses
   , heaptrc
   {$ENDIF}
   { add your units here },
-  CollectionUnit, WebUnit, ThreadingUnit,
-  PipeWrapperUnit, URLEnc, SessionManagerUnit,
-  WebStringUnit, RequestsQueue, ThisProjectGlobalUnit,
+  CollectionUnit, WebUnit, ThreadingUnit, PipeWrapperUnit, URLEnc,
+  SessionManagerUnit, WebStringUnit, RequestsQueue, ThisProjectGlobalUnit,
   ExceptionUnit, AbstractHandlerUnit, CookieUnit, WebHeaderUnit,
-  WebConfigurationUnit, SessionUnit, CgiVariableUnit,
-  WebRunTimeInformationUnit, WebUploadedFileUnit, MainPageUnit, PuzzlePageUnit, LResources,
-  StreamUnit, ResidentApplicationUnit;
+  WebConfigurationUnit, SessionUnit, CgiVariableUnit, WebRunTimeInformationUnit,
+  WebUploadedFileUnit, MainPageUnit, PuzzlePageUnit,
+  LResources, StreamUnit, ResidentApplicationUnit;
 
 begin
   Resident:= TResident.Create (nil);

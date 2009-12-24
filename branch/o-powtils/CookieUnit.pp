@@ -83,7 +83,7 @@ type
     property Text: String read GetText;
 
     constructor Create (HeaderCollection: THeaderCollection; IsHeaderSent: PBoolean;
-       ThisPageHostName, ThisPageURI: String);
+       ThisPageURI: String);
 
     destructor Destroy; override;
 
@@ -100,7 +100,7 @@ type
 
 implementation
 uses
-  WebStringUnit, ExceptionUnit, MyTypes;
+  WebStringUnit, ExceptionUnit, MyTypes, ThisProjectGlobalUnit;
 
 { TCookie }
 
@@ -184,13 +184,13 @@ begin
 end;
 
 constructor TCookieCollection.Create (HeaderCollection: THeaderCollection; IsHeaderSent: PBoolean;
-       ThisPageHostName, ThisPageURI: String);
+       ThisPageURI: String);
 begin
   inherited Create;
 
   FIsHeaderSent:= IsHeaderSent;
   FWebHeaderCollection:= HeaderCollection;
-  FHostName:= ThisPageHostName;
+  FHostName:= GlobalObjContainer.Configurations.ConfigurationValueByName ['HostName'];
   FPageURI:= ThisPageURI;
 
 end;

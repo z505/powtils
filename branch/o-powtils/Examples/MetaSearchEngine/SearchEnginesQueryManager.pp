@@ -35,6 +35,7 @@ type
     constructor Create (Configuration: TStringList; RequestQueue: TQueryRequestQueue);
 
   end;
+
   { TSearchEngineQueryManager }
 
   TSearchEngineQueryManager= class (TBaseCollection)

@@ -35,6 +35,7 @@ type
     FSessionID: TSessionID;
 
   private
+    function GetParameter (const ParamName: AnsiString): AnsiString;
     procedure SetPipeHandle (const AValue: cInt);
 
   published
@@ -57,6 +58,9 @@ type
     property Cookies: TCookieCollection read FCookies;
     property Headers: THeaderCollection read FHeaders;
     property Vars: TCgiVariableCollection read FVars;
+    // It is the union of Name-value pairs in Vars and Cookies.
+    property Parameter [const ParamName: AnsiString]: AnsiString read
+      GetParameter;
     property HeaderCanBeSent: Boolean read FHeaderCanBeSent;
 
     constructor Create (ContType: TContentType; ThisPageName, ThisPageRelativePath: AnsiString;
@@ -77,6 +81,23 @@ uses
   BaseUnix, GlobalUnit, ConstantsUnit, ThisProjectGlobalUnit;
 
 { TAbstractHandler }
+
+function TAbstractHandler.GetParameter (const ParamName: AnsiString): AnsiString;
+begin
+  try
+    Result:= Vars.CgiVarByName [ParamName].Value;
+
+  except
+    try
+      Result:= Cookies.CookieByName [ParamName].StrValue;
+    except
+      Result:= '';
+
+    end;
+
+  end;
+
+end;
 
 procedure TAbstractHandler.SetPipeHandle (const AValue: cInt);
 begin
@@ -180,12 +201,11 @@ begin
   FShouldBeFreedManually:= _ShouldBeFreedManually;
   FPageName:= ThisPAgeName;
   FRelativePath:= ThisPageRelativePath;
+  FContentType:= ContType;
 
   FBuffer:= TStringList.Create;
-  FVars:= nil;//TCgiVariableCollection.Create;
-
-  FCookies:= TCookieCollection.Create (FHeaders, @FHeaderCanBeSent, '', '');
-  FContentType:= ContType;
+  FVars:= nil;
+  FCookies:= nil;
 
   FHeaders:= THeaderCollection.Create;
   Headers.AddHeader (THeader.Create ('X-Powered-By', 'Powtils'));
@@ -351,9 +371,9 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest; AThread: TDispacther
 
   end;
 
-  procedure LoadCookies (var CharPtr: PChar);
+  function LoadCookies (const CookieString: Ansistring): TCookieCollection;
   begin
-    CharPtr:= nil;
+    Result:= TCookieCollection.Create (Headers, nil, RelativePath);
 
   end;
 
@@ -363,7 +383,7 @@ begin
 (*$ENDIF*)
 
   FVars:= LoadVariables (RequestInfo.Variables);
-//  FCookies:= LoadCookies (ArgumentPtr);
+  FCookies:= LoadCookies (RequestInfo.CookieStr);
 
 (*$IFDEF DEBUGMODE*)
   System.WriteLn ('In Dispatch: After LoadVariables');

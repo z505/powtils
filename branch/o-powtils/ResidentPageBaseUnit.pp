@@ -1,7 +1,7 @@
 {
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-                    PSP 1.6.x BasaClassUnit
+                    PSP 1.6.x ResidentPageBase
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -27,13 +27,13 @@ interface
 uses
   Classes, SysUtils, WebUnit, CollectionUnit, XMLNode, AttributeUnit, Unix,
     BaseUnix, SessionManagerUnit, WebHeaderUnit,
-    AbstractDispatcherUnit, CookieUnit, CgiVariableUnit;
+    AbstractHandlerUnit, CookieUnit, CgiVariableUnit;
   
 type
 
   { TResidentPageBase }
 
-  TResidentPageBase= class (TAbstractDispatcher)
+  TResidentPageBase= class (TAbstractHandler)
   private
     function GetSession: TSession;
 
@@ -121,7 +121,7 @@ var
   
 begin
   if SessionIDVarName= '' then
-    SessionIDVarName:= WebConfiguration.ConfigurationValueByName ['SessionIDVarName'];
+    SessionIDVarName:= GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionIDVarName'];
 
   if IsEqualGUID (FSessionID, EmptySessionID) then
   begin
@@ -147,9 +147,9 @@ end;
 constructor TResidentPageBase.Create (ThisPageName: String;
             ContType: TContentType; PageHost: String; PagePath: String);
 begin
-  inherited Create (ThisPageName, False);
+  inherited Create (ContType, ThisPageName, PagePath, False);
 
-  if WebConfiguration.ConfigurationByName ['SessionEnabled'].Value= 'YES' then
+  if GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionEnabled']= 'YES' then
     FSessionID:= EmptySessionID;
 
 end;
@@ -168,7 +168,7 @@ begin
   if Buffer.Count<> 0 then
     Write (Buffer.Text);
 
-  FpClose (FPipeHandle);
+  FpClose (PipeHandle);
   PipeIsAssigned:= False;
 
 end;
@@ -200,8 +200,6 @@ begin
     Write (FXMLRoot.ToStringWithIndent)
   else
     Write (FXMLRoot.ToStringWithOutIndent);
-
-  inherited;
 
 end;
 
