@@ -16,7 +16,7 @@ type
   }
   TSessionCollection= class (TNameValueCollection)
   private
-    FCookieCollection: TCookieCollection;
+    FCookieCollection: TCookieManager;
     FRunTimeInformation: TWebRunTimeInformationCollection;
 //    SdsEngine: TSDSWrapper;
     FSessionIsRegistered: Boolean;
@@ -26,7 +26,7 @@ type
   public
     property SessionIsRegistered: Boolean read FSessionIsRegistered write FSessionIsRegistered;
 
-    constructor Create (CookieCollection: TCookieCollection);
+    constructor Create (CookieManager: TCookieManager);
     destructor Destroy; override;
 
     function SessionStart: String;
@@ -84,7 +84,7 @@ begin
 *)
 end;
 
-constructor TSessionCollection.Create (CookieCollection: TCookieCollection);
+constructor TSessionCollection.Create (CookieManager: TCookieManager);
 
 begin
   inherited Create;

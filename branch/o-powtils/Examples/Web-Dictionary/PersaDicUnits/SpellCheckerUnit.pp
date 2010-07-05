@@ -69,7 +69,7 @@ begin
     Exit (True)
   else//a.Index= b.Index
   begin
-    if DWord (a.Node)<= DWord (b.Node) then
+    if DWord (@a.Node)<= DWord (@b.Node) then
       Exit (False)
     else
       Exit (True);

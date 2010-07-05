@@ -37,7 +37,7 @@ begin
   inherited Create;
 
   FPersaDic:= TPersaDic.Create;
-  PersaDic.LoadFromTextFile ('MergedDic.txt');
+  PersaDic.LoadFromTextFile (Configurations.ConfigurationValueByName ['DicFileName']);
 
   PersaDic.Prepare;
 

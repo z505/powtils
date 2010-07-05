@@ -11,7 +11,9 @@ type
 
   { TCgiVar }
 
-  TCgiVar= class (TNameStrValue)
+//  TCgiVar= class (TNameStrValue)
+{TODO: 8}
+  TCgiVar= class (TObject)
   private
 
   public
@@ -53,7 +55,8 @@ uses
 
 function TCgiVar.ToString: AnsiString;
 begin
-  Result:= FName+ ':'+ Value;
+{TODO: 9}
+//  Result:= FName+ ':'+ Value;
 
 end;
 
@@ -61,20 +64,23 @@ end;
 
 function TCgiVariableCollection.GetCgiVar (Index: Integer): TCgiVar;
 begin
-  Result:= NameValue [Index] as TCgiVar;
+{TODO: 9}
+//  Result:= NameValue [Index] as TCgiVar;
 
 end;
 
 function TCgiVariableCollection.GetCgiVarByName (VarName: AnsiString): TCgiVar;
 begin
-  Result:= NameValueByName [VarName] as TCgiVar;
+{TODO: 10}
+//  Result:= NameValueByName [VarName] as TCgiVar;
 
 end;
 
 function TCgiVariableCollection.GetCgiVarValueByName (VarName: AnsiString): AnsiString;
 begin
   try
-    Result:= CgiVarByName [VarName].Value
+  {TODO 1}
+//    Result:= CgiVarByName [VarName].Value
 
   except
     on e: ENameNotFound do
@@ -90,9 +96,10 @@ var
 
 begin
   Result:= '';
-  for i:= 0 to Count- 1 do
+  {TODO: 12}
+{  for i:= 0 to Count- 1 do
     Result:= Result+ CgiVar [i].ToString+ ';';
-
+}
 end;
 
 procedure TCgiVariableCollection.LoadFromString (const Str: AnsiString);
@@ -151,7 +158,8 @@ begin
 
     URLDecode (VarName);
     URLDecode (VarValue);
-    Self.AddNameValue (TCgiVar.Create (VarName, VarValue));
+    {TODO: 13}
+//    Self.AddNameValue (TCgiVar.Create (VarName, VarValue));
 
   end;
 

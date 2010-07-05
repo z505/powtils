@@ -15,14 +15,16 @@ uses
   SessionManagerUnit, WebStringUnit, RequestsQueue, ThisProjectGlobalUnit,
   ExceptionUnit, AbstractHandlerUnit, CookieUnit, WebHeaderUnit,
   WebConfigurationUnit, SessionUnit, CgiVariableUnit, WebRunTimeInformationUnit,
-  WebUploadedFileUnit, MainPageUnit, PuzzlePageUnit,
-  LResources, StreamUnit, ResidentApplicationUnit;
+  WebUploadedFileUnit, MainPageUnit, PuzzlePageUnit, MyTypes, LResources,
+  StreamUnit, ResidentApplicationUnit, QueueUnit, SemaphoreUnit,
+  BlockingQueueUnit;
 
 begin
+
   Resident:= TResident.Create (nil);
 
   Resident.RegisterPageHandlerHandler (TMainPageDispatcher.Create);
-  Resident.RegisterPageHandlerHandler (TPuzzlePageDispatcher.Create);
+//  Resident.RegisterPageHandlerHandler (TPuzzlePageDispatcher.Create);
 
   Resident.ExecuteInThread;
 

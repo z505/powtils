@@ -159,12 +159,12 @@ var
 begin
   Result:= Space+ '<'+ FTag+ ' '+ FAttributes.ToString;
 
-  if FChilds.Size= 0 then
+  if FChilds.Count= 0 then
     Result:= Result+ '/>'
   else
   begin
     Result:= Result+ '>';
-    for i:= 0 to FChilds.Size- 1 do
+    for i:= 0 to FChilds.Count- 1 do
       Result:= Result+ #10+ Child [i].ToStringWithIndent (Space+ '  ');
     Result:= Result+ #10+ '</'+ FTag+ '>';
       
@@ -180,12 +180,12 @@ begin
 
   Result:= '<'+ FTag+ ' '+ FAttributes.ToString;
 
-  if FChilds.Size= 0 then
+  if FChilds.Count= 0 then
     Result:= Result+ '/>'
   else
   begin
     Result:= Result+ '>';
-    for i:= 0 to FChilds.Size- 1 do
+    for i:= 0 to FChilds.Count- 1 do
       Result:= Result+ #10+ Child [i].ToStringWithOutIndent;
       
     Result:= Result+ #10'</'+ FTag+ '>';
@@ -216,7 +216,7 @@ end;
 
 function TXMLNodeCollection.GetNode (Index: Integer): TXMLNode;
 begin
-  Result:= Member [Index] as TXMLNode;
+  Result:= Item [Index] as TXMLNode;
   
 end;
 
@@ -229,7 +229,7 @@ begin
   
   ChildName:= UpperCase (ChildName);
   
-  for i:= 0 to Size- 1 do
+  for i:= 0 to Count- 1 do
     if UpperCase (Node [i].Tag)= ChildName then
     begin
       Result:= Node [i];
@@ -254,9 +254,9 @@ var
   Ptr: PXMLNode;
   
 begin
-  Ptr:= @FMembers [0];
+  Ptr:= First;
   
-  for i:= 0 to AnotherCollection.Size- 1 do
+  for i:= 0 to AnotherCollection.Count- 1 do
   begin
     Self.AddNode (Ptr^);
     Inc (Ptr);

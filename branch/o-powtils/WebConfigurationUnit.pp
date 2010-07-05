@@ -4,9 +4,12 @@ unit WebConfigurationUnit;
 
 interface
 uses
-  CollectionUnit;
+  GenericCollectionUnit, MyTypes;
 
 type
+  TNameStrValue= specialize TPairForBuiltInData<AnsiString, TObject>;
+  TNameValueCollection= specialize TGenericCollection<TNameStrValue>;
+
   { TWebConfiguration }
 
   TWebConfiguration= class (TNameStrValue)
@@ -46,25 +49,25 @@ uses
 
 function TWebConfigurationCollection.GetConfigurationByIndex (Index: Integer): TWebConfiguration;
 begin
-  Result:= NameValue [Index] as TWebConfiguration;
+  Result:= Item [Index] as TWebConfiguration;
 
 end;
 
 function TWebConfigurationCollection.GetConfigurationByName (ValueName: String): TWebConfiguration;
 begin
-  Result:= NameValueByName [ValueName] as TWebConfiguration;
+//  Result:= NameValueByName [ValueName] as TWebConfiguration;
 
 end;
 
 function TWebConfigurationCollection.GetConfigurationValueByName (Name: String): String;
 begin
   try
-    Result:= ConfigurationByName [Name].Value;
+//    Result:= ConfigurationByName [Name].Value;
 
   except
-    on e: ENameNotFound do
+{    on e: ENameNotFound do
       Result:= '';
-
+}
   end;
 
 end;
@@ -84,7 +87,7 @@ begin
     ReadLn (InputFile, S);
     S:= Trim (S);
     if S<> '' then
-      Self.Add (TWebConfiguration.Create (S));
+//      Self.Add (TWebConfiguration.Create (S));
 
   end;
 

@@ -343,7 +343,7 @@ end;
 
 function TAttributeCollection.GetAttribute(Index: Integer): TAttribute;
 begin
-  Result:= Member [Index] as TAttribute;
+  Result:= Item [Index] as TAttribute;
   
 end;
 
@@ -354,7 +354,7 @@ var
 begin
   AttrName:= UpperCase (AttrName);
   
-  for i:= 0 to Size- 1 do
+  for i:= 0 to Count- 1 do
     if UpperCase (Attribute [i].Name)= AttrName then
     begin
       Result:= Attribute [i];
@@ -380,10 +380,10 @@ var
 begin
   Result:= '';
   
-  if 0< Size then
+  if 0< Count then
   begin
-    Ptr:= @FMembers [0];
-    for i:= 0 to Size- 1 do
+    Ptr:= First;
+    for i:= 0 to Count- 1 do
     begin
       Result:= Result+ Ptr^.ToString+ ' ';
       Inc (Ptr);
@@ -405,7 +405,7 @@ var
   i: Integer;
   
 begin
-  for i:= 1 to Size- 1 do
+  for i:= 1 to Count- 1 do
     Write (OutputFile, Attribute [i].ToString, ' ');
 
 

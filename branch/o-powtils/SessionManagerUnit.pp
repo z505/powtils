@@ -151,7 +151,7 @@ end;
 
 function TAbstractSessionManager.GetSession (Index: Integer): TSession;
 begin
-  Result:= Member [Index] as TSession;
+  Result:= Item [Index] as TSession;
   
 end;
 
@@ -163,8 +163,8 @@ var
   
 begin
 
-  Ptr:= GetPointerToFirst;
-  for i:= 1 to FSize do
+  Ptr:= First;
+  for i:= 1 to Count do
   begin
     if IsEqualGUID ((TSession (Ptr^)).SessionID, SessionID) then
     begin
@@ -187,8 +187,8 @@ var
   Ptr: PObject;
   
 begin
-  Ptr:= GetPointerToFirst;
-  for i:= 1 to FSize do
+  Ptr:= First;
+  for i:= 1 to Count do
   begin
     if IsEqualGUID ((TSession (Ptr^)).SessionID, SessionID) then
     begin
@@ -397,7 +397,8 @@ var
   Index: Integer;
   
 begin
-  Index:= IndexOf (VariableName);
+{TODO: 16}
+//  Index:= IndexOf (VariableName);
   if Index<> -1 then
     Delete (Index);
     
@@ -409,7 +410,8 @@ var
   
 begin
   ANewVariable:= TVariable.Create (AName, AValue);
-  Self.AddObject (AName, ANewVariable);
+  {TODO: 16}
+//  Self.AddObject (AName, ANewVariable);
   
 end;
 

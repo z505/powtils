@@ -14,7 +14,7 @@ type
 
   TAbstractHandler= class (TObject)
   private
-    FCookies: TCookieCollection;
+    FCookies: TCookieManager;
     FBuffer: TStringList;
     FHeaderCanBeSent: Boolean;
     FHeaders: THeaderCollection;
@@ -55,7 +55,7 @@ type
     property SessionID: TSessionID read FSessionID;
 
   public
-    property Cookies: TCookieCollection read FCookies;
+    property Cookies: TCookieManager read FCookies;
     property Headers: THeaderCollection read FHeaders;
     property Vars: TCgiVariableCollection read FVars;
     // It is the union of Name-value pairs in Vars and Cookies.
@@ -85,7 +85,8 @@ uses
 function TAbstractHandler.GetParameter (const ParamName: AnsiString): AnsiString;
 begin
   try
-    Result:= Vars.CgiVarByName [ParamName].Value;
+  {TODO: 16}
+//    Result:= Vars.CgiVarByName [ParamName].Value;
 
   except
     try
@@ -121,7 +122,7 @@ const
 begin
   if HeaderCanBeSent then
   begin
-    if Headers.Size<> 0 then
+{    if Headers.Size<> 0 then
     begin
       BufText:= Headers.Text;
       Headers.Clear;
@@ -136,6 +137,8 @@ begin
       FpWrite (FPipeHandle, BufText [1], Length (BufText));
 
     end;
+}
+  {TODO: 16}
 
     FpWrite (FPipeHandle, NewLine [1], 1);
     FpWrite (FPipeHandle, NewLine [1], 1);
@@ -168,7 +171,9 @@ var
   S: AnsiString;
 
 begin
-  if Headers.Size<> 0 then
+  {TODO: 16}
+
+{  if Headers.Size<> 0 then
   begin
     S:= Headers.Text;
     Headers.Free;
@@ -184,7 +189,7 @@ begin
     FpWrite (FPipeHandle, S [1], Length (S));
 
   end;
-
+}
   FHeaderCanBeSent:= False;
 
 end;
@@ -208,11 +213,13 @@ begin
   FCookies:= nil;
 
   FHeaders:= THeaderCollection.Create;
-  Headers.AddHeader (THeader.Create ('X-Powered-By', 'Powtils'));
+    {TODO: 16}
+
+{  Headers.AddHeader (THeader.Create ('X-Powered-By', 'Powtils'));
   Headers.AddHeader (THeader.Create ('Content-Type',
                ContentTypeString [ContType] + ';charset='+ GlobalObjContainer.Configurations.ConfigurationValueByName ['CHARSET']
              ));
-
+}
   FHeaderCanBeSent:= True;
 
 end;
@@ -342,8 +349,9 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest; AThread: TDispacther
         Index:= VariablesStrLen;
 
       end;
+  {TODO: 16}
 
-      Result:= TCgiVar.Create (URLDecode (VarName), URLDecode (VarValue));
+//      Result:= TCgiVar.Create (URLDecode (VarName), URLDecode (VarValue));
 
     end;
 
@@ -371,9 +379,10 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest; AThread: TDispacther
 
   end;
 
-  function LoadCookies (const CookieString: Ansistring): TCookieCollection;
+  function LoadCookies (const CookieString: Ansistring): TCookieManager;
   begin
-    Result:= TCookieCollection.Create (Headers, nil, RelativePath);
+    Result:= TCookieManager.Create (Headers, @FHeaderCanBeSent, RelativePath);
+    Result.LoadFromString (CookieString);
 
   end;
 

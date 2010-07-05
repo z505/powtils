@@ -13,8 +13,6 @@ type
 
   TDispactherThread= class (TThread)
   private
-    FTerminateASAP: Boolean;
-
     FOutputPipeHandle: cint;
     FOutputPipeName: String;
     FRequestQueue: TCircularRequestsQueue;
@@ -22,13 +20,6 @@ type
     procedure SetOutputPipeName (const AValue: String);
 
    protected
-     {
-       TerminateASAP asks the thread to terminate as soon as it doesn't have
-         any request to server. This method is called by TThreadCollection.Destroy
-         and sets the FTerminateASAP flag.
-     }
-     procedure TerminateASAP;
-
      {
        Name and location of the pipe in which the output should be written.
      }
@@ -94,12 +85,6 @@ begin
 
 end;
 
-procedure TDispactherThread.TerminateASAP;
-begin
-  FTerminateASAP:= True;
-
-end;
-
 procedure TDispactherThread.Execute;
 var
   NewRequest: TRequest;
@@ -110,46 +95,13 @@ begin
   while True do
   begin
 
-    try
-      NewRequest:= FRequestQueue.Delete;
+    NewRequest:= FRequestQueue.Delete;
 
-    except
-      on e: EQueueIsEmpty do
-      begin
-(*$IFDEF DebugMode*)
-        WriteLn ('TDispactherThread.Execute: RequestQueue is empty!');
-(*$ENDIF*)
-
-(*$IFDEF DebugMode*)
-        WriteLn ('TDispactherThread.Execute: FTerminateASAP=', FTerminateASAP);
-(*$ENDIF*)
-
-        if FTerminateASAP then
-          Break;
-
-        FRequestQueue.AddToSuspendedThreads (Self);
-
-(*$IFDEF DebugMode*)
-        WriteLn ('TDispactherThread.Execute: Before suspend!', ThreadID);
-(*$ENDIF*)
-
-        Self.Suspend;
-
-(*$IFDEF DebugMode*)
-        WriteLn ('TDispactherThread.Execute: After suspend!', ThreadID);
-(*$ENDIF*)
-
-        Continue;
-
-      end;
-      
-    end;
-    
 (*$IFDEF DebugMode*)
     WriteLn ('TDispactherThread.Execute: Request to be Served is (', NewRequest.ToString, ')');
 (*$ENDIF*)
 
-    PageInstance:= Resident.GetPageHandler (UpperCase (NewRequest.PageName));
+    PageInstance:= Resident.GetPageHandler (NewRequest.PageName);
     OutputPipeName:= NewRequest.OutputPipe;
 
     try
@@ -169,15 +121,8 @@ begin
 
     end;
 
-(*$IFDEF DebugMode*)
-    WriteLn ('TDispactherThread.Execute: Before Freeing PageInstance');
-(*$ENDIF*)
-
-    PageInstance.Free;
-
-(*$IFDEF DebugMode*)
-    WriteLn ('TDispactherThread.Execute: After Freeing PageInstance');
-(*$ENDIF*)
+    if PageInstance.ShouldBeFreedManually then
+      PageInstance.Free;
 
   end;
 
@@ -193,7 +138,6 @@ begin
 
   FreeOnTerminate:= False;
   FRequestQueue:= ReqQueue;
-  FTerminateASAP:= False;
 
 end;
 
@@ -217,8 +161,8 @@ begin
   inherited Create;
 
   FThreadCollection:= TThreadCollection.Create;
-  FThreadCollection.Allocate (n);
-  Ptr:= FThreadCollection.GetPointerToFirst;
+  FThreadCollection.Count:= n;
+  Ptr:= FThreadCollection.First;
   
   for i:= 0 to n- 1 do
   begin
@@ -234,7 +178,7 @@ var
   i: Integer;
 
 begin
-  for i:= 0 to FThreadCollection.Size- 1 do
+  for i:= 0 to FThreadCollection.Count- 1 do
     FThreadCollection.Thread [i].Resume;
 
 end;
@@ -254,9 +198,9 @@ var
   
 begin
   i:= 0;
-  Ptr:= FThreadCollection.GetPointerToFirst;
+  Ptr:= FThreadCollection.First;
   
-  while i< FThreadCollection.Size do
+  while i< FThreadCollection.Count do
   begin
     if (Ptr^ as TThread).Suspended then
     begin
@@ -275,7 +219,7 @@ end;
 
 function TThreadCollection.GetThread (Index: Integer): TDispactherThread;
 begin
-  Result:= Member [Index] as TDispactherThread;
+  Result:= Item [Index] as TDispactherThread;
   
 end;
 
@@ -294,9 +238,8 @@ begin
   WriteLn ('In TThreadCollection.Destroy');
 {$ENDIF}
 
-  for i:= 0 to Size- 1 do
+  for i:= 0 to Count- 1 do
   begin
-    Thread [i].TerminateASAP;
     if Thread [i].Suspended then
       Thread [i].Resume;
 
