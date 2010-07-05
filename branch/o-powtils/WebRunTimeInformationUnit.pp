@@ -10,7 +10,9 @@ uses
 type
   { TWebRunTimeInformation }
 
-  TWebRunTimeInformation= class (TNameStrValue)
+{TODO: 14}
+//  TWebRunTimeInformation= class (TNameStrValue)
+  TWebRunTimeInformation= class (TObject)
   private
   public
   end;
@@ -42,19 +44,22 @@ implementation
 
 function TWebRunTimeInformationCollection.GetRunTimeInformationByIndex (Index: Integer): TWebRunTimeInformation;
 begin
-  Result:= NameValue [Index] as TWebRunTimeInformation;
+{TODO: 16}
+//  Result:= NameValue [Index] as TWebRunTimeInformation;
 
 end;
 
 function TWebRunTimeInformationCollection.GetRunTimeInformationByName (Name: String): TWebRunTimeInformation;
 begin
-  Result:= NameValueByName [Name] as TWebRunTimeInformation;
+{TODO: 17}
+//  Result:= NameValueByName [Name] as TWebRunTimeInformation;
 
 end;
 
 function TWebRunTimeInformationCollection.GetRunTimeInformationValueByName (Name: String): String;
 begin
-  Result:= RunTimeInformationByName [Name].Value;
+{TODO: 16}
+//  Result:= RunTimeInformationByName [Name].Value;
 
 end;
 

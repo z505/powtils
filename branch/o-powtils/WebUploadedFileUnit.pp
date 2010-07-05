@@ -61,7 +61,7 @@ end;
 
 function TWebUpFileCollection.GetFiles (Index: Integer): TUploadedFile;
 begin
-  Result:= Member [Index] as TUploadedFile;
+  Result:= Item [Index] as TUploadedFile;
 
 end;
 

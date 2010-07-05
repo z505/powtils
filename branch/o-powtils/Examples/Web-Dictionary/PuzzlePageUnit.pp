@@ -5,7 +5,7 @@ unit PuzzlePageUnit;
 interface
 
 uses
-  Classes, SysUtils, PageHandlerBaseUnit, FileStringsUnit, AbstractHandlerUnit;
+  Classes, SysUtils, PageHandlerBaseUnit, AbstractHandlerUnit;
 
 type
 

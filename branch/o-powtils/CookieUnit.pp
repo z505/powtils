@@ -15,6 +15,9 @@
   [14/Mar/2009- Amir]
     - TCookie is used to store a cookie information in the respone.
 
+  [23/DEC/2009- Amir]
+    - I Changed the implementation of TCookie. There is no change its interface.
+
 }
 
 unit CookieUnit;
@@ -57,21 +60,22 @@ type
         CookieExpireTime: TDateTime= 0; CookiePath: String= ''; CookieDomain: String= '');
     destructor Destroy; override;
 
-    function ToString (Index: Integer= 0): String;
+    function ToString (Mode: Integer= 0): String;
 
   end;
 
-  { TCookieCollection }
+  { TCookieManager }
 
-  TCookieCollection= class (TNameValueCollection)
+  TCookieManager= class (TNameValueCollection)
   private
     FHostName: String;
     FPageURI: String;
     FWebHeaderCollection: THeaderCollection;
     FIsHeaderSent: PBoolean;
+
     function GetCookie (Index: Integer): TCookie;
     function GetCookieByName (Name: String): TCookie;
-    function GetCookieValueByName(Name: String): String;
+    function GetCookieValueByName (Name: String): String;
     function GetText: String;
 
   public
@@ -113,8 +117,13 @@ end;
 
 constructor TCookie.Create (CookieName, CookieValue: String;
   CookieExpireTime: TDateTime; CookiePath: String; CookieDomain: String);
+var
+  PValue: PString;
+
 begin
-  inherited Create (CookieName, TWebString.Create (CookieValue));
+  PValue:= new (PString);
+  PValue^:= CookieValue;
+  inherited Create (CookieName, TObject (PValue));
 
   FDomain:= CookieDomain;
   FExpires:= CookieExpireTime;
@@ -123,14 +132,20 @@ begin
 end;
 
 destructor TCookie.Destroy;
+var
+  PValue: PString;
+
 begin
+  PValue:= PString (Value);
+  Dispose (PValue);
+
   inherited;
 
 end;
 
-function TCookie.ToString (Index: Integer): String;
+function TCookie.ToString (Mode: Integer): String;
 begin
-  case Index of
+  case Mode of
     0:
       Result:= FDomain+ ':'+ FormatDateTime ('ddd,dd-mmm-yyyy hh:nn:ss', FExpires)+
           ' GMT:'+ FName+ ':'+ StrValue+ ':'+ FPath;
@@ -158,32 +173,35 @@ begin
 
 end;
 
-{ TCookieCollection }
+{ TCookieManager }
 
-function TCookieCollection.GetCookie (Index: Integer): TCookie;
+function TCookieManager.GetCookie (Index: Integer): TCookie;
 begin
-  Result:= Objects [Index] as TCookie;
+{TODO: 4}
+  //Result:= Objects [Index] as TCookie;
 
 end;
 
-function TCookieCollection.GetText: String;
+function TCookieManager.GetText: String;
 var
   i: Integer;
   Ptr: PObject;
 
 begin
   Result:= '';
-
+{
+TODO:5
   for i:= 1 to Count do
   begin
     Result:= Result+ 'Set-Cookie:'+ TCookie (Ptr^).ToString (1)+ #10;
     Inc (Ptr);
 
   end;
+}
 
 end;
 
-constructor TCookieCollection.Create (HeaderCollection: THeaderCollection; IsHeaderSent: PBoolean;
+constructor TCookieManager.Create (HeaderCollection: THeaderCollection; IsHeaderSent: PBoolean;
        ThisPageURI: String);
 begin
   inherited Create;
@@ -195,7 +213,7 @@ begin
 
 end;
 
-destructor TCookieCollection.Destroy;
+destructor TCookieManager.Destroy;
 begin
   FIsHeaderSent:= nil;
 
@@ -203,7 +221,7 @@ begin
 
 end;
 
-procedure TCookieCollection.LoadFromString (CookieString: String);
+procedure TCookieManager.LoadFromString (CookieString: String);
 var
   LastNamePos, LastValuePos, Len: Integer;
   Name, Value: String;
@@ -249,12 +267,12 @@ begin
 
 end;
 
-procedure TCookieCollection.WriteCookie;
+procedure TCookieManager.WriteCookie;
 var
   i: Integer;
 
 begin
-  raise ENotImplementedYet.Create ('TCookieCollection', 'WriteCookie');
+  raise ENotImplementedYet.Create ('TCookieManager', 'WriteCookie');
 {
   for i:= 0 to Count- 1 do
     FWebHeaderCollection.Add (TWebHeader.Create ('Set-Cookie',
@@ -265,13 +283,14 @@ begin
 
 end;
 
-procedure TCookieCollection.Add (NewCookie: TCookie);
+procedure TCookieManager.Add (NewCookie: TCookie);
 begin
-  inherited AddNameValue (NewCookie);
+{TODO: 6}
+//  inherited AddNameValue (NewCookie);
 
 end;
 
-procedure TCookieCollection.Add (CookieName, CookieValue: String;
+procedure TCookieManager.Add (CookieName, CookieValue: String;
   CookieExpireTime: TDateTime; CookiePath: String; CookieDomain: String);
 var
   Ptr: PObject;
@@ -279,7 +298,7 @@ var
   NewCookie: TCookie;
 
 begin
-  raise ENotImplementedYet.Create ('TCookieCollection', 'Add');
+  raise ENotImplementedYet.Create ('TCookieManager', 'Add');
 {
   Ptr:= GetPointerToFirst;
   NewCookie:= nil;
@@ -310,25 +329,25 @@ begin
 
 end;
 
-function TCookieCollection.GetCookieByName (Name: String): TCookie;
+function TCookieManager.GetCookieByName (Name: String): TCookie;
 var
   Index: Integer;
 
 begin
-  Index:= IndexOf (Name);
+{TODO: 7  Index:= IndexOf (Name);
   if 0<= Index then
     Result:= Cookie [Index]
    else
     raise ECookieNotFound.Create (Name);
-
+}
 end;
 
-function TCookieCollection.GetCookieValueByName (Name: String): String;
+function TCookieManager.GetCookieValueByName (Name: String): String;
 var
   Index: Integer;
 
 begin
-  raise ENotImplementedYet.Create ('TCookieCollection', 'GetCookieValueByName');
+  raise ENotImplementedYet.Create ('TCookieManager', 'GetCookieValueByName');
   {
   Index:= IndexOf (Name);
   if 0<= Index then
@@ -338,12 +357,12 @@ begin
 }
 end;
 
-procedure TCookieCollection.RemoveCookieByName(Name: String);
+procedure TCookieManager.RemoveCookieByName(Name: String);
 var
   i: Integer;
 
 begin
-  raise ENotImplementedYet.Create ('TCookieCollection', 'RemoveCookieByName');
+  raise ENotImplementedYet.Create ('TCookieManager', 'RemoveCookieByName');
 {
   if not Self.IsExists (Name) then
     raise ECookieNotFound.Create (Name+ 'does not exist');

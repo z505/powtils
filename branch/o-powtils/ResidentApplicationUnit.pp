@@ -42,6 +42,7 @@
   [10/OCT/2009 - Amir]
    - Add a resource file (Page.res) which contains the template for RequestCollector pages.
 
+
 }
 
 unit ResidentApplicationUnit;
@@ -101,9 +102,17 @@ type
     procedure SetRestartInterval (const AValue: Integer);
 
   private
-    procedure SetAdminPagePath(const AValue: AnsiString);
-    procedure SetUsingSessionManager(const AValue: Boolean);
+    procedure SetAdminPagePath (const AValue: AnsiString);
+    procedure SetUsingSessionManager (const AValue: Boolean);
     property AllHandlers: TAbstractHandlerCollection read FAllHandlers;
+
+    {
+      If the install parameter is passed to program, either through the
+        command line arguments or through PSP.conf/PWU.conf, it tries to
+        create the main pipe and the temp directory.
+    }
+    procedure Install;
+
 
   published
     property MainPipeFileName: String read FMainPipeFileName write SetMainPipeFileName ;
@@ -119,15 +128,17 @@ type
 
     function RegisterRequest (const ARequestString: String): Boolean;
 
-    procedure Install;
-
   public
   
     procedure ExecuteInThread;
   
-    constructor Create (AnOwner: TComponent);
+    constructor Create (AnOwner: TComponent); override;
     destructor Destroy; override;
 
+    {
+      Add a new page handler to the system. It also installs a request collector
+      in appropriate directory if the install is passed to application.
+    }
     procedure RegisterPageHandlerHandler (AHandler: TAbstractHandler);
     function GetPageHandler (const AName: String): TAbstractHandler;
 
@@ -154,7 +165,7 @@ implementation
 
 uses
   AdminPageDispatcherUnit,
-  ThisProjectGlobalUnit, LResources, Process;
+  ThisProjectGlobalUnit, LResources, Process, BlockingQueueUnit;
   
 { TParameter }
 (*
@@ -337,7 +348,7 @@ procedure TResident.Install;
       if not DirectoryExists (S) then
       begin
         if FpMkdir (S, $01F8)<> 0 then;//770 1 1110 1000
-             ;//          Exit (False);
+             Exit (False);
       end;
       S+= '/';
 
@@ -383,6 +394,14 @@ begin
   FpMkfifo (MainPipeFileName, $1B0);//660.//110110000
 
   CreateDir (TempPipeFilesPath);
+
+  for i:= 0 to AllHandlers.Count- 1 do
+//    AllHandlers.PageHandler [i].ins
+      if not FileExists (GlobalObjContainer.Configurations.
+             ConfigurationValueByName ['InstallationDirectory']+
+              AllHandlers.PageHandler [i].PageName) then
+        raise EInvalidArgument.Create ('RequestCollector "'+ AllHandlers.PageHandler [i].PageName+ '"'+
+           ' does not exist');
 
   CheckForCorrectness;
 
@@ -586,7 +605,7 @@ begin
 
   UsingSessionManager:= UpperCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionManager'])= 'TRUE';
 
-  FRequestQueue:= TCircularRequestsQueue.Create (FRequestQueueSize, NumberOfActiveThread);
+  FRequestQueue:= TCircularRequestsQueue.Create (FRequestQueueSize);
 
   ThreadPool:= TThreadPool.Create (FRequestQueue, NumberOfActiveThread);
   ThreadPool.Execute;
@@ -621,7 +640,7 @@ begin
 
   while not FRequestQueue.IsEmpty do
   begin
-    FRequestQueue.TryToMakeItEmpty;
+//    FRequestQueue.TryToMakeItEmpty;
 
 (*$IFDEF DebugMode*)
     Writeln ('Resident[Destroy]: Queue is not empty, yet!');
@@ -736,12 +755,11 @@ procedure TResident.RegisterPageHandlerHandler ( AHandler: TAbstractHandler);
       RemoveFileProc:= TProcess.Create (nil);
       RemoveFileProc.CommandLine:= 'rm "'+ GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory']+ PageHandler.PageName+ '.pp"';
 
-      RemoveFileProc.Options := CompileProc.Options + [poWaitOnExit];
+      RemoveFileProc.Options := [poWaitOnExit];
       RemoveFileProc.Execute;
 
       RemoveFileProc.CommandLine:= 'rm "'+ GlobalObjContainer.Configurations.ConfigurationValueByName ['InstallationDirectory']+ PageHandler.PageName+ '.o"';
 
-      RemoveFileProc.Options := CompileProc.Options + [poWaitOnExit];
       RemoveFileProc.Execute;
 
     finally

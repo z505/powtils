@@ -15,12 +15,13 @@ type
     FSize: Integer;
 
   protected
+    FKey: String;
+
     function GetMaxValue: Integer; override;
     function GetMinValue: Integer; override;
     function GetLength: Integer; override;
     function GetValueAt (Index: Integer): Integer; override;
 
-    FKey: String;
 
   public
 

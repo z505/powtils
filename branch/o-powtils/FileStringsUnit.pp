@@ -66,7 +66,7 @@ implementation
 
 function TFileStrings.GetFileString (Index: Integer): TFileString;
 begin
-  Result:= Member [Index] as TFileString;
+  Result:= Item [Index] as TFileString;
   
 end;
 
@@ -75,7 +75,7 @@ var
   i: Integer;
   
 begin
-  for i:= 0 to Size- 1 do
+  for i:= 0 to Count- 1 do
   begin
     Result:= FileString [i];
     

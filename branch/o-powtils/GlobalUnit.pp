@@ -101,19 +101,20 @@ constructor TGlobalObjectContainer.Create;
         ((Length (TempString)= 0) or (TempString [1]<> '#')) then
       begin
         TempInt:= Pos (':', TempString);
-        Configurations.AddNameValue (TWebConfiguration.Create (
-          Copy (TempString, 1, TempInt- 1),
+{        Configurations.AddNameValue (TWebConfiguration.Create (
+ TODO:1         Copy (TempString, 1, TempInt- 1),
           Copy (TempString, TempInt+ 1, Length (TempString)- TempInt)));
-
+}
       end;
 
     end;
-
+{
+TODO:2
     for i:= Low (DefaultConfigurationValues) to High (DefaultConfigurationValues) do
       if Configurations.ConfigurationValueByName [DefaultConfigurationValues [i][1]]= '' then
         Configurations.Add (TWebConfiguration.Create (DefaultConfigurationValues [i][1],
                              DefaultConfigurationValues [i][2]));
-
+}
     CloseFile (ConfigFileHandle);
     for i:= 1 to ParamCount do
     begin
@@ -122,11 +123,13 @@ constructor TGlobalObjectContainer.Create;
       if (TempString<> '') and
         ((Length (TempString)= 0) or (TempString [1]<> '#')) then
       begin
+      {
+      TODO:3
         TempInt:= Pos (':', TempString);
         Configurations.AddNameValue (TWebConfiguration.Create (
           Copy (TempString, 1, TempInt- 1),
           Copy (TempString, TempInt+ 1, Length (TempString)- TempInt)));
-
+}
       end;
 
     end;

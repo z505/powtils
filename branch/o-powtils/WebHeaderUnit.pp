@@ -72,7 +72,7 @@ uses
 
 function THeader.ToString: string;
 begin
-  Result := FName + ':' + Value;
+//  Result := FName + ':' + Value;
 
 end;
 
@@ -99,7 +99,7 @@ end;
 
 function THeaderCollection.GetHeader(Index: integer): THeader;
 begin
-  Result := NameValue[Index] as THeader;
+//  Result := NameValue[Index] as THeader;
 
 end;
 
@@ -111,7 +111,7 @@ end;
 
 procedure THeaderCollection.AddHeader(NewHeader: THeader);
 begin
-  AddNameValue(NewHeader);
+//  AddNameValue(NewHeader);
 
 end;
 

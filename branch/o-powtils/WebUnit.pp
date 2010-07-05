@@ -73,7 +73,7 @@ type
     
     FCgi: TCgiVariableCollection;  // Both CGI GET/POST data
     FSession: TSessionCollection; // Session data
-    FCookies: TCookieCollection; // Cookie data
+    FCookies: TCookieManager; // Cookie data
     FRti: TWebRunTimeInformationCollection;  // Run Time Information
     FHeaders: THeaderCollection;  // Headers
 
@@ -107,7 +107,7 @@ type
 
  public
     property CgiVars: TCgiVariableCollection read FCgi;  // CGI GET/POST data
-    property Cookies: TCookieCollection read FCookies; // Cookie data
+    property Cookies: TCookieManager read FCookies; // Cookie data
     property Header: THeaderCollection read FHeaders;  // Headers
     property Rti: TWebRunTimeInformationCollection read FRti;  //  Run Time Information
     property Session: TSessionCollection read FSession;// Session data
