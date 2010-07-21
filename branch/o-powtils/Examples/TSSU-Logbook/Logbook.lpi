@@ -1,0 +1,324 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="7"/>
+    <General>
+      <MainUnit Value="0"/>
+      <TargetFileExt Value=""/>
+      <Title Value="Logbook"/>
+      <UseXPManifest Value="True"/>
+      <ActiveEditorIndexAtStart Value="6"/>
+    </General>
+    <VersionInfo>
+      <ProjectVersion Value=""/>
+      <Language Value=""/>
+      <CharSet Value=""/>
+    </VersionInfo>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="14">
+      <Unit0>
+        <Filename Value="Logbook.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Logbook"/>
+        <CursorPos X="17" Y="27"/>
+        <TopLine Value="5"/>
+        <EditorIndex Value="0"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="AdminPageDispatcherUnit.pp"/>
+        <UnitName Value="AdminPageDispatcherUnit"/>
+        <CursorPos X="31" Y="8"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="ResidentPageBaseUnit.pp"/>
+        <UnitName Value="ResidentPageBaseUnit"/>
+        <CursorPos X="5" Y="30"/>
+        <TopLine Value="13"/>
+        <UsageCount Value="10"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="PipeWrapperUnit.pp"/>
+        <UnitName Value="PipeWrapperUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="../../CollectionUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="CollectionUnit"/>
+        <CursorPos X="1" Y="970"/>
+        <TopLine Value="956"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="WelcomePageHandlerUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="WelcomePageHandlerUnit"/>
+        <CursorPos X="3" Y="14"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="4"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="../../PageHandlerBaseUnit.pp"/>
+        <UnitName Value="PageHandlerBaseUnit"/>
+        <CursorPos X="31" Y="36"/>
+        <TopLine Value="31"/>
+        <EditorIndex Value="5"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="../../AbstractHandlerUnit.pp"/>
+        <UnitName Value="AbstractHandlerUnit"/>
+        <CursorPos X="14" Y="66"/>
+        <TopLine Value="52"/>
+        <EditorIndex Value="6"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="../../CookieUnit.pp"/>
+        <UnitName Value="CookieUnit"/>
+        <CursorPos X="66" Y="103"/>
+        <TopLine Value="72"/>
+        <EditorIndex Value="7"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="../../WebUnit.pp"/>
+        <UnitName Value="WebUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="8"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="../../ResidentPageBaseUnit.pp"/>
+        <UnitName Value="ResidentPageBaseUnit"/>
+        <CursorPos X="33" Y="178"/>
+        <TopLine Value="174"/>
+        <EditorIndex Value="9"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="../../MainPageUnit.pp"/>
+        <UnitName Value="MainPageUnit"/>
+        <CursorPos X="1" Y="33"/>
+        <TopLine Value="18"/>
+        <EditorIndex Value="10"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="../../RequestsQueue.pp"/>
+        <UnitName Value="RequestsQueue"/>
+        <CursorPos X="1" Y="254"/>
+        <TopLine Value="240"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <UnitName Value="ResidentApplicationUnit"/>
+        <CursorPos X="3" Y="373"/>
+        <TopLine Value="356"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit13>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="380" Column="1" TopLine="366"/>
+      </Position1>
+      <Position2>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="382" Column="1" TopLine="368"/>
+      </Position2>
+      <Position3>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="315" Column="1" TopLine="301"/>
+      </Position3>
+      <Position4>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="316" Column="1" TopLine="302"/>
+      </Position4>
+      <Position5>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="317" Column="1" TopLine="303"/>
+      </Position5>
+      <Position6>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="319" Column="1" TopLine="305"/>
+      </Position6>
+      <Position7>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="324" Column="1" TopLine="310"/>
+      </Position7>
+      <Position8>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="325" Column="1" TopLine="311"/>
+      </Position8>
+      <Position9>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="326" Column="1" TopLine="312"/>
+      </Position9>
+      <Position10>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="330" Column="1" TopLine="316"/>
+      </Position10>
+      <Position11>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="331" Column="1" TopLine="317"/>
+      </Position11>
+      <Position12>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="333" Column="1" TopLine="319"/>
+      </Position12>
+      <Position13>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="330" Column="1" TopLine="316"/>
+      </Position13>
+      <Position14>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="331" Column="1" TopLine="317"/>
+      </Position14>
+      <Position15>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="333" Column="1" TopLine="319"/>
+      </Position15>
+      <Position16>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="330" Column="1" TopLine="316"/>
+      </Position16>
+      <Position17>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="331" Column="1" TopLine="317"/>
+      </Position17>
+      <Position18>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="333" Column="1" TopLine="319"/>
+      </Position18>
+      <Position19>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="330" Column="1" TopLine="316"/>
+      </Position19>
+      <Position20>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="331" Column="1" TopLine="317"/>
+      </Position20>
+      <Position21>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="338" Column="1" TopLine="323"/>
+      </Position21>
+      <Position22>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="342" Column="1" TopLine="328"/>
+      </Position22>
+      <Position23>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="330" Column="1" TopLine="316"/>
+      </Position23>
+      <Position24>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="331" Column="1" TopLine="317"/>
+      </Position24>
+      <Position25>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="333" Column="1" TopLine="319"/>
+      </Position25>
+      <Position26>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="346" Column="1" TopLine="332"/>
+      </Position26>
+      <Position27>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="348" Column="1" TopLine="334"/>
+      </Position27>
+      <Position28>
+        <Filename Value="../../ResidentApplicationUnit.pp"/>
+        <Caret Line="384" Column="1" TopLine="370"/>
+      </Position28>
+      <Position29>
+        <Filename Value="Logbook.lpr"/>
+        <Caret Line="27" Column="17" TopLine="5"/>
+      </Position29>
+      <Position30>
+        <Filename Value="../../AbstractHandlerUnit.pp"/>
+        <Caret Line="62" Column="17" TopLine="31"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="8"/>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)/"/>
+      <OtherUnitFiles Value="/home/Amir/Project/O-PSP-OnGoogle/branch/o-powtils/"/>
+    </SearchPaths>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Source Value="Logbook.lpr"/>
+        <Line Value="27"/>
+      </Item1>
+    </BreakPoints>
+    <Exceptions Count="5">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+      <Item4>
+        <Name Value="ENameNotFound"/>
+      </Item4>
+      <Item5>
+        <Name Value="Unknown"/>
+      </Item5>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
