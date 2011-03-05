@@ -5,7 +5,7 @@ unit CgiVariableUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit;
+  Classes, SysUtils{, CollectionUnit};
 
 type
 
@@ -27,7 +27,7 @@ type
 
   { TCgiVariableCollection }
 
-  TCgiVariableCollection= class (TNameValueCollection)
+  TCgiVariableCollection= class (TStringList)
   private
     function GetCgiVar (Index: Integer): TCgiVar;
     function GetCgiVarByName (VarName: AnsiString): TCgiVar;
@@ -83,8 +83,8 @@ begin
 //    Result:= CgiVarByName [VarName].Value
 
   except
-    on e: ENameNotFound do
-      Result:= '';
+//    on e: ENameNotFound do
+//      Result:= '';
 
   end;
 

@@ -11,17 +11,14 @@ uses
   , heaptrc
   {$ENDIF}
   { add your units here },
-  CollectionUnit, WebUnit, ThreadingUnit,
-  PipeWrapperUnit, URLEnc, SessionManagerUnit,
-  WebStringUnit, RequestsQueue, ThisProjectGlobalUnit,
+  {CollectionUnit, }WebUnit, ThreadingUnit, PipeWrapperUnit, URLEnc,
+  SessionManagerUnit, WebStringUnit, RequestsQueue, ThisProjectGlobalUnit,
   ExceptionUnit, AbstractHandlerUnit, CookieUnit, WebHeaderUnit,
-  WebConfigurationUnit, SessionUnit, CgiVariableUnit,
-  WebRunTimeInformationUnit, WebUploadedFileUnit, LResources,
-  ResidentApplicationUnit;
+  WebConfigurationUnit, SessionUnit, CgiVariableUnit, WebRunTimeInformationUnit,
+  WebUploadedFileUnit, LResources, ResidentApplicationUnit,
+  GenericCollectionUnit, GenericNameValueCollectionUnit;
 
 begin
-  Resident:= TResident.Create (nil);
-
 //  Resident.RegisterPageHandlerHandler ();
 
   Resident.ExecuteInThread;

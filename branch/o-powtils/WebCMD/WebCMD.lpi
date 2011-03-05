@@ -1,17 +1,16 @@
 <?xml version="1.0"?>
 <CONFIG>
   <ProjectOptions>
-    <PathDelim Value="/"/>
-    <Version Value="6"/>
+    <Version Value="7"/>
     <General>
       <Flags>
         <AlwaysBuild Value="False"/>
+        <LRSInOutputDirectory Value="False"/>
       </Flags>
       <MainUnit Value="0"/>
-      <IconPath Value="./"/>
       <TargetFileExt Value=""/>
       <Title Value="PSP"/>
-      <ActiveEditorIndexAtStart Value="0"/>
+      <ActiveEditorIndexAtStart Value="7"/>
     </General>
     <PublishOptions>
       <Version Value="2"/>
@@ -27,12 +26,12 @@
         <Display Use="True"/>
       </local>
     </RunParams>
-    <Units Count="42">
+    <Units Count="51">
       <Unit0>
         <Filename Value="WebCMD.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="WebCMD"/>
-        <CursorPos X="1" Y="21"/>
+        <CursorPos X="56" Y="19"/>
         <TopLine Value="1"/>
         <EditorIndex Value="0"/>
         <UsageCount Value="211"/>
@@ -40,7 +39,6 @@
       </Unit0>
       <Unit1>
         <Filename Value="PipeWrapperUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="PipeWrapperUnit"/>
         <CursorPos X="1" Y="37"/>
         <TopLine Value="9"/>
@@ -48,17 +46,14 @@
       </Unit1>
       <Unit2>
         <Filename Value="ResidentApplicationUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="ResidentApplicationUnit"/>
         <CursorPos X="1" Y="496"/>
         <TopLine Value="479"/>
-        <EditorIndex Value="1"/>
         <UsageCount Value="211"/>
         <Bookmarks Count="2">
           <Item0 X="1" Y="445" ID="1"/>
           <Item1 X="15" Y="86" ID="2"/>
         </Bookmarks>
-        <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="LoginPageUnit.pp"/>
@@ -66,13 +61,10 @@
         <UnitName Value="LoginPageUnit"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="5"/>
         <UsageCount Value="211"/>
-        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="BaseClassUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="BaseClassUnit"/>
         <CursorPos X="34" Y="28"/>
         <TopLine Value="20"/>
@@ -87,17 +79,13 @@
       </Unit5>
       <Unit6>
         <Filename Value="CollectionUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="CollectionUnit"/>
-        <CursorPos X="1" Y="202"/>
-        <TopLine Value="189"/>
-        <EditorIndex Value="6"/>
+        <CursorPos X="36" Y="1037"/>
+        <TopLine Value="1023"/>
         <UsageCount Value="210"/>
-        <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="WebUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="WebUnit"/>
         <CursorPos X="3" Y="492"/>
         <TopLine Value="479"/>
@@ -112,20 +100,16 @@
       </Unit8>
       <Unit9>
         <Filename Value="ResidentPageBaseUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="ResidentPageBaseUnit"/>
         <CursorPos X="36" Y="127"/>
         <TopLine Value="116"/>
-        <EditorIndex Value="3"/>
         <UsageCount Value="200"/>
         <Bookmarks Count="1">
           <Item0 X="1" Y="234" ID="3"/>
         </Bookmarks>
-        <Loaded Value="True"/>
       </Unit9>
       <Unit10>
         <Filename Value="Page2ResidentUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="Page2ResidentUnit"/>
         <CursorPos X="21" Y="48"/>
         <TopLine Value="34"/>
@@ -133,7 +117,6 @@
       </Unit10>
       <Unit11>
         <Filename Value="ThisApplicationPagesUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="ThisApplicationPagesUnit"/>
         <CursorPos X="1" Y="52"/>
         <TopLine Value="39"/>
@@ -141,7 +124,6 @@
       </Unit11>
       <Unit12>
         <Filename Value="substrings.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="SubStrings"/>
         <CursorPos X="9" Y="588"/>
         <TopLine Value="584"/>
@@ -149,7 +131,6 @@
       </Unit12>
       <Unit13>
         <Filename Value="URLEnc.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="URLEnc"/>
         <CursorPos X="34" Y="23"/>
         <TopLine Value="1"/>
@@ -157,17 +138,13 @@
       </Unit13>
       <Unit14>
         <Filename Value="SessionManagerUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="SessionManagerUnit"/>
         <CursorPos X="3" Y="150"/>
         <TopLine Value="143"/>
-        <EditorIndex Value="4"/>
         <UsageCount Value="200"/>
-        <Loaded Value="True"/>
       </Unit14>
       <Unit15>
         <Filename Value="WebStringUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="WebStringUnit"/>
         <CursorPos X="1" Y="23"/>
         <TopLine Value="9"/>
@@ -175,7 +152,6 @@
       </Unit15>
       <Unit16>
         <Filename Value="RequestsQueue.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="RequestsQueue"/>
         <CursorPos X="1" Y="152"/>
         <TopLine Value="139"/>
@@ -213,9 +189,9 @@
         <Filename Value="ThisProjectGlobalUnit.pp"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ThisProjectGlobalUnit"/>
-        <CursorPos X="1" Y="42"/>
-        <TopLine Value="23"/>
-        <EditorIndex Value="8"/>
+        <CursorPos X="39" Y="4"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="2"/>
         <UsageCount Value="260"/>
         <Loaded Value="True"/>
       </Unit21>
@@ -238,44 +214,43 @@
       </Unit23>
       <Unit24>
         <Filename Value="ExceptionUnit.pas"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="ExceptionUnit"/>
         <CursorPos X="43" Y="14"/>
         <TopLine Value="1"/>
         <UsageCount Value="134"/>
       </Unit24>
       <Unit25>
-        <Filename Value="/usr/share/fpcsrc/rtl/inc/objpas.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/inc/objpas.inc"/>
         <CursorPos X="1" Y="45"/>
         <TopLine Value="30"/>
         <UsageCount Value="2"/>
       </Unit25>
       <Unit26>
-        <Filename Value="/usr/share/fpcsrc/rtl/i386/i386.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/i386/i386.inc"/>
         <CursorPos X="1" Y="1250"/>
         <TopLine Value="1237"/>
         <UsageCount Value="3"/>
       </Unit26>
       <Unit27>
-        <Filename Value="/usr/share/fpcsrc/rtl/objpas/classes/stringl.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/objpas/classes/stringl.inc"/>
         <CursorPos X="1" Y="918"/>
         <TopLine Value="904"/>
         <UsageCount Value="1"/>
       </Unit27>
       <Unit28>
-        <Filename Value="/usr/share/fpcsrc/rtl/objpas/sysutils/sysstr.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/sysstr.inc"/>
         <CursorPos X="42" Y="770"/>
         <TopLine Value="766"/>
         <UsageCount Value="10"/>
       </Unit28>
       <Unit29>
-        <Filename Value="/usr/share/fpcsrc/rtl/inc/objpash.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/inc/objpash.inc"/>
         <CursorPos X="21" Y="156"/>
         <TopLine Value="143"/>
         <UsageCount Value="10"/>
       </Unit29>
       <Unit30>
-        <Filename Value="/usr/share/fpcsrc/rtl/inc/except.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/inc/except.inc"/>
         <CursorPos X="34" Y="201"/>
         <TopLine Value="188"/>
         <UsageCount Value="2"/>
@@ -283,28 +258,24 @@
       <Unit31>
         <Filename Value="GlobalUnit.pp"/>
         <UnitName Value="GlobalUnit"/>
-        <CursorPos X="1" Y="42"/>
-        <TopLine Value="29"/>
-        <EditorIndex Value="7"/>
+        <CursorPos X="1" Y="13"/>
+        <TopLine Value="1"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit31>
       <Unit32>
-        <Filename Value="/usr/share/fpcsrc/rtl/inc/system.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/inc/system.inc"/>
         <CursorPos X="1" Y="674"/>
         <TopLine Value="661"/>
-        <EditorIndex Value="9"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit32>
       <Unit33>
-        <Filename Value="/usr/share/fpcsrc/rtl/inc/systemh.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/inc/systemh.inc"/>
         <CursorPos X="11" Y="653"/>
         <TopLine Value="639"/>
         <UsageCount Value="1"/>
       </Unit33>
       <Unit34>
-        <Filename Value="/usr/share/fpcsrc/rtl/darwin/i386/sighnd.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/darwin/i386/sighnd.inc"/>
         <CursorPos X="25" Y="45"/>
         <TopLine Value="24"/>
         <UsageCount Value="2"/>
@@ -315,80 +286,200 @@
         <UnitName Value="MainPageUnit"/>
         <CursorPos X="1" Y="56"/>
         <TopLine Value="33"/>
-        <EditorIndex Value="2"/>
         <UsageCount Value="116"/>
-        <Loaded Value="True"/>
       </Unit35>
       <Unit36>
         <Filename Value="XMLNode.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="XMLNode"/>
         <CursorPos X="5" Y="181"/>
         <TopLine Value="175"/>
-        <EditorIndex Value="11"/>
         <UsageCount Value="24"/>
-        <Loaded Value="True"/>
       </Unit36>
       <Unit37>
         <Filename Value="AttributeUnit.pp"/>
-        <IsPartOfProject Value="True"/>
         <UnitName Value="AttributeUnit"/>
         <CursorPos X="30" Y="394"/>
         <TopLine Value="382"/>
-        <EditorIndex Value="10"/>
         <UsageCount Value="24"/>
-        <Loaded Value="True"/>
       </Unit37>
       <Unit38>
-        <Filename Value="/usr/share/fpcsrc/rtl/objpas/sysutils/intfh.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/intfh.inc"/>
         <CursorPos X="37" Y="32"/>
         <TopLine Value="8"/>
         <UsageCount Value="10"/>
       </Unit38>
       <Unit39>
-        <Filename Value="/usr/share/fpcsrc/rtl/objpas/sysutils/sysuintf.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/sysuintf.inc"/>
         <CursorPos X="3" Y="1"/>
         <TopLine Value="1"/>
         <UsageCount Value="10"/>
       </Unit39>
       <Unit40>
-        <Filename Value="/usr/share/fpcsrc/rtl/objpas/sysutils/sysstrh.inc"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/rtl/objpas/sysutils/sysstrh.inc"/>
         <CursorPos X="10" Y="110"/>
         <TopLine Value="97"/>
         <UsageCount Value="10"/>
       </Unit40>
       <Unit41>
-        <Filename Value="/usr/share/fpcsrc/packages/fcl-base/src/inc/custapp.pp"/>
+        <Filename Value="../../../../../../../usr/share/fpcsrc/packages/fcl-base/src/inc/custapp.pp"/>
         <UnitName Value="CustApp"/>
         <CursorPos X="1" Y="175"/>
         <TopLine Value="162"/>
         <UsageCount Value="10"/>
       </Unit41>
+      <Unit42>
+        <Filename Value="base64_enc.pp"/>
+        <UnitName Value="Base64_Enc"/>
+        <CursorPos X="25" Y="87"/>
+        <TopLine Value="70"/>
+        <UsageCount Value="10"/>
+      </Unit42>
+      <Unit43>
+        <Filename Value="../../../../MyUnits/General Purpose Units/ExceptionUnit.pas"/>
+        <UnitName Value="ExceptionUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit43>
+      <Unit44>
+        <Filename Value="../WebUnit.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="WebUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit44>
+      <Unit45>
+        <Filename Value="../PageHandlerBaseUnit.pp"/>
+        <UnitName Value="PageHandlerBaseUnit"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit45>
+      <Unit46>
+        <Filename Value="../ResidentApplicationUnit.pp"/>
+        <UnitName Value="ResidentApplicationUnit"/>
+        <CursorPos X="33" Y="188"/>
+        <TopLine Value="175"/>
+        <EditorIndex Value="4"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit46>
+      <Unit47>
+        <Filename Value="../../../../../../../usr/lib64/lazarus/lcl/lresources.pp"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="LResources"/>
+        <CursorPos X="36" Y="5"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="5"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit47>
+      <Unit48>
+        <Filename Value="../../../../../../../usr/lib64/lazarus/lcl/fileutil.pas"/>
+        <UnitName Value="FileUtil"/>
+        <CursorPos X="2" Y="237"/>
+        <TopLine Value="223"/>
+        <EditorIndex Value="6"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit48>
+      <Unit49>
+        <Filename Value="../../../../../../../usr/lib64/lazarus/lcl/include/fileutil.inc"/>
+        <IsPartOfProject Value="True"/>
+        <CursorPos X="52" Y="11"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="20"/>
+      </Unit49>
+      <Unit50>
+        <Filename Value="../../../../../../../usr/lib64/lazarus/lcl/lcltype.pp"/>
+        <UnitName Value="LCLType"/>
+        <CursorPos X="1" Y="28"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="7"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit50>
     </Units>
-    <JumpHistory Count="2" HistoryIndex="1">
+    <JumpHistory Count="15" HistoryIndex="14">
       <Position1>
-        <Filename Value="/usr/share/fpcsrc/rtl/inc/system.inc"/>
-        <Caret Line="672" Column="1" TopLine="659"/>
+        <Filename Value="WebCMD.lpr"/>
+        <Caret Line="10" Column="53" TopLine="1"/>
       </Position1>
       <Position2>
-        <Filename Value="/usr/share/fpcsrc/rtl/inc/system.inc"/>
-        <Caret Line="674" Column="1" TopLine="661"/>
+        <Filename Value="WebCMD.lpr"/>
+        <Caret Line="10" Column="26" TopLine="1"/>
       </Position2>
+      <Position3>
+        <Filename Value="WebCMD.lpr"/>
+        <Caret Line="13" Column="39" TopLine="1"/>
+      </Position3>
+      <Position4>
+        <Filename Value="WebCMD.lpr"/>
+        <Caret Line="1" Column="15" TopLine="1"/>
+      </Position4>
+      <Position5>
+        <Filename Value="WebCMD.lpr"/>
+        <Caret Line="14" Column="16" TopLine="1"/>
+      </Position5>
+      <Position6>
+        <Filename Value="WebCMD.lpr"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position6>
+      <Position7>
+        <Filename Value="WebCMD.lpr"/>
+        <Caret Line="14" Column="3" TopLine="1"/>
+      </Position7>
+      <Position8>
+        <Filename Value="WebCMD.lpr"/>
+        <Caret Line="19" Column="24" TopLine="1"/>
+      </Position8>
+      <Position9>
+        <Filename Value="ThisProjectGlobalUnit.pp"/>
+        <Caret Line="42" Column="1" TopLine="16"/>
+      </Position9>
+      <Position10>
+        <Filename Value="../PageHandlerBaseUnit.pp"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position10>
+      <Position11>
+        <Filename Value="../ResidentApplicationUnit.pp"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position11>
+      <Position12>
+        <Filename Value="../ResidentApplicationUnit.pp"/>
+        <Caret Line="189" Column="26" TopLine="174"/>
+      </Position12>
+      <Position13>
+        <Filename Value="../../../../../../../usr/lib64/lazarus/lcl/fileutil.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position13>
+      <Position14>
+        <Filename Value="../../../../../../../usr/lib64/lazarus/lcl/fileutil.pas"/>
+        <Caret Line="237" Column="2" TopLine="223"/>
+      </Position14>
+      <Position15>
+        <Filename Value="../../../../../../../usr/lib64/lazarus/lcl/lcltype.pp"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position15>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="5"/>
+    <Version Value="8"/>
     <SearchPaths>
-      <OtherUnitFiles Value="Pages/;Extra/;XML Handler/"/>
+      <IncludeFiles Value="$(ProjOutDir)/"/>
+      <OtherUnitFiles Value="../Utility Units/;/home/Amir/Project/MyUnits/General Purpose Units/"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
-        <DelphiCompat Value="True"/>
+        <AllowLabel Value="False"/>
+        <UseAnsiStrings Value="True"/>
       </SyntaxOptions>
     </Parsing>
-    <CodeGeneration>
-      <Generate Value="Faster"/>
-    </CodeGeneration>
     <Other>
       <CompilerPath Value="$(CompPath)"/>
     </Other>

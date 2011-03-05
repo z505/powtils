@@ -6,20 +6,22 @@ uses
 {$ifdef unix}
    cthreads, BaseUnix,
  {$endif}
-  Classes, heaptrc
-  { add your units here }, ResidentApplicationUnit,
-  CollectionUnit, WebUnit,
-  ThisApplicationPagesUnit, PipeWrapperUnit, URLEnc, SessionManagerUnit,
-  WebStringUnit, RequestsQueue, ThisProjectGlobalUnit,
-  ExceptionUnit, ThreadingUnit, XMLNode, AttributeUnit,
-  LoginPageUnit, MainPageUnit;
-  
-begin
+  Classes, SysUtils, LResources
+  {$IFDEF DEBUGMODE}
+  , heaptrc
+  {$ENDIF}
+  { add your units here },
+  WebUnit, ThreadingUnit, PipeWrapperUnit, URLEnc,
+  SessionManagerUnit, WebStringUnit, RequestsQueue, ThisProjectGlobalUnit,
+  ExceptionUnit, AbstractHandlerUnit, CookieUnit, WebHeaderUnit,
+  WebConfigurationUnit, SessionUnit, CgiVariableUnit, WebRunTimeInformationUnit,
+  WebUploadedFileUnit, ResidentApplicationUnit,
+  GenericCollectionUnit, GenericNameValueCollectionUnit;
 
-  Resident:= TResident.Create (nil);
+begin
+//  Resident.RegisterPageHandlerHandler ();
 
   Resident.ExecuteInThread;
-//  Resident.Execute;
 
   Resident.Free;
 

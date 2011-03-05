@@ -5,7 +5,7 @@ unit XMLNode;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit, AttributeUnit;
+  Classes, SysUtils, {CollectionUnit, }AttributeUnit;
 
 type
   ENodeNotFound= class (Exception);
@@ -51,7 +51,7 @@ type
   
   { TXMLNodeCollection }
 
-  TXMLNodeCollection= class (TBaseCollection)
+  TXMLNodeCollection= class (TStringList)
   private
     function GetNode (Index: Integer): TXMLNode; overload;
     function GetNode (ChildName: String): TXMLNode; overload;
@@ -216,7 +216,7 @@ end;
 
 function TXMLNodeCollection.GetNode (Index: Integer): TXMLNode;
 begin
-  Result:= Item [Index] as TXMLNode;
+  Result:= Objects [Index] as TXMLNode;
   
 end;
 
@@ -254,6 +254,8 @@ var
   Ptr: PXMLNode;
   
 begin
+{TODO: }
+{
   Ptr:= First;
   
   for i:= 0 to AnotherCollection.Count- 1 do
@@ -262,12 +264,13 @@ begin
     Inc (Ptr);
     
   end;
-  
+ }
 end;
 
 procedure TXMLNodeCollection.AddNode (NewNode: TXMLNode);
 begin
-  inherited Add (NewNode);
+{TODO: }
+//  inherited Add (NewNode);
   
 end;
 

@@ -27,7 +27,7 @@ unit CookieUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit, WebHeaderUnit;
+  Classes, SysUtils, WebHeaderUnit, GenericNameValueCollectionUnit;
 
 type
   { ECookieNotFound }
@@ -41,35 +41,38 @@ type
 
   { TCookie }
 
-  TCookie= class (TNameValue)
+  TCookie= class (TObject)
   private
-    function GetStrValue: String;
 
   protected
     FDomain: String;
     FExpires: TDateTime;
-    FPath: String;
+    FPath: AnsiString;
+    FName: AnsiString;
+    FStrValue: AnsiString;
 
   public
-    property Domain: String read FDomain;
-    property Path: String read FPath;
+    property Domain: AnsiString read FDomain;
+    property Path: AnsiString read FPath;
     property Expires: TDateTime read FExpires;
-    property StrValue: String read GetStrValue;
+    property StrValue: AnsiString read FStrValue;
 
-    constructor Create (CookieName, CookieValue: String;
-        CookieExpireTime: TDateTime= 0; CookiePath: String= ''; CookieDomain: String= '');
+    constructor Create (CookieName, CookieValue: AnsiString;
+        CookieExpireTime: TDateTime= 0; CookiePath: AnsiString= ''; CookieDomain: AnsiString= '');
     destructor Destroy; override;
 
-    function ToString (Mode: Integer= 0): String;
+    function ToString (Mode: Integer= 0): AnsiString;
 
   end;
 
+  TCookieManagerCollection= specialize TGenericNameValueCollection<TCookie>;
+
   { TCookieManager }
 
-  TCookieManager= class (TNameValueCollection)
+  TCookieManager= class (TCookieManagerCollection)
   private
-    FHostName: String;
-    FPageURI: String;
+    FHostName: AnsiString;
+    FPageURI: AnsiString;
     FWebHeaderCollection: THeaderCollection;
     FIsHeaderSent: PBoolean;
 
@@ -108,23 +111,12 @@ uses
 
 { TCookie }
 
-function TCookie.GetStrValue: String;
+constructor TCookie.Create (CookieName, CookieValue: AnsiString;
+  CookieExpireTime: TDateTime; CookiePath: String; CookieDomain: AnsiString);
 begin
-  Result:= (Value as TWebString).ToString;
+  inherited Create;
 
-
-end;
-
-constructor TCookie.Create (CookieName, CookieValue: String;
-  CookieExpireTime: TDateTime; CookiePath: String; CookieDomain: String);
-var
-  PValue: PString;
-
-begin
-  PValue:= new (PString);
-  PValue^:= CookieValue;
-  inherited Create (CookieName, TObject (PValue));
-
+  FStrValue:= CookieValue;
   FDomain:= CookieDomain;
   FExpires:= CookieExpireTime;
   FPath:= CookiePath;
@@ -132,13 +124,7 @@ begin
 end;
 
 destructor TCookie.Destroy;
-var
-  PValue: PString;
-
 begin
-  PValue:= PString (Value);
-  Dispose (PValue);
-
   inherited;
 
 end;
@@ -177,8 +163,7 @@ end;
 
 function TCookieManager.GetCookie (Index: Integer): TCookie;
 begin
-{TODO: 4}
-  //Result:= Objects [Index] as TCookie;
+  Result:= Item [Index];
 
 end;
 

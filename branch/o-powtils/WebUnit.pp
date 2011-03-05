@@ -20,6 +20,9 @@
 
   [14/Mar/2009- Amir]
     - There are some major changes in class structures.
+  [07/Sep/2010- Amir]
+    - Polishing the code
+
 }
 
 unit WebUnit;
@@ -35,7 +38,7 @@ uses
   
 type
   {
-    There is no suppory for uploading file in O-PSP. This class was implemented but not tested!.
+    There is no support for uploading file in O-PSP. This class was implemented but not tested!.
   }
 
   { TMPLine }
@@ -67,9 +70,9 @@ type
 
   TWeb= class (TObject)
   private
-    FHostName: String;
-    FPageName: String;
-    FRequestURI: String;
+    FHostName: AnsiString;
+    FPageName: AnsiString;
+    FRequestURI: AnsiString;
     
     FCgi: TCgiVariableCollection;  // Both CGI GET/POST data
     FSession: TSessionCollection; // Session data
@@ -89,7 +92,7 @@ type
     FContentType: TContentType;
     Buffers: TStringList;
 
-    procedure WriteToBuffer (const S: String);
+    procedure WriteToBuffer (const S: AnsiString);
 
   protected
     procedure WriteBuffer;
@@ -100,9 +103,9 @@ type
 
 }
  published
-    property PageName: String read FPageName write FPageName;
-    property HostName: String read FHostName write FHostName;
-    property RequestURI: String read FRequestURI write FRequestURI;
+    property PageName: AnsiString read FPageName write FPageName;
+    property HostName: AnsiString read FHostName write FHostName;
+    property RequestURI: AnsiString read FRequestURI write FRequestURI;
     property HeaderCanBeSent: Boolean read FHeaderCanBeSent write FHeaderCanBeSent; // Headers sent flag
 
  public
@@ -120,8 +123,8 @@ type
 
     destructor Destroy; override;
     
-    procedure Write (const S: String); virtual;
-    function ThrowWebError (const Message: String): Boolean;
+    procedure Write (const S: AnsiString); virtual;
+    function ThrowWebError (const Message: AnsiString): Boolean;
     
   end;
 
@@ -135,7 +138,7 @@ uses
 // write all the data in buffer
 procedure TWeb.WriteBuffer;
 var
-  S: String;
+  S: AnsiString;
   
 begin
   S:= Buffer.Text;
@@ -161,14 +164,14 @@ begin
 end;
 
 // Doestn't print the S, but only add it to Buffer.
-procedure TWeb.WriteToBuffer (const S: String);
+procedure TWeb.WriteToBuffer (const S: AnsiString);
 begin
   Buffer.Add (S);
   
 end;
 
 // The same as TWeb.WriteDirectlyToOutput
-procedure TWeb.Write (const S: String);
+procedure TWeb.Write (const S: AnsiString);
 begin
   if not HeaderCanBeSent then
     WriteBuffer;
@@ -180,10 +183,10 @@ begin
   
 end;
 
-function TWeb.ThrowWebError (const Message: String): Boolean;
+function TWeb.ThrowWebError (const Message: AnsiString): Boolean;
 //var
 //  i: Integer;
-//  s: String;
+//  s: AnsiString;
 
 begin
   Result:= True;
@@ -219,46 +222,6 @@ begin
   Result:= True;
   }
 end;
-
-//This constructor is called by a ResientPageBaseUnit
-//which doesn't need to read the parameters from standard input
-(*
-constructor TWeb.CreateWithOutGetWebData (PageHostName, PagePath, ThisPageName: String;
-   ContType: TContentType);
-
-begin
-  inherited Create;
-
-  FContentType:= ContType;
-  Buffers:= TStringList.Create;
-  FHeaders:= THeaderCollection.Create;
-  FHeaderCanBeSent:= True;
-  FPageName:= ThisPageName;
-{--Creating all the variable--
-  This can be done on the first use of each variable
-}
-  FRti:= TWebRunTimeInformationCollection.Create;
-  FCookies:= TCookieCollection.Create (Header, @FHeaderCanBeSent, PagePath);
-  FCgi:= TCgiVariableCollection.Create;
-  
-  FSession:= TSessionCollection.Create (FCookies);
-  FUploadedFile:= TWebUpFileCollection.Create;//??!!
-
-  if LowerCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['error_reporting'])= 'on' then
-    ErrorReporting:= True
-  else
-    ErrorReporting:= False;
-
-  if LowerCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['error_halt']) = 'on' then
-    HaltOnError:= True
-  else
-    HaltOnError:= False;
-
-  // Initialize the main headers since now that there aren't any above errors
-    FHeaders.Init (FContentType);
-  
-end;
-*)
 
 // Free the web variables
 destructor TWeb.Destroy;
@@ -301,16 +264,5 @@ begin
 end;
 }
 
-
-
-{==============================================================================}
-{================================   Types   ===================================}
-{==============================================================================}
-{
-type
-  SDS_Result = Pointer;
-  SDS_Array = Pointer;
-  SDS_ColumnInfo = Pointer;
-}
 end.
 

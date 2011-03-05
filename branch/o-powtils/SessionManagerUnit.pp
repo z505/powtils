@@ -5,7 +5,7 @@ unit SessionManagerUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit;
+  Classes, SysUtils{, CollectionUnit};
 
 type
 
@@ -27,7 +27,7 @@ type
   
   { TVariable }
 
-  TVariable= class (TNameValue)
+  TVariable= class (TObject)
   private
     function GetStrValue: String;
     procedure UpdateValue (AVal: String);
@@ -44,7 +44,7 @@ type
   
   { TSession }
 
-  TSession= class (TNameValueCollection)
+  TSession= class (TList)
   private
     FSessionID: TSessionID;
     
@@ -65,7 +65,7 @@ type
   
   { TAbstractSessionManager }
 
-  TAbstractSessionManager= class (TBaseCollection)
+  TAbstractSessionManager= class (TList)
   private
     FSessionIDLen: Integer;
     FSessionIDVarName: String;
@@ -151,7 +151,7 @@ end;
 
 function TAbstractSessionManager.GetSession (Index: Integer): TSession;
 begin
-  Result:= Item [Index] as TSession;
+  Result:= TObject (Items [Index]) as TSession;
   
 end;
 
@@ -219,6 +219,8 @@ end;
 
 constructor TAbstractSessionManager.Create;
 begin
+{TODO: TAbstractSessionManager.Create;}
+{
   inherited Create;
 
   Load;
@@ -255,6 +257,7 @@ begin
 {  FSessionIDLen:= SessionIDLen;
   FSessionIDVarName:= SessIDVarName;
   FStoreSessionIDInCookie:= StoreSessIDInCookie;
+}
 }
 end;
 
@@ -325,26 +328,28 @@ end;
 
 function TVariable.GetStrValue: String;
 begin
-  Result:= String (FValue);
+{TODO:   TVariable.GetStrValue: String;}
+//  Result:= String (FValue);
   
 end;
 
 procedure TVariable.UpdateValue (AVal: String);
 begin
-  FValue:= TObject (AVal);
+{TODO: TVariable.UpdateValue (AVal: String);}
+//  FValue:= TObject (AVal);
   
 end;
 
 constructor TVariable.Create (AName, AValue: String);
 begin
-  inherited Create (AName, TObject (AValue));
+{TODO: TVariable.Create (AName, AValue: String);}
+//  inherited Create (AName, TObject (AValue));
   
 end;
 
 destructor TVariable.Destroy;
 begin
-  FValue:= nil;
-  
+
   inherited Destroy;
   
 end;
@@ -353,13 +358,13 @@ end;
 
 function TSession.GetVariable (Index: Integer): TVariable;
 begin
-  Result:= NameValue [Index] as TVariable;
+//  Result:= NameValue [Index] as TVariable;
   
 end;
 
 function TSession.GetValueByName (VariableName: String): String;
 begin
-  Result:= (NameValueByName [VariableName] as TVariable).GetStrValue;
+//  Result:= (NameValueByName [VariableName] as TVariable).GetStrValue;
   
 end;
 
