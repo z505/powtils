@@ -7,7 +7,8 @@ uses
   GenericCollectionUnit, MyTypes;
 
 type
-  TNameStrValue= specialize TPairForBuiltInData<AnsiString, TObject>;
+  TNameStrValue= specialize TPairForBuiltInData <String, TObject>;
+
   TNameValueCollection= specialize TGenericCollection<TNameStrValue>;
 
   { TWebConfiguration }

@@ -5,7 +5,7 @@ unit FileStringsUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit;
+  Classes, SysUtils{, CollectionUnit};
   
 type
 
@@ -35,7 +35,7 @@ type
   
   { TFileStrings }
 
-  TFileStrings= class (TBaseCollection)
+  TFileStrings= class (TStringList)
   private
     function GetFileString (Index: Integer): TFileString;
     function GetFileString (const Index: AnsiString): TFileString;
@@ -66,7 +66,7 @@ implementation
 
 function TFileStrings.GetFileString (Index: Integer): TFileString;
 begin
-  Result:= Item [Index] as TFileString;
+  Result:= Objects [Index] as TFileString;
   
 end;
 
@@ -96,7 +96,7 @@ end;
 
 procedure TFileStrings.AddFileString(AFileString: TFileString);
 begin
-  inherited Add (AFileString);
+  inherited AddObject ('', AFileString);
   
 end;
 

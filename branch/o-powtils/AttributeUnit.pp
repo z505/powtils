@@ -5,7 +5,7 @@ unit AttributeUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit;
+  Classes, SysUtils{, CollectionUnit};
   
 type
 
@@ -46,7 +46,7 @@ type
   
   { TAttributeCollection }
 
-  TAttributeCollection= class (TBaseCollection)
+  TAttributeCollection= class (TStringList)
   private
     function GetAttribute (Index: Integer): TAttribute;
     function GetAttributeByName (AttrName: String): TAttribute;
@@ -343,7 +343,7 @@ end;
 
 function TAttributeCollection.GetAttribute(Index: Integer): TAttribute;
 begin
-  Result:= Item [Index] as TAttribute;
+  Result:= Objects [Index] as TAttribute;
   
 end;
 
@@ -382,21 +382,23 @@ begin
   
   if 0< Count then
   begin
-    Ptr:= First;
+  {TODO: TAtributeCollection.ToString}
+{    Ptr:= Self.;
     for i:= 0 to Count- 1 do
     begin
       Result:= Result+ Ptr^.ToString+ ' ';
       Inc (Ptr);
       
     end;
-    
+}
   end;
   
 end;
 
 procedure TAttributeCollection.Add (NewAttribute: TAttribute);
 begin
-  inherited;
+{TODO: Add}
+//  inherited;
   
 end;
 

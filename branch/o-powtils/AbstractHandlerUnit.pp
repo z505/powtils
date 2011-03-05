@@ -371,7 +371,9 @@ procedure TAbstractHandler.Dispatch (RequestInfo: TRequest; AThread: TDispacther
     begin
       AVar:= LoadAVariable (CharPtr, ActiveIndex);
       if AVar<> nil then
-        Result.Add (AVar)
+{TODO: ??}
+//        Result.Add (AVar)
+
       else
         Break;
 

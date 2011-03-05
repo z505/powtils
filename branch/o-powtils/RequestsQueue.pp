@@ -4,7 +4,7 @@ unit RequestsQueue;
 interface
 
 uses
-  Classes, SysUtils, BlockingQueueUnit;
+  Classes, SysUtils, BlockingQueueUnit, SemaphoreUnit;
   
 type
 {
@@ -44,7 +44,31 @@ type
     
   end;
 
-  TCircularRequestsQueue= specialize TBlockingCircularQueue<TRequest>;
+  TRequestBlockingQueue= specialize TBlockingQueue<TRequest>;
+
+  { TRequestCircularBlockingQueue }
+
+  TRequestCircularBlockingQueue= class (TRequestBlockingQueue)
+  private
+    FSize, FCount: Integer;
+    FoQ, EoQ: Integer;
+    EmptyCount, FillCount: TSemaphore;
+
+  public
+    property Size: Integer read FSize;
+    property Count: Integer read FCount;
+
+    constructor Create (QueueSize: Integer);
+
+    procedure Insert (Data: TRequest); override;
+    function Delete: TRequest; override;
+    function Front: TRequest; override;
+
+    function IsEmpty: Boolean; override;
+    function IsFull: Boolean; override;
+
+
+  end;
 
 implementation
 
@@ -104,6 +128,86 @@ begin
   Result:= 'FPageName='+ FPageName+ ' OutputPipe= '+ FOutputPipe+
        'Variables= '+ FVariables+ ' CookieStr= '+ FCookieStr;
 
+
+end;
+
+{ TRequestCircularBlockingQueue }
+
+
+constructor TRequestCircularBlockingQueue.Create (QueueSize: Integer);
+begin
+  inherited Create;
+
+  FSize:= QueueSize;
+  FCount:= 0;
+  FList.Count:= FSize;
+
+end;
+
+procedure TRequestCircularBlockingQueue.Insert(Data: TRequest);
+begin
+  EmptyCount.Down;
+
+  EnterCriticalsection (CS);
+
+  FList [EoQ]:= Data;
+  EoQ:= (EoQ+ 1) mod FSize;
+  Inc (FCount);
+
+  LeaveCriticalsection (CS);
+
+  FillCount.Up;
+
+end;
+
+function TRequestCircularBlockingQueue.Delete: TRequest;
+begin
+  FillCount.Down;
+
+  EnterCriticalsection (CS);
+
+  Result:= T (FList [FoQ]);
+  FoQ:= (FoQ+ 1) mod FSize;
+  Dec (FCount);
+
+  LeaveCriticalsection (CS);
+
+  EmptyCount.Up;
+
+end;
+
+function TRequestCircularBlockingQueue.Front: TRequest;
+begin
+  EnterCriticalsection (CS);
+
+  if IsEmpty then
+  begin
+    LeaveCriticalsection (CS);
+    raise EQueueIsEmpty.Create;
+
+  end;
+
+  LeaveCriticalsection (CS);
+
+end;
+
+function TRequestCircularBlockingQueue.IsEmpty: Boolean;
+begin
+  EnterCriticalsection (CS);
+
+  Result:= Count= 0;
+
+  LeaveCriticalsection (CS);
+
+end;
+
+function TRequestCircularBlockingQueue.IsFull: Boolean;
+begin
+  EnterCriticalsection (CS);
+
+  Result:= Count= FSize;
+
+  LeaveCriticalsection (CS);
 
 end;
 

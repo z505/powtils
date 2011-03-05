@@ -26,7 +26,7 @@ unit WebHeaderUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit, ExceptionUnit, WebConfigurationUnit;
+  Classes, SysUtils, {CollectionUnit, }ExceptionUnit, WebConfigurationUnit;
 
 type
   { TWebHeader }

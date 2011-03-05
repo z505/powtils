@@ -5,7 +5,7 @@ unit SessionUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit, CookieUnit, WebConfigurationUnit,
+  Classes, SysUtils, {CollectionUnit, }CookieUnit, WebConfigurationUnit,
     WebRunTimeInformationUnit;
 
 type

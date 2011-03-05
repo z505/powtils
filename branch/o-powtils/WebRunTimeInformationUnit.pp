@@ -5,7 +5,7 @@ unit WebRunTimeInformationUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit;
+  Classes, SysUtils{, CollectionUnit};
 
 type
   { TWebRunTimeInformation }
@@ -22,7 +22,7 @@ type
     This class loads and hold the run time information.
   }
 
-  TWebRunTimeInformationCollection= class (TNameValueCollection)
+  TWebRunTimeInformationCollection= class (TStringList)
   private
     function GetRunTimeInformationByIndex (Index: Integer): TWebRunTimeInformation;
     function GetRunTimeInformationByName (Name: String): TWebRunTimeInformation;

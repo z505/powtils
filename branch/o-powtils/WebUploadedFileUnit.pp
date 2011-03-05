@@ -5,7 +5,7 @@ unit WebUploadedFileUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit;
+  Classes, SysUtils{, CollectionUnit};
 
 type
   { TWebUpFile }
@@ -30,7 +30,7 @@ type
 
   { TWebUpFileCollection }
 
-  TWebUpFileCollection= class (TBaseCollection)
+  TWebUpFileCollection= class (TList)
   private
     function GetFiles(Index: Integer): TUploadedFile;
 
@@ -61,7 +61,7 @@ end;
 
 function TWebUpFileCollection.GetFiles (Index: Integer): TUploadedFile;
 begin
-  Result:= Item [Index] as TUploadedFile;
+  Result:= TObject (Items [Index]) as TUploadedFile;
 
 end;
 

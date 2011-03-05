@@ -69,7 +69,7 @@ constructor TGlobalObjectContainer.Create;
   const
   {Default values for Webconfiguration:
   }
-    DefaultConfigurationValues: array [1..7] of array [1..2] of String=
+    DefaultConfigurationValues: array [1..8] of array [1..2] of String=
            (
             ('Charset', 'UTF-8'),//Default Charset
             ('RestartInterval', '-1'),//Default RestartInterval
@@ -77,7 +77,8 @@ constructor TGlobalObjectContainer.Create;
             ('SessionVarName', 'PSPSESS'),// Default SessionVarName
             ('SessionUseCookie', 'TRUE'),//Dafault SessionUseCookie
             ('TemproraryPipesFilenameLength', '12'),//Dafault Temprorary pipes filename length
-            ('AdminPage', 'AdminPage')//Dafault path (relative path and filename for AdminPage)
+            ('AdminPage', 'AdminPage'),//Dafault path (relative path and filename for AdminPage)
+            ('MaximumSizeofRequestQueue', '-1')//Dafault Maximum size for RequestQueue
             );
   var
     ConfigFileHandle: TextFile;

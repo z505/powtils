@@ -53,7 +53,7 @@ unit ResidentApplicationUnit;
 interface
 
 uses
-  Classes, SysUtils, ThreadingUnit,
+  Classes, SysUtils, ThreadingUnit, QueueUnit,
   CustApp, RequestsQueue, AbstractHandlerUnit,
   BaseUnix, SessionManagerUnit, PageHandlerBaseUnit;
 
@@ -76,9 +76,9 @@ type
 
   end;
 {$STATIC ON}
-  { TResident }
+  { TAbstractResident }
   
-  TResident= class (TCustomApplication)
+  TAbstractResident= class (TCustomApplication)
   private
     FBeforeRestart: TNotifyEvent;
     FNumberOfActiveThread: Integer;
@@ -91,7 +91,7 @@ type
     FRemainedToRestart: Integer;
     FUsingSessionManager: Boolean;
     MainPipeFileHandle: cInt;
-    FRequestQueue: TCircularRequestsQueue;
+    FRequestQueue: TRequestBlockingQueue;
     FDispatchedRequestCount: Integer;
 
     FAllHandlers: TAbstractHandlerCollection;
@@ -102,9 +102,10 @@ type
     procedure SetRestartInterval (const AValue: Integer);
 
   private
+    property AllHandlers: TAbstractHandlerCollection read FAllHandlers;
+    property RequestQueue: TRequestBlockingQueue read FRequestQueue;
     procedure SetAdminPagePath (const AValue: AnsiString);
     procedure SetUsingSessionManager (const AValue: Boolean);
-    property AllHandlers: TAbstractHandlerCollection read FAllHandlers;
 
     {
       If the install parameter is passed to program, either through the
@@ -144,6 +145,26 @@ type
 
   end;
 
+  { TGeneralResident }
+
+  TGeneralResident= class (TAbstractResident)
+  private
+  public
+    constructor Create (AnOwner: TComponent); override;
+    destructor Destroy; override;
+
+  end;
+
+  { TResidentWithFixedQueueSize }
+
+  TResidentWithFixedQueueSize= class (TAbstractResident)
+  private
+  public
+    constructor Create (AnOwner: TComponent; QueueSize: Integer);
+    destructor Destroy; override;
+
+  end;
+
   { TParameter }
 (*
   TParameter= class (TStringList)
@@ -158,7 +179,7 @@ type
   end;
 *)
 var
-  Resident: TResident;
+  Resident: TAbstractResident;
   
 
 implementation
@@ -212,13 +233,13 @@ end;
 *)
 { TResident }
 
-procedure TResident.SetMainPipeFileName (const AValue: String);
+procedure TAbstractResident.SetMainPipeFileName (const AValue: String);
 begin
   FMainPipeFileName:= AValue;
   
 end;
 
-procedure TResident.SetNumberOfActiveThread (const AValue: Integer);
+procedure TAbstractResident.SetNumberOfActiveThread (const AValue: Integer);
 begin
   if AValue<= 0 then
     raise EInvalidArgument.Create ('Maximum of Active threads', AValue);
@@ -227,21 +248,21 @@ begin
 
 end;
 
-procedure TResident.SetRestartInterval (const AValue: Integer);
+procedure TAbstractResident.SetRestartInterval (const AValue: Integer);
 begin
   FRestartInterval:= AValue;
   FRemainedToRestart:= AValue;
   
 end;
 
-procedure TResident.SetAdminPagePath (const AValue: AnsiString);
+procedure TAbstractResident.SetAdminPagePath (const AValue: AnsiString);
 begin
   FAdminPagePath:= AValue;
   RegisterPageHandlerHandler (TAdminPageHandler.Create (AValue));
 
 end;
 
-procedure TResident.SetUsingSessionManager (const AValue: Boolean);
+procedure TAbstractResident.SetUsingSessionManager (const AValue: Boolean);
 begin
   FUsingSessionManager:= AValue;
 
@@ -254,7 +275,7 @@ if UsingSessionManager then
 
 end;
 
-function TResident.RegisterRequest (const ARequestString: String): Boolean;
+function TAbstractResident.RegisterRequest (const ARequestString: String): Boolean;
 var
   NewRequest: TRequest;
 
@@ -263,7 +284,7 @@ begin
 
   NewRequest:= TRequest.Create (ARequestString);
   try
-    FRequestQueue.Insert (NewRequest);
+//    FRequestQueue.Insert (NewRequest);
 
   except
     on e: EQueueIsFull do
@@ -284,7 +305,7 @@ begin
 
 end;
 
-procedure TResident.Install;
+procedure TAbstractResident.Install;
 
   function DeleteDir (const DirPath: AnsiString): Boolean;
   var
@@ -409,7 +430,7 @@ end;
 
 {
 }
-procedure TResident.ExecuteInThread;
+procedure TAbstractResident.ExecuteInThread;
 const
   NumOfCharsReadInEachTurn= 1000;
   EndOfRequestChar= #$FD;
@@ -572,7 +593,7 @@ begin
   end;
   
   FpClose (MainPipeFileHandle);
-  FRequestQueue.Free;
+//  FRequestQueue.Free;
   ThreadPool.Free;
 
 end;
@@ -585,7 +606,7 @@ end;
    application after a number of specific executaion, which is a great help specially
    about memory leak. But till now, I can't find any way to do this.
 }
-constructor TResident.Create (AnOwner: TComponent);
+constructor TAbstractResident.Create (AnOwner: TComponent);
 begin
   inherited Create (AnOwner);
 
@@ -604,11 +625,6 @@ begin
   end;
 
   UsingSessionManager:= UpperCase (GlobalObjContainer.Configurations.ConfigurationValueByName ['SessionManager'])= 'TRUE';
-
-  FRequestQueue:= TCircularRequestsQueue.Create (FRequestQueueSize);
-
-  ThreadPool:= TThreadPool.Create (FRequestQueue, NumberOfActiveThread);
-  ThreadPool.Execute;
 
   FDispatchedRequestCount:= 0;
 
@@ -635,13 +651,11 @@ begin
 
 end;
 
-destructor TResident.Destroy;
+destructor TAbstractResident.Destroy;
 begin
 
-  while not FRequestQueue.IsEmpty do
+//  while not FRequestQueue.IsEmpty do
   begin
-//    FRequestQueue.TryToMakeItEmpty;
-
 (*$IFDEF DebugMode*)
     Writeln ('Resident[Destroy]: Queue is not empty, yet!');
 (*$ENDIF*)
@@ -651,7 +665,7 @@ begin
   end;
 
 (*$IFDEF DebugMode*)
-  Writeln ('Resident[Destroy]: At last, Queue became empty!');
+  Writeln ('Resident[Destroy]: Finally, Queue became empty!');
   Writeln ('Resident[Destroy]:');
 
   Writeln ('Resident[Destroy]: Before ThreadPool.Free' );
@@ -664,14 +678,14 @@ begin
   WriteLn ('Resident[Destroy]: At the end');
 (*$ENDIF*)
 
-  FRequestQueue.Free;
+//  FRequestQueue.Free;
   AllHandlers.Free;
 
   inherited Destroy;
 
 end;
 
-procedure TResident.RegisterPageHandlerHandler ( AHandler: TAbstractHandler);
+procedure TAbstractResident.RegisterPageHandlerHandler ( AHandler: TAbstractHandler);
 
   procedure InstallPageHandler (PageHandler: TAbstractHandler);
   const
@@ -791,7 +805,7 @@ begin
 
 end;
 
-function TResident.GetPageHandler (const AName: String): TAbstractHandler;
+function TAbstractResident.GetPageHandler (const AName: String): TAbstractHandler;
 begin
   Result:= AllHandlers.PageHandlerByName [AName].CreateNewInstance;
 
@@ -825,8 +839,54 @@ begin
 
 end;
 
+{ TGeneralResident }
+
+constructor TGeneralResident.Create(AnOwner: TComponent);
+begin
+  inherited Create (AnOwner);
+  FRequestQueue:= TRequestBlockingQueue.Create;
+
+  ThreadPool:= TThreadPool.Create (FRequestQueue
+  , NumberOfActiveThread);
+
+  ThreadPool.Execute;
+
+
+end;
+
+destructor TGeneralResident.Destroy;
+begin
+  inherited Destroy;
+end;
+
+function CreateResidentApplicationInstance: TAbstractResident;
+begin
+  if GlobalObjContainer.Configurations.ConfigurationValueByName ['MaximumSizeofRequestQueue']= '-1' then
+    Result:= TGeneralResident.Create (nil)
+  else
+    Result:= TResidentWithFixedQueueSize.Create (nil,
+        StrToInt (GlobalObjContainer.Configurations.ConfigurationValueByName ['MaximumSizeofRequestQueue'])
+          )
+
+end;
+
+{ TResidentWithFixedQueueSize }
+
+constructor TResidentWithFixedQueueSize.Create (AnOwner: TComponent;
+  QueueSize: Integer);
+begin
+  inherited Create (AnOwner);
+end;
+
+destructor TResidentWithFixedQueueSize.Destroy;
+begin
+  inherited Destroy;
+end;
+
 initialization
   {$I Page.lrs}
+
+  CreateResidentApplicationInstance;
 
 end.
 

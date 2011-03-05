@@ -6,7 +6,7 @@ unit ThreadingUnit;
 interface
 
 uses
-  Classes, SysUtils, CollectionUnit, RequestsQueue, BaseUnix;
+  Classes, SysUtils, {CollectionUnit, }RequestsQueue, BaseUnix;
   
 type
   { TDispactherThread }
@@ -15,7 +15,7 @@ type
   private
     FOutputPipeHandle: cint;
     FOutputPipeName: String;
-    FRequestQueue: TCircularRequestsQueue;
+    FRequestQueue: TRequestBlockingQueue;
 
     procedure SetOutputPipeName (const AValue: String);
 
@@ -30,14 +30,14 @@ type
    public
      property OutputPipeHandle: cint read FOutputPipeHandle;
 
-    constructor Create (ReqQueue: TCircularRequestsQueue); overload;
+    constructor Create (ReqQueue: TRequestBlockingQueue); overload;
     destructor Destroy; override;
 
   end;
 
   { TThreadCollection }
 
-  TThreadCollection= class (TBaseCollection)
+  TThreadCollection= class (TList)
   private
     function GetThread (Index: Integer): TDispactherThread;
 
@@ -57,8 +57,7 @@ type
     FThreadCollection: TThreadCollection;
 
   public
-
-    constructor Create (RequestPool: TCircularRequestsQueue;
+    constructor Create (RequestPool: TRequestBlockingQueue;
                        n: Integer);
     destructor Destroy; override;
 
@@ -132,7 +131,7 @@ begin
 
 end;
 
-constructor TDispactherThread.Create (ReqQueue: TCircularRequestsQueue);
+constructor TDispactherThread.Create (ReqQueue: TRequestBlockingQueue);
 begin
   inherited Create (True);
 
@@ -151,7 +150,7 @@ end;
 
 { TThreadPool }
 
-constructor TThreadPool.Create (RequestPool: TCircularRequestsQueue;
+constructor TThreadPool.Create (RequestPool: TRequestBlockingQueue;
             n: Integer);
 var
   i: Integer;
@@ -219,7 +218,8 @@ end;
 
 function TThreadCollection.GetThread (Index: Integer): TDispactherThread;
 begin
-  Result:= Item [Index] as TDispactherThread;
+{TODO:}
+//  Result:= Items [Index] as TDispactherThread;
   
 end;
 
