@@ -186,7 +186,7 @@ implementation
 
 uses
   AdminPageDispatcherUnit,
-  ThisProjectGlobalUnit, LResources, Process, BlockingQueueUnit;
+  ThisProjectGlobalUnit, lresources, Process, BlockingQueueUnit;
   
 { TParameter }
 (*
