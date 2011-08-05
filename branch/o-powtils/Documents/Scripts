@@ -1,0 +1,8 @@
+[Amir@Amir-Laptop PersaDic]$ sudo chcon -t httpd_sys_script_exec_t PersaDic.psp 
+[Amir@Amir-Laptop PersaDic]$ sudo chcon -t httpd_sys_script_anon_write MainPipie4PersaDic
+[Amir@Amir-Laptop PersaDic]$ sudo setsebool -P httpd_enable_cgi  on
+[Amir@Amir-Laptop PersaDic]$ sudo setsebool -P httpd_unified=0
+[Amir@Amir-Laptop PersaDic]$ sudo setsebool -P httpd_enable_cgi 1
+[Amir@Amir-Laptop PersaDic]$ sudo chcon -t httpd_sys_script_rw_t PersaDic.psp 
+[Amir@Amir-Laptop PersaDic]$ sudo chcon -t httpd_sys_script_ra_t PersaDic.psp 
+
