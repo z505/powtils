@@ -473,6 +473,17 @@ var i: int32;
 {e}                                                                             {$ifdef dbug_on}SendHeaders_E{$endif} end;
 
 
+{$ifdef gzip_on} // flush output buffer 
+function FlushBuf: boo;
+{b}                                                                            begin{$ifdef dbug_on}FlushBuf_B;{$endif}
+  result:= false;
+  if not headers_sent then SendHeaders;
+  OutBuff^.Flush;
+  result:= true;
+{e}                                                                            {$ifdef dbug_on}FlushBuf_E;{$endif}end;
+{$endif}
+
+
 type TThrowType = (ttError, ttWarn);
 
 { Abstract for throwerr and throwwarn }
@@ -739,16 +750,6 @@ procedure InitCook;
   PutCookies;
   cook_initialized:= true;
 {e}                                                                             {$ifdef dbug_on}InitCook_E;{$endif} end;
-
-{$ifdef gzip_on} // flush output buffer 
-function FlushBuf: boo;
-{b}                                                                            begin{$ifdef dbug_on}FlushBuf_B;{$endif}
-  result:= false;
-  if not headers_sent then SendHeaders;
-  OutBuff^.Flush;
-  result:= true;
-{e}                                                                            {$ifdef dbug_on}FlushBuf_E;{$endif}end;
-{$endif}
 
 
 { Append into gGetPost[] var }
