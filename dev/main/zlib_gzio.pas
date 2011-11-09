@@ -1,4 +1,4 @@
-Unit zlib_gzIO;
+unit zlib_gzIO;
 
 { 17.09.05 - Trustmaster: fixed memory violations in gzopen and gzclose.}
 
@@ -14,6 +14,9 @@ Unit zlib_gzIO;
 }
 
 interface
+
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
 
 {$I zlib_zconf.pp}
 
@@ -253,7 +256,7 @@ begin
     gzheader [6] := 0;            { time[2] }
     gzheader [7] := 0;            { time[3] }
     gzheader [8] := 0;            { xflags }
-    gzheader [9] := {$IFDEF WIN32}0{$ELSE}3{$ENDIF}; { OS code = FAT or UNIX }
+    gzheader [9] := {$IFDEF WINDOWS}0{$ELSE}3{$ENDIF}; { OS code = FAT or UNIX }
     blockwrite (s^.gzfile, gzheader, 10);
     s^.startpos := LONG(10);
 {$ENDIF}

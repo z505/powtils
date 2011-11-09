@@ -21,6 +21,9 @@ unit pwhttp_experiment;
   {$IFDEF EXTRA_SECURE}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
 {$ENDIF}
 
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
+
 interface
 
 {============================= PUBLIC TYPES ===================================}
@@ -58,7 +61,7 @@ implementation
 
 uses 
   hostname, 
- {$ifdef win32}
+ {$ifdef WINDOWS}
   sockets, // note: fpc 2.0.4 has sockets win32 I/O bug in fpc rtl
 //  sockets,
  {$else}

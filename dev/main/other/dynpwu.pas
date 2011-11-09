@@ -19,7 +19,8 @@
   {$IFDEF EXTRA_SECURE}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
 {$ENDIF}
 
-{$ifdef win32}{$define windows}{$endif}
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
 
 //{$DEFINE VERBOSE_ERROR} //Verbose error reporting, helps debugging, turn off to save exececutable space
 

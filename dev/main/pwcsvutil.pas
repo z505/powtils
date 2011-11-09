@@ -11,7 +11,10 @@
   Lars (L505)
   http://z505.com  }
 
-unit pwcsvutil; {$ifdef fpc}{$mode objfpc} {$H+}{$endif} {$IFDEF WIN32}{$DEFINE WINDOWS}{$ENDIF}
+unit pwcsvutil; {$ifdef fpc}{$mode objfpc} {$H+}{$endif} 
+
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
 
 interface
 uses 

@@ -88,7 +88,8 @@
 unit CompactSysUtils; {$ifdef FPC}{$mode objfpc}{$H+}{$endif}
 
 interface
-{$IFDEF WIN32}{$DEFINE WINDOWS}{$ENDIF}
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
 
 uses {$IFDEF WINDOWS}windows,{$ENDIF}
   pwtypes, pwfileutil, pwstrutil;
@@ -163,7 +164,7 @@ const
 //  {$i compactsysutils_functions_interface1}
 {$endif}
 
-{$ifdef win32}
+{$ifdef WINDOWS}
   {$i compactsysutils_functions_interface1}
 {$endif}
 
@@ -881,7 +882,7 @@ Type
 //  {$i compactsysutils_unix_filefunctions_implementation.inc}
 {$endif UNIX}
 
-{$ifdef WIN32}
+{$ifdef WINDOWS}
   {$i compactsysutils_win32_filefunctions_implementation.inc}
 {$endif WIN32}
 

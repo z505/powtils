@@ -49,6 +49,8 @@
 
 unit pwgzip;
 
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
 
 interface
 
@@ -216,7 +218,7 @@ begin
     gzheader[6] := 0;
     gzheader[7] := 0;
     gzheader[8] := 0;
-    gzheader[9] := {$IFDEF WIN32}0{$ELSE}3{$ENDIF};
+    gzheader[9] := {$IFDEF WINDOWS}0{$ELSE}3{$ENDIF};
     // Entire deflation
     err := deflateInit2(s, Z_DEFAULT_COMPRESSION, Z_DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY);
     if err <> 0 then exit;
