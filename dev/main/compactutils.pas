@@ -65,10 +65,13 @@
 
 unit CompactUtils; {$IFDEF FPC}{$mode delphi}{$H+}{$ENDIF}
 
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
+
 interface
 
 uses
- {$IFDEF WIN32}windows,{$ENDIF}
+ {$IFDEF WINDOWS}windows,{$ENDIF}
  {$IFDEF FPC}
   {$IFDEF UNIX}baseunix,{$ENDIF}
  {$ELSE}
@@ -937,7 +940,7 @@ begin
 end;
 {$ENDIF UNIX}
 
-{$IFDEF WIN32}
+{$IFDEF WINDOWS}
 function FileCreate (const FileName: string; Mode: Longint) : Longint;
 var FN : string;
 begin
@@ -945,7 +948,7 @@ begin
   Result := CreateFile(@FN[1], GENERIC_READ or GENERIC_WRITE,
                        0, nil, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 end;
-{$ENDIF WIN32}
+{$ENDIF WINDOWS}
 
 function TStrList.LoadFromFile(const FileName: string): Boolean;
 begin
@@ -1518,11 +1521,11 @@ procedure DummyObjProcParam( Sender: PObj; Param: Pointer );
 begin
 end;
 
-{$IFDEF WIN32}
+{$IFDEF WINDOWS}
 function AnsiCompareStr(const S1, S2: string): longint;
 begin Result:= CompareString(LOCALE_USER_DEFAULT,0,PChar(S1),-1,PChar(S2), -1) - 2;
 end;
-{$ENDIF WIN32}
+{$ENDIF WINDOWS}
 
 {$IFDEF UNIX}
 function AnsiCompareStr(const S1, S2: string): integer;

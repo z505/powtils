@@ -20,6 +20,9 @@
 {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF}
 unit pwobjbuff;
 
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
+
 interface
 
 type
@@ -265,7 +268,7 @@ begin
     gzheader(Self.Data^)[6] := 0;
     gzheader(Self.Data^)[7] := 0;
     gzheader(Self.Data^)[8] := 0;
-    gzheader(Self.Data^)[9] := {$IFDEF WIN32}0{$ELSE}3{$ENDIF};
+    gzheader(Self.Data^)[9] := {$IFDEF WINDOWS}0{$ELSE}3{$ENDIF};
     // Entire deflation
     err := deflateInit2(s, Z_DEFAULT_COMPRESSION, Z_DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY);
     if err <> 0 then 

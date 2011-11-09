@@ -13,7 +13,7 @@ type
   {$else unix}
     FindHandle : THandle;
   {$endif unix}
-  {$ifdef Win32}
+  {$ifdef WINDOWS}
     FindData : TWin32FindData;
   {$endif}
   {$ifdef netware_clib}

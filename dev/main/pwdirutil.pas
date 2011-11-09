@@ -16,7 +16,8 @@
 unit pwdirutil;
 
 {$ifdef fpc}{$mode objfpc}{$H+}{$endif} {$R+}
-{$IFDEF WIN32}{$DEFINE WINDOWS}{$ENDIF}
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
 
 interface
 uses

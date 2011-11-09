@@ -1,10 +1,12 @@
 { more advanced sockets functions/wrappers not included currently in sockets.pp fpc RTL}
 
 unit socketsext; {$mode objfpc} {$h+}
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
 
 interface
 uses 
-  {$ifdef win32}winsock2{$endif}
+  {$ifdef WINDOWS}winsock2{$endif}
   {$ifdef unix}baseunix{$endif} ;
 
 
@@ -16,7 +18,7 @@ function SockSelect(sock: longint; fds: TFds; TimeoutSecs: longint): longint;
 
 implementation
 
-{$ifdef win32}
+{$ifdef WINDOWS}
 
 {  DECLARATION HINTS:
 

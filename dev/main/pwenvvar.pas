@@ -14,6 +14,9 @@
 
 unit pwenvvar; {$IFDEF FPC} {$mode objfpc}{$H+} {$ENDIF}
 
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
+
 interface
 
 type
@@ -349,7 +352,7 @@ uses
  {$IFDEF LWS2}
   BreakTokens, LWS2Util;
  {$ELSE}
- {$IFDEF WIN32}windows{$ENDIF}
+ {$IFDEF WINDOWS}windows{$ENDIF}
  {$IFDEF UNIX}baseunix{$ENDIF} ;
  {$ENDIF}
   
@@ -382,12 +385,12 @@ Begin
     Result := '';
 End;
 {$ELSE}
-{$IFDEF WIN32}var tmp: integer;{$ENDIF}
+{$IFDEF WINDOWS}var tmp: integer;{$ENDIF}
 begin
  {$IFDEF UNIX}
   Result:= fpGetEnv(Name);
  {$ENDIF}
- {$IFDEF WIN32}
+ {$IFDEF WINDOWS}
   SetLength(Result,8192);
   tmp:= windows.GetEnvironmentVariable(@Name[1], @Result[1], 8192);
   SetLength(Result, tmp);

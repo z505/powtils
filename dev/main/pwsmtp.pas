@@ -20,9 +20,11 @@
 {$IFDEF FPC}{$MODE OBJFPC}{$H+}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
 unit pwsmtp;
 
-{------------------------------------------------------------------------------}
+{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
+
 interface
-{------------------------------------------------------------------------------}
+
 
 type
 
@@ -32,10 +34,6 @@ type
   // SMTP message handle
   SMTPMessage = Pointer;
 
-
-{------------------------------------------------------------------------------}
-{--------- PUBLIC PROCEDURE/FUNCTION DECLARATIONS -----------------------------}
-{------------------------------------------------------------------------------}
 
   function SmtpAttach(mp: SMTPMessage; const fname, ftype: string): boolean;
   procedure SmtpClose(cp: SMTPConnection);
@@ -61,7 +59,7 @@ uses
   pwbase64enc,
   pwhostname,
   pwfileutil,
- {$ifdef win32}
+ {$ifdef WINDOWS}
   sockets_patched,
  {$else}
   sockets, 
