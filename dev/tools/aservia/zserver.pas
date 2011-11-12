@@ -40,7 +40,7 @@ uses
 
 function TzServer.TryBind: boo;
 begin
-  result:= Bind(mainsock, saddr, sizeof(saddr));
+  result:= fpBind(mainsock, @saddr, sizeof(saddr)) = 0;
 end;
 
 constructor TzServer.Create;
@@ -54,11 +54,11 @@ end;
 function TzServer.InitConnection(const ip: astr; port: word): boo;
 begin
   result:= false;
-  mainsock := Socket(AF_INET, SOCK_STREAM, 0);
+  mainsock := fpSocket(AF_INET, SOCK_STREAM, 0);
   sAddr.family := AF_INET;
   sAddr.port   := Htons(port);
   sAddr.addr   := Longword(StrToNetAddr(ip));
-  if TryBind then result:= Listen(mainsock, MAX_CONNECTIONS); 
+  if TryBind then result:= fpListen(mainsock, MAX_CONNECTIONS) =0;
 end;
 
 function TzServer.Connect;
@@ -66,7 +66,7 @@ var sock     : int32;
     sAddrSize: int32;
 begin
   sAddrSize := sizeof(sAddr);
-  sock:= Accept(mainsock, sAddr, sAddrSize);
+  sock:= fpAccept(mainsock, @sAddr, @sAddrSize);
   if sock > 0 then begin
     inc(ccount); Setlength(conn, ccount); Setlength(ip, ccount);
     ip[ccount-1] := NetAddrToStr(in_addr(sAddr.addr));
@@ -89,7 +89,7 @@ begin
   if ccount > 0 then for i:= 0 to ccount-1 do begin
     if conn[i] > 0 then CloseSocket(conn[i]);
   end;
-  Shutdown(mainsock, 2);
+  fpShutdown(mainsock, 2);
   CloseSocket(mainsock);
 end;
 
@@ -128,7 +128,7 @@ begin
   if len < packet_size then i:= len else i:= packet_size;
   { write data in packet_size chunks, until string is emptied to zero }
   while len > 0 do begin
-    Send(csock, pchar(s)[0], i, 0);
+    fpSend(csock, @pchar(s)[0], i, 0);
     Delete(s, 1, i);
     len:= Length(s);
     // if smaller than packet size, then send small amount leftover
@@ -165,7 +165,7 @@ var buf  : array [0..packet_size-1] of char;
     count: int32;
 begin
   Fillchar(buf, sizeof(buf), 0);
-  count:= Recv(csock, buf, packet_size, 0);
+  count:= fpRecv(csock, @buf, packet_size, 0);
   result:= buf;
   Setlength(result, count);
 end;  
