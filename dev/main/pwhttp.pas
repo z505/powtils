@@ -186,7 +186,7 @@ begin
   end;
 
   // open connection
-  conn^.sock:= socket(AF_INET, SOCK_STREAM, 0);
+  conn^.sock:= fpsocket(AF_INET, SOCK_STREAM, 0);
   if not connect(conn^.sock, addr, conn^.sin, conn^.sout) then
   begin
     dispose(conn);
@@ -337,7 +337,7 @@ begin
   // Check address validity
   if addr.addr <= 0 then begin result:= '-1 err'; exit; end;
   // open connection
-  sock:= socket(AF_INET, SOCK_STREAM, 0);
+  sock:= fpsocket(AF_INET, SOCK_STREAM, 0);
   if not connect(sock, addr, sIn, sout) then begin 
     result:= '-2 err'; 
     exit; 
