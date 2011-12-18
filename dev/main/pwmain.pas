@@ -225,6 +225,7 @@ function FetchUpfileName(idx: int32): astr;
 function GetUpfileName(const name: astr): astr;
 function GetUpfileSize(const name: astr): int32;
 function GetUpfileType(const name: astr): astr;
+function GetUpfileData(const name: astr): astr;
 function CountUpfiles: longword;
 function IsUpfile(const name: astr): boo;
 function SaveUpfile(const name, fname: astr): boo;
@@ -1706,6 +1707,17 @@ begin
   if length(gUpFiles) = 0 then exit;
   for i:= low(gUpFiles) to high(gUpFiles) do if gUpFiles[i].name = name then begin
     result:= gUpFiles[i].content_type;
+    break;
+  end;
+end;
+
+{ Returns data (content) of an uploaded file }
+function GetUpfileData(const name: astr): astr; var i: int32;
+begin
+  result:= '';
+  if length(gUpFiles) = 0 then exit;
+  for i:= low(gUpFiles) to high(gUpFiles) do if gUpFiles[i].name = name then begin
+    result:= gUpFiles[i].data;
     break;
   end;
 end;
