@@ -2,19 +2,15 @@
 
  ******************************************************************************
 
-   Compiled against Powtils/PSP v1.6.x-devel.
+  Copyright Lars Olson  2008-2011
 
-
-   Author: Lars aka L505
-           http://z505.com   
 *******************************************************************************)
 
 
 program fpwserv; {$IFDEF FPC}{$MODE OBJFPC}{$H+}{$ENDIF} {$APPTYPE CONSOLE}
 
 uses
-  pwmain,      // Powtils STATIC
-  htmout;       
+  pwinit, pwmain, htmout;       
 
 begin
 

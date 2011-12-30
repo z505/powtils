@@ -1,7 +1,6 @@
 (****************************************************************************** 
-
-   Author: Lars aka L505
-           http://z505.com   
+  Copyright Lars Olson  2008-2011
+   
 *******************************************************************************)
 
 unit htmout;  {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF} 
@@ -20,8 +19,8 @@ procedure Show;
 
 implementation
 
-uses baseunix, unix, pwmain, pwurlenc, pwsubstrings, pwenvvar, pwfileutil, 
-     strwrap1;
+uses pwinit, pwmain, baseunix, unix, pwurlenc, pwsubstrings, pwenvvar, 
+     pwfileutil, strwrap1;
 
 type TStrArray = array of string;
 var ManyParams: TStrArray;       
