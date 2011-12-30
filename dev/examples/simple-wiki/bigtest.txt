@@ -1,0 +1,7 @@
+This is a <b>html bold test</b> with a link:  http://somesite.com/subdirectory/somefolder/page.htm
+New line here.
+--code
+begin
+end.
+code--
+test
