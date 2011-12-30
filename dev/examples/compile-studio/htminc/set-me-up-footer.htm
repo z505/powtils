@@ -1,0 +1,46 @@
+              </pre>
+              <hr>
+              <FORM METHOD=POST ACTION="">
+                <INPUT TYPE="hidden" NAME="p" VALUE="$_GotPg">
+                <INPUT TYPE="hidden" NAME="cmd" VALUE="compile">
+                Compiler: 
+                <INPUT TYPE="text" 
+                       SIZE="80"
+                       NAME="compilepath" 
+                       VALUE="{{DOCROOT}}/cgi-bin/__compile-studio/ppc386">
+<!---  NOTE  ---
+
+  {{DOCROOT}} is a macrovar that points to public_html on the server
+  It uses cgi environment variable DOCUMENT_ROOT i.e your htdocs directory. 
+                                  
+  If your cgi bin is not inside DOCROOT, then use  ../ relative to docroot 
+  i.e.{{DOCROOT}}../cgi-bin/compile-studio/fpc204/bin/fpc
+
+  Note the dotdot.. This would point to one directory BEHIND public html if your cgi bin 
+  is located outside of public html folder. Locate where your CGI-BIN is first and edit 
+  this file. Use ../../../ if cgi bin is even further away from public html
+---------------->
+                <INPUT TYPE="submit" VALUE="compile">
+              </FORM>
+
+
+
+              </td>
+            </tr>
+          </table>
+
+
+        </td>
+
+  </tr>
+
+
+
+</table>
+</div>
+
+</center>
+</body>
+</html>
+
+
