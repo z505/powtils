@@ -1,7 +1,5 @@
-{ fp web compiler
-
-  Author: Lars (L505)
-          http://z505.com }
+{ fp web compiler remote
+  Copyright Lars Olson 2008-2011 }
 
 program fpw;
 {$mode objfpc} {$H+}
