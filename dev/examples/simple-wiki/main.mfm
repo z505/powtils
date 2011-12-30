@@ -1,0 +1,92 @@
+object mainfo: tmainfo
+  bounds_x = 651
+  bounds_y = 80
+  bounds_cx = 632
+  bounds_cy = 369
+  container.frame.zoomwidthstep = 1
+  container.frame.zoomheightstep = 1
+  container.bounds = (
+    0
+    0
+    632
+    369
+  )
+  moduleclassname = 'tmainform'
+  object tbutton1: tbutton
+    bounds_x = 24
+    bounds_y = 304
+    bounds_cx = 146
+    bounds_cy = 19
+    state = [as_localcaption, as_localonexecute]
+    caption = 'Parse and Save'
+    onexecute = parseandsaveonexec
+  end
+  object tbutton2: tbutton
+    taborder = 1
+    bounds_x = 24
+    bounds_y = 328
+    bounds_cx = 146
+    bounds_cy = 19
+    state = [as_localcaption]
+    caption = 'Open HTML in Browser'
+  end
+  object memo1: tmemoedit
+    frame.localprops = [frl_colorclient]
+    taborder = 2
+    bounds_x = 16
+    bounds_y = 32
+    bounds_cx = 284
+    bounds_cy = 43
+  end
+  object tbutton3: tbutton
+    taborder = 3
+    bounds_x = 16
+    bounds_y = 8
+    bounds_cx = 106
+    bounds_cy = 19
+    state = [as_localcaption, as_localonexecute]
+    caption = 'Load Wik Test'
+    onexecute = BtnLoadWikTest
+  end
+  object twidgetgrid1: twidgetgrid
+    taborder = 4
+    bounds_x = 0
+    bounds_y = 80
+    bounds_cx = 632
+    bounds_cy = 210
+    anchors = [an_top]
+    optionsgrid = [og_focuscellonenter, og_autofirstrow, og_colchangeontabkey, og_wrapcol, og_autopopup, og_mousescrollcol]
+    datacols.count = 1
+    datacols.items = <    
+      item
+        width = 760
+        widgetname = 'texted'
+        dataclass = tgridrichstringdatalist
+      end>
+    datarowheight = 23
+    onlayoutchanged = widgetgridonlayoutchange
+    reffontheight = 13
+    object texted: ttextedit
+      optionswidget = [ow_mousefocus, ow_tabfocus, ow_arrowfocus, ow_destroywidgets, ow_fontlineheight]
+      optionsskin = [osk_framebuttononly]
+      taborder = 1
+      visible = False
+      bounds_x = 0
+      bounds_y = 0
+      bounds_cx = 760
+      bounds_cy = 23
+      anchors = [an_top]
+      reffontheight = 13
+    end
+  end
+  object tbutton4: tbutton
+    taborder = 5
+    bounds_x = 184
+    bounds_y = 304
+    bounds_cx = 146
+    bounds_cy = 19
+    state = [as_localcaption, as_localonexecute]
+    caption = 'Parse and Save'
+    onexecute = parseandsave2onexec
+  end
+end
