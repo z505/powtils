@@ -15,14 +15,8 @@ uses
   pwinit, pwmain, htmout;       
 
 begin
-
   WriteTopHeader;
-
   // must be a p URL var to continue
-  if not IsCgiVar('p') then
-    NoCsPage
-  else 
-    ShowCs;
-
+  if not IsPostVar('p') then NoCsPage else ShowCs;
   WriteFooter;
 end.
