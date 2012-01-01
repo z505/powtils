@@ -4,99 +4,98 @@
 
 *******************************************************************************)
 
-unit htmout;  {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF} 
+unit htmout;  {$ifdef fpc}{$mode objfpc}{$h+}{$endif} 
 
 interface
 
 const
  // cross platform directory separator
- {$IFDEF windows}DIRSEP = '\';{$ENDIF}
- {$IFDEF unix}DIRSEP = '/';{$ENDIF}
+ {$ifdef windows}dirsep = '\';{$endif}
+ {$ifdef unix}dirsep = '/';{$endif}
 
-procedure NoCsPage;
-procedure ShowCs;
-procedure WriteTopHeader;
-procedure WriteFooter;
+procedure nocspage;
+procedure showcs;
+procedure writetopheader;
+procedure writefooter;
 
 type 
-  THtmEd = record 
+  thtmed = record 
     text: string;
   end;
                       
 implementation
 
 uses
-  {$IFDEF UNIX}baseunix, unix,{$ENDIF}
+  {$ifdef unix}baseunix, unix,{$endif}
   pwinit, pwmain, pwurlenc, pwsubstr, pwenvvar, csfilefuncs, pwfileutil,
   pwfileshare, strwrap1;
 
 const
-  PWRD = 'cs'; // password.. change & encrypt it if you want security
+  pwrd = 'cs'; // password.. change & encrypt it if you want security
 
 var
- AskingToCreateNewFile: boolean = false; //flag
- Edit1: THtmEd;           // gotten text from http post
- GotPw,                   // gotten password
- FileA,                   // loaded file
- GotPg: string;           // gotten pagename
+  askingtocreatenewfile: boolean = false; //flag
+  edit1: thtmed;           // gotten text from http post
+  gotpw,                   // gotten password
+  filea,                   // loaded file
+  gotpg: string;           // gotten pagename
 
-procedure WriteTopHeader;
+procedure writetopheader;
 begin
-  outln('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">');
+  outln('<!doctype html public "-//w3c//dtd html 4.01 transitional//en">');
   out('<html>');
   out('<head>');
 end;
 
 procedure notice(const s: string);
 begin
-  outln('<font color=yellow>Note: '+s+'</font>');
+  outln('<font color=yellow>note: '+s+'</font>');
   outln('');
 end;
 
 { creates file, protecting with file sharing for multiple users }
-procedure SharedFileCreate(const fname: string);
+procedure sharedfilecreate(const fname: string);
 var
   created: boolean;
 begin
-  FileMarkWrite(fname);
-  created:= NewFile(fname);
+  filemarkwrite(fname);
+  created:= newfile(fname);
   // if there was an error creating file...
-  if not created then
-  begin
-    outln('Err 2: error creating file'); 
-    Halt(2); //stop program
+  if not created then begin
+    outln('Error: sharedfilecreate(): couldn''t create file'); 
+    halt(2); //stop program
   end;
-  FileUnmarkWrite(fname);
+  fileunmarkwrite(fname);
 end;
 
-procedure SharedFileOut(const fname: string);
+procedure sharedfileout(const fname: string);
 var 
   k: word; // file sharing unique key
   filestr: string;
 begin
-  FileMarkRead(fname, k);
-  filestr:= StrLoadFile(fname);
-  if filestr = '-1NF' then 
-    out('SharedFileOut: file not found: ' + fname)
+  filemarkread(fname, k);
+  filestr:= strloadfile(fname);
+  if filestr = '-1nf' then 
+    out('Error: sharedfileout(): file not found: ' + fname)
   else
   begin
-    filestr:= FilterHtml(filestr);
+    filestr:= filterhtml(filestr);
     out(filestr);
   end;
-  FileUnMarkRead(fname, k);
+  fileunmarkread(fname, k);
 end;
 
 { if no page specified, display simple error page }
-procedure NoCsPage;
+procedure nocspage;
 begin
-  // note: could change to WebTemplateOut
-  out(  '<title>Compiler Studio</title>');
+  // note: could change to templateout
+  out(  '<title>compiler studio</title>');
   out('</head>');
   out('<body>');
-  out(  '<FONT face=verdana SIZE="5"><b>Compiler Studio</b></font>');
+  out(  '<font face=verdana size="5"><b>compiler studio</b></font>');
   out(  '<hr><font face=verdana>');
-  out(  'No page was specified.');
-  out(  'See the <a href="' + CGIEnvVar.ScriptName() + '?p=main">Main Page</a>');
+  out(  'no page was specified.');
+  out(  'see the <a href="' + cgienvvar.scriptname() + '?p=main">main page</a>');
   out(  '<hr>');
   out('</body>');
   out('</html>');
@@ -104,245 +103,242 @@ begin
 end;
 
 
-procedure CheckPageNames;
+procedure checkpagenames;
 begin
-   if length(GotPg)> 50 then //security measures for file name length
-   begin
-     out('<br>Page name too long. Please make page name shorter.<br>');
-     halt;
-   end;
+  if length(gotpg)> 50 then begin //security measures for file name length
+    out('<br>Page name too long. Please make it shorter.<br>');
+    halt;
+  end;
 end;
 
 { makes path to source file }
-function MakePgFname: string;
+function makepgfname: string;
 begin
-  result:= 'pasfiles' + DIRSEP + GotPg + '.pas'
+  result:= 'pasfiles' + dirsep + gotpg + '.pas';
 end;
 
-procedure WritePassBox;
+procedure writepassbox;
 begin
-  out('<p>Passcode: <INPUT TYPE=password NAME=pw ROWS=1 COLS=30 >');
+  out('<p>passcode: <input type=password name=pw rows=1 cols=30 >');
 end;
 
-procedure StartPostForm;
+procedure startpostform;
 var url: string;
 begin
-  url:= SERV.ScriptName() + '?p=' + GotPg;
-  outln('<FORM action="'+url+'" method="post">'); 
+  url:= serv.scriptname() + '?p=' + gotpg;
+  outln('<form action="'+url+'" method="post">'); 
 end;
 
-procedure EndForm;
+procedure endform;
 begin
-  out('</FORM>');
+  out('</form>');
 end;
 
 { display an edit box with page content inside }
-procedure WriteEditBox;
+procedure writeeditbox;
 
-  procedure CorrectPgName;
+  procedure correctpgname;
   begin
-    GotPg:= UrlDecode(GotPg); //decode incase any percent signs, special encoded characters like %20
-    GotPg:= lowercase(gotpg);
+    gotpg:= urldecode(gotpg); //decode incase any percent signs, special encoded characters like %20
+    gotpg:= lowercase(gotpg);
   end;
 
-  // could use TemplatOut in future instead
-  procedure WriteFormWidgets;
+  // could use templatout in future instead
+  procedure writeformwidgets;
   begin
-    out('<TEXTAREA NAME="ed1" ROWS=20 COLS=85 >');
-    out(FileA);//gotten text from file
-    out('</TEXTAREA><br>');
-    WritePassBox;
-    out('</INPUT>');
-    out('<INPUT NAME="ed" VALUE=update TYPE=hidden></input>');
-    // in newer versions of Powtils, this hack below isn't needed, version 1.6.0.2 contained a small issue we workaround by using HIDDEN form inputs
-    out('<INPUT NAME="p" VALUE="' + GotPg + '" TYPE=hidden></input>');
-    outln('&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="SAVE FILE"></input>');
+    out('<textarea name="ed1" rows=20 cols=85 >');
+    out(filea);//gotten text from file
+    out('</textarea><br>');
+    writepassbox;
+    out('</input>');
+    out('<input name="ed" value=update type=hidden></input>');
+    // in newer versions of powtils, this hack below isn't needed, version 1.6.0.2 contained a small issue we workaround by using hidden form inputs
+    out('<input name="p" value="' + gotpg + '" type=hidden></input>');
+    outln('&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="save file"></input>');
   end;
 
 begin
  { get the page content from the file... }
-  CorrectPgName;
-  FileA:= FileToString(MakePgFname);
-  StartPostForm;
-  WriteFormWidgets;
-  EndForm;
+  correctpgname;
+  filea:= filetostring(makepgfname);
+  startpostform;
+  writeformwidgets;
+  endform;
   out('<hr>');
 end;
 
-procedure VerifyPass;
+procedure verifypass;
 begin
-  GotPw:= GetCgiVar('pw');
+  gotpw:= getpostvar('pw');
   // verify posted password
-  if GotPw <> PWRD then 
-  begin
-    outln('Mom says: password wrong! Try again darling.');
+  if gotpw <> pwrd then begin
+    outln('Error: password wrong');
     halt; {wrong password, exit}
   end;
 end;
 
 { output the file if it exists, create it otherwise }
-procedure WriteFileContent;
+procedure writefilecontent;
 
-  procedure NewPageFile;
+  procedure newpagefile;
 
-    // Could use TemplateOut in future instead
-    procedure AskUser;
+    // could use templateout in future instead
+    procedure askuser;
     begin
-      AskingToCreateNewFile:= true; // set flag
-      out('<p>Source file does not exist.');
-      out('<p>Do you want to create the new source file?');
-      StartPostForm;
-      WritePassBox;
+      askingtocreatenewfile:= true; // set flag
+      out('<p>source file does not exist.');
+      out('<p>do you want to create the new source file?');
+      startpostform;
+      writepassbox;
       out('&nbsp;&nbsp;');
-      out('<INPUT TYPE="submit"> <INPUT TYPE="hidden" NAME="command" VALUE="newpage" >');
-      // in newer versions of Powtils, this hack below isn't needed, version 1.6.0.2 contained a small issue we workaround by using HIDDEN form inputs
-      out('<INPUT NAME="p" VALUE="' + GotPg + '" TYPE=hidden></input>');
-      EndForm;
+      out('<input type="submit"> <input type="hidden" name="command" value="newpage" >');
+      // in newer versions of powtils, this hack below isn't needed, version 1.6.0.2 contained a small issue we workaround by using hidden form inputs
+      out('<input name="p" value="' + gotpg + '" type=hidden></input>');
+      endform;
     end;
   var
     ferr: boolean;
   begin
-    if  GetCgiVar('command') = 'newpage' then 
+    if  getpostvar('command') = 'newpage' then 
     begin
-      VerifyPass;
-      SharedFileCreate(MakePgFname); //create PageName.pas since a new page was requested. This ensures a file can be created, and checking that it can be created is important since a stringlist.savetofile wouldn't offer this check.
+      verifypass;
+      sharedfilecreate(makepgfname); //create pagename.pas since a new page was requested. this ensures a file can be created, and checking that it can be created is important since a stringlist.savetofile wouldn't offer this check.
 
-      //GotPg:= StringReplace(GotPg,'-',' ',[rfReplaceAll]); 
-      FileA:= FileA + #13#10 +
-              'program ' + GotPg + ';'#13#10 + 
-              '  // enter source here'#13#10 +
+      //gotpg:= stringreplace(gotpg,'-',' ',[rfreplaceall]); 
+      filea:= filea + #13#10 +
+              'program ' + gotpg + ';'#13#10 + 
+              '// uses  '#13#10 +
+              ' '#13#10 +
               'begin'#13#10 +
               'end.';
 
-      //GotPg:= StringReplace(GotPg,' ','-',[rfReplaceAll]); 
-      StringToFile(MakePgFname, FileA);
-      notice('File saved: ');
+      //gotpg:= stringreplace(gotpg,' ','-',[rfreplaceall]); 
+      stringtofile(makepgfname, filea);
+      notice('file saved: ');
       outln('');
-      SharedFileOut(MakePgFname); //output the htm file
+      sharedfileout(makepgfname); //output the htm file
     end else
-      AskUser;  
+      askuser;  
   end;
 
 begin
-  GotPg:= UrlDecode(GotPg); //first decode %20 and special characters into normal characters
-  GotPg:= lowercase(GotPg); // case sensitivity sucks
-  if FileExists_read(MakePgFname) then
-    SharedFileOut(MakePgFname) //output the htm file
+  gotpg:= urldecode(gotpg); //first decode %20 and special characters into normal characters
+  gotpg:= lowercase(gotpg); // case sensitivity sucks
+  if fileexists_read(makepgfname) then
+    sharedfileout(makepgfname) //output the htm file
   else // create file if doesn't exist
-    NewPageFile;
+    newpagefile;
 end;
 
 
 procedure err(const s: string);
 begin
   outln('');
-  outln('<b>Error:</b> ' + s);
+  outln('<b>error:</b> ' + s);
 end;
 
 
 { check password first }
-procedure CheckPass;
+procedure checkpass;
 begin
-  if GetCgiVar('ed') = 'update' then
-  begin
-    if IsWebVar('pw') > 0 then
-      VerifyPass
-    else //password not found, maybe user trying to edit page maliciously
-    begin
-      outln('Err 1: password not found'); 
+  if getpostvar('ed') = 'update' then begin
+    if ispostvar('pw') then
+      verifypass
+    else begin//password not found, maybe user trying to edit page maliciously
+      outln('error: password not found'); 
       halt(1);
     end;
   end;
 end;
 
-procedure UpdateSourceFile;
+procedure updatesourcefile;
 begin
   { get the text content from edit box that was updated...}
-  edit1.text:= GetCgiVar_S('ed1', 0); // unsecure, security set to zero because this is a private program allowing any characters in
-  FileA:= edit1.Text;
-  GotPg:= lowercase(GotPg); // UNIX case sensitivity sucks
-  StringToFile(MakePgFname, FileA);
+  edit1.text:= getpostvar_s('ed1', 0); // unsecure, security set to zero because this is a private program allowing any characters in
+  filea:= edit1.text;
+  gotpg:= lowercase(gotpg); // unix case sensitivity sucks
+  stringtofile(makepgfname, filea);
   notice('file updated');
 end;
 
 { compiler can be relative to document root with this macrovar trick}
-procedure FilterMacroVar(var s: string);
+procedure filtermacrovar(var s: string);
 begin
-  s:= SubstrReplace(s, '{{DOCROOT}}', CgiEnvVar.DocRoot() );
+  s:= substrreplace(s, '{{DOCROOT}}', cgienvvar.docroot() );
 end;
 
-function CmdExists(const cmd: string): boolean;
+function cmdexists(const cmd: string): boolean;
 begin
-  if FileExists_plain(cmd) then result:= true else result:= false;
+  if fileexists_plain(cmd) then result:= true else result:= false;
 end;
 
 { show compiler studio }
-procedure ShowCs;
+procedure showcs;
 
   { corrects the page name, case insensitive }
-  procedure CorrectPageName(var s: string);
+  procedure correctpagename(var s: string);
   begin
-    // null character bad, 000 makes it easy to spot malicous attempts, although this program isn't secure anyway since it is a compiler! It is open to any sort of attack since it executes commands... it is meant to be password protected program that only you have access to
-    s:= SubstrReplace(s, #0, '000'); 
+    // null character bad, 000 makes it easy to spot malicous attempts, although this program isn't secure anyway since it is a compiler! it is open to any sort of attack since it executes commands... it is meant to be password protected program that only you have access to
+    s:= substrreplace(s, #0, '000'); 
     s:= lowercase(s);
   end;
   
-  function Compiled: boolean;
+  function compiled: boolean;
     
-    procedure CompileFile(cmd: string; const param1: string);
+    procedure compilefile(cmd: string; const param1: string);
 
-      procedure RunCommand(const cmd, p1: string);
+      procedure runcommand(const cmd, p1: string);
       var
-        Si, So, Serr: Text;
-        s: String;
+        si, so, serr: text;
+        s: string;
         i: longint;
       begin
-        outln('Command to run: <b>'+ cmd + '</b>');
+        outln('command to run: <b>'+ cmd + '</b>');
 
-        if not CmdExists(cmd) then 
+        if not cmdexists(cmd) then 
         begin
           err('the given command path doesn''t exist, or system can''t access it!');
-          Compiled:= false;
+          compiled:= false;
           exit;
         end;
         // try running command
-        if AssignStream(Si, So, Serr, cmd, [p1]) = -1 then
-          outln('AssignStream failed !')
+        if assignstream(si, so, serr, cmd, [p1]) = -1 then
+          outln('assignstream failed !')
         else 
         begin
           if fpgeterrno <> 0 then
           begin
-            outln('AssignStream failed !');
-            Compiled:= false;
+            outln('assignstream failed !');
+            compiled:= false;
             exit;
           end;
           close (so);
-          outln('Command result:');
-          // read command result from STD IN 
+          outln('command result:');
+          // read command result from std in 
           while not eof(si) do
           begin
             readln(si,s);
             outln(s);
           end;
-          // read command result from STD ERR
+          // read command result from std err
           while not eof(serr) do
           begin
             readln(serr, s);
             outln(s);
           end;
-          close(Si);
+          close(si);
           compiled:= true;
         end;
       end;
 
     begin
-      FilterMacroVar(cmd);
-      if CmdExists(cmd) then 
-        RunCommand(cmd, param1)
+      filtermacrovar(cmd);
+      if cmdexists(cmd) then 
+        runcommand(cmd, param1)
       else 
       begin
         err('compiler path not found or cannot access: '#13#10 +'  '+ cmd + #13#10);
-        Compiled:= false;
+        compiled:= false;
       end;
     end;
 
@@ -350,57 +346,57 @@ procedure ShowCs;
     compilepath: string;
   begin
     result:= false;
-    compilepath:= GetCgiVar_S('compilepath', 0);
+    compilepath:= getpostvar_s('compilepath', 0);
     // check signal for compilation
     if (compilepath <> '') then 
-      CompileFile(compilepath, 'pasfiles' + DIRSEP + GotPg);
+      compilefile(compilepath, 'pasfiles' + dirsep + gotpg);
   end;
 var 
-  Editing: boolean = false;
-  Updating: boolean = false;
-  Compiling: boolean = false;
+  editing: boolean = false;
+  updating: boolean = false;
+  compiling: boolean = false;
 begin
-  GotPg:= GetCgiVar_S('p', 0);  // retrieve p variable unfiltered unsecure
-  GotPg:= TrimBadChars_file(GotPg); //replace any BAD CHARACTERS from the file name (local directory safety ../ )
-  if GotPg = '' then  //no page to display
-    NoCsPage;
+  gotpg:= getpostvar_s('p', 0);  // retrieve p variable unfiltered unsecure
+  gotpg:= trimbadfile(gotpg); //replace any bad characters from the file name (local directory safety ../ )
+  if gotpg = '' then  //no page to display
+    nocspage;
 
-  if GetCgiVar('ed') = 'yes' then Editing:= true;
-  if GetCgiVar('ed') = 'update' then Updating:= true;
-  if GetCgiVar('cmd') = 'compile' then Compiling:= true;
+  if getpostvar('ed') = 'yes' then editing:= true;
+  if getpostvar('ed') = 'update' then updating:= true;
+  if getpostvar('cmd') = 'compile' then compiling:= true;
 
-  CorrectPageName(GotPg);
-  outln('<title>Compiler Studio: '+ GotPg +'</title>');
+  correctpagename(gotpg);
+  outln('<title>Compiler Studio: '+ gotpg +'</title>');
   out('</head>');
   // set template variable
-  SetWebVar('_GotPg', GotPg);
-  WebTemplateOut('htminc/header1.htm', true);
-  CheckPass;  
-  CheckPageNames;
+  setvar('_gotpg', gotpg);
+  templateout('htminc/header1.htm', true);
+  checkpass;  
+  checkpagenames;
   
-  if Editing then WriteEditBox;
+  if editing then writeeditbox;
 
-  if (Compiling) and (Compiled) then 
-    outln(#13#10'Tried to compile: <a href="pasfiles/' + GotPg + '">'+ GotPg + '</a>');
+  if (compiling) and (compiled) then 
+    outln(#13#10'Tried to compile: <a href="pasfiles/' + gotpg + '">'+ gotpg + '</a>');
     
-  if Updating then UpdateSourceFile;
+  if updating then updatesourcefile;
 
-  if (Updating) or ((not Editing) and (not Compiling)) then
-    WriteFileContent;
+  if (updating) or ((not editing) and (not compiling)) then
+    writefilecontent;
 
 end;
 
 
-procedure WriteFooter;
+procedure writefooter;
 var 
-  Editing: boolean = false;
+  editing: boolean = false;
 begin
-  if GetCgiVar('ed') = 'yes' then Editing:= true;
+  if getpostvar('ed') = 'yes' then editing:= true;
 
-  if (Editing) or (AskingToCreateNewFile) then 
-    WebTemplateOut('htminc/normal-footer.htm', true)
+  if (editing) or (askingtocreatenewfile) then 
+    templateout('htminc/normal-footer.htm', true)
   else
-    WebTemplateOut('htminc/set-me-up-footer.htm', true);
+    templateout('htminc/set-me-up-footer.htm', true);
 
   // set me up footer contains an important path that you need to setup and it
   // contains the compile button that is only shown when we are done editing 
