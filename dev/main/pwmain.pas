@@ -1228,8 +1228,8 @@ begin
   if security = SECURE_ON then
   begin
     result:= substrreplace(input, ';', '&#59;');    //sql injection semi colon
-    result:= substrreplace(result, '&', '&amp;');
-    result:= substrreplace(result, '#', '&#35;');   //pound sign
+    //    result:= substrreplace(result, '&', '&amp;');  // can't replace this because it exists in &#59
+    //    result:= substrreplace(result, '#', '&#35;');  // can't replace # because it already exists in &#59
     result:= substrreplace(result, '"', '&quot;');  //quote
     result:= substrreplace(result, '''', '&#39;');  //single quote
     result:= substrreplace(result, '<', '&lt;');    //less than
