@@ -1,4 +1,4 @@
-{ fp web compiler remote
+{ fp web compiler remote program (client)
   Copyright Lars Olson 2008-2011 }
 
 program fpw;
@@ -14,26 +14,26 @@ const FPW_PARAM_COUNT = 3;
       SERVER_SLASH = '/'; // todo: if Windows server in future, maybe use '\' 
       
 var 
-  FpcParams: array of astr;
-  FpwServPath: astr = ''; Domain: astr = '';  ServerSrcPath: astr = '';
-  SrcFileSearchStr: astr = ''; // string to find in src path being compiled (ignore everything except after this string)
+  FpcParams: array of string;
+  FpwServPath: string = ''; Domain: string = '';  ServerSrcPath: string = '';
+  SrcFileSearchStr: string = ''; // string to find in src path being compiled (ignore everything except after this string)
   SrcFileArrayIdx: int;
-  OutExecutable: astr = '';
-  LauncherUrlPath: astr = '';
+  OutExecutable: string = '';
+  LauncherUrlPath: string = '';
 
-function SrcFileParam: astr; begin result:= FpcParams[SrcFileArrayIdx];end;
-function ConfigFile: astr;   begin result:= ExtractFilePath(paramstr(0)) + CONFIG_FILE; end;
+function SrcFileParam: string; begin result:= FpcParams[SrcFileArrayIdx];end;
+function ConfigFile: string;   begin result:= ExtractFilePath(paramstr(0)) + CONFIG_FILE; end;
 procedure HaltCleanup;       begin halt; end;
 
 // sends notification messages (currently just wraps to stdout)
-procedure msgln(s: astr);      begin writeln(s);    end;
-procedure msgln(s1, s2: astr); begin msgln(s1+s2);  end;
+procedure msgln(s: string);      begin writeln(s);    end;
+procedure msgln(s1, s2: string); begin msgln(s1+s2);  end;
 procedure msgln;               begin msgln('');     end;
-procedure msg(s: astr);        begin write(s);      end;
-procedure msg(s1, s2: astr);   begin msg(s1+s2);    end;
+procedure msg(s: string);        begin write(s);      end;
+procedure msg(s1, s2: string);   begin msg(s1+s2);    end;
 procedure msg;                 begin msg('');       end;
 
-procedure ErrorHalt(const s: astr);
+procedure ErrorHalt(const s: string);
 begin 
   msgln('Problem: ');
   msgln(s);
@@ -70,7 +70,7 @@ end;
   compiled. 
   i.e. if c:\web\cgi-bin\programs\ from c:\cgi-bin\programs\hello\hello.dpr 
        then we are left with: hello\hello.dpr }
-function TrimSrcFileParam: astr;
+function TrimSrcFileParam: string;
 var found, afterfound, rightcnt: int;
 begin
   result =SrcFileParam;
@@ -84,9 +84,9 @@ begin
   end;
 end;
 
-function MakeUrlPostVars: astr;
+function MakeUrlPostVars: string;
 var i: int;
-  nameval: astr = '';
+  nameval: string = '';
 begin
   result:= '';
   for i:= low(FpcParams) to high(FpcParams) do begin
@@ -103,7 +103,7 @@ end;
 procedure WriteVersion; begin msgln('FPW (FPC Web Compiler Magick) by Z505'); end;
 
 { shows help and halts program cleanly }
-procedure helpHalt(s: astr);
+procedure HelpHalt(s: string);
 begin
   if s <> '' then begin
     msgln('Command problem: ');
@@ -122,11 +122,11 @@ begin
   HaltCleanup;
 end;
 
-procedure helpHalt; overload;
+procedure HelpHalt; overload;
 begin HelpHalt('');
 end;
 
-function IncludePathDelim(const s: astr): astr;
+function IncludePathDelim(const s: string): string;
 var len: int;
 begin
   result:='';
@@ -136,22 +136,24 @@ begin
   if s[len] <> SERVER_SLASH then result:= s + SERVER_SLASH;
 end;
 
-function tidyServerSrcPath(s: astr): astr; begin result:= IncludePathDelim(s); end;
+function TidyServerSrcPath(s: string): string; 
+begin result:= IncludePathDelim(s); 
+end;
 
-function CheckCfgFile: boo;
+function CheckCfgFile: boolean;
 type TLineRange = 1..5; // first four lines in config file to parse
 var i: TLineRange;
-    lines: array [TLineRange] of astr = ('','','','', '');
+    lines: array [TLineRange] of string = ('','','','', '');
 
-  procedure CouldntParse(extra: astr); 
-  var msgstr: astr;
+  procedure CouldntParse(extra: string); 
+  var msgstr: string;
   begin msgstr:= 'Couldn''t parse line '+i2s(i) + ' of fpw.cfg'; 
     HelpHalt(msgstr + extra);
   end;
 
   procedure CouldntParse; begin CouldntParse(''); end;
 
-  procedure CouldntParseOrLineEmpty(extra: astr); 
+  procedure CouldntParseOrLineEmpty(extra: string); 
   begin CouldntParse(', or line empty'); 
   end;
 
@@ -193,8 +195,8 @@ end;
 
 procedure CheckMinParams; begin if ParamCount < 1 then HelpHalt; end;
 
-function ParseParams: boo;
-var i: int; tmp: astr = ''; found: byte = 0; cfgused: boo = false;
+function ParseParams: boolean;
+var i: int; tmp: string = ''; found: byte = 0; cfgused: boolean = false;
 begin
   CheckMinParams;
   result:=false;
@@ -231,7 +233,7 @@ begin
 end;
 
 procedure MakeFpwTmpFile;
-var f: text; copyfrom, copyto: astr; err: int;
+var f: text; copyfrom, copyto: string; err: int;
 const EXT  = '.exe'; PROG = 'fpwlaunch'+EXT;
 begin
   assign(f, 'fpwlaunch.tmp');
@@ -245,9 +247,11 @@ begin
     msgln('Error copying file: copyfrom: ' + copyfrom + ' copyto: ' + copyto);
 end;
 
-procedure TalkToServer(verbose: boo);
-var s, url:astr;	h:HttpConnection; sent:boo; hcode:int; part2,allparts: astr;
-  tmpln:astr;
+procedure TalkToServer(verbose: boolean);
+var h: HttpConnection; 
+    sent: boolean; 
+    hcode:int; 
+    s, url, part2, allparts, tmpln: string;
 
     procedure WriteVerbose;
     begin //      if url <> '' then msgln('Redirect URL: ', url);
@@ -272,8 +276,7 @@ begin
   HttpSetPostData(h, allparts);
   HttpSetHeader(h, 'Content-Type', 'application/x-www-form-urlencoded');
   sent:= HttpSendRequest(h, 'POST', FpwServPath);
-  if not sent then 
-  begin 
+  if not sent then begin 
     hcode:= httpresponseinfo(h, url, s);
     if verbose then WriteVerbose;
     WriteTips;
@@ -282,8 +285,8 @@ begin
   if (hcode=200) or (hcode=0) then while not HttpEof(h) do begin
     tmpln:= httpreadln(h);
     // sniff output executable name
-    if pos(LINKING, tmpln) = 1 then 
-    begin OutExecutable:= StringReplace(tmpln, LINKING, '', []);
+    if pos(LINKING, tmpln) = 1 then begin 
+      OutExecutable:= StringReplace(tmpln, LINKING, '', []);
       MakeFpwTmpFile;
     end;
     msgln(tmpln);
@@ -301,19 +304,3 @@ begin
   TalkToServer(true);
 end.
 
-
-{
-This is the html code that pasforum login requires:
-<form action="login.pow" method="POST">
-  <input type="text" name="login" > 
-  <input type="password" name="pw">
-  <input type="submit" value="Enter">
-
-
-This is the html code that a pasforum reply requires:
-<form action="reply.pow" method="POST">
-  <input type="hidden" name="tid" value="17">
-    <textarea name="text" cols="70" rows="6"></textarea>
-    <input type="SUBMIT" value="Post" name="PostReply">
-    <input type="SUBMIT" value="Preview" name="PreviewReply">
-}
