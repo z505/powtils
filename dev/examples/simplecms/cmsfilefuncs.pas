@@ -20,7 +20,7 @@ function FileToString(const fname: string): string;
 implementation
 
 uses
-  strwrap1, fileshare;
+  strwrap1, pwfileshare;
 
 { save a string to a file using file sharing mechanism }
 function StringToFile(const fname, InputStr: string): boolean;

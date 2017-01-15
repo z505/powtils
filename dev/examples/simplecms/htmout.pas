@@ -11,17 +11,21 @@ unit htmout;  {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF}
 
 interface
 
+uses
+  pwinit, pwmain, pwurlenc, pwsubstr, pwenvvar, cmsfilefuncs, pwfileutil,
+  pwfileshare;
+
 const
   PWRD = 'simplecms'; 
   // password.. change & encrypt it if you want security
   
- // cross platform directory separator
- {$IFDEF windows} 
-  SLASH = '\';
- {$ENDIF} 
- {$IFDEF unix} 
-  SLASH = '/'; 
- {$ENDIF}
+  // cross platform directory separator
+  {$IFDEF windows}
+   SLASH = '\';
+  {$ENDIF}
+  {$IFDEF unix}
+   SLASH = '/';
+  {$ENDIF}
 
 procedure NoCmsPage;
 procedure ShowCms;
@@ -42,10 +46,6 @@ var
 
 implementation
 
-uses
-  pwmain, pwurlenc, pwsubstr, pwenvvar, cmsfilefuncs, pwfileutil,
-  pwfileshare;
-
 var
   GotPg: string;   //gotten pagename
 
@@ -59,7 +59,7 @@ begin
   // if there was an error creating file...
   if not created then
   begin
-    webwriteln('Err 2: error creating file'); 
+    outln('Err 2: error creating file');
     Halt(2); //stop program
   end;
   FileUnmarkWrite(fname);
@@ -71,7 +71,7 @@ var
   k: word; // file sharing unique key
 begin
   FileMarkRead(fname, k);
-  webfileout(fname);
+  FileOut(fname);
   FileUnMarkRead(fname, k);
 end;
 
@@ -79,16 +79,16 @@ end;
 procedure NoCmsPage;
 begin
   // note: could change to WebTemplateOut
-  webwrite(  '<title>Simple CMS</title>');
-  webwrite('</head>');
-  webwrite('<body>');
-  webwrite(  '<FONT face=verdana SIZE="5"><b>Simple CMS</b></font>');
-  webwrite(  '<hr><font face=verdana>');
-  webwrite(  'No page was specified.');
-  webwrite(  'See the <a href="' + CGIEnvVar.ScriptName() + '?p=Main-Page">Main Page</a>');
-  webwrite(  '<hr>');
-  webwrite('</body>');
-  webwrite('</html>');
+  out(  '<title>Simple CMS</title>');
+  out('</head>');
+  out('<body>');
+  out(  '<FONT face=verdana SIZE="5"><b>Simple CMS</b></font>');
+  out(  '<hr><font face=verdana>');
+  out(  'No page was specified.');
+  out(  'See the <a href="' + CGIEnvVar.ScriptName() + '?p=Main-Page">Main Page</a>');
+  out(  '<hr>');
+  out('</body>');
+  out('</html>');
   halt;
 end;
 
@@ -106,7 +106,7 @@ procedure CheckPageNames;
 begin
    if length(GotPg)> 50 then //security measures for file name length
    begin
-     webwriteln('Page name too long. Please make page name shorter.');
+     outln('Page name too long. Please make page name shorter.');
      halt;
    end;
 end;
@@ -119,22 +119,22 @@ end;
 
 procedure WriteFooter;
 begin
-  WebTemplateOut('htminc/footer1.htm', true);
+  TemplateOut('htminc/footer1.htm', true);
 end;
 
 procedure WritePassBox;
 begin
-  webwrite('<p>Passcode: <INPUT NAME="pw" ROWS=1 COLS=30 >');
+  out('<p>Passcode: <INPUT NAME="pw" ROWS=1 COLS=30 >');
 end;
 
 procedure StartPostForm;
 begin
-  webwriteln('<FORM action="' + CGIEnvVar.ScriptName()  + '?p=' + GotPg +'" method="post">'); //post editbox text to cgi app, signal an edit update with  ed=update
+  outln('<FORM action="' + CGIEnvVar.ScriptName()  + '?p=' + GotPg +'" method="post">'); //post editbox text to cgi app, signal an edit update with  ed=update
 end;
 
 procedure EndForm;
 begin
-  webwrite('</FORM>');
+  out('</FORM>');
 end;
 
 { display an edit box with page content inside }
@@ -151,15 +151,15 @@ procedure WriteEdPage;
   procedure WriteFormWidgets;
   begin
     // could be changed to webtemplateout
-    webwrite('<TEXTAREA NAME="ed1" ROWS=20 COLS=85 >');
-    webwrite(FileA);//gotten text from file
-    webwrite('</TEXTAREA><br>');
+    out('<TEXTAREA NAME="ed1" ROWS=20 COLS=85 >');
+    out(FileA);//gotten text from file
+    out('</TEXTAREA><br>');
     WritePassBox;
-    webwrite('</INPUT>');
-    webwrite('<INPUT NAME="ed" VALUE=update TYPE=hidden></input>');
+    out('</INPUT>');
+    out('<INPUT NAME="ed" VALUE=update TYPE=hidden></input>');
     // in newer versions of Powtils, this hack below isn't needed, version 1.6.0.2 contained a small issue we workaround by using HIDDEN form inputs
-    webwrite('<INPUT NAME="p" VALUE="' + GotPg + '" TYPE=hidden></input>');
-    webwriteln('&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Submit"></input>');
+    out('<INPUT NAME="p" VALUE="' + GotPg + '" TYPE=hidden></input>');
+    out('&nbsp;&nbsp;&nbsp;<input type="submit" name="button" value="Submit"></input>');
   end;
 
 begin
@@ -171,14 +171,14 @@ begin
     StartPostForm;
     WriteFormWidgets;
     EndForm;
-    webwrite('<hr>');
+    out('<hr>');
   end;
 end;
 
 procedure WriteTopHeader;
 begin
-  webwrite('<html>');
-  webwrite('<head>');
+  out('<html>');
+  out('<head>');
 end;
 
 procedure VerifyPass;
@@ -187,7 +187,7 @@ begin
   // verify posted password
   if GotPw <> PWRD then 
   begin
-    webwriteln('Mom says: password wrong! Try again darling.');
+    outln('Mom says: password wrong! Try again darling.');
     halt; 
   end;
 end;
@@ -199,15 +199,14 @@ procedure WriteFileContent;
 
     procedure AskUser;
     begin
-      webwrite('<p>Page does not exist.');
-      webwrite('<p>Do you want to create the new page?');
+      out('<p>Page does not exist.');
+      out('<p>Do you want to create the new page?');
       StartPostForm;
       WritePassBox;
-      webwrite('&nbsp;&nbsp;');
+      out('&nbsp;&nbsp;');
       // could be changed to webtemplateout
-      webwrite('<INPUT TYPE="submit"> <INPUT TYPE="hidden" NAME="command" VALUE="newpage" >');
-      // in newer versions of Powtils, this hack below isn't needed, version 1.6.0.2 contained a small issue we workaround by using HIDDEN form inputs
-      webwrite('<INPUT NAME="p" VALUE="' + GotPg + '" TYPE=hidden></input>');
+      out('<INPUT TYPE="submit"> <INPUT TYPE="hidden" NAME="command" VALUE="newpage" >');
+      // in newer versions of Powtils, this hack isn't needed, version 1.6.0.2 contained a small issue we workaround by using HIDDEN form inputs      webwrite('<INPUT NAME="p" VALUE="' + GotPg + '" TYPE=hidden></input>');
       EndForm;
     end;
 
@@ -241,7 +240,7 @@ end;
 
 procedure ShowCms;
 
-  { corrects page name to contain no spaces and trims bad characters, makes case insensitive }
+  { corrects page name to contain spaces insteaed of dashes and trims bad characters, makes case insensitive }
   procedure CorrectPageName(var s: string);
   begin
     DashesToSpaces(s); //friendly page name without dashes
@@ -258,7 +257,7 @@ procedure ShowCms;
         VerifyPass
       else //password not found, maybe user trying to edit page maliciously
       begin
-        webwriteln('Err 1: password not found'); 
+        outln('Err 1: password not found');
         halt(1);
       end;
     end;
@@ -287,6 +286,8 @@ procedure ShowCms;
     end;
   end;
 
+var
+  GotPgDashed: string;
 begin
   GotPg:= GetCgiVar_S('p', 0);  // retrieve p variable unfiltered unsecure
   GotPg:= TrimBadChars_file(GotPg); //replace any BAD CHARACTERS from the file name (local directory safety ../ )
@@ -294,16 +295,17 @@ begin
   if GotPg = '' then  // display error
     NoCmsPage;
   CorrectPageName(GotPg);
+  GotPgDashed := GotPg;
+  SpacesToDashes(GotPgDashed);
   SetWebVar('_GotPg', GotPg);
-  WebTemplateOut('htminc/header1.htm', true);
+  SetWebVar('_GotPgDashed', GotPgDashed);
+  TemplateOut('htminc/header1.htm', true);
   CheckPass;  
   CheckPageNames;
   UpdatePageContent;
   WriteEdPage;
   WriteFileContent;
 end;
-
-
 
 
 end.
