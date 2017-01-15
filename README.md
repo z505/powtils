@@ -1,10 +1,10 @@
 Powtils is a web development tool kit or framework for freepascal (and delphi)
 
-Currently work is being done to port these units to freepascal 3.0
+Currently work is being done to port these units to freepascal 3.0.  
 
 The compiler used to compile right now is freepascal version 2.2.4
 
-Many of the tools will also be ported to GoLang
+Many of the tools will also be ported to GoLang. Some units have already een ported to GoLang, an interesting oberon/fpc like language. These golang units need to be uploaded to github. Probably seperate repo for it will be started.
 
 Also working on some more examples:
 * In the examples there is a wiki parser, this will be updated to be a full functioning wiki. As cross platform file sharing in FPC is now ready this helps make the wiki multi user (file locking). Lack of cross platform file sharing was what was holding me back before.
