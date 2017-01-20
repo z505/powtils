@@ -4,18 +4,19 @@
 
 ********************************************************************************
 
-Version 1.7.X of Powtils
+Version 1.7.1 of Powtils with SimpleCMS included
 (previously known as Pascal Server Pages)
 
-**Documentation may not be available yet for 1.7.X but is similar to 1.6.X**
+**All documentation may not be available yet for 1.7.X but is similar to 1.6.X**
 
+This special release (SimpleCMS included) was tested to compile with fpc 3.0.0
 
 -------------------------------------------------------------------------------
 Introduction:
 -------------------------------------------------------------------------------
 
-Powtils is web utilities devel package for FPC/Delphi and possibly other
-compilers in the future. The utilities focus on web programming and HTTP 
+Powtils is a web utilities devel package for FPC/Delphi and possibly other
+compilers in the future. The utilities focus on web programming and HTTP
 related routines, data structures, and algorithms.
 
 See the documentation and intro at:
@@ -31,7 +32,7 @@ All standard servers such as cpanel/plesk/apache/other are supported.
 Warning
 --------------------------------------------------------------------------------
 FPC 2.0.4 contains buggy sockets unit on MS Windows!
-Use FPC 2.2.0 if using http.pas/smtp.pas or anything sockets.pp related!
+Use FPC 2.2.0 or above if using http.pas/smtp.pas or anything sockets.pp related!
 
 --------------------------------------------------------------------------------
 Delphi Tips
@@ -46,8 +47,7 @@ Delphi Tips
 Setup Instructions:
 --------------------------------------------------------------------------------
 
-COMPILER - FPC version 2.0.4 and 2.2.0 is what we tested on.
-           Delphi 6 also briefly tested
+COMPILER - FPC version 3.0.0 is what this release was tested on.
 
 Inside pwmain you will see some comments about DEFINES which you can set with
 your IDE or with fpc -d option. Gzip, verbose debugging, etc.
@@ -67,7 +67,7 @@ See pwinit.pas, pwinitall, and examples/hello-world/ for details.
     4. if using config file (pwu_unix.conf or pwu_win.conf), upload.
        config file is optional, see pwinitall.pas
 
-    Example program 
+    Example program
     //................................................................//
     program mycgi;  {$apptype console}
 
@@ -114,16 +114,16 @@ On Windows OS:
 About the /CGI-BIN/ directory and why it is your friend:
 ---------------------------------------------------------------------------
 
-Even if you have a server that allows cgi programs to be executed outside of 
-/CGI-BIN/, it is recommended you stay in /CGI-BIN/. If you ever move to a new 
-server you will be very disappointed in the work it can take to restructure your 
-directories. If one server does not have the same set up as your old one, which 
+Even if you have a server that allows cgi programs to be executed outside of
+/CGI-BIN/, it is recommended you stay in /CGI-BIN/. If you ever move to a new
+server you will be very disappointed in the work it can take to restructure your
+directories. If one server does not have the same set up as your old one, which
 allowed access outside cgi-bin, you will be spending a lot of time restructuring
-the directories and files. Server portability is an issue with any web language, 
-for example php.ini can cause php programmers trouble when moving to a server. 
+the directories and files. Server portability is an issue with any web language,
+for example php.ini can cause php programmers trouble when moving to a server.
 
-As long as you use CGI-BIN directory you are actually more scalable and more 
-portable with Powtils than if you had used PHP. Why - because with Powtils you 
+As long as you use CGI-BIN directory you are actually more scalable and more
+portable with Powtils than if you had used PHP. Why - because with Powtils you
 make your own config files - you do not rely on some hidden php.ini. You also
 do not have php version conflicts (php 4 vs php 5) since your executable is
 shipped in one nice deployable program.
@@ -132,11 +132,11 @@ shipped in one nice deployable program.
 --------------------------------------------------------------------------------
 Shortening cgi-bin urls with HTACCESS
 --------------------------------------------------------------------------------
-If you would like to make it convenient for your web vistors to type in URL's, 
-and you don't like /cgi-bin/ in the URL, consider using htaccess if you are on 
-Apache, and doing some mod_rewrite rules for your URL's. 
+If you would like to make it convenient for your web vistors to type in URL's,
+and you don't like /cgi-bin/ in the URL, consider using htaccess if you are on
+Apache, and doing some mod_rewrite rules for your URL's.
 
-However, as all websites grow with time, it is usually not worth the effort to 
+However, as all websites grow with time, it is usually not worth the effort to
 try and make ALL your URL's short and sweet except in special circumstances:
 Using too many htaccess tricks will slow very large sites down, too.
 
@@ -144,23 +144,9 @@ Using too many htaccess tricks will slow very large sites down, too.
 Unit Source File Header Notes, Legal, and License Terms
 --------------------------------------------------------------------------------
 
-Most of the Powtils source code is released under the Artistic License or the
-NRCOL License (no ridiculous constraints or limits, public domain). Some of 
-the Mime Types related text files are from Apache.
-
-Longwinded comments that usually occur at the top of the source files are 
-sometimes moved into a /notes/ directory. 
-Each unit may have a corresponding unit.note.txt file. We're sick of sifting 
-through source files with licenses and developer comments crammed into the top
-of the file. We also use SVN logs for developer changes to sources.
-
---------------------------------------------------------------------------------
-Getting HELP from the community
---------------------------------------------------------------------------------
-
-The Powtils mailing lists and PasForum is the best place to get help. 
-  http://z505.com/powtils/mail.shtml
-  http://z505.com/powtils/forums.shtml
+Most of the Powtils source code is released under the Artistic License or BSD
+like licenses. Any code from fpc will be under modified fpc LGPL  license
+(commerical friendly).
 
 --------------------------------------------------------------------------------
 This readme file is not as good as documentation

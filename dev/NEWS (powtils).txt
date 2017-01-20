@@ -1,9 +1,13 @@
 ------
+1.7.1 (19/JAN/2017)  -L505
+ -Simple CMS ported to now run with 1.7.1 and 1.7.x
+
+------
 1.7.1 (23/FEB/2008)  -L505
  -delphi compat to 1.7.x-prerelease
  -many functions added (new filter param}
- -build utils updated
- -fixes
+ -automatic build utils (see build.exe and build.elf in examples folder!)
+ -many fixes
 
 ------
 1.7.X-prerelease (DD/FEB/2008)  -L505

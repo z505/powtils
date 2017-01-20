@@ -1,28 +1,24 @@
-Authors and hackers:
+Authors:
 
  Vladimir Sibirov (Trustmaster)
  Country: Russia
- Original Founder, Programmer, Sleeping member.
+ Original Founder, Leader
  Developed 1.0, 1.1-1.3, 1.4
 
  Lars Olson (L505)
  Country: Canada
- Programmer, Leader, Core
- Developed 1.5, 1.6, 1.7, extras, demos.
+ Developed 1.5, 1.6, 1.7
 
- Jorge Aldo Gomes de Freitas Junior 
+ Jorge Aldo Gomes de Freitas Junior
  Country: Brazil
- Programmer, Extras, Tools
- Developed: Lightwebserver, PWebApplication, extras
+ Development for Powtils 1.6, 1.7
 
  Amir Aavani
  Country: Iran
- Programmer, Extras
  Developed O-PSP Branch
 
  Anthony Henry
  Country: USA
- Programmer, core, sleeping member.
  Development for Powtils 1.5, 1.6
 
- 
+
