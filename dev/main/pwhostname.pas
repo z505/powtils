@@ -1,28 +1,31 @@
+{ NOTE: This unit is **broken** in FPC 3.0.0 as the sockets unit has changed.
+
+  TODO: 1.7.2 fix this unit as it is useful for grabbing html data from other
+        sites. getaddrinfo() needs to be used instead of get gethostbyaddr()
+        and check gethostbyname and other obsolete functions }
+
 {*******************************************************************************
                            Hostname utilities
 ********************************************************************************
   Crossplatform host name into address resolving additional unit for sockets.
   See the Artistic License for copying information.
 
-  Authors/Credits: Trustmaster (Vladimir Sibirov)
+  Authors/Credits: Trustmaster (Vladimir Sibirov), L505 (Lars Olson)
 ********************************************************************************}
 
 {$IFDEF FPC}{$MODE OBJFPC}{$H+}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
 unit pwhostname;
 
-{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
-{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
-
 interface
-uses 
-  {$ifdef WINDOWS}
+uses
+  {$ifdef win32}
     windows
     {$IFDEF FPC},sockets{$ENDIF}; // problems with fpc 2.0.4 RTL
   {$endif}
-  {$ifdef unix}    
+  {$ifdef unix}
     baseunix,
     sockets;
-  {$endif}  
+  {$endif}
 
 type StrArray = array of string;
 
@@ -52,7 +55,7 @@ hostent = record
     h_addr: pchar;
 end;
 {$ENDIF}
-{$IFDEF WINDOWS}
+{$IFDEF WIN32}
 hostent = record
     { official name of host  }
     h_name: pchar;
@@ -71,12 +74,14 @@ phostent = ^hostent;
 
 {========================= Procedures and Functions ===========================}
 
+
+// 1.7.2 TODO: These functions are obsolete, use getaddrinfo()  This will take some work
 {$IFDEF UNIX}
 function gethostbyname(const name: pchar): phostent; cdecl; external 'c';
 function gethostbyaddr(const addr: pchar; len, format: longint): phostent; cdecl; external 'c';
 function gethostname(name: pchar; len: longint): longint; cdecl; external 'c';
 {$ENDIF}
-{$IFDEF WINDOWS}
+{$IFDEF WIN32}
 function gethostbyaddr(const addr: pchar; len, atype: longint): phostent; stdcall; external 'wsock32';
 function gethostbyname(const name: pchar): phostent; stdcall; external 'wsock32';
 function gethostname(name: pchar; len: longint): longint; stdcall; external 'wsock32';
@@ -123,8 +128,7 @@ begin
       t := copy(s, 1, p - 1);
       delete(s, 1, p);
       val(t, p);
-      if (p < 0) or (p > 255) then exit;
-     result := result or p shl (i * 8);
+      result := result or p shl (i * 8);
     end;
 end;
 
@@ -179,7 +183,7 @@ begin
   begin
     SetLength(result, length(result) + 1);
     result[length(result) - 1] := AnsiString(he^.h_aliases^);
-    inc(he^.h_aliases);                                      
+    inc(he^.h_aliases);
   end;
 end;
 
@@ -190,20 +194,24 @@ var
   tmp: string;
   he: phostent;
 begin
-  result.addr:= 0; //on error
+  // result.sin_addr:= 0;  // old code from fpc 2.0 days
+  FillChar(result, SizeOf(result), 0); // new way
   tmp := address;
   // First initializing and assigning port
-  result.family := AF_INET;
-  result.port := htons(port);
+  result.sin_family := AF_INET;
+  result.sin_port := htons(port);
   // Then depending on address value
-  if is_quad(address) then 
-    result.addr := quad2addr(tmp)
-  else
+  if is_quad(address) then begin
+    // result.sin_addr := quad2addr(tmp) // old code from fpc 2.0 days
+    result.sin_addr := StrToHostAddr(tmp);
+  end else
   begin
     he:= gethostbyname(PChar(address));
-    if he <> nil then result.addr:= pin_addr(he^.h_addr_list^)^.S_addr;
+    if he <> nil then result.sin_addr:= pin_addr(he^.h_addr_list^)^.S_addr;
   end;
 end;
+
+
 
 // Returns IP of the current computer as dotted quad
 function InetSelfAddr: string;
