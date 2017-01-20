@@ -18,7 +18,7 @@ unit pwhostname;
 
 interface
 uses
-  {$ifdef win32}
+  {$ifdef windows}
     windows
     {$IFDEF FPC},sockets{$ENDIF}; // problems with fpc 2.0.4 RTL
   {$endif}
@@ -55,7 +55,7 @@ hostent = record
     h_addr: pchar;
 end;
 {$ENDIF}
-{$IFDEF WIN32}
+{$IFDEF windows}
 hostent = record
     { official name of host  }
     h_name: pchar;
@@ -81,7 +81,7 @@ function gethostbyname(const name: pchar): phostent; cdecl; external 'c';
 function gethostbyaddr(const addr: pchar; len, format: longint): phostent; cdecl; external 'c';
 function gethostname(name: pchar; len: longint): longint; cdecl; external 'c';
 {$ENDIF}
-{$IFDEF WIN32}
+{$IFDEF windows}
 function gethostbyaddr(const addr: pchar; len, atype: longint): phostent; stdcall; external 'wsock32';
 function gethostbyname(const name: pchar): phostent; stdcall; external 'wsock32';
 function gethostname(name: pchar; len: longint): longint; stdcall; external 'wsock32';

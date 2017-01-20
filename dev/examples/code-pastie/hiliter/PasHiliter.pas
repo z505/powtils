@@ -36,7 +36,7 @@ var
 
 implementation
 
-{$ifdef win32}
+{$ifdef windows}
 const
   CRLF = #13#10;
 {$endif}

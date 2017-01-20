@@ -13,11 +13,8 @@
 
 unit pwcsvutil; {$ifdef fpc}{$mode objfpc} {$H+}{$endif} 
 
-{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
-{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
-
 interface
-uses 
+uses
   pwtypes, capstr;
 
 type str4 = string[4];

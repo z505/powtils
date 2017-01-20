@@ -22,7 +22,7 @@ uses
   multitype,
   PCHarUtils,
   strwrap1
-  {$ifdef win32} ,Windows {$endif};
+  {$ifdef windows} ,Windows {$endif};
 
 {$ifdef debug}
 var debugt: text;

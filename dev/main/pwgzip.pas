@@ -49,9 +49,6 @@
 
 unit pwgzip;
 
-{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
-{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
-
 interface
 
 

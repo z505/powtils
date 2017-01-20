@@ -21,9 +21,6 @@ unit pwhttp_experiment;
   {$IFDEF EXTRA_SECURE}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
 {$ENDIF}
 
-{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
-{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
-
 interface
 
 {============================= PUBLIC TYPES ===================================}

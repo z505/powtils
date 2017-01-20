@@ -10,11 +10,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%}
 
 UNIT pwnative_out; 
-{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
-{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
 
 // Implements OS native string out to STDOUT
-// function for windows and unix. 
+// function for windows and unix.
 
 INTERFACE
 uses

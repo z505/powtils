@@ -1,11 +1,10 @@
 { more advanced sockets functions/wrappers not included currently in sockets.pp fpc RTL}
 
 unit socketsext; {$mode objfpc} {$h+}
-{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
-{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
 
 interface
-uses 
+
+uses
   {$ifdef WINDOWS}winsock2{$endif}
   {$ifdef unix}baseunix{$endif} ;
 

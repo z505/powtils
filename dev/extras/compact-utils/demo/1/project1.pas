@@ -23,7 +23,7 @@ var
   i: integer;
   
 const
- {$ifdef win32}
+ {$ifdef windows}
   TEST_PATH = 'c:\test\test.txt';
  {$endif}
  {$ifdef unix}

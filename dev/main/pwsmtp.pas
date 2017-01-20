@@ -20,9 +20,6 @@
 {$IFDEF FPC}{$MODE OBJFPC}{$H+}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
 unit pwsmtp;
 
-{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
-{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
-
 interface
 
 
