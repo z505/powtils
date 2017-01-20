@@ -1,15 +1,15 @@
-(****************************************************************************** 
+(******************************************************************************
    Simple content management system
  ******************************************************************************
    See LICENSE.TXT for this demo
 
    Author: Lars aka L505
-           http://z505.com   
+           http://z505.com
 
 *******************************************************************************)
 
 
-unit cmsfilefuncs; {$mode objfpc} {$H+}
+unit cmsfilefuncs; {$IFDEF FPC}{$mode objfpc} {$H+}{$ENDIF} {$IFNDEF FPC}{$apptype console}{$endif}
 
 interface
 

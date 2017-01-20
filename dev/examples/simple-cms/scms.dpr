@@ -1,7 +1,4 @@
-program scms;
-{$IFDEF FPC}
-  {$mode objfpc}{$H+}{$IFDEF EXTRA_SECURE} {$R+}{$Q+}{$CHECKPOINTER ON} {$ENDIF}
-{$ENDIF}
+program scms; {$IFDEF FPC}{$mode objfpc}{$H+}{$IFDEF EXTRA_SECURE} {$R+}{$Q+}{$CHECKPOINTER ON} {$ENDIF}{$ENDIF} {$IFNDEF FPC} {$apptype console} {$endif}
 
 uses
   pwinit,
@@ -13,7 +10,7 @@ begin
   WriteTopHeader;
 
   // must be a p var to continue
-  if not IsCgiVar('p') then
+  if not IsPostVar('p') then
     NoCmsPage
   else 
     ShowCms;

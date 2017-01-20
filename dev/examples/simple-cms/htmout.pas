@@ -8,6 +8,7 @@
 *******************************************************************************)
 
 unit htmout;  {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF} 
+{$I ..\..\main\DelphiDefines.inc}
 
 interface
 
@@ -84,7 +85,7 @@ begin
   out(  '<FONT face=verdana SIZE="5"><b>Simple CMS</b></font>');
   out(  '<hr><font face=verdana>');
   out(  'No page was specified.');
-  out(  'See the <a href="' + CGIEnvVar.ScriptName() + '?p=Main-Page">Main Page</a>');
+  out(  'See the <a href="' + SERV.ScriptName() + '?p=Main-Page">Main Page</a>');
   out(  '<hr>');
   out('</body>');
   out('</html>');
@@ -128,7 +129,7 @@ end;
 
 procedure StartPostForm;
 begin
-  outln('<FORM action="' + CGIEnvVar.ScriptName()  + '?p=' + GotPg +'" method="post">'); //post editbox text to cgi app, signal an edit update with  ed=update
+  outln('<FORM action="' + SERV.ScriptName()  + '?p=' + GotPg +'" method="post">'); //post editbox text to cgi app, signal an edit update with  ed=update
 end;
 
 procedure EndForm;
