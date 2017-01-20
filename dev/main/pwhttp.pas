@@ -1,3 +1,7 @@
+{NOTE: this unit is broken with fpc 3.0.0. pwhostname needs to be fixed.
+
+ TODO: for Powtils 1.7.2 or later, fix this unit
+
 {*******************************************************************************
                            Powtils HTTP Unit
 ********************************************************************************
@@ -6,7 +10,7 @@
 
  Authors/Credits: Trustmaster (Vladimir Sibirov), L505 (Lars Olson)
  License: Artistic
-   
+
 
 ********************************************************************************}
 unit pwhttp;
@@ -21,7 +25,7 @@ interface
 
 {------------------ PUBLIC TYPES ---------------------------------------------}
 
-// data hiding: see httpconnection further below for implementation 
+// data hiding: see httpconnection further below for implementation
 type HTTPConnection = pointer;
 
 // http 1.1 may demand CHUNK encoding. We don't yet, so set to http 1.0
@@ -50,7 +54,7 @@ procedure HttpPutHeader(cp: HTTPConnection; const header: string);
 
 implementation
 
-uses 
+uses
   {$IFDEF SYSUTILS_ON}Sysutils{$ELSE}CompactSysUtils{$ENDIF},
   pwhostname, sockets, pwsubstr;
 
