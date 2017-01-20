@@ -50,7 +50,7 @@ implementation
 uses 
   {$ifdef SYSUTILS_ON}sysutils,{$else}CompactSysUtils,{$endif}
   {$ifdef UNIX}baseunix,{$endif} 
-  {$ifndef fpc}strutils,{$endif}
+  {$ifndef fpc}pwstrutil,{$endif}
   pwsubstr, pwfileutil;
 
  
@@ -260,8 +260,8 @@ begin
   Assign(MimeBlk,'');
   If Done THEN
      begin
-       GetNextLine := @GetNextLineFromBuffer;
-       CleanupDataBase := @CleanupMimeBuffer;
+       GetNextLine := {$IFDEF FPC}@{$ENDIF}GetNextLineFromBuffer;
+       CleanupDataBase := {$IFDEF FPC}@{$ENDIF}CleanupMimeBuffer;
      end
   else
      begin
@@ -275,8 +275,8 @@ begin
              Exit;
            end;  
        {$I+}   
-       GetNextLine := @GetNextLineFromFile;
-       CleanupDataBase := @CloseMimeTextFile;
+       GetNextLine := {$IFDEF FPC}@{$ENDIF}GetNextLineFromFile;
+       CleanupDataBase := {$IFDEF FPC}@{$ENDIF}CloseMimeTextFile;
      end;
 end;       
            

@@ -1138,13 +1138,21 @@ begin
  cnt := 0;
  { As in Borland Pascal , if looking for NULL return null }
  if C = #0 then begin
+  {$IFDEF FPC}
    StrScan := @(P[StrLen(P)]);
+  {$ELSE}
+   StrScan := pchar(P[StrLen(P)]);
+  {$ENDIF}
    exit;
  end;
  { Find first matching character of Ch in Str }
  while P[cnt] <> #0 do begin
    if C = P[cnt] then begin
+    {$IFDEF FPC}
      StrScan := @(P[cnt]);
+    {$ELSE}
+     StrScan := pchar(P[cnt]);
+    {$ENDIF}
      exit;
    end;
    inc(cnt);
@@ -1161,21 +1169,29 @@ begin
  cnt := Strlen(P);
  { As in Borland Pascal , if looking for NULL return null }
  if C = #0 then begin
+  {$IFDEF FPC}
    StrRScan := @(p[cnt]);
+  {$ELSE}
+   StrRScan := pchar(p[cnt]);
+  {$ENDIF}
    exit;
  end;
 
  dec(cnt);
- 
+
  for index := cnt downto 0 do begin
    if C = p[index] then begin
+    {$IFDEF FPC}
      StrRScan := @(p[index]);
+    {$ELSE}
+     StrRScan := pchar(p[index]);
+    {$ENDIF}
      exit;
    end;
  end;
  { nothing found. }
  StrRScan := nil;
-end; 
+end;
 
 function StrUpper(p: pchar): pchar;
 var cnt: SizeInt;
@@ -1186,7 +1202,7 @@ begin
     inc(cnt);
   end;
   StrUpper := P;
-end; 
+end;
 
 function StrLower(p: pchar): pchar;
 var cnt: SizeInt;
@@ -1197,7 +1213,7 @@ begin
     inc(cnt);
   end;
   StrLower:= p;
-end; 
+end;
 
 
 end.

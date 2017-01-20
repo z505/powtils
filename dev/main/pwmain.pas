@@ -83,7 +83,7 @@ const FUTURE_COOKIE  = 'Mon, 01 Dec 2099 12:00:00 GMT'; //must be many years ahe
 type TFilterFunc = function(const s: astr): astr;
 
 { todo }
-//type TSecurity = (sUnsafe, sTrim); 
+//type TSecurity = (sUnsafe, sTrim);
 // for GetCgiVar_S function security parameter
 
 
@@ -97,7 +97,7 @@ procedure OffReadln;
 function Lcase(const s: astr): astr;
 function Ucase(const s: astr): astr;
 
-{ Posted Variable Functions } 
+{ Posted Variable Functions }
 // note: function names changed to 'post' in 1.7.X than old CGI
 function CountPostVars: longword;
 function GetPostVar(const name: astr): astr; overload;
@@ -147,7 +147,7 @@ function SetCookieAsIntEx(const name: astr; value: int32; const path, domain, ex
 function UnsetCookie(const name: astr): boo;
 function UnsetCookieEx(const name, path, domain: astr): boo;
 
-{ Environment Variable Functions } 
+{ Environment Variable Functions }
 // moved to pwEnvVar.pas
 
 { Filtering Functions }
@@ -178,9 +178,9 @@ function ResourceOut(const fname: astr): errcode;
 
 //type bytes = array of byte;
 //     pbytes = ^bytes;
-      
-procedure BytesOut(const buf: TByteRay); 
-procedure BufferOut(const buf; len: longword); 
+
+procedure BytesOut(const buf: TByteRay);
+procedure BufferOut(const buf; len: longword);
 
 
 procedure Out(const s: astr);
@@ -191,7 +191,7 @@ procedure OutLnA(args: array of const);
 
 procedure OutF(const s: astr); overload;
 procedure OutF(const s: astr; vfilter: TFilterFunc); overload;
-procedure OutFF(const s: astr); 
+procedure OutFF(const s: astr);
 
 procedure OutLnF(const s: astr); overload;
 procedure OutLnF(const s: astr; vfilter: TFilterFunc); overload;
@@ -209,8 +209,9 @@ function Fmt(const s: astr; vfilter: TFilterFunc): astr; overload;
 
 function FmtFilter(const s: astr): astr;
 
-function Fmt_SF(const s: astr; usefilter: boo; FilterSecurity, Trimsecurity: byte; vfilter: TFilterFunc): astr;
 
+function Fmt_SF(const s: astr; usefilter: boo; FilterSecurity, Trimsecurity: byte; vfilter: TFilterFunc): astr; overload;
+function Fmt_SF(const s: astr; usefilter: boo; FilterSecurity, Trimsecurity: byte): astr; overload;
 
 { RTI Functions }
 function CountRtiVars: longword;
@@ -220,7 +221,7 @@ function GetRti(const name: astr): astr;
 function GetRtiAsFloat(const name: astr): double;
 function GetRtiAsInt(const name: astr): int32;
 function IsRti(const name: astr): boo;
-procedure SetRTI(const name, value: astr); 
+procedure SetRTI(const name, value: astr);
 
 { Upload File Functions }
 function FetchUpfileName(idx: int32): astr;
@@ -263,7 +264,7 @@ function GetCfgVar(const name: astr): astr;
 
 { Error Functions }
 procedure ThrowErr(const s: astr);
-procedure ThrowWarn(const s: astr);  
+procedure ThrowWarn(const s: astr);
 
 // flags
 var headers_sent: boo = false;
@@ -278,7 +279,7 @@ procedure ErrWithHeader(const s: astr);
 {-----------------------------------------------------------------------------}
 { FOR PLUGIN UNITS - TYPICAL USERS CAN IGNORE THIS PUBLIC INTERFACE           }
 {-----------------------------------------------------------------------------}
-{ Advanced developers use this interface to extend Powtils. i.e. custom session 
+{ Advanced developers use this interface to extend Powtils. i.e. custom session
   units (mysql, firebird instead of SDS), custom Config unit, etc. }
 
 type
@@ -309,17 +310,17 @@ function iCustomCfgUnitSet: boo;
 
 (*
  Backwards compatibility no longer available.
- WebWrite, GetCgiVar, and other functions have been removed. Too much confusion 
- in the documentation, and too much duplication. 
+ WebWrite, GetCgiVar, and other functions have been removed. Too much confusion
+ in the documentation, and too much duplication.
 
-const 
+const
   // Use GetPostVar instead
   GetCgiVar: function (const name: astr): astr                                  = {$ifdef fpc}@{$endif}GetPostVar;
   GetCgiVar_S: function(const name: astr; security: byte): astr                 = {$ifdef fpc}@{$endif}GetPostVar_S;
   GetCgiVar_SF: function(const name: astr; security: byte): astr                = {$ifdef fpc}@{$endif}GetPostVar_SF;
-  GetCgiVarAsFloat: function(const name: astr): double                          = {$ifdef fpc}@{$endif}GetPostVarAsFloat;   
-  GetCgiVarAsInt: function(const name: astr): int32                             = {$ifdef fpc}@{$endif}GetPostVarAsInt;   
-  GetCgiVar_SafeHTML: function(const name: astr): astr                          = {$ifdef fpc}@{$endif}GetPostVar_SafeHTML;   
+  GetCgiVarAsFloat: function(const name: astr): double                          = {$ifdef fpc}@{$endif}GetPostVarAsFloat;
+  GetCgiVarAsInt: function(const name: astr): int32                             = {$ifdef fpc}@{$endif}GetPostVarAsInt;
+  GetCgiVar_SafeHTML: function(const name: astr): astr                          = {$ifdef fpc}@{$endif}GetPostVar_SafeHTML;
   //  WebWrite
   //  WebWriteLn
 *)
@@ -1400,7 +1401,7 @@ end;
   and then try to replace them after (they would already be trimmed).
   i.e. we have to use one or the other, either replace or trim input.}
 
-function fmt_SF(const s: astr; usefilter: boo; FilterSecurity, Trimsecurity: byte; vfilter: TFilterFunc): astr;
+function fmt_SF(const s: astr; usefilter: boo; FilterSecurity, Trimsecurity: byte; vfilter: TFilterFunc): astr; overload;
 const ID_CHARS = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_';
 var i, len: int32;
     lex: astr;
@@ -1433,7 +1434,7 @@ var i, len: int32;
   begin
     if usefilter then begin
       case FilterSecurity of
-        SECURE_OFF: lex:= GetVar_S(lex, SECURE_OFF); 
+        SECURE_OFF: lex:= GetVar_S(lex, SECURE_OFF);
         SECURE_ON: lex:= GetVar(lex, {$ifndef FPC}@{$endif}vfilter); // apply macrovar filter
       end;
     end else
@@ -1467,7 +1468,7 @@ begin
         result:= result + lex;
       end;
     end else
-      if (i <= len) and (s[i] = '{') then 
+      if (i <= len) and (s[i] = '{') then
       begin
         // {$varname}?
         // Check if escaped or for pattern match
@@ -1491,12 +1492,12 @@ begin
 end;
 
 { overloaded with default macrovar filter }
-function Fmt_SF(const s: astr; HTMLFilter: boo; FilterSecurity, TrimSecurity: byte): astr;
-begin result:= Fmt_SF(s, HTMLFilter, FilterSecurity, TrimSecurity, {$ifdef fpc}@{$endif}FilterHtml);
+function Fmt_SF(const s: astr; UseFilter: boo; FilterSecurity, TrimSecurity: byte): astr; overload;
+begin result:= Fmt_SF(s, UseFilter, FilterSecurity, TrimSecurity, {$ifdef fpc}@{$endif}FilterHtml);
 end;
 
 
-{ $macrovars replaced with ones set via SetVar, applies custom html filter to 
+{ $macrovars replaced with ones set via SetVar, applies custom html filter to
   macrovars being formatted, returns formatted result string}
 function Fmt(const s: astr; vfilter: TFilterFunc): astr;
 begin result:= Fmt_SF(s, true, SECURE_ON, SECURE_OFF, vfilter);
@@ -2672,6 +2673,5 @@ initialization { none }
 
 finalization { none }
 
-{------------------------------------------------------------------------------}
-                                     end.
-{------------------------------------------------------------------------------}
+end.
+

@@ -3,8 +3,8 @@
 
   Authors: L505 (Lars Olson), JKP (Jeff Pohlmeyer), Vladimir Sibirov
 
-  License: 
-   ~NRCOL public domain. However, any FPC include file modules are under 
+  License:
+   ~NRCOL public domain. However, any FPC include file modules are under
    modified FPC RTL GPL }
 
 unit pwfileutil;
@@ -18,13 +18,14 @@ unit pwfileutil;
 interface
 uses
   {$ifdef windows}windows,{$endif} {$ifdef unix}baseunix, unix,{$endif}
+  {$ifndef fpc}sysutils, FileCtrl,{$endif} // delphi
   pwtypes;
 
 
 // many tests, feel free to add more
 procedure RunTests;
 
-// default, read, readwrite, 
+// default, read, readwrite,
 type TFmode = (fmDefault, fmR, fmRW);
      TFileOfChar = file of char;
 
@@ -40,7 +41,7 @@ const
   fmShareDenyWrite = $0020;
   fmShareDenyRead  = $0030;
   fmShareDenyNone  = $0040;
-    
+
 procedure Xpath(var path: astr);
 
 function NewFile(const fname: astr): bln;
@@ -57,42 +58,50 @@ function File2Str(const fname:astr): astr; overload;
 
 function ExtractFilePart(fpath: astr): astr;
 function ExtractFname(const fpath: astr; ext: bln): astr;
-function ExtractFilePath(const fname: astr): astr;
-function ExtractFileDir(const fname: astr): astr;
-function ExtractFileDrive(const fname: astr): astr;
-function ExtractFileName(const fname: astr): astr;
-function ExtractFileExt(const fname: astr): astr;
-function ExtractRelativepath (Const BaseName,DestNAme : astr): astr;
+{$IFDEF FPC}
+ function ExtractFilePath(const fname: astr): astr;
+ function ExtractFileDir(const fname: astr): astr;
+ function ExtractFileDrive(const fname: astr): astr;
+ function ExtractFileName(const fname: astr): astr;
+ function ExtractFileExt(const fname: astr): astr;
+ function ExtractRelativepath (Const BaseName,DestNAme : astr): astr;
 
-function ChangeFileExt(const fname, Extension: astr): astr;
+ function ChangeFileExt(const fname, Extension: astr): astr;
 
-function IncludeTrailingPathDelimiter(Const Path : astr) : astr;
-function IncludeTrailingBackslash(Const Path : astr) : astr;
-function ExcludeTrailingBackslash(Const Path: astr): astr;
-function ExcludeTrailingPathDelimiter(Const Path: astr): astr;
-function IsPathDelimiter(const path: astr; index: integer): boo;
-Procedure DoDirSeparators (Var fname : astr);
-Function SetDirSeparators (Const fname : astr) : astr;
-function GetDirs (Var DirName : astr; Var Dirs : Array of pchar): longint;
+ function IncludeTrailingPathDelimiter(Const Path : astr) : astr;
+ function IncludeTrailingBackslash(Const Path : astr) : astr;
+ function ExcludeTrailingBackslash(Const Path: astr): astr;
+ function ExcludeTrailingPathDelimiter(Const Path: astr): astr;
+ function IsPathDelimiter(const path: astr; index: integer): boo;
+ procedure DoDirSeparators (Var fname : astr);
+ function SetDirSeparators (Const fname : astr) : astr;
+ function GetDirs (Var DirName : astr; Var Dirs : Array of pchar): longint;
+{$ENDIF}
 
 function OpenFileRead(var F:file; const fname: astr; recsize: integer): boo;
 function OpenFileReWrite(var F:file; const fname:astr; recsize:integer): boo;
 function OpenFile(var F: text; const fname: astr; mode: char): boo; overload;
 function OpenFile(var F: file; const fname: astr; recsize:integer; mode: byte): boo; overload;
 function OpenFile(var F: file; const fname: astr; mode: char): boo; overload;
-function OpenFile(var F: TFileOfChar; const fname: astr; mode: char): boo; overload;  
+function OpenFile(var F: TFileOfChar; const fname: astr; mode: char): boo; overload;
 
 function MakeDir(s: astr): boo;
-function DirectoryExists(const dir: astr): boo;
-function DirExists(const dir: astr): boo;
+
+{$ifdef fpc}
+ function DirectoryExists(const dir: astr): boo;
+ function DirExists(const dir: astr): boo;
+{$endif}
 
 {$ifdef windows}
 function GetFileAttributes(Dir: astr): dword;
 {$endif}
 
 procedure Sleep(milliseconds: Cardinal);
-function ExecuteProcess(const path: astr; const ComLine: astr):integer;
-function ExecuteProcess(const path: astr; const ComLine: array of astr):integer;
+
+{$IFDEF FPC}
+ function ExecuteProcess(const path: astr; const ComLine: astr):integer; overload;
+ function ExecuteProcess(const path: astr; const ComLine: array of astr): integer; overload;
+{$ENDIF}
 
 function GetFileSize(const fname: astr): int32;
 function GetLargeFileSize(const fname: astr): int64;
@@ -223,8 +232,8 @@ begin
   result:= file2bytes(fname, DEFAULT_CHUNK_SIZE, buf); 
 end;
 
-{ loads file into a string returns -1 in OUT param if error } 
-function File2str(const fname: astr; chunksz: int32; out err: int32): astr; 
+{ loads file into a string returns -1 in OUT param if error }
+function File2str(const fname: astr; chunksz: int32; out err: int32): astr; overload;
 var buf: TByteRay; len: int32;
 begin
   result:= '';
@@ -568,7 +577,9 @@ end;
 
 { Above is under NRCOL license. Below file is modified Fpc Rtl GPL }
 
-{$I pwfileutil_fpc_sysutils.inc }
+{$IFDEF FPC}
+  {$I pwfileutil_fpc_sysutils.inc }
+{$ENDIF}
 
 
 end.
