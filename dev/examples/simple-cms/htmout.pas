@@ -8,13 +8,14 @@
 *******************************************************************************)
 
 unit htmout;  {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF} 
+
 {$I ..\..\main\DelphiDefines.inc}
 
 interface
 
 uses
   pwinit, pwmain, pwurlenc, pwsubstr, pwenvvar, cmsfilefuncs, pwfileutil,
-  pwfileshare;
+  pwfileshare {$IFNDEF FPC}, sysutils{$ENDIF};
 
 const
   PWRD = 'simplecms'; 
@@ -162,7 +163,7 @@ procedure WriteEdPage;
   end;
 
 begin
-  if GetCgiVar('ed') = 'yes' then // the signal to edit a page
+  if GetPostVar('ed') = 'yes' then // the signal to edit a page
   begin
    { get the page content from the file... }
     CorrectPgName;
@@ -182,7 +183,7 @@ end;
 
 procedure VerifyPass;
 begin
-  GotPw:= GetCgiVar('pw');
+  GotPw:= GetPostVar('pw');
   // verify posted password
   if GotPw <> PWRD then
   begin
@@ -211,7 +212,7 @@ procedure WriteFileContent;
 
   begin
     // if hidden form input signals this then make new page
-    if  GetCgiVar('command') = 'newpage' then
+    if  GetPostVar('command') = 'newpage' then
     begin
       VerifyPass;
       SharedFileCreate(MakePgFname); //create PageName.htm since a new page was requested. This ensures a file can be created, and checking that it can be created is important since a stringlist.savetofile wouldn't offer this check.
@@ -250,9 +251,9 @@ procedure ShowCms;
   { check password first }
   procedure CheckPass;
   begin
-    if GetCgiVar('ed') = 'update' then
+    if GetPostVar('ed') = 'update' then
     begin
-      if IsWebVar('pw') > 0 then
+      if IsPostVar('pw') then
         VerifyPass
       else //password not found, maybe user trying to edit page maliciously
       begin
@@ -271,13 +272,13 @@ procedure ShowCms;
     end;
 
   begin
-    if IsWebVar('ed') > 0 then
+    if IsPostVar('ed') then
     begin
       // check signal for page update
-      if GetCgiVar('ed') = 'update' then
+      if GetPostVar('ed') = 'update' then
       begin
         // get page content from edit box that was edited
-        edit1.text:= GetCgiVar_S('ed1', 0); // unsecure, security set to zero because this is a private CMS allowing any java script injections or null characters or other bad crap
+        edit1.text:= GetPostVar_S('ed1', 0); // unsecure, security set to zero because this is a private CMS allowing any java script injections or null characters or other bad crap
         FileA:= edit1.Text;
         CorrectPgToSave(GotPg);
         StringToFile(MakePgFname, FileA);
@@ -288,16 +289,16 @@ procedure ShowCms;
 var
   GotPgDashed: string;
 begin
-  GotPg:= GetCgiVar_S('p', 0);  // retrieve p variable unfiltered unsecure
-  GotPg:= TrimBadChars_file(GotPg); //replace any BAD CHARACTERS from the file name (local directory safety ../ )
+  GotPg:= GetPostVar_S('p', 0);  // retrieve p variable unfiltered unsecure
+  GotPg:= TrimBadFile(GotPg); //replace any BAD CHARACTERS from the file name (local directory safety ../ )
 
   if GotPg = '' then  // display error
     NoCmsPage;
   CorrectPageName(GotPg);
   GotPgDashed := GotPg;
   SpacesToDashes(GotPgDashed);
-  SetWebVar('_GotPg', GotPg);
-  SetWebVar('_GotPgDashed', GotPgDashed);
+  SetVar('_GotPg', GotPg);
+  SetVar('_GotPgDashed', GotPgDashed);
   TemplateOut('htminc/header1.htm', true);
   CheckPass;
   CheckPageNames;
