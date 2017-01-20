@@ -189,7 +189,7 @@ procedure OutLn; overload;
 procedure OutA(args: array of const);
 procedure OutLnA(args: array of const);
 
-procedure OutF(const s: astr);
+procedure OutF(const s: astr); overload;
 procedure OutF(const s: astr; vfilter: TFilterFunc); overload;
 procedure OutFF(const s: astr); 
 

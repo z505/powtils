@@ -1,4 +1,4 @@
-unit pwinit; 
+unit pwinit;
 
 interface
 { Put units like pwSdsSess and pwDefaultCfg in uses clause if you want that 

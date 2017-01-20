@@ -3,7 +3,9 @@
  Authors/Credits: FPC Team RTL, Lars (L505)
  License: Freepascal RTL Modified GPL
 }
-unit pwstrutil; {$I defines1.inc}
+unit pwstrutil;
+
+{$I defines1.inc}
 
 interface
 uses pwtypes;
@@ -131,6 +133,11 @@ function QuotedStr(const S: astr): astr;
 function AnsiQuotedStr(const S: astr; Quote: char): astr;
 function AnsiExtractQuotedStr(var  Src: PChar; Quote: Char): astr;
 function AdjustLineBreaks(const S: astr): astr; overload;
+
+{$ifndef fpc} // delphi
+type TTextLineBreakStyle = (tlbsLF, tlbsCRLF, tlbsCR);
+{$endif}
+
 function AdjustLineBreaks(const S: astr; Style: TTextLineBreakStyle): astr; overload;
 function IsValidIdent(const Ident: astr): boolean;
 
@@ -148,7 +155,12 @@ function intToStr(value: int64): astr; overload;
 implementation
 
 function StrToInt(const s: astr): integer;
-var error: word;
+var
+ {$ifdef fpc}
+  error: word;
+ {$else}
+  error: integer;
+ {$endif}
 begin
   val(S, result, Error);
   if error <> 0 then result:= 0;
@@ -564,7 +576,11 @@ end ;
 
 function AdjustLineBreaks(const S: astr): astr;
 begin
-  result:=AdjustLineBreaks(S,DefaultTextLineBreakStyle);
+ {$IFDEF FPC}
+  result := AdjustLineBreaks(S, DefaultTextLineBreakStyle);
+ {$ELSE}
+  result := AdjustLineBreaks(S, tlbsCRLF);
+ {$ENDIF}
 end;
 
 function AdjustLineBreaks(const S: astr; Style: TTextLineBreakStyle): astr;
@@ -833,9 +849,13 @@ begin
     end;
 end;
 
+{$IFNDEF FPC} // delphi
+const sLineBreak = #13#10;
+{$ENDIF}
+
 function WrapText(const Line: string; MaxCol: integer): string;
 begin
-  result:=WrapText(Line,sLineBreak, [' ', '-', #9], MaxCol);
+  result := WrapText(Line, sLineBreak, [' ', '-', #9], MaxCol);
 end;
 
 function StringReplace(const S, OldPattern, NewPattern: string;  Flags: TReplaceFlags): string;
@@ -1004,14 +1024,18 @@ function StrECopy(Dest, Source: PChar): PChar;
 {  StrECopy := StrEnd(Dest);                                            }
 var cnt : SizeInt;
 begin
- cnt := 0;
- while Source[cnt] <> #0 do begin
-   Dest[cnt] := char(Source[cnt]);
-   inc(cnt);
- end;
- { terminate the string }
- Dest[cnt] := #0;
- StrECopy:=@(Dest[cnt]);
+  cnt := 0;
+  while Source[cnt] <> #0 do begin
+    Dest[cnt] := char(Source[cnt]);
+    inc(cnt);
+  end;
+  { terminate the string }
+  Dest[cnt] := #0;
+ {$IFDEF FPC}
+  StrECopy := @(Dest[cnt]);
+ {$ELSE}
+  StrECopy := pchar(Dest[cnt]);
+ {$ENDIF}
 end;
 
 function StrLCopy(Dest,Source: PChar; MaxLen: SizeInt): PChar;
@@ -1035,7 +1059,12 @@ end;
 function StrEnd(P: PChar): PChar;
 var cnt: SizeInt;
 begin
-  cnt := 0; while P[cnt] <> #0 do inc(cnt); StrEnd := @(P[cnt]);
+  cnt := 0; while P[cnt] <> #0 do inc(cnt);
+ {$IFDEF FPC}
+  StrEnd := @(P[cnt]);
+ {$ELSE}
+  StrEnd := pchar(P[cnt]);
+ {$ENDIF}
 end;
 
 function StrComp(p1, p2 : PChar): SizeInt;

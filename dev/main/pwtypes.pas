@@ -42,7 +42,7 @@ const // platform specific directory slash (old Mac not supported)
   {$ifdef WINDOWS}SLASH = '\';{$endif}
   SLASHES = ['\', '/'];
   {$ifdef fpc}LF = LineEnding;{$endif}
-  {$ifndef fpc}LF = {$ifdef windows}#13#10{$else}#10{$endif}{$endif}
+  {$ifndef fpc}LF = {$ifdef windows}#13#10{$else}#10{$endif};{$endif}
   
 const
   // CGI uses #13#10 no matter what OS
