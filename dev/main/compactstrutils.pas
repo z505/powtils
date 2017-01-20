@@ -6,8 +6,8 @@
 
  The functions in this unit require no sysutils bloat, yet they perform
  the exact functionality as sysutils functions. Sysutils contains initialization
- and finalization on which many functions do not rely! 
- 
+ and finalization on which many functions do not rely!
+
  Since the original strutils unit hauls in SysUtils, this compact strutils
  unit below was created without any reliance on sysutils!
 
@@ -26,7 +26,7 @@ uses
   {$ifdef KOL_MCK}
    kol;
   {$else}
-   CompactSysUtils;
+   {$ifndef SYSUTILS_ON}compactsysutils{$else}sysutils{$endif};
   {$endif}
 
 function strpos(str1,str2 : pchar) : pchar;
