@@ -88,8 +88,7 @@
 unit CompactSysUtils; {$ifdef FPC}{$mode objfpc}{$H+}{$endif}
 
 interface
-{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
-{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
+{$IFDEF WIN32}{$DEFINE WINDOWS}{$ENDIF}
 
 uses {$IFDEF WINDOWS}windows,{$ENDIF}
   pwtypes, pwfileutil, pwstrutil;
@@ -128,6 +127,8 @@ type
         2 : (Bytes : Array[0..7] of Byte);
    end;
 
+   PByteArray = ^TByteArray;
+   TByteArray = Array[0..32767] of Byte;
 
    PWordarray = ^TWordArray;
    TWordArray = array[0..16383] of Word;
@@ -164,7 +165,7 @@ const
 //  {$i compactsysutils_functions_interface1}
 {$endif}
 
-{$ifdef WINDOWS}
+{$ifdef win32}
   {$i compactsysutils_functions_interface1}
 {$endif}
 
@@ -882,7 +883,7 @@ Type
 //  {$i compactsysutils_unix_filefunctions_implementation.inc}
 {$endif UNIX}
 
-{$ifdef WINDOWS}
+{$ifdef WIN32}
   {$i compactsysutils_win32_filefunctions_implementation.inc}
 {$endif WIN32}
 
