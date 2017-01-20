@@ -1,4 +1,4 @@
-(****************************************************************************** 
+(******************************************************************************
    Simple content management system
  ******************************************************************************
    See LICENSE.TXT for this demo
@@ -65,9 +65,8 @@ begin
   FileUnmarkWrite(fname);
 end;
 
-// if no page was specified, display default simple error
 procedure SharedFileOut(fname: string);
-var 
+var
   k: word; // file sharing unique key
 begin
   FileMarkRead(fname, k);
@@ -78,7 +77,7 @@ end;
 // if no page was specified, display default simple error
 procedure NoCmsPage;
 begin
-  // note: could change to WebTemplateOut
+  // note: could change to TemplateOut()
   out(  '<title>Simple CMS</title>');
   out('</head>');
   out('<body>');
@@ -94,12 +93,12 @@ end;
 
 procedure SpacesToDashes(var s: string);
 begin
-  s:= SubStrReplace(s,' ', '-'); 
+  s:= SubStrReplace(s,' ', '-');
 end;
 
 procedure DashesToSpaces(var s: string);
 begin
-  s:= SubStrReplace(s,'-',' '); 
+  s:= SubStrReplace(s,'-',' ');
 end;
 
 procedure CheckPageNames;
@@ -142,7 +141,6 @@ procedure WriteEdPage;
 
   procedure CorrectPgName;
   begin
-    //GotPg:= StringReplace(GotPg,' ', '-',[rfReplaceAll]); 
     SpacesToDashes(GotPg); //first replace any spaces with dashes, so the correct dashed html file is loaded
     GotPg:= UrlDecode(GotPg); //decode incase any percent signs, special encoded characters like %20
     GotPg:= lowercase(gotpg);
@@ -150,7 +148,7 @@ procedure WriteEdPage;
 
   procedure WriteFormWidgets;
   begin
-    // could be changed to webtemplateout
+    // note: could be changed to TemplateOut()
     out('<TEXTAREA NAME="ed1" ROWS=20 COLS=85 >');
     out(FileA);//gotten text from file
     out('</TEXTAREA><br>');
@@ -185,10 +183,10 @@ procedure VerifyPass;
 begin
   GotPw:= GetCgiVar('pw');
   // verify posted password
-  if GotPw <> PWRD then 
+  if GotPw <> PWRD then
   begin
     outln('Mom says: password wrong! Try again darling.');
-    halt; 
+    halt;
   end;
 end;
 
@@ -212,19 +210,19 @@ procedure WriteFileContent;
 
   begin
     // if hidden form input signals this then make new page
-    if  GetCgiVar('command') = 'newpage' then 
+    if  GetCgiVar('command') = 'newpage' then
     begin
       VerifyPass;
       SharedFileCreate(MakePgFname); //create PageName.htm since a new page was requested. This ensures a file can be created, and checking that it can be created is important since a stringlist.savetofile wouldn't offer this check.
       // friendly page title without dashes
-      DashesToSpaces(GotPg); 
+      DashesToSpaces(GotPg);
       FileA:= FileA + '<pre>'#13#10'This is a newly created page: ' + GotPg + #13#10 + ' <i>Enter text here</i>'+ #13#10 +'</pre>';
       // but save file as dashed
-      SpacesToDashes(GotPg); 
+      SpacesToDashes(GotPg);
       StringToFile(MakePgFname, FileA);
       SharedFileOut(MakePgFname); //output the htm file
     end else
-      AskUser;  
+      AskUser;
   end;
 
 begin
@@ -247,7 +245,7 @@ procedure ShowCms;
     s:= SubstrReplace(s, #0, '000'); //null character bad, 000 makes it easy to spot hackers
     s:= lowercase(s);
   end;
-  
+
   { check password first }
   procedure CheckPass;
   begin
@@ -270,12 +268,12 @@ procedure ShowCms;
       SpacesToDashes(pgname); //first replace spaces with dashes
       pgname:= lowercase(pgname); // UNIX case sensitivity sucks
     end;
-    
+
   begin
     if IsWebVar('ed') > 0 then
     begin
       // check signal for page update
-      if GetCgiVar('ed') = 'update' then 
+      if GetCgiVar('ed') = 'update' then
       begin
         // get page content from edit box that was edited
         edit1.text:= GetCgiVar_S('ed1', 0); // unsecure, security set to zero because this is a private CMS allowing any java script injections or null characters or other bad crap
@@ -300,7 +298,7 @@ begin
   SetWebVar('_GotPg', GotPg);
   SetWebVar('_GotPgDashed', GotPgDashed);
   TemplateOut('htminc/header1.htm', true);
-  CheckPass;  
+  CheckPass;
   CheckPageNames;
   UpdatePageContent;
   WriteEdPage;
