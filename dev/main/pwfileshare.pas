@@ -10,6 +10,7 @@
 unit pwfileshare;
 
 {$i defines1.inc}
+{$I DelphiDefines.inc}
 
 interface
 

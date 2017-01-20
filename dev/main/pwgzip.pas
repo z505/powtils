@@ -1,23 +1,23 @@
 {*******************************************************************************
 
                               Powtils  GZIP
-                  
+
 ********************************************************************************
 
 
-  Simplified ZLib API for use in PSP programs.                                
+  Simplified ZLib API for use in PSP programs.
 
-  See the Pascal Server Pages Documentation for more information.             
+  See the Pascal Server Pages Documentation for more information.
 --------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
-    Written by Vladimir Sibirov a.k.a. Trustmaster                            
-    http://www.psp.furtopia.org                                               
-    mailto:psp@furtopia.org                                                   
-    
+    Written by Vladimir Sibirov a.k.a. Trustmaster
+    http://www.psp.furtopia.org
+    mailto:psp@furtopia.org
+
 --------------------------------------------------------------------------------
- Copyright (c) 2003-2005 by Pascal Server Pages development team.            
- See the Pascal Server Pages License for more information.                   
+ Copyright (c) 2003-2005 by Pascal Server Pages development team.
+ See the Pascal Server Pages License for more information.
 --------------------------------------------------------------------------------
 
  PSP 1.6.x
@@ -28,18 +28,20 @@
  PSP 1.4.1
  ---------
   [25.09.05 - Trustmaster]:
-  - some memory fixes in gzip_decompress.                                     
+  - some memory fixes in gzip_decompress.
 
   [21.09.05 - Trustmaster]:
-  - added support for unknown size decompression;                             
-  - optimized gzip_gzbuffer.                                                  
+  - added support for unknown size decompression;
+  - optimized gzip_gzbuffer.
 
   [17.09.05 - Trustmaster]:
-  - First implementation of this unit. The only problem unfixed is that when  
-  calling pack and then unpack, first succeeds and second fails with access   
-  violation on gzopen call. Looks like memory leak/bug in paszlib itself.     
+  - First implementation of this unit. The only problem unfixed is that when
+  calling pack and then unpack, first succeeds and second fails with access
+  violation on gzopen call. Looks like memory leak/bug in paszlib itself.
 
 *******************************************************************************}
+
+unit pwgzip;
 
 {$IFDEF FPC}{$MODE OBJFPC}{$H+}
    {$IFDEF EXTRA_SECURE}
@@ -47,7 +49,7 @@
    {$ENDIF}
 {$ENDIF}
 
-unit pwgzip;
+{$I DelphiDefines.inc}
 
 interface
 

@@ -1,8 +1,12 @@
 { more advanced sockets functions/wrappers not included currently in sockets.pp fpc RTL}
 
-unit socketsext; {$mode objfpc} {$h+}
+unit socketsext; 
+
+{$ifdef fpc}{$mode objfpc}{$h+}{$endif}
+{$I DelphiDefines.inc}
 
 interface
+
 
 uses
   {$ifdef WINDOWS}winsock2{$endif}

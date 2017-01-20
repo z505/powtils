@@ -1,14 +1,14 @@
 {*******************************************************************************
 
-                                POWTILS 
+                                POWTILS
 
 ********************************************************************************
 
 --------------------------------------------------------------------------------
  Simple Session Addon
 --------------------------------------------------------------------------------
-  SDS (text database) session unit. Use this as an example how to make a MySQL, 
-  Firebird, or PostGre session extension for Powtils. 
+  SDS (text database) session unit. Use this as an example how to make a MySQL,
+  Firebird, or PostGre session extension for Powtils.
   Plugin your own session units!
 --------------------------------------------------------------------------------
   Authors/Credits:
@@ -23,6 +23,8 @@ unit pwsdssess;
 {$DEFINE EXTRA_SECURE}
 
 {$I defines1.inc}
+
+{$I DelphiDefines.inc}
 
 interface
 uses
@@ -45,11 +47,11 @@ function SetSessAsInt(const name: string; value: longint): boolean;
 function UnsetSess(const name: string): boolean;
 
 implementation
-uses 
+uses
   pwenvvar,  pwurlenc, pwsds, pwfileutil, pwbase64enc, sysutils, pwdebugplugin;
 
-var sess: TWebVars;   
-    sess_initialized: boolean = false; 
+var sess: TWebVars;
+    sess_initialized: boolean = false;
    {$ifdef DBUG_ON}
     debugt: longint;
    {$endif}
@@ -72,7 +74,7 @@ end;
 
 
 procedure SetDefaultSessCfg;
-begin 
+begin
  {$IFDEF DBUG_ON} debugln('SetDefaultSessCfg begin');{$ENDIF}
   // local directory session file
   iAddWebCfgVar('session_path', PWU_SESS_FILE);

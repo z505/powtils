@@ -1,5 +1,6 @@
 unit pwdefaultcfg;
 {$I defines1.inc}
+{$I DelphiDefines.inc}
 
 interface
 uses pwtypes;
@@ -7,7 +8,7 @@ uses pwtypes;
 function GetCfgPath: astr;
 
 implementation
-uses 
+uses
  {$ifdef UNIX}baseunix{$endif} {$ifdef WINDOWS}windows{$endif},
   pwmain, pwenvvar, pwfileutil, strwrap1, pwsubstr, pwnative_out,  pwerrors,
   pwdebugplugin;

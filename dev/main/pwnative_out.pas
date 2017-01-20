@@ -9,7 +9,9 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%}
 
-UNIT pwnative_out; 
+UNIT pwnative_out;
+
+{$I DelphiDefines.inc}
 
 // Implements OS native string out to STDOUT
 // function for windows and unix.

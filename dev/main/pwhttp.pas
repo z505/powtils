@@ -21,6 +21,9 @@ unit pwhttp;
   {$ENDIF}
 {$ENDIF}
 {$IFNDEF FPC}{$DEFINE SYSUTILS_ON}{$ENDIF}
+
+{$I DelphiDefines.inc}
+
 interface
 
 {------------------ PUBLIC TYPES ---------------------------------------------}

@@ -5,7 +5,7 @@
   Todo: Create easy to use old stack style Object instead of record. Records
         don't have properties which are easier to use than function()
 
-   
+
   Authors: Lars (L505)
            http://z505.com
 
@@ -14,8 +14,7 @@
 
 unit pwenvvar; {$IFDEF FPC} {$mode objfpc}{$H+} {$ENDIF}
 
-{$IFDEF WIN32} {$DEFINE WINDOWS} {$ENDIF}
-{$IFDEF WIN64} {$DEFINE WINDOWS} {$ENDIF}
+{$I DelphiDefines.inc}
 
 interface
 
@@ -23,13 +22,13 @@ type
   // Get single cgi environment variable on demand
   { 35 TOTAL }
   TCgiEnvVar = record
-    Accept: function: string;     
+    Accept: function: string;
     AcceptEncod: function: string;
-    AcceptLang: function: string; 
+    AcceptLang: function: string;
     AuthType: function: string;
     ContentLength: function: string;
     ContentType: function: string;
-    Cookie: function: string;   
+    Cookie: function: string;
     DocName: function: string;
     DocRoot: function: string;
     DocUri: function: string;

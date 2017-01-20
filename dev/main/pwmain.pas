@@ -7,7 +7,7 @@
 --------------------------------------------------------------------------------
  Main Web Unit
 --------------------------------------------------------------------------------
- The main unit for plain CGI programs. 
+ The main unit for plain CGI programs.
 
 --------------------------------------------------------------------------------
  Authors/Credits
@@ -17,26 +17,26 @@
  Use SVN logs for minor change notes.
 
 --------------------------------------------------------------------------------
- Verbose Debugging 
+ Verbose Debugging
 --------------------------------------------------------------------------------
- Many procedures in this unit start with {b} and end with {e}. This means debug 
- info is hidden to the right of those markers past the 80 col marker. This 
- keeps code to the left of the 80 column marker easy to read, without IFDEF's 
- causing ugly line noise in the algorithms. 
-  
+ Many procedures in this unit start with {b} and end with {e}. This means debug
+ info is hidden to the right of those markers past the 80 col marker. This
+ keeps code to the left of the 80 column marker easy to read, without IFDEF's
+ causing ugly line noise in the algorithms.
+
  Debugging conventions are as follows in major procedures of this unit:
    SomeFunc_B;  --> Begin of SomeFunc
    SomeFunc E;  --> End of SomeFunc
-   SomeFunc_Xn; --> Early Exit via Exit or Label. "n" is an optional number 
+   SomeFunc_Xn; --> Early Exit via Exit or Label. "n" is an optional number
 
- Why? The debug procedures monitor the *entire flow control* of this unit. It 
- is optional, and not linked in unless developer uses "dbug_on" define. This 
+ Why? The debug procedures monitor the *entire flow control* of this unit. It
+ is optional, and not linked in unless developer uses "dbug_on" define. This
  allows you to debug a web program extensively.
 
  Note: Other major Powtils units should use this too, for consistency.
 
 --------------------------------------------------------------------------------
- Special Defines 
+ Special Defines
 --------------------------------------------------------------------------------
  Below defines customize behavior. Save exe size by leaving all undefined.
   DBUG_ON      -> extremely detailed debugging if you assign debugln:= @myproc;
@@ -45,7 +45,7 @@
   EXTRA_SECURE -> check overflows, range checks on (recommended)
   SYSUTILS_ON  -> if you have problems with CompactSysUtils then you can define this to use regular Sysutils (64 bit machines should use sysutils for now)
 
- Using $DEFINE in this unit is not global for all units, so instead use 
+ Using $DEFINE in this unit is not global for all units, so instead use
  delphi project options or fpc -d option for global define across units.
 
  Delete all .a/.o/.ppu files in *all* directories (DELP tool) otherwise
@@ -56,6 +56,8 @@
 unit pwmain; {$ifdef FPC}{$GOTO ON} {$NOTES ON} {$NOTE USING STATIC WEB UNIT}{$endif}
 
 {$I defines1.inc}
+
+{$I DelphiDefines.inc}
 
 {$J+} // persistent local scope vars
 
@@ -72,7 +74,7 @@ const FUTURE_COOKIE  = 'Mon, 01 Dec 2099 12:00:00 GMT'; //must be many years ahe
       HTM_BREAK = '<br />';
       SECURE_OFF = 0;
       SECURE_ON = 2;
-      MAX_UPLOAD_DEFAULT= '100'; // 100MB upload maximum (security) 
+      MAX_UPLOAD_DEFAULT= '100'; // 100MB upload maximum (security)
                                  // can be adjusted in config file or SetCfgVar
 
 // Powtils version

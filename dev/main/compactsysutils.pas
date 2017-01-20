@@ -10,7 +10,7 @@
 
  The goal is to pull everything from the FPC sources which can exist on it's
  own as a stand alone function with no need for initilization/finalization.
- 
+
  This is not "compact" source code, it is a large unit. It is called "compact"
  because binary footprint of your programs that use this unit are tiny.
 
@@ -58,7 +58,7 @@
   -----------------------------------------------------------------------------
 
   This way we can reorganize the file and find the original place that the
-  source came from. 
+  source came from.
 
 
  TODO:
@@ -74,8 +74,8 @@
   -thanks to all embedded programmers who helped improve this unit
 
  NO THANKS:
-  -no thanks goes out to those who have always hated my non bloatware and 
-   minimalism efforts 
+  -no thanks goes out to those who have always hated my non bloatware and
+   minimalism efforts
   -RTFH: read the effing header (of this file)
 
  Regards,
@@ -86,6 +86,8 @@
 
 
 unit CompactSysUtils; {$ifdef FPC}{$mode objfpc}{$H+}{$endif}
+
+{$I DelphiDefines.inc}
 
 interface
 
@@ -98,7 +100,7 @@ uses {$IFDEF WINDOWS}windows,{$ENDIF}
 type
 
    TReplaceFlags = set of (rfReplaceAll, rfIgnoreCase);
-  
+
    { some helpful data types }
 
    THandle = System.THandle;

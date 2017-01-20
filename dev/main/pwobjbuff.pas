@@ -20,6 +20,8 @@
 {$IFDEF FPC}{$mode objfpc}{$H+}{$ENDIF}
 unit pwobjbuff;
 
+{$I DelphiDefines.inc}
+
 interface
 
 type

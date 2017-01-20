@@ -1,4 +1,4 @@
-{ Authors: Lars (L505), JKP (YetAnotherGeek). 
+{ Authors: Lars (L505), JKP (YetAnotherGeek).
   Miscellaneous string and related functions }
 
 unit StrWrap1;
@@ -8,9 +8,7 @@ unit StrWrap1;
   {$H+} //force ansi strings on
 {$endif}
 
-{$IFNDEF FPC}
-  {$DEFINE windows} // todo: kylix ugly ifdef checks, sigh
-{$ENDIF}
+{$I DelphiDefines.inc}
 
 interface
 uses 

@@ -13,8 +13,12 @@
   Authors/Credits: Trustmaster (Vladimir Sibirov), L505 (Lars Olson)
 ********************************************************************************}
 
-{$IFDEF FPC}{$MODE OBJFPC}{$H+}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
+
 unit pwhostname;
+
+{$IFDEF FPC}{$MODE OBJFPC}{$H+}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
+
+{$I DelphiDefines.inc}
 
 interface
 uses

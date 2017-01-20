@@ -9,6 +9,8 @@
 
 unit pwfileshareos;
 {$i defines1.inc}
+{$I DelphiDefines.inc}
+
 interface
 
 function ResetFileShared(var f: TextFile{; const fname: shortstring}): integer;

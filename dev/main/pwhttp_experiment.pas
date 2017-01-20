@@ -21,6 +21,8 @@ unit pwhttp_experiment;
   {$IFDEF EXTRA_SECURE}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
 {$ENDIF}
 
+{$I DelphiDefines.inc}
+
 interface
 
 {============================= PUBLIC TYPES ===================================}

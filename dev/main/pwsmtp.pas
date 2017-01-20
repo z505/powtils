@@ -17,8 +17,10 @@
 }
 
 
-{$IFDEF FPC}{$MODE OBJFPC}{$H+}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
+
 unit pwsmtp;
+{$IFDEF FPC}{$MODE OBJFPC}{$H+}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
+{$I DelphiDefines.inc}
 
 interface
 

@@ -5,35 +5,35 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  Like KOL/MCK, a compact alternative to Sysutils unit, Classes unit, 
-  StringLists, and more. It is useful as a general purpose utility unit of 
+  Like KOL/MCK, a compact alternative to Sysutils unit, Classes unit,
+  StringLists, and more. It is useful as a general purpose utility unit of
   lists, string routines, etc.
 
-  Future Goals: ability to choose stack objects instead of just heap. For 
+  Future Goals: ability to choose stack objects instead of just heap. For
   example a string list that requires no free and create. Reduces complexity
   of application code, keeps code free of dangling pointers, etc. Better
-  than using arrays as no setlength or memory allocation required. 
-  
+  than using arrays as no setlength or memory allocation required.
+
   Saving Exe size is not the main goal, although that may be a side effect and
-  bonus since this code is tight and based on KOL/MCK ideas. Rather, this unit 
+  bonus since this code is tight and based on KOL/MCK ideas. Rather, this unit
   will aim to make programming easier, simpler, etc. The classes/lists available
   in the FPC and Delphi RTL are too complex for our needs many times.
-  
+
   See also StrWrap1, CompactSysUtils, and other units from Powtils
 
 --------------------------------------------------------------------------------
  CONTRIBUTORS/AUTHORS:
 --------------------------------------------------------------------------------
-  Ideas from KOL 2.10 (Vladimir Kladov). 
-  KOL&MCK Library Web Site:  
-    http://xcl.cjb.net  
-    http://kolmck.net/   
+  Ideas from KOL 2.10 (Vladimir Kladov).
+  KOL&MCK Library Web Site:
+    http://xcl.cjb.net
+    http://kolmck.net/
   Download it and try it for delphi and fpc.
 
-  This unit is the same as KOL 2.10 but geared for Web Programming, Win, Unix  
-  
-  Contributors:  
-   -Lars aka L505 http://z505.com   
+  This unit is the same as KOL 2.10 but geared for Web Programming, Win, Unix
+
+  Contributors:
+   -Lars aka L505 http://z505.com
    -Bernd M. Arm patches
 
   Anyone wishing to contribute to this unit contact L(@)z505(.)com
@@ -41,20 +41,20 @@
 --------------------------------------------------------------------------------
  LICENSE/TERMS:
 --------------------------------------------------------------------------------
-  This file shall be used under the same license as the KOL project. Don't 
-  distribute this unit or KOL units unless you are fully willing to offer it 
+  This file shall be used under the same license as the KOL project. Don't
+  distribute this unit or KOL units unless you are fully willing to offer it
   open source and help out the KOL community and Powtils community. This unit
-  is not to be sold as source. You can incorporate code into binaries. 
+  is not to be sold as source. You can incorporate code into binaries.
   Visit http://kolmck.net/ for KOL (2.10) license.
- 
+
 --------------------------------------------------------------------------------
  TODO:
 --------------------------------------------------------------------------------
   -currently i386 and ARM processors supported, we welcome patches for other
    CPU's and we can provide SVN account if needed.
-   Do not use any stream or thread functions in this unit, as they are just here 
+   Do not use any stream or thread functions in this unit, as they are just here
    under construction for now.
- -Delphi support. Right now FPC is main compiler being tested. 
+ -Delphi support. Right now FPC is main compiler being tested.
  -CompareAnsiStrListItems
  -TStrList.AnsiSort, TStrListEx.AnsiSort
  -lots of stream code
@@ -64,6 +64,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%}
 
 unit CompactUtils; {$IFDEF FPC}{$mode delphi}{$H+}{$ENDIF}
+
+{$I DelphiDefines.inc}
 
 interface
 
@@ -76,9 +78,9 @@ uses
  {$ENDIF}
   StrWrap1;
 
-const 
+const
  //L505: added these
-  INVALID_HANDLE_VALUE = -1 ;  
+  INVALID_HANDLE_VALUE = -1 ;
   { File open modes }
   fmOpenRead       = $0000;
   fmOpenWrite      = $0001;

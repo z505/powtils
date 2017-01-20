@@ -26,6 +26,7 @@
 
 unit dynpwu;
 
+{$I DelphiDefines.inc}
 
 interface
 uses

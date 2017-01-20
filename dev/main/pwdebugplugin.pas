@@ -5,12 +5,13 @@
   This unit is only used in other units if DBUG_ON compiler define is on.
   i.e. normal web programs have no verbose debugging by default.
 
-  License: ~NRCOL 
+  License: ~NRCOL
   Authors: L505 (Lars Olson)
 ********************************************************************************}
 
-unit pwdebugplugin; 
+unit pwdebugplugin;
 {$i defines1.inc}
+{$I DelphiDefines.inc}
 
 interface
 uses pwtypes, pwfileutil;

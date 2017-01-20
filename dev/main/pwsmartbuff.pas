@@ -17,8 +17,11 @@
 
 ********************************************************************************}
 
-{$mode objfpc}{$H+}
 unit pwsmartbuff;
+
+{$ifdef fpc}{$mode objfpc}{$H+}{$endif}
+
+{$I DelphiDefines.inc}
 
 interface
 

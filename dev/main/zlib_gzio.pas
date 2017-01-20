@@ -16,6 +16,8 @@ unit zlib_gzIO;
 interface
 
 {$I zlib_zconf.pp}
+{$I DelphiDefines.inc}
+
 
 uses
 {$IFNDEF FPC}

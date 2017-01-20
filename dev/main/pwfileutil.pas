@@ -13,8 +13,10 @@ unit pwfileutil;
   {$IFDEF EXTRA_SECURE}{$R+}{$Q+}{$CHECKPOINTER ON}{$ENDIF}
 {$ENDIF}
 
+{$I DelphiDefines.inc}
+
 interface
-uses 
+uses
   {$ifdef windows}windows,{$endif} {$ifdef unix}baseunix, unix,{$endif}
   pwtypes;
 

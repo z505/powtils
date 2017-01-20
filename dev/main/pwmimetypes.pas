@@ -18,6 +18,8 @@ unit pwmimetypes;
 
 {$IFNDEF FPC}{$DEFINE SYSUTILS_ON}{$ENDIF}
 
+{$I DelphiDefines.inc}
+
 interface
 
 {$IFDEF WINDOWS}uses windows;{$ENDIF}
