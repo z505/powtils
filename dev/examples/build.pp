@@ -1,4 +1,4 @@
-{ makes (builds) all Powtils examples, currently for building with FPC only 
+{ makes (builds) all Powtils examples, currently for building with FPC only
   (dcc32 build system is possible in the future)
 
   By L505 (Lars)
@@ -9,6 +9,11 @@ program build; {$mode objfpc} {$H+}
 
 uses 
   pwtypes in '../main/pwtypes.pas',
+  arrayfuncs in '../main/arrayfuncs.pas',
+  pwfputil in '../main/pwfputil.pas',
+  pwstrutil in '../main/pwstrutil.pas',
+  pwsubstr in '../main/pwsubstr.pas',
+  pwfileutil in '../main/pwfileutil.pas',
   pwdirutil in '../main/pwdirutil.pas',
   pwbuildutil in '../main/pwbuildutil.pas';
 
@@ -21,52 +26,52 @@ const
 
 
 procedure BuildExamples(var Paths: TPaths);
-var g: TGroup;
+var o: TFpcOptions;
     all: boolean;
     curgroup: astr;
 begin
-  Init(g);
-  g.smartstrip:= true;
-  AddUnitPath(g, '../main/');
-  AddUnitPath(g, 'code-pastie/hiliter/');
+  Init(o);
+  o.smartstrip:= true;
+  AddUnitPath(o, '../main/');
+  AddUnitPath(o, 'code-pastie/hiliter/');
 
   all:= doingall();
 
   if (all) or (doingdefault) then begin
-    g.ProgBinDir:= 'bin';
-    g.Name:= 'default';
-    CreateGroup(g, paths);
+    o.ProgBinDir:= 'bin';
+    o.Name:= 'default';
+    CreateGroup(paths, o);
   end;
 
   // now build other copies of the program with custom DEFINES
   curgroup:= names[tGzipOn];
   if (all) or (group = curgroup) then begin
-    AddDefine(g, 'GZIP_ON'); 
-    g.Name:= curgroup;
-    g.ProgBinDir:= 'bin-'+curgroup; 
-    g.Rebuild:= true;
-    CreateGroup(g, Paths);
+    AddDefine(o, 'GZIP_ON'); 
+    o.Name:= curgroup;
+    o.ProgBinDir:= 'bin-'+curgroup; 
+    o.Rebuild:= true;
+    CreateGroup(Paths,  o);
   end;
 
   curgroup:= names[tGzipSysutilsOn];
   if (all) or (group = curgroup) then begin
-    ResetDefines(g);
-    AddDefine(g, 'GZIP_ON'); 
-    AddDefine(g, 'SYSUTILS_ON');
-    g.Name:= curgroup;
-    g.ProgBinDir:= 'bin-'+curgroup; 
-    g.Rebuild:= true;
-    CreateGroup(g, Paths);
+    ResetDefines(o);
+    AddDefine(o, 'GZIP_ON'); 
+    AddDefine(o, 'SYSUTILS_ON');
+    o.Name:= curgroup;
+    o.ProgBinDir:= 'bin-'+curgroup; 
+    o.Rebuild:= true;
+    CreateGroup(Paths,  o);
   end;
 
   curgroup:= names[tSysutilsOn];
   if (all) or (group = curgroup) then begin
-    ResetDefines(g);
-    AddDefine(g, 'SYSUTILS_ON');
-    g.ProgBinDir:= 'bin-'+curgroup; 
-    g.Name:= curgroup;
-    g.Rebuild:= true;
-    CreateGroup(Paths,  g);
+    ResetDefines(o);
+    AddDefine(o, 'SYSUTILS_ON');
+    o.ProgBinDir:= 'bin-'+curgroup; 
+    o.Name:= curgroup;
+    o.Rebuild:= true;
+    CreateGroup(Paths,  o);
   end;
 
   Run();
@@ -77,11 +82,11 @@ var Paths: TPaths;
 
 begin
   // visible for HELP command
-  setVisibleGroups(names);
+  SetVisibleGroups(names);
   // get all .DPR files to compile
-  getSubdirFiles('./', '*.dpr', Paths);
-  if Paths.count < 1 then HaltErr('Path problem getting example *.DPR files');
-  buildExamples(Paths);
+  GetDirFiles('./', '*.dpr', Paths);
+  if Paths.count < 0 then HaltErr('Path problem getting example *.DPR files');
+  BuildExamples(Paths);
 end.
 
 
