@@ -1,2 +1,0 @@
-testing svn git bridge
-renaming file as experiment
