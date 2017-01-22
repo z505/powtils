@@ -1,4 +1,0 @@
-testing svn git bridge
-renaming file as experiment
-does changing file and renaming in same commit eff it up?
-This will be the answer
