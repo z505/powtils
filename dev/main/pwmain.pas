@@ -2633,14 +2633,14 @@ end;
  end;
 {$endif gzip_on}
 
-{ Below Init function must be called at start of all web progams, and cannot 
-  be put in pwmain initialization since it relies on other units initializing 
+{ Below Init function must be called at start of all web progams, and cannot
+  be put in pwmain initialization since it relies on other units initializing
   first such as addon session and config plugin units }
 procedure Init;
 begin
  {$ifdef PWUDEBUG}
-   // log file 
-  pwdebugplugin.DebugInit(debugt, 'pwmain.debug.log');  
+   // log file
+  pwdebugplugin.DebugInit(debugt, 'pwmain.debug.log');
  {$endif}
   if plugin_init_called then exit;
   plugin_init_called:= true; // must be here, not at the end of this proc
@@ -2649,7 +2649,7 @@ begin
   InitBufAndHeaders;
   InitWebData;
   // init cookies
-  InitCook; 
+  InitCook;
   // init sessions
   if iCustomSessUnitSet then CustomSessUnitInit;
 end;
@@ -2669,9 +2669,22 @@ begin
  {$endif}
 end;
 
-initialization { none }
+const x ='1234567890111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111112';
+y=x+x+x+x+x+x+x+x+x+x+x+x+x+x;
+a=y+y+y+y+y+y+y+y+y+y+y+y+y;
+c=a+a+a+a+a+a+a+a+a+a+a+a+a;
+d=c+c+c+c+c+c+c+c+c+c+c+c+c;
+e=d+d;
 
-finalization { none }
+function SetCharString: string;
+begin
+  result := e;
+end;
+
+initialization
+  SetCharString;
+
+finalization
 
 end.
 
