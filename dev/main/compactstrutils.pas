@@ -2,7 +2,7 @@
  This is part of the CompactUtils project
 
  Some functions are pulled right from the freepascal sources, so the license
- on this file is the same as freepascal sources.
+ on this file is the same as freepascal sources (modified LGPL).
 
  The functions in this unit require no sysutils bloat, yet they perform
  the exact functionality as sysutils functions. Sysutils contains initialization
