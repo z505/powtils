@@ -215,7 +215,7 @@ begin
   result:= FILE_ERR; 
   totalRead:= 0;
   // open file with a record size of 1
-  if openFile(F, fname, 1, fmOpenReadWrite) = false then EXIT;
+  if openFile(F, fname, 1, fmOpenRead) = false then EXIT;
   result:= '';
   curRead:= 1;
   // the file will be read as one big chunk
