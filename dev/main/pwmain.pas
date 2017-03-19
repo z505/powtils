@@ -197,6 +197,10 @@ procedure OutLnF(const s: astr); overload;
 procedure OutLnF(const s: astr; vfilter: TFilterFunc); overload;
 procedure OutLnFF(const s: astr);
 
+function TemplateToFile(const templatefname, outfile: astr; vfilter: TFilterFunc): errcode; overload;
+function TemplateToFile(const templatefname, outfile: astr): errcode; overload;
+function TemplateToFile(const templatefname, outfile: astr; HtmlFilter: boo): errcode; overload;
+
 function TemplateOut(const fname: astr; HtmlFilter: boo): errcode; overload;
 function TemplateOut(const fname: astr): errcode; overload;
 function TemplateOut(const fname: astr; vfilter: TFilterFunc): errcode; overload;
@@ -447,6 +451,12 @@ procedure ThrowNoFileErr(const fname: astr);
 begin 
   ThrowErr('reading file: ' + fname);
 end;           
+
+procedure ThrowFileWriteErr(const fname: astr);
+begin
+  ThrowErr('writing file: ' + fname);
+end;
+
 
 procedure HaltErr(const s: astr);
 begin
@@ -2129,6 +2139,54 @@ begin
   result:= OK;
 end;
 
+{ instead of outputting a template to stdout (web browser), this function
+  creates a file with the template expanded as html }
+function templateToFile(const templatefname, outfile: astr; vfilter: TFilterFunc): errcode; overload;
+var fh, fwrite: text;
+    s: astr;
+begin
+  result:= GENERAL_ERR;
+
+  if not pwFileUtil.OpenFile(fh, templatefname, 'r') then begin
+    result:= FILE_READ_ERR;
+    ThrowNoFileErr(templatefname);
+    // file handle shouldn't need closing... if it wasn't opened
+    exit;
+  end;
+
+  if not pwFileUtil.OpenFile(fwrite, outfile, 'w') then begin
+    result := FILE_WRITE_ERR;
+    ThrowFileWriteErr(outfile);
+    // file handle shouldn't need closing... if it wasn't opened
+    exit;
+  end;
+
+  while not eof(fh) do begin
+    readln(fh, s);
+    s:= Fmt(s, vfilter); // apply custom filter to any template macro vars
+    writeln(fwrite, s);
+  end;
+
+  close(fh);
+  close(fwrite);
+  result:= OK;
+end;
+
+{ default templatetofile, applies html filter }
+function templateToFile(const templatefname, outfile: astr): errcode; overload;
+begin result:= TemplateToFile(templatefname, outfile, true);
+end;
+
+{ Same as templateOut but to expands template to an output file instead of stdout }
+function templateToFile(const templatefname, outfile: astr; HtmlFilter: boo): errcode; overload;
+begin
+  if HtmlFilter = true then
+    result:= TemplateToFile(templatefname, outfile, {$ifdef FPC}@{$endif}FilterHTML)
+  else
+    result:= TemplateToFile(templatefname, outfile, nil);
+end;
+
+
 { default templateout, applies html filter }
 function templateOut(const fname: astr): errcode;
 begin result:= TemplateOut(fname, true);
@@ -2669,20 +2727,7 @@ begin
  {$endif}
 end;
 
-const x ='1234567890111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111112';
-y=x+x+x+x+x+x+x+x+x+x+x+x+x+x;
-a=y+y+y+y+y+y+y+y+y+y+y+y+y;
-c=a+a+a+a+a+a+a+a+a+a+a+a+a;
-d=c+c+c+c+c+c+c+c+c+c+c+c+c;
-e=d+d;
-
-function SetCharString: string;
-begin
-  result := e;
-end;
-
 initialization
-  SetCharString;
 
 finalization
 
