@@ -51,7 +51,8 @@ implementation
 var
   GotPg: string;   //gotten pagename
 
-{ creates file, protecting with file sharing for multiple users }
+{ creates file, protecting with file sharing for multiple users 
+  TODO: fix this: use new fpc file sharing/locking mechanism. Below is unreliable }
 procedure SharedFileCreate(fname: string);
 var
   created: boolean;
@@ -67,6 +68,7 @@ begin
   FileUnmarkWrite(fname);
 end;
 
+{  TODO: fix this: use new fpc file sharing/locking mechanism. Below is unreliable }
 procedure SharedFileOut(fname: string);
 var
   k: word; // file sharing unique key
