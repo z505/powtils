@@ -11,6 +11,7 @@ const
   OK = 1;  
   FILE_READ_ERR = 2; // file not found or can't open
   CFG_PARSE_ERR = 3;
+  FILE_WRITE_ERR = 4; // cannot write to file or can't open
 
 const
   CANT_READ_CFG_FILE = '1A: can''t read cfg file';
