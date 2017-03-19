@@ -7,7 +7,8 @@
 
   Like KOL/MCK, a compact alternative to Sysutils unit, Classes unit,
   StringLists, and more. It is useful as a general purpose utility unit of
-  lists, string routines, etc.
+  lists, string routines, etc. When creating object, use for example
+  NewStrList instead of new(PStrList) <--- bad  correct: SL := NewStrList
 
   Future Goals: ability to choose stack objects instead of just heap. For
   example a string list that requires no free and create. Reduces complexity
@@ -221,6 +222,7 @@ type
   TThreadMethod = procedure of object;
 
 type
+  // NOTE: when creating object, use NewStrList, not ---->  new(PStrList) !!!
   PStrList = ^TStrList;
   TStrList = object(TObj)
   protected
@@ -265,7 +267,7 @@ type
     procedure Move(CurIndex, NewIndex: integer);
     procedure SetText(const S: string; Append2List: boolean);
     procedure SetUnixText( const S: String; Append2List: Boolean );
-    procedure SaveToFile(const FileName: string);
+    function SaveToFile(const FileName: string): boolean;
     property Count: integer read fCount;
     property Items[Idx: integer]: string read Get write Put; default;
     property ItemPtrs[ Idx: Integer ]: PChar read GetPChars;
@@ -951,7 +953,7 @@ end;
 
 function TStrList.LoadFromFile(const FileName: string): Boolean;
 begin
-  Text:= StrLoadFile(FileName);
+  Text := StrLoadFile(FileName);
 end;
 
 procedure TStrList.Move(CurIndex, NewIndex: integer);
@@ -984,9 +986,10 @@ begin
 end;
 *)
 
-procedure TStrList.SaveToFile(const FileName: string);
+// returns false if cannot save file
+function TStrList.SaveToFile(const FileName: string): boolean;
 begin
-  StrSaveFile(FileName, Text);
+  result := StrSaveFile(FileName, Text);
 end;
 
 procedure TStrList.SetText(const S: string; Append2List: boolean);
