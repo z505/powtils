@@ -1,0 +1,91 @@
+object Mainform: TMainform
+  Left = 460
+  Height = 548
+  Top = 129
+  Width = 752
+  Anchors = []
+  Caption = 'Browser -'
+  ClientHeight = 548
+  ClientWidth = 752
+  LCLVersion = '1.6.0.4'
+  object BLoadExeOutput: TButton
+    AnchorSideTop.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 80
+    Height = 25
+    Top = 33
+    Width = 159
+    Anchors = []
+    BorderSpacing.Top = 10
+    BorderSpacing.Right = 5
+    Caption = 'Load Exe Output'
+    OnClick = BLoadExeOutputClick
+    TabOrder = 0
+  end
+  object Chromium: TChromium
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Log
+    Left = 0
+    Height = 373
+    Top = 108
+    Width = 752
+    Anchors = [akTop, akLeft, akRight, akBottom]
+  end
+  object Log: TMemo
+    AnchorSideLeft.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 0
+    Height = 67
+    Top = 481
+    Width = 752
+    Anchors = [akLeft, akRight, akBottom]
+    ScrollBars = ssAutoVertical
+    TabOrder = 2
+  end
+  object Button1: TButton
+    Left = 492
+    Height = 25
+    Top = 24
+    Width = 75
+    Caption = 'Button1'
+    TabOrder = 3
+  end
+  object Label1: TLabel
+    Left = 24
+    Height = 15
+    Top = 8
+    Width = 657
+    Caption = 'CURRENTLY LOADS PLAIN HTML FROM EXTERNAL EXE/ELF PROGRAM, NOT FULL CGI CAPABLE YET. CGI IS ON TODO LIST.'
+    ParentColor = False
+  end
+  object lbColor: TListBox
+    Left = 272
+    Height = 68
+    Top = 32
+    Width = 100
+    Items.Strings = (
+      'yellow'
+      'red'
+      'blue'
+      'green'
+    )
+    ItemHeight = 15
+    ItemIndex = 0
+    TabOrder = 4
+  end
+  object Button2: TButton
+    Left = 80
+    Height = 25
+    Top = 70
+    Width = 131
+    Caption = 'Display All Colors'
+    TabOrder = 5
+  end
+end
