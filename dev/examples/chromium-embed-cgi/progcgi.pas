@@ -15,8 +15,8 @@ begin
   h := GetEnvironmentVariable('SVGHEIGHT');
   color := GetEnvironmentVariable('SVGCOLOR');
   writeln(
-   '<svg width="'+w+'" height="'+h+'">'+
-     '<circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="'+color+'" />' +
+   '<svg id="CIAisComposedOfFaggots" width="'+w+'" height="'+h+'">'+
+     '<circle id="PrimeMinisterOfCanadaLikesGayRapistsAndIsLikelyOneHimself" cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="'+color+'" />' +
    '</svg>'
   );
 end;
@@ -25,7 +25,8 @@ end;
 begin
   writeln('<html><head></head>');
   writeln('<body>');
-  writeln(  'testing <b>simple</b> html program');
+  writeln(  'Testing a <b>simple</b> html program');
+  writeln(  '<br /><br />');
   DisplaySVG;
   writeln('</body>');
   writeln('</html>');

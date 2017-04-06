@@ -12,14 +12,14 @@ object Mainform: TMainform
     AnchorSideTop.Control = Owner
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
-    Left = 80
+    Left = 24
     Height = 25
-    Top = 33
-    Width = 159
+    Top = 24
+    Width = 243
     Anchors = []
     BorderSpacing.Top = 10
     BorderSpacing.Right = 5
-    Caption = 'Load Exe Output'
+    Caption = 'Load Exe Into Chromium'
     OnClick = BLoadExeOutputClick
     TabOrder = 0
   end
@@ -30,8 +30,8 @@ object Mainform: TMainform
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Log
     Left = 0
-    Height = 389
-    Top = 92
+    Height = 369
+    Top = 112
     Width = 752
     Anchors = [akTop, akLeft, akRight, akBottom]
     OnLoadingStateChange = ChromiumLoadingStateChange
@@ -52,14 +52,6 @@ object Mainform: TMainform
     ScrollBars = ssAutoVertical
     TabOrder = 2
   end
-  object Button1: TButton
-    Left = 500
-    Height = 25
-    Top = 44
-    Width = 75
-    Caption = 'Button1'
-    TabOrder = 3
-  end
   object Label1: TLabel
     Left = 24
     Height = 15
@@ -70,8 +62,8 @@ object Mainform: TMainform
   end
   object lbColor: TListBox
     Left = 272
-    Height = 60
-    Top = 28
+    Height = 88
+    Top = 24
     Width = 100
     Items.Strings = (
       'red'
@@ -81,15 +73,55 @@ object Mainform: TMainform
       'orange'
     )
     ItemHeight = 15
-    TabOrder = 4
+    ItemIndex = 0
+    TabOrder = 3
   end
   object Button2: TButton
-    Left = 80
+    Left = 24
     Height = 25
-    Top = 63
-    Width = 131
-    Caption = 'Display All Colors'
+    Top = 52
+    Width = 243
+    Caption = 'Display Many Colors in Sequence'
     OnClick = Button2Click
+    TabOrder = 4
+  end
+  object Button3: TButton
+    Left = 24
+    Height = 25
+    Top = 80
+    Width = 244
+    Caption = 'Display Selected Color w/Javascript'
+    OnClick = Button3Click
     TabOrder = 5
+  end
+  object Label2: TLabel
+    Left = 4
+    Height = 15
+    Top = 28
+    Width = 10
+    Caption = '1.'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label3: TLabel
+    Left = 4
+    Height = 15
+    Top = 56
+    Width = 10
+    Caption = '2.'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object Label4: TLabel
+    Left = 4
+    Height = 15
+    Top = 84
+    Width = 10
+    Caption = '3.'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
   end
 end

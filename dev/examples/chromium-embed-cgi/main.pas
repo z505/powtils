@@ -16,14 +16,18 @@ Type
 
   TMainform = class(TForm)
     BLoadExeOutput : TButton;
-    Button1: TButton;
     Button2: TButton;
+    Button3: TButton;
     Chromium : TChromium;
     Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
     lbColor: TListBox;
     Log : TMemo;
     procedure BLoadExeOutputClick(Sender : TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
     procedure ChromiumLoadEnd(Sender: TObject; const Browser: ICefBrowser;
       const Frame: ICefFrame; httpStatusCode: Integer);
     procedure ChromiumLoadingStateChange(Sender: TObject;
@@ -149,22 +153,23 @@ const
 var
   LoadState: integer = -1;
 
-procedure LoadCgiInCEF(color: string);
+procedure LoadCgiInCEF(color: string; AdditionalHeight: integer);
 var s: string;
 begin
   if not FileExists(CGIPROG) then begin
     ShowMessage('Program not found: '+ CGIPROG +'. Did you compile '+ CGIPROG +' first?');
     exit;
   end;
-  s := LoadCGI(CGIPROG, '100', '100', color);
+  s := LoadCGI(CGIPROG, '100', inttostr(100 + AdditionalHeight), color);
   Mainform.Chromium.Browser.MainFrame.LoadString(s, 'about:blank');
 
 end;
 
 procedure TMainform.BLoadExeOutputClick(Sender: TObject);
 begin
-  LoadCgiInCEF(MakeColor);
+  LoadCgiInCEF(MakeColor, 0);
 end;
+
 
 function GetColor: string;
 begin
@@ -181,7 +186,19 @@ var
   i: integer;
 begin
   LoadState := 0;
-  LoadCgiInCEF(GetColor);
+  lbColor.ItemIndex := LoadState;
+  LoadCgiInCEF(GetColor, 0);
+end;
+
+
+// Change color using javascript, using color from listbox on form
+procedure TMainform.Button3Click(Sender: TObject);
+begin
+  Chromium.Browser.MainFrame.ExecuteJavaScript(
+    'var svgcircle = document.getElementById("PrimeMinisterOfCanadaLikesGayRapistsAndIsLikelyOneHimself");'#13#10+
+    'svgcircle.style.fill = "'+ MakeColor +'";',
+    'about:blank', 0
+  );
 end;
 
 procedure LogLn(s: string);
@@ -198,13 +215,13 @@ end;
 procedure TMainform.ChromiumLoadingStateChange(Sender: TObject;
   const browser: ICefBrowser; isLoading, canGoBack, canGoForward: Boolean);
 begin
-//  LogLn('is loading: ' + BoolToStr(isLoading));
+
   if not isLoading then begin
     LogLn('Load finished (that''s what he said)');
-    sleep(1000);
     if (LoadState < MaxColors) and (LoadState >= 0) then begin
-      // sleep(500);
-      LoadCgiInCEF(GetColor);
+      sleep(1000);
+      // lbColor.ItemIndex := LoadState;
+      LoadCgiInCEF(GetColor, LoadState*10);
       LogLn('Current Color: ' + GetColor);
       inc(LoadState);
     end;
