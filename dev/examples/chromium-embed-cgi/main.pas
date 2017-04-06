@@ -8,7 +8,7 @@ Uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls, LCLType, ExtCtrls,
   process,
   cef3types, cef3lib, cef3intf, cef3lcl,
-  Handler, cef3gui; // custom render process handler
+  cef3gui;
 
 Type
 
@@ -23,6 +23,15 @@ Type
     lbColor: TListBox;
     Log : TMemo;
     procedure BLoadExeOutputClick(Sender : TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure ChromiumLoadEnd(Sender: TObject; const Browser: ICefBrowser;
+      const Frame: ICefFrame; httpStatusCode: Integer);
+    procedure ChromiumLoadingStateChange(Sender: TObject;
+      const browser: ICefBrowser; isLoading, canGoBack, canGoForward: Boolean);
+    procedure ChromiumResourceLoadComplete(Sender: TObject;
+      const browser: ICefBrowser; const frame: ICefFrame;
+      const request: ICefRequest; const response: ICefResponse;
+      status: TCefUrlRequestStatus; receivedContentLength: Int64);
   private
     { private declarations }
   public
@@ -137,16 +146,78 @@ end;
 const
   EXTENSION = {$ifdef windows}'.exe'{$else}''{$endif};
   CGIPROG = 'progcgi' + EXTENSION;
+var
+  LoadState: integer = -1;
 
-procedure TMainform.BLoadExeOutputClick(Sender: TObject);
+procedure LoadCgiInCEF(color: string);
 var s: string;
 begin
   if not FileExists(CGIPROG) then begin
     ShowMessage('Program not found: '+ CGIPROG +'. Did you compile '+ CGIPROG +' first?');
     exit;
   end;
-  s := LoadCGI(CGIPROG, '100', '100', MakeColor);
-  Chromium.Browser.MainFrame.LoadString(s, 'about:blank');
+  s := LoadCGI(CGIPROG, '100', '100', color);
+  Mainform.Chromium.Browser.MainFrame.LoadString(s, 'about:blank');
+
+end;
+
+procedure TMainform.BLoadExeOutputClick(Sender: TObject);
+begin
+  LoadCgiInCEF(MakeColor);
+end;
+
+function GetColor: string;
+begin
+  result := Mainform.lbColor.Items[LoadState];
+end;
+
+function MaxColors: integer;
+begin
+  result := Mainform.lbColor.Items.Count;
+end;
+
+procedure TMainform.Button2Click(Sender: TObject);
+var
+  i: integer;
+begin
+  LoadState := 0;
+  LoadCgiInCEF(GetColor);
+end;
+
+procedure LogLn(s: string);
+begin
+  Mainform.Log.Lines.Add(s);
+end;
+
+procedure TMainform.ChromiumLoadEnd(Sender: TObject;
+  const Browser: ICefBrowser; const Frame: ICefFrame; httpStatusCode: Integer);
+begin
+
+end;
+
+procedure TMainform.ChromiumLoadingStateChange(Sender: TObject;
+  const browser: ICefBrowser; isLoading, canGoBack, canGoForward: Boolean);
+begin
+//  LogLn('is loading: ' + BoolToStr(isLoading));
+  if not isLoading then begin
+    LogLn('Load finished (that''s what he said)');
+    sleep(1000);
+    if (LoadState < MaxColors) and (LoadState >= 0) then begin
+      // sleep(500);
+      LoadCgiInCEF(GetColor);
+      LogLn('Current Color: ' + GetColor);
+      inc(LoadState);
+    end;
+  end;
+
+end;
+
+procedure TMainform.ChromiumResourceLoadComplete(Sender: TObject;
+  const browser: ICefBrowser; const frame: ICefFrame;
+  const request: ICefRequest; const response: ICefResponse;
+  status: TCefUrlRequestStatus; receivedContentLength: Int64);
+begin
+
 end;
 
 

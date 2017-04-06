@@ -30,10 +30,13 @@ object Mainform: TMainform
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Log
     Left = 0
-    Height = 373
-    Top = 108
+    Height = 389
+    Top = 92
     Width = 752
     Anchors = [akTop, akLeft, akRight, akBottom]
+    OnLoadingStateChange = ChromiumLoadingStateChange
+    OnLoadEnd = ChromiumLoadEnd
+    OnResourceLoadComplete = ChromiumResourceLoadComplete
   end
   object Log: TMemo
     AnchorSideLeft.Control = Owner
@@ -50,9 +53,9 @@ object Mainform: TMainform
     TabOrder = 2
   end
   object Button1: TButton
-    Left = 492
+    Left = 500
     Height = 25
-    Top = 24
+    Top = 44
     Width = 75
     Caption = 'Button1'
     TabOrder = 3
@@ -67,25 +70,26 @@ object Mainform: TMainform
   end
   object lbColor: TListBox
     Left = 272
-    Height = 68
-    Top = 32
+    Height = 60
+    Top = 28
     Width = 100
     Items.Strings = (
-      'yellow'
       'red'
       'blue'
+      'yellow'
       'green'
+      'orange'
     )
     ItemHeight = 15
-    ItemIndex = 0
     TabOrder = 4
   end
   object Button2: TButton
     Left = 80
     Height = 25
-    Top = 70
+    Top = 63
     Width = 131
     Caption = 'Display All Colors'
+    OnClick = Button2Click
     TabOrder = 5
   end
 end
