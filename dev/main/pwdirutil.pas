@@ -9,17 +9,27 @@
 
   NOTE: GetDirFiles changed to better name: GetSubdirFiles
 
+  TODO: Unicode filenames functions. Currently this unit uses Ansistrings
+
   Authors/Credits: L505 (Lars),
 
 *******************************************************************************)
 
 unit pwdirutil;
 
-{$ifdef fpc}{$mode objfpc}{$H+}{$endif} {$R+}
+{$ifdef fpc}{$mode objfpc}{$H+}
+{$endif}
+
+{$R+}
 
 interface
 uses
-  pwtypes, pwstrutil,
+  pwtypes,
+ {$ifdef fpc}
+  pwstrutil,
+ {$else}
+  strutils,
+ {$endif}
   sysutils; // future: compactsysutils
 
 const DEFAULT_INIT = true;
@@ -63,7 +73,7 @@ procedure GetDirContent(dir: astr; const wildcard: astr; var res: TDirContents; 
 procedure GetDirContent(dir: astr; const wildcard: astr; var res: TDirContents); overload;
 procedure GetDirContent(dir: astr; var res: TDirContents; initrec: boo); overload;
 procedure GetDirContent(dir: astr; var res: TDirContents); overload;
-procedure GetDirContent_nodots(dir: astr; const wildcard: astr; var res: TDirContents; initrec: boo);
+procedure GetDirContent_nodots(dir: astr; const wildcard: astr; var res: TDirContents; initrec: boo); overload;
 procedure GetDirContent_nodots(dir: astr; const wildcard: astr; var res: TDirContents); overload;
 procedure GetDirContent_nodots(dir: astr; var res: TDirContents; initrec: boo); overload;
 procedure GetDirContent_nodots(dir: astr; var res: TDirContents); overload;
@@ -96,11 +106,17 @@ function CloneFiles(src, dest: astr; const wildcard: astr): boo;
 procedure RunTests;
 
 // deprecated
-const ClearFileNames: procedure(var fn: TFileNames) = @Clear;
+const
+{$IFDEF FPC}
+  ClearFileNames: procedure(var fn: TFileNames) = @Clear;
+{$ELSE}
+  ClearFileNames: procedure(var fn: TFileNames) = Clear;
+{$ENDIF}
 
 implementation
 
-uses pwfileutil;
+uses
+  pwfileutil;
 
 procedure GetTrailDir_TEST1;
 begin
@@ -144,34 +160,39 @@ end;
 
 const ClearedTPaths: TPaths = ();
 
-{ for local scope records which are not automatically initialized } 
+{ for local scope records which are not automatically initialized }
 procedure Init(var rec: TPaths); overload;
-begin rec:= ClearedTPaths;  
+begin rec:= ClearedTPaths;
 end;
 
 const ClearedTFileNames: TFileNames = ();
 
-{ for local scope records which are not automatically initialized } 
+{ for local scope records which are not automatically initialized }
 procedure Init(var rec: TFileNames); overload;
 begin rec:= ClearedTFileNames;
 end;
 
 const ClearedTDirNames: TDirNames = ();
 
-{ for local scope records which are not automatically initialized } 
+{ for local scope records which are not automatically initialized }
 procedure Init(var rec: TDirNames); overload;
 begin rec:= ClearedTDirNames;
 end;
 
 const ClearedTDirContents: TDirContents = ();
 
-{ for local scope records which are not automatically initialized } 
+{ for local scope records which are not automatically initialized }
 procedure Init(var rec: TDirContents); overload;
 begin rec:= ClearedTDirContents;
 end;
 
-procedure Clear(var list: TPaths); begin Init(list); end;
-procedure Clear(var fn: TFileNames); begin Init(fn); end;
+procedure Clear(var list: TPaths);
+begin Init(list);
+end;
+
+procedure Clear(var fn: TFileNames);
+begin Init(fn);
+end;
 
 { forces to create a directory }
 function ForceDir(const path: astr): boo;
@@ -188,7 +209,7 @@ function ForceDir(const path: astr): boo;
         if result then result:= MakeDir(newpath);
       end;
     end;
-  
+
   var drive : astr;
   begin
     result:= false;
@@ -213,7 +234,9 @@ begin
 end;
 
 { return working directory }
-function GetCurDir: astr; begin getdir(0,  result); end;
+function GetCurDir: astr;
+begin getdir(0,  result);
+end;
 
 procedure Add(var list: TPaths; path, fname: astr);
 var oldlen, newlen: integer;
@@ -522,8 +545,6 @@ end;
 procedure GetDirContent(dir: astr; var res: TDirContents); overload;
 begin GetDirContent(Dir, '*.*', res, DEFAULT_INIT);
 end;
-
-
 
 end.
 

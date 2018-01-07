@@ -8,7 +8,9 @@ unit pwstrutil;
 {$I defines1.inc}
 
 interface
-uses pwtypes;
+
+uses
+  pwtypes;
 
 type
   TReplaceFlags = set of (rfReplaceAll, rfIgnoreCase);
@@ -22,15 +24,15 @@ type
   TFloatRec = record
     Exponent: integer;
     Negative: Boolean;
-    Digits: array[0..18] of Char;
+    Digits: array[0..18] of ansichar;
   end;
 
 const
   { Character that comes between integer and fractional part of a number }
-  DecimalSeparator : Char = '.';
+  DecimalSeparator : ansichar = '.';
 
   { Character that is put every 3 numbers in a currency }
-  ThousandSeparator : Char = ',';
+  ThousandSeparator : ansichar = ',';
 
   { Number of decimals to use when formatting a currency.  }
   CurrencyDecimals : Byte = 2;
@@ -60,7 +62,7 @@ const
   NegCurrFormat : Byte = 5;
 
   { Currency notation. Default is $ for dollars. }
-  CurrencyString : String[7] = '$';
+  CurrencyString : string[7] = '$';
 
 type
   TSysLocale = record
@@ -82,18 +84,18 @@ function CurrToStr(Value: Currency): astr;
 procedure FloatToDecimal(var result: TFloatRec; Value: Extended; Precision, Decimals : integer);
 function CompareText(const S1, S2: astr): integer;
 function SameText(const s1,s2:astr):Boolean;
-function StrCopy(Dest, Source:PChar): PChar;
-function StrECopy(Dest, Source: PChar): PChar;
-function StrLCopy(Dest,Source: PChar; MaxLen: SizeInt): PChar;
-function StrEnd(P: PChar): PChar;
-function StrComp(p1, p2 : PChar): SizeInt;
-function StrLComp(p1, p2 : PChar; L: SizeInt): SizeInt;
-function StrIComp(p1, p2 : PChar): SizeInt;
-function StrLIComp(p1, p2 : PChar; L: SizeInt): SizeInt;
-function StrScan(P: PChar; C: Char): PChar;
-function StrRScan(P: PChar; C: Char): PChar;
-function StrUpper(P: PChar): PChar;
-function StrLower(P: PChar): PChar;
+function StrCopy(Dest, Source:PAnsiChar): PAnsiChar;
+function StrECopy(Dest, Source: PAnsiChar): PAnsiChar;
+function StrLCopy(Dest,Source: PAnsiChar; MaxLen: SizeInt): PAnsiChar;
+function StrEnd(P: PAnsiChar): PAnsiChar;
+function StrComp(p1, p2 : PAnsiChar): SizeInt;
+function StrLComp(p1, p2 : PAnsiChar; L: SizeInt): SizeInt;
+function StrIComp(p1, p2 : PAnsiChar): SizeInt;
+function StrLIComp(p1, p2 : PAnsiChar; L: SizeInt): SizeInt;
+function StrScan(P: PAnsiChar; C: ansichar): PAnsiChar;
+function StrRScan(P: PAnsiChar; C: ansichar): PAnsiChar;
+function StrUpper(P: PAnsiChar): PAnsiChar;
+function StrLower(P: PAnsiChar): PAnsiChar;
 function NewStr(const S: astr): PString;
 procedure DisposeStr(S: PString);
 procedure AssignStr(var P: PString; const S: astr);
@@ -109,29 +111,29 @@ function StringReplace(const S, OldPattern, NewPattern: astr;  Flags: TReplaceFl
 function IsDelimiter(const Delimiters, S: astr; Index: integer): Boolean;
 
 type
-  TSysCharSet = Set of char;
+  TSysCharSet = Set of ansichar;
 
 function WrapText(const Line, BreakStr: astr; const BreakChars: TSysCharSet;  MaxCol: integer): astr; overload;
 function WrapText(const Line: astr; MaxCol: integer): astr; overload;
 
-function strcat(dest,source : pchar) : pchar;
-function strlcat(dest,source : pchar;l : SizeInt) : pchar;
-function strmove(dest,source : pchar;l : SizeInt) : pchar;
-function strpos(p1,p2 : pchar) : pchar;
-function StrPas(p: PChar): astr;
-function StrAlloc(Size: cardinal): PChar;
-function strnew(p : pchar) : pchar;
-function StrPCopy(Dest: PChar; Source: astr): PChar;
-function StrPLCopy(Dest: PChar; Source: astr; MaxLen: SizeUInt): PChar;
-procedure StrDispose(p: PChar);
-function StrBufSize(p: PChar): SizeUInt;
+function strcat(dest,source : PAnsiChar) : PAnsiChar;
+function strlcat(dest,source : PAnsiChar;l : SizeInt) : PAnsiChar;
+function strmove(dest,source : PAnsiChar;l : SizeInt) : PAnsiChar;
+function strpos(p1,p2 : PAnsiChar) : PAnsiChar;
+function StrPas(p: PAnsiChar): astr;
+function StrAlloc(Size: cardinal): PAnsiChar;
+function strnew(p : PAnsiChar) : PAnsiChar;
+function StrPCopy(Dest: PAnsiChar; Source: astr): PAnsiChar;
+function StrPLCopy(Dest: PAnsiChar; Source: astr; MaxLen: SizeUInt): PAnsiChar;
+procedure StrDispose(p: PAnsiChar);
+function StrBufSize(p: PAnsiChar): SizeUInt;
 
 function Trim(const S: astr): astr;
 function TrimLeft(const S: astr): astr;
 function TrimRight(const S: astr): astr;
 function QuotedStr(const S: astr): astr;
-function AnsiQuotedStr(const S: astr; Quote: char): astr;
-function AnsiExtractQuotedStr(var  Src: PChar; Quote: Char): astr;
+function AnsiQuotedStr(const S: astr; Quote: ansichar): astr;
+function AnsiExtractQuotedStr(var  Src: PAnsiChar; Quote: ansichar): astr;
 function AdjustLineBreaks(const S: astr): astr; overload;
 
 {$ifndef fpc} // delphi
@@ -173,7 +175,7 @@ begin
 end;
 
 {$IFNDEF FPC}
-function strlen(p: pchar): longint;
+function strlen(p: PAnsiChar): longint;
 var i : longint;
 begin
   i:= 0; while p[i]<>#0 do inc(i); result:= i; exit;
@@ -328,7 +330,7 @@ begin
   result:=FloatToStrF(Value,ffNumber,15,2);
 end;
 
-function TextToFloat(Buffer: PChar; var Value: Extended): Boolean; overload;
+function TextToFloat(Buffer: PAnsiChar; var Value: Extended): Boolean; overload;
 var E, P: integer; S: astr;
 begin
   S:=StrPas(Buffer);
@@ -342,7 +344,7 @@ end;
 
 procedure FloatToDecimal(var result: TFloatRec; Value: Extended; Precision, Decimals : integer);
 var
-  Buffer: String[24];
+  Buffer: string[24];
   Error, N: integer;
 begin
   Str(Value:23, Buffer);
@@ -517,7 +519,7 @@ end ;
 
 {   AnsiQuotedStr returns S quoted left and right by Quote,
     and every single occurance of Quote replaced by two   }
-function AnsiQuotedStr(const S: astr; Quote: char): astr;
+function AnsiQuotedStr(const S: astr; Quote: ansichar): astr;
 var i, j, cnt: integer;
 begin
   result:= '' + Quote;
@@ -538,9 +540,9 @@ end ;
 {   AnsiExtractQuotedStr returns a copy of Src with quote characters
     deleted to the left and right and double occurances
     of Quote replaced by a single Quote   }
-function AnsiExtractQuotedStr(var  Src: PChar; Quote: Char): astr;
+function AnsiExtractQuotedStr(var  Src: PAnsiChar; Quote: ansichar): astr;
 var
-  P,Q,R: PChar;
+  P,Q,R: PAnsiChar;
 begin
  P := Src;
  Q := StrEnd(P);
@@ -566,7 +568,7 @@ begin
      P := P + 1;
  end ;
  src:=p;
- SetLength(result, (R-pchar(@result[1])));
+ SetLength(result, (R-PAnsiChar(@result[1])));
 end ;
 
 
@@ -584,7 +586,7 @@ begin
 end;
 
 function AdjustLineBreaks(const S: astr; Style: TTextLineBreakStyle): astr;
-var Source,Dest: PChar;
+var Source,Dest: PAnsiChar;
     DestLen: integer;
     I,J,L: Longint;
 begin
@@ -666,15 +668,15 @@ if len <> 0 then begin
 end ;
 
 
-function strcat(dest,source : pchar) : pchar;
+function strcat(dest,source : PAnsiChar) : PAnsiChar;
 begin
   strcopy(strend(dest),source);
   strcat:=dest;
 end;
 
 
-function strlcat(dest,source : pchar;l : SizeInt) : pchar;
-var destend : pchar;
+function strlcat(dest,source : PAnsiChar;l : SizeInt) : PAnsiChar;
+var destend : PAnsiChar;
 begin
   destend:=strend(dest);
   dec(l,destend-dest);
@@ -683,16 +685,16 @@ begin
   strlcat:=dest;
 end;
 
-function strmove(dest,source : pchar;l : SizeInt) : pchar;
+function strmove(dest,source : PAnsiChar;l : SizeInt) : PAnsiChar;
 begin
   move(source^,dest^,l);
   strmove:=dest;
 end;
 
 
-function strpos(p1,p2 : pchar) : pchar;
+function strpos(p1,p2 : PAnsiChar) : PAnsiChar;
 var
-  p: pchar;
+  p: PAnsiChar;
   lstr2 : SizeInt;
 begin
   strpos:=nil;
@@ -714,19 +716,19 @@ end;
 
 type
    pbyte = ^byte;
-   CharArray = array[0..0] of char;
+   CharArray = array[0..0] of ansichar;
 
 
 {-- copy/pasted DIRECTLY from freepascal sources ------------------------------}
 { ansistrings! if using shortstrings use strings.pp unit included with fpc }
-function StrPas(p: PChar): astr;
+function StrPas(p: PAnsiChar): astr;
 begin
   result:=p;
 end ;
 
 {-- copy/pasted DIRECTLY from freepascal sources ------------------------------}
 { ansistrings! if using shortstrings use strings.pp unit included with fpc }
-function StrAlloc(Size: cardinal): PChar;
+function StrAlloc(Size: cardinal): PAnsiChar;
 begin
   inc(size,sizeof(cardinal));
   getmem(result,size);
@@ -737,7 +739,7 @@ end;
 
 {-- copy/pasted DIRECTLY from freepascal sources ------------------------------}
 { ansistrings! if using shortstrings use strings.pp unit included with fpc }
-function strnew(p : pchar) : pchar;
+function strnew(p : PAnsiChar) : PAnsiChar;
 var
   len : longint;
 begin
@@ -753,14 +755,14 @@ end;
 
 {-- copy/pasted DIRECTLY from freepascal sources ------------------------------}
 { ansistrings! if using shortstrings use strings.pp unit included with fpc }
-function StrPCopy(Dest: PChar; Source: astr): PChar;
+function StrPCopy(Dest: PAnsiChar; Source: astr): PAnsiChar;
 begin
-  result := StrMove(Dest, PChar(Source), length(Source)+1);
+  result := StrMove(Dest, PAnsiChar(Source), length(Source)+1);
 end ;
 
 {-- copy/pasted DIRECTLY from freepascal sources ------------------------------}
 { ansistrings! if using shortstrings use strings.pp unit included with fpc }
-function StrPLCopy(Dest: PChar; Source: astr; MaxLen: SizeUInt): PChar;
+function StrPLCopy(Dest: PAnsiChar; Source: astr; MaxLen: SizeUInt): PAnsiChar;
 var cnt: SizeUInt;
 begin
   result := Dest;
@@ -768,15 +770,14 @@ begin
   begin
     cnt := Length(Source);
     if cnt > MaxLen then cnt := MaxLen;
-    StrMove(Dest, PChar(Source), cnt);
+    StrMove(Dest, PAnsiChar(Source), cnt);
     CharArray(result^)[cnt] := #0;  { terminate ! }
   end ;
 end ;
 
-
 {-- copy/pasted DIRECTLY from freepascal sources ------------------------------}
 { ansistrings! if using shortstrings use strings.pp unit included with fpc }
-procedure StrDispose(p: PChar);
+procedure StrDispose(p: PAnsiChar);
 begin
   if (p <> Nil) then
   begin
@@ -787,7 +788,7 @@ end;
 
 {-- copy/pasted DIRECTLY from freepascal sources ------------------------------}
 { ansistrings! if using shortstrings use strings.pp unit included with fpc }
-function StrBufSize(p: PChar): SizeUInt;
+function StrBufSize(p: PAnsiChar): SizeUInt;
 begin
   if p <> Nil then
     result := SizeUInt(pointer(p - SizeOf(SizeUInt))^)-sizeof(SizeUInt)
@@ -800,7 +801,7 @@ const
   Quotes = ['''', '"'];
 var
   L : String;
-  C,LQ,BC : Char;
+  C,LQ,BC : ansichar;
   P,BLen,Len : integer;
   HB,IBC : Boolean;
 begin
@@ -947,13 +948,13 @@ end ;
     have been converted to uppercase   }
 function UpperCase(Const S : String) : String;
 var i: integer;
-    P: PChar;
+    P: PAnsiChar;
 begin
   result := S;
   UniqueString(result);
-  P:=Pchar(result);
+  P:=PAnsiChar(result);
   for i := 1 to Length(result) do begin
-    if (P^ in ['a'..'z']) then P^ := char(byte(p^) - 32);
+    if (P^ in ['a'..'z']) then P^ := ansichar(byte(p^) - 32);
     inc(P);
   end;
 end;
@@ -962,13 +963,13 @@ end;
     have been converted to lowercase  }
 function Lowercase(Const S : String) : String;
 var i: integer;
-    P: PChar;
+    P: PAnsiChar;
 begin
   result := S;
   UniqueString(result);
-  P:=Pchar(result);
+  P:=PAnsiChar(result);
   for i:= 1 to Length(result) do begin
-    if (P^ in ['A'..'Z']) then P^ := char(byte(p^) + 32);
+    if (P^ in ['A'..'Z']) then P^ := ansichar(byte(p^) + 32);
     inc(P);                                                                            
   end;
 end;
@@ -981,8 +982,8 @@ begin
   result:= 0;
   while (result=0) and (I<length) do begin
     result:= byte(P1^)-byte(P2^);
-    P1:= pchar(P1)+1;            // VP compat.
-    P2:= pchar(P2)+1;
+    P1:= PAnsiChar(P1)+1;            // VP compat.
+    P2:= PAnsiChar(P2)+1;
     i:= i + 1;
   end ;
 end ;
@@ -1005,12 +1006,12 @@ begin
 end;
 
 
-function StrCopy(Dest, Source:PChar): PChar;
+function StrCopy(Dest, Source:PAnsiChar): PAnsiChar;
 var cnt : SizeInt;
 begin
   cnt:= 0;
   while Source[cnt] <> #0 do begin
-    Dest[cnt] := char(Source[cnt]);
+    Dest[cnt] := ansichar(Source[cnt]);
     inc(cnt);
   end;
   { terminate the string }
@@ -1018,7 +1019,7 @@ begin
   StrCopy := Dest;
 end;
 
-function StrECopy(Dest, Source: PChar): PChar;
+function StrECopy(Dest, Source: PAnsiChar): PAnsiChar;
 { Equivalent to the following:                                          }
 {  strcopy(Dest,Source);                                                }
 {  StrECopy := StrEnd(Dest);                                            }
@@ -1026,7 +1027,7 @@ var cnt : SizeInt;
 begin
   cnt := 0;
   while Source[cnt] <> #0 do begin
-    Dest[cnt] := char(Source[cnt]);
+    Dest[cnt] := ansichar(Source[cnt]);
     inc(cnt);
   end;
   { terminate the string }
@@ -1034,11 +1035,11 @@ begin
  {$IFDEF FPC}
   StrECopy := @(Dest[cnt]);
  {$ELSE}
-  StrECopy := pchar(Dest[cnt]);
+  StrECopy := PAnsiChar(Dest[cnt]);
  {$ENDIF}
 end;
 
-function StrLCopy(Dest,Source: PChar; MaxLen: SizeInt): PChar;
+function StrLCopy(Dest,Source: PAnsiChar; MaxLen: SizeInt): PAnsiChar;
 var cnt: SizeInt;
 begin
  cnt := 0;
@@ -1048,7 +1049,7 @@ begin
    inc(cnt);
  end;
  while (Source[cnt] <> #0)  and (cnt < MaxLen) do begin
-   Dest[cnt] := char(Source[cnt]);
+   Dest[cnt] := ansichar(Source[cnt]);
    inc(cnt);
  end;
  { terminate the string }
@@ -1056,18 +1057,18 @@ begin
  StrLCopy := Dest;
 end;
 
-function StrEnd(P: PChar): PChar;
+function StrEnd(P: PAnsiChar): PAnsiChar;
 var cnt: SizeInt;
 begin
   cnt := 0; while P[cnt] <> #0 do inc(cnt);
  {$IFDEF FPC}
   StrEnd := @(P[cnt]);
  {$ELSE}
-  StrEnd := pchar(P[cnt]);
+  StrEnd := PAnsiChar(P[cnt]);
  {$ENDIF}
 end;
 
-function StrComp(p1, p2 : PChar): SizeInt;
+function StrComp(p1, p2 : PAnsiChar): SizeInt;
 var cnt: SizeInt;
 begin
  cnt:= 0;
@@ -1078,9 +1079,9 @@ begin
  StrComp := ord(p1[cnt]) - ord(p2[cnt]);
 end;
 
-function StrLComp(p1, p2 : PChar; L: SizeInt): SizeInt;
+function StrLComp(p1, p2 : PAnsiChar; L: SizeInt): SizeInt;
 var cnt: SizeInt;
-    c1, c2: char;
+    c1, c2: ansichar;
 begin
   cnt := 0;
  if L = 0 then begin
@@ -1096,10 +1097,10 @@ begin
  StrLComp := ord(c1) - ord(c2);
 end; 
 
-function StrIComp(p1, p2 : PChar): SizeInt;
+function StrIComp(p1, p2 : PAnsiChar): SizeInt;
 var
 cnt: SizeInt;
-c1, c2: char;
+c1, c2: ansichar;
 begin
   cnt := 0;
   c1 := upcase(p1[cnt]);
@@ -1114,9 +1115,9 @@ end;
  StrIComp := ord(c1) - ord(c2);
 end; 
 
-function StrLIComp(p1, p2: PChar; L: SizeInt): SizeInt;
+function StrLIComp(p1, p2: PAnsiChar; L: SizeInt): SizeInt;
 var cnt: SizeInt;
-    c1, c2: char;
+    c1, c2: ansichar;
 begin
  cnt := 0;
  if L = 0 then begin
@@ -1132,7 +1133,7 @@ begin
  StrLIComp := ord(c1) - ord(c2);
 end; 
 
-function StrScan(P: pchar; C: char): pchar;
+function StrScan(P: PAnsiChar; C: ansichar): PAnsiChar;
 var cnt: sizeint;
 begin
  cnt := 0;
@@ -1141,7 +1142,7 @@ begin
   {$IFDEF FPC}
    StrScan := @(P[StrLen(P)]);
   {$ELSE}
-   StrScan := pchar(P[StrLen(P)]);
+   StrScan := PAnsiChar(P[StrLen(P)]);
   {$ENDIF}
    exit;
  end;
@@ -1151,7 +1152,7 @@ begin
     {$IFDEF FPC}
      StrScan := @(P[cnt]);
     {$ELSE}
-     StrScan := pchar(P[cnt]);
+     StrScan := PAnsiChar(P[cnt]);
     {$ENDIF}
      exit;
    end;
@@ -1161,7 +1162,7 @@ begin
  StrScan := nil;
 end; 
 
-function StrRScan(p: pchar; c: char): pchar;
+function StrRScan(p: PAnsiChar; c: ansichar): PAnsiChar;
 var
   cnt: SizeInt;
   index: SizeInt;
@@ -1172,7 +1173,7 @@ begin
   {$IFDEF FPC}
    StrRScan := @(p[cnt]);
   {$ELSE}
-   StrRScan := pchar(p[cnt]);
+   StrRScan := PAnsiChar(p[cnt]);
   {$ENDIF}
    exit;
  end;
@@ -1184,7 +1185,7 @@ begin
     {$IFDEF FPC}
      StrRScan := @(p[index]);
     {$ELSE}
-     StrRScan := pchar(p[index]);
+     StrRScan := PAnsiChar(p[index]);
     {$ENDIF}
      exit;
    end;
@@ -1193,7 +1194,7 @@ begin
  StrRScan := nil;
 end;
 
-function StrUpper(p: pchar): pchar;
+function StrUpper(p: PAnsiChar): PAnsiChar;
 var cnt: SizeInt;
 begin
   cnt := 0;
@@ -1204,7 +1205,7 @@ begin
   StrUpper := P;
 end;
 
-function StrLower(p: pchar): pchar;
+function StrLower(p: PAnsiChar): PAnsiChar;
 var cnt: SizeInt;
 begin
   cnt := 0;

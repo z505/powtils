@@ -4,8 +4,7 @@
   Authors: L505 (Lars Olson), JKP (Jeff Pohlmeyer), Vladimir Sibirov
 
   License:
-   Any FPC include file modules are under modified FPC RTL GPL, the rest
-   is GFY
+   Any FPC include file modules are under modified FPC RTL GPL, the rest is GFY
 }
 
 unit pwfileutil;
@@ -18,8 +17,12 @@ unit pwfileutil;
 
 interface
 uses
-  {$ifdef windows}windows,{$endif} {$ifdef unix}baseunix, unix,{$endif}
-  {$ifndef fpc}sysutils, FileCtrl,{$endif} // delphi
+ {$ifdef windows}windows,{$endif} {$ifdef unix}baseunix, unix,{$endif}
+ {$ifndef fpc}sysutils,
+  // IFDEF delphi 5 ? not needed in later delphi
+  {FileCtrl,}
+  //
+ {$endif} // delphi
   pwtypes;
 
 
@@ -28,7 +31,7 @@ procedure RunTests;
 
 // default, read, readwrite,
 type TFmode = (fmDefault, fmR, fmRW);
-     TFileOfChar = file of char;
+     TFileOfChar = file of ansichar;
 
 const
   DEFAULT_CHUNK_SIZE  = 8192;  // for functions that BlockRead in chunks
@@ -76,15 +79,15 @@ function ExtractFname(const fpath: astr; ext: bln): astr;
  function IsPathDelimiter(const path: astr; index: integer): boo;
  procedure DoDirSeparators (Var fname : astr);
  function SetDirSeparators (Const fname : astr) : astr;
- function GetDirs (Var DirName : astr; Var Dirs : Array of pchar): longint;
+ function GetDirs (Var DirName : astr; Var Dirs : Array of pansichar): longint;
 {$ENDIF}
 
 function OpenFileRead(var F:file; const fname: astr; recsize: integer): boo;
 function OpenFileReWrite(var F:file; const fname:astr; recsize:integer): boo;
-function OpenFile(var F: text; const fname: astr; mode: char): boo; overload;
+function OpenFile(var F: text; const fname: astr; mode: ansichar): boo; overload;
 function OpenFile(var F: file; const fname: astr; recsize:integer; mode: byte): boo; overload;
-function OpenFile(var F: file; const fname: astr; mode: char): boo; overload;
-function OpenFile(var F: TFileOfChar; const fname: astr; mode: char): boo; overload;
+function OpenFile(var F: file; const fname: astr; mode: ansichar): boo; overload;
+function OpenFile(var F: TFileOfChar; const fname: astr; mode: ansichar): boo; overload;
 
 function MakeDir(s: astr): boo;
 
@@ -117,10 +120,17 @@ function FileExists_readwrite(const fname: astr): bln;
   function str2file(const s, fname:astr; chunksz: int32): errcode; overload;
 }
 
-const DirSeparators : set of char = ['/','\'];
+const DirSeparators : set of ansichar = ['/','\'];
 
 implementation 
-uses pwsubstr, pwstrutil;
+uses
+  pwsubstr,
+{$IFDEF FPC}
+  pwstrutil;
+{$ELSE}
+  strutils;
+{$ENDIF}
+
 
 { Put tests in here }
 procedure RunTests;
@@ -142,10 +152,10 @@ end;
   JEFF: return -1 if the file can't be found. }
 function GetFileSize(const fname: astr): int32;
 var
-  FileInfo:WIN32_FIND_DATA;
+  FileInfo: WIN32_FIND_DATAA ;
   hInfo: THANDLE;
 begin
-  hInfo:= findFirstFile(pChar(fname),
+  hInfo:= FindFirstFileA(pansiChar(fname),
           {$ifdef fpc} @FileInfo
           {$else}       FileInfo {$endif});
   if (hInfo <> INVALID_HANDLE_VALUE)
@@ -161,10 +171,10 @@ end;
 { gets file size, up to about 2GB, returns -1 on error }
 function GetLargeFileSize(const fname: astr): int64;
 var
-  fileInfo:WIN32_FIND_DATA;
+  fileInfo:WIN32_FIND_DATAA;
   hInfo: THANDLE;
 begin
-  hInfo:= findFirstFile(pChar(fname),
+  hInfo:= findFirstFileA(pansiChar(fname),
           {$ifdef fpc} @FileInfo
           {$else}       FileInfo {$endif});
   if (hInfo <> INVALID_HANDLE_VALUE) then begin
@@ -185,7 +195,7 @@ end;
 function GetFileSize(const fname: astr): int32;
 var fsize: int64;
 begin
-  fsize:= GetLargeFileSize(fname);  
+  fsize:= GetLargeFileSize(fname);
   // error if file too big
   if fsize > high(int32) then result:= -1 else result:= fsize;
 end;
@@ -199,7 +209,7 @@ end;
 
 function GetFileAttributes(dir: astr): dword;
 begin
-  result:=GetFileAttributesA(PChar(dir));
+  result:=GetFileAttributesA(PAnsiChar(dir));  // L505: change pchar to pansichar
 end;
 {$endif}
 
@@ -243,7 +253,7 @@ begin
     len:= length(buf);
     setlength(result, len);
     uniquestring(result);
-    move(pchar(buf)[0], pchar(result)[0], len);
+    move(pansichar(buf)[0], pansichar(result)[0], len);
   end;
 end;
 
@@ -261,14 +271,14 @@ begin
   if err < 0 then result:= '';
 end;
 
-function OpenFile(var F: TFileOfChar; const fname: astr; mode: char): boo;
+function OpenFile(var F: TFileOfChar; const fname: astr; mode: ansichar): boo;
 begin
   result:= OpenFile(f, fname, mode);
 end;
 
 { Try to open a text file, return true on success.
   The MODE argument must be one of [R]=read, [W]=write, or [A]=append. }
-function OpenFile(var F: text; const fname: astr; mode: char): boo;
+function OpenFile(var F: text; const fname: astr; mode: ansichar): boo;
 var oldFM: byte;
 begin
   if ( mode in ['A', 'R', 'W'] ) then inc(mode, 32); // "mode" to lowercase
@@ -335,7 +345,7 @@ begin
 end;
 
 { Try to open a file (doesn't have to be text) return false if unsuccessful }
-function OpenFile(var F: file; const fname: astr; mode: char): boo;
+function OpenFile(var F: file; const fname: astr; mode: ansichar): boo;
 var oldFM: byte;
 begin
   if ( mode in ['R', 'W'] ) then

@@ -16,23 +16,23 @@ type
   // fast strings, power of 2 (premature optimization ;-( )
   str15 = string[15]; // 16-1 (16 based)
   str31 = string[31]; // 32-1 (32 based)
-  TStrArray = array of string; // obsolete -> AstrArray is better
+  TStrArray = array of ansistring; // obsolete -> AstrArray is better
   AstrArray = array of astr;   // deprecated, use "AstrRay"
   AstrRay = array of astr;
   str15ray = array of str15;
-  str31ray = array of str31;          
+  str31ray = array of str31;
   str255ray = array of shortstring;
   int32 = longint;   // less vague than "longint", keeps declarations shorter
-  boo = boolean;     // keeps procedure declarations shorter and readable 
+  boo = boolean;     // keeps procedure declarations shorter and readable
   TByteRay = array of byte;
   PByteRay = ^TByteRay;
-  TCharRay = array of char;
+  TCharRay = array of ansichar;
   PCharRay = ^TCharRay;
 
  {----------------- DEPRECATED -----------------------------------------------}
   num  = longint;                       // use int32
   bln = boolean;                        // use boo
-  str15array = array of str15;          // use str15ray 
+  str15array = array of str15;          // use str15ray
   str31array = array of str31;          // use str31ray
   ShortstrArray = array of shortstring; // use str255ray
  {----------------------------------------------------------------------------}
@@ -43,10 +43,10 @@ const // platform specific directory slash (old Mac not supported)
   SLASHES = ['\', '/'];
   {$ifdef fpc}LF = LineEnding;{$endif}
   {$ifndef fpc}LF = {$ifdef windows}#13#10{$else}#10{$endif};{$endif}
-  
+
 const
   // CGI uses #13#10 no matter what OS
-  CGI_CRLF = #13#10; 
+  CGI_CRLF = #13#10;
   // default program extension
   EXT={$IFDEF WINDOWS}'.exe'{$ENDIF} {$IFDEF UNIX}''{$ENDIF};
 
@@ -55,10 +55,10 @@ const
     DirectorySeparator = SLASH;  // TODO:  delphi VERSION check & KYLIX compat
     PathDelim = DirectorySeparator;
     DriveDelim = ':';          // ...
-    PathSep = ';';             // .. 
+    PathSep = ';';             // ..
 
   type
-    UInt64 = Int64;  
+    UInt64 = Int64;
 
     {$EXTERNALSYM INT_PTR}
     {$EXTERNALSYM UINT_PTR}

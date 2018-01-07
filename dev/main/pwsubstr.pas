@@ -20,51 +20,51 @@ interface
 uses pwtypes;
 
 
-function SubExists(const str, sub: string): boolean;
-function SubIexists(const str, sub: string): boolean;
-function SubPos(const str, sub: string): int32;
-function SubIpos(const str, sub: string): int32;
-function SubRpos(const str, sub: string): int32;
-function SubIrpos(const str, sub: string): int32;
-function SubCount(const str, sub: string): int32;
-function SubIcount(const str, sub: string): int32;
-function SubReplace(const str, sub, repl: string): string;
-function SubIreplace(const str, sub, repl: string): string;
-function SubStrip(const str, sub: string): string;
-function SubIstrip(const str, sub: string): string;
-function SubSplit(const str, delimiter: string): TStrArray;
-function SubIsplit(const str, delimiter: string): TStrArray;
-function StrComp(const str1, str2: string): shortint;
-function StrIcomp(const str1, str2: string): shortint;
-function StrNcomp(const str1, str2: string): shortint;
-function StrInComp(const str1, str2: string): shortint;
-function StrConvInt(const str: string): int32;
-function StrConvFloat(const str: string): double;
-function StrIsInt(const str: string): boolean;
-function StrIsFloat(const str: string): boolean;
-function StrReverse(const str: string): string;
-function StrTrimLeft(const str: string): string;
-function StrTrimRight(const str: string): string;
-function StrTrim(const str: string): string;
-function LeftStr(const s: string; const cnt: integer): string; {$IFDEF FPC}inline;{$ENDIF}
+function SubExists(const str, sub: ansistring): boolean;
+function SubIexists(const str, sub: ansistring): boolean;
+function SubPos(const str, sub: ansistring): int32;
+function SubIpos(const str, sub: ansistring): int32;
+function SubRpos(const str, sub: ansistring): int32;
+function SubIrpos(const str, sub: ansistring): int32;
+function SubCount(const str, sub: ansistring): int32;
+function SubIcount(const str, sub: ansistring): int32;
+function SubReplace(const str, sub, repl: ansistring): ansistring;
+function SubIreplace(const str, sub, repl: ansistring): ansistring;
+function SubStrip(const str, sub: ansistring): ansistring;
+function SubIstrip(const str, sub: ansistring): ansistring;
+function SubSplit(const str, delimiter: ansistring): TStrArray;
+function SubIsplit(const str, delimiter: ansistring): TStrArray;
+function StrComp(const str1, str2: ansistring): shortint;
+function StrIcomp(const str1, str2: ansistring): shortint;
+function StrNcomp(const str1, str2: ansistring): shortint;
+function StrInComp(const str1, str2: ansistring): shortint;
+function StrConvInt(const str: ansistring): int32;
+function StrConvFloat(const str: ansistring): double;
+function StrIsInt(const str: ansistring): boolean;
+function StrIsFloat(const str: ansistring): boolean;
+function StrReverse(const str: ansistring): ansistring;
+function StrTrimLeft(const str: ansistring): ansistring;
+function StrTrimRight(const str: ansistring): ansistring;
+function StrTrim(const str: ansistring): ansistring;
+function LeftStr(const s: ansistring; const cnt: integer): ansistring; {$IFDEF FPC}inline;{$ENDIF}
 
 
 //backwards compatibility
 const
-  SubstrExists: function(const str, sub: string): boolean =        {$IFDEF FPC}@{$ENDIF}   SubExists  ;
-  SubstrIexists: function(const str, sub: string): boolean =       {$IFDEF FPC}@{$ENDIF}   SubIexists ; 
-  SubstrPos: function(const str, sub: string): int32 =           {$IFDEF FPC}@{$ENDIF}   SubPos     ;
-  SubstrIpos: function(const str, sub: string): int32 =          {$IFDEF FPC}@{$ENDIF}   SubIpos    ;
-  SubstrRpos: function(const str, sub: string): int32 =          {$IFDEF FPC}@{$ENDIF}   SubRpos    ;
-  SubstrIrpos: function(const str, sub: string): int32 =         {$IFDEF FPC}@{$ENDIF}   SubIrpos   ;
-  SubstrCount: function(const str, sub: string): int32 =         {$IFDEF FPC}@{$ENDIF}   SubCount   ;
-  SubstrIcount: function(const str, sub: string): int32 =        {$IFDEF FPC}@{$ENDIF}   SubIcount  ;
-  SubstrReplace: function(const str, sub, repl: string): string =  {$IFDEF FPC}@{$ENDIF}   SubReplace ;
-  SubstrIreplace: function(const str, sub, repl: string): string = {$IFDEF FPC}@{$ENDIF}   SubIreplace;
-  SubstrStrip: function(const str, sub: string): string =          {$IFDEF FPC}@{$ENDIF}   SubStrip   ;
-  SubstrIstrip: function(const str, sub: string): string =         {$IFDEF FPC}@{$ENDIF}   SubIstrip  ;
-  SubstrSplit: function(const str, delimiter: string): TStrArray = {$IFDEF FPC}@{$ENDIF}   SubSplit   ;
-  SubstrIsplit: function(const str, delimiter: string): TStrArray ={$IFDEF FPC}@{$ENDIF}   SubIsplit  ;
+  SubstrExists: function(const str, sub: ansistring): boolean =        {$IFDEF FPC}@{$ENDIF}   SubExists  ;
+  SubstrIexists: function(const str, sub: ansistring): boolean =       {$IFDEF FPC}@{$ENDIF}   SubIexists ;
+  SubstrPos: function(const str, sub: ansistring): int32 =           {$IFDEF FPC}@{$ENDIF}   SubPos     ;
+  SubstrIpos: function(const str, sub: ansistring): int32 =          {$IFDEF FPC}@{$ENDIF}   SubIpos    ;
+  SubstrRpos: function(const str, sub: ansistring): int32 =          {$IFDEF FPC}@{$ENDIF}   SubRpos    ;
+  SubstrIrpos: function(const str, sub: ansistring): int32 =         {$IFDEF FPC}@{$ENDIF}   SubIrpos   ;
+  SubstrCount: function(const str, sub: ansistring): int32 =         {$IFDEF FPC}@{$ENDIF}   SubCount   ;
+  SubstrIcount: function(const str, sub: ansistring): int32 =        {$IFDEF FPC}@{$ENDIF}   SubIcount  ;
+  SubstrReplace: function(const str, sub, repl: ansistring): ansistring =  {$IFDEF FPC}@{$ENDIF}   SubReplace ;
+  SubstrIreplace: function(const str, sub, repl: ansistring): ansistring = {$IFDEF FPC}@{$ENDIF}   SubIreplace;
+  SubstrStrip: function(const str, sub: ansistring): ansistring =          {$IFDEF FPC}@{$ENDIF}   SubStrip   ;
+  SubstrIstrip: function(const str, sub: ansistring): ansistring =         {$IFDEF FPC}@{$ENDIF}   SubIstrip  ;
+  SubstrSplit: function(const str, delimiter: ansistring): TStrArray = {$IFDEF FPC}@{$ENDIF}   SubSplit   ;
+  SubstrIsplit: function(const str, delimiter: ansistring): TStrArray ={$IFDEF FPC}@{$ENDIF}   SubIsplit  ;
 
 implementation
 
@@ -76,19 +76,19 @@ const
   STR_CONST_DIGITS = '1234567890';
   STR_CONST_INT = '-1234567890';
 
-function LeftStr(const s: string; const cnt: integer): string; {$IFDEF FPC}inline;{$ENDIF}
+function LeftStr(const s: ansistring; const cnt: integer): ansistring; {$IFDEF FPC}inline;{$ENDIF}
 begin result:= copy(s, 1, cnt);
 end;
 
 // Finds if sub exists in str
-function SubExists(const str, sub: string): boolean;
+function SubExists(const str, sub: ansistring): boolean;
 begin
   if substrpos(str, sub) > 0 then result:= true
   else result:= false;
 end;
 
 // Case insensitive substr_exists
-function SubiExists(const str, sub: string): boolean;
+function SubiExists(const str, sub: ansistring): boolean;
 begin
   if substrpos(lowercase(str), lowercase(sub)) > 0 then result:= true
   else result:= false;
@@ -96,7 +96,7 @@ end;
 
 // Returns position of first occurance of sub in str
 // I know, pos() exists, but this is done to see the logic
-function SubPos(const str, sub: string): int32;
+function SubPos(const str, sub: ansistring): int32;
 var spos, len, sublen: int32;
 begin
   result:= 0;
@@ -112,13 +112,13 @@ begin
 end;
 
 // Case insensitive substrpos
-function SubIpos(const str, sub: string): int32;
+function SubIpos(const str, sub: ansistring): int32;
 begin result:= SubPos(lowercase(str), lowercase(sub));
 end;
 
 // Returns position of last occurance of sub in str
 // Ha-ha, you won't find it in system unit :)
-function SubRpos(const str, sub: string): int32;
+function SubRpos(const str, sub: ansistring): int32;
 var spos, len, sublen: int32;
 begin
   result:= 0;
@@ -134,13 +134,13 @@ begin
 end;
 
 // Case insensitive substrrpos
-function SubiRPos(const str, sub: string): int32;
+function SubiRPos(const str, sub: ansistring): int32;
 begin result:= subrpos(lowercase(str), lowercase(sub));
 end;
 
 // Returns number of occurances of sub in str
-function SubCount(const str, sub: string): int32;
-var temp: string;
+function SubCount(const str, sub: ansistring): int32;
+var temp: ansistring;
     sublen: int32;
 begin
   result:= 0;
@@ -153,12 +153,12 @@ begin
 end;
 
 // Case insensitive SubstrCount
-function SubIcount(const str, sub: string): int32;
+function SubIcount(const str, sub: ansistring): int32;
 begin result:= subcount(lowercase(str), lowercase(sub));
 end;
 
 // Replaces all the sub substrings in str with repl substrings
-function SubReplace(const str, sub, repl: string): string;
+function SubReplace(const str, sub, repl: ansistring): ansistring;
 var posn, sublen, len, replen: int32;
 begin
   result:= str;
@@ -177,9 +177,9 @@ begin
 end;
 
 // Case insensitive substrreplace
-function SubIreplace(const str, sub, repl: string): string;
+function SubIreplace(const str, sub, repl: ansistring): ansistring;
 var posn, sublen, len, replen: int32;
-    lsub: string;
+    lsub: ansistring;
 begin
   result:= str;
   posn:= 1;
@@ -198,7 +198,7 @@ begin
 end;
 
 // Removes all occurances of sub in the string
-function SubStrip(const str, sub: string): string;
+function SubStrip(const str, sub: ansistring): ansistring;
 var len: int32;
 begin
   result:= str;
@@ -207,7 +207,7 @@ begin
 end;
 
 // Case insensitive substrstrip
-function SubIstrip(const str, sub: string): string;
+function SubIstrip(const str, sub: ansistring): ansistring;
 var len, posn: int32;
 begin
   result:= str;
@@ -219,8 +219,8 @@ begin
 end;
 
 // Splits str into array by string delimiter
-function SubSplit(const str, delimiter: string): TStrArray;
-var temp: string;
+function SubSplit(const str, delimiter: ansistring): TStrArray;
+var temp: ansistring;
     i, len: int32;
 begin
   SetLength(result, 0);
@@ -240,8 +240,8 @@ begin
 end;
 
 // Case insensitive strsplit
-function SubIsplit(const str, delimiter: string): TStrArray;
-var temp: string;
+function SubIsplit(const str, delimiter: ansistring): TStrArray;
+var temp: ansistring;
     i, len: int32;
 begin
   SetLength(result, 0);
@@ -261,7 +261,7 @@ begin
 end;
 
 // String comparsion
-function StrComp(const str1, str2: string): shortint;
+function StrComp(const str1, str2: ansistring): shortint;
 var
   i, lim: int32;
 begin
@@ -277,14 +277,14 @@ begin
 end;
 
 // String comparsion, case insensitive
-function StrIcomp(const str1, str2: string): shortint;
+function StrIcomp(const str1, str2: ansistring): shortint;
 begin result:= strcomp(lowercase(str1), lowercase(str2));
 end;
 
 // String comparsion, natural algoritm
-function StrNcomp(const str1, str2: string): shortint;
+function StrNcomp(const str1, str2: ansistring): shortint;
 var i, j, len1, len2, num1, num2: int32;
-    lex1, lex2, lex3, lex4: string;
+    lex1, lex2, lex3, lex4: ansistring;
     sub: shortint;
     err: integer;
 begin
@@ -367,13 +367,13 @@ begin
 end;
 
 // String comparsion, natural algoritm, case insensitive
-function StrIncomp(const str1, str2: string): shortint;
+function StrIncomp(const str1, str2: ansistring): shortint;
 begin
   result:= strncomp(lowercase(str1), lowercase(str2));
 end;
 
 // Converts a string into int else returns zero
-function StrConvInt(const str: string): int32;
+function StrConvInt(const str: ansistring): int32;
 var err: integer;
 begin
   result:= 0;
@@ -382,7 +382,7 @@ begin
 end;
 
 // Converts a string into float it is a real float
-function StrConvFloat(const str: string): double;
+function StrConvFloat(const str: ansistring): double;
 var err: integer;
 begin
   result:= 0.0;
@@ -394,7 +394,7 @@ begin
 end;
 
 // Whether it is a string representation of integer type
-function StrIsInt(const str: string): boolean;
+function StrIsInt(const str: ansistring): boolean;
 var i: int32;
 begin
   result:= true;
@@ -403,9 +403,9 @@ begin
 end;
 
 // Whether it is a string representation of float type
-function StrIsFloat(const str: string): boolean;
+function StrIsFloat(const str: ansistring): boolean;
 var i, p: int32;
-    tmp: string;
+    tmp: ansistring;
 begin
   p:= pos('.', str);
   if p <= 0 then
@@ -423,7 +423,7 @@ begin
 end;
 
 // Returns reversed string
-function StrReverse(const str: string): string;
+function StrReverse(const str: ansistring): ansistring;
 var i, len: int32;
 begin
   len:= length(str);
@@ -432,7 +432,7 @@ begin
 end;
 
 // Removes whitespaces and tab chars from the beginning of the line
-function StrTrimLeft(const str: string): string;
+function StrTrimLeft(const str: ansistring): ansistring;
 var i: int32;
 begin
   i:= 0;
@@ -441,7 +441,7 @@ begin
 end;
 
 // Removes whitespaces and tab chars from the end of the line
-function StrTrimRight(const str: string): string;
+function StrTrimRight(const str: ansistring): ansistring;
 var i, len: int32;
 begin
   len:= length(str);
@@ -451,7 +451,7 @@ begin
 end;
 
 // Removes whitespaces and tab chars from beginning and end of the line
-function StrTrim(const str: string): string;
+function StrTrim(const str: ansistring): ansistring;
 begin result:= strtrimright(strtrimleft(str));
 end;
 
