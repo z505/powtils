@@ -4,8 +4,9 @@
   Authors: L505 (Lars Olson), JKP (Jeff Pohlmeyer), Vladimir Sibirov
 
   License:
-   ~NRCOL public domain. However, any FPC include file modules are under
-   modified FPC RTL GPL }
+   Any FPC include file modules are under modified FPC RTL GPL, the rest
+   is GFY
+}
 
 unit pwfileutil;
 
