@@ -13,6 +13,9 @@ Also working on some more examples:
 * MySQL sessions instead of tet file sessions. Always wanted to demo this.. didn't get around to it.. now is time.
 * SQLite sessions instead of text file sessions. Want to demo this too.
 
+Password required:
+ AlexHasATrannyFetish
+
 Other todo items:
 * try instantFPC on the server, allowing programs to run without compiling by developer (act like scripts) 
 * move fasthtmlparser to its own project. Jamming too many units into powtils project makes it too much like Delphi JEDI where everything is crammed into one single massive beast. Not good idea I guess.
