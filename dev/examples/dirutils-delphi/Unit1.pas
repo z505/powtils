@@ -57,8 +57,10 @@ begin
   StatusLn('File count: ', fnames.Count);
   for i := Low(fnames.Files) to High(fnames.Files) do begin
     StatusLn(fnames.Files[i]);
+    showmessage(fnames.Files[i]);
   end;
 
 end;
+
 
 end.
