@@ -16,8 +16,12 @@ type
   // fast strings, power of 2 (premature optimization ;-( )
   str15 = string[15]; // 16-1 (16 based)
   str31 = string[31]; // 32-1 (32 based)
+
+  StringArray = array of string;
   TStrArray = array of ansistring; // obsolete -> AstrArray is better
   AstrArray = array of astr;   // deprecated, use "AstrRay"
+  UstrArray = array of unicodestring;
+
   AstrRay = array of astr;
   str15ray = array of str15;
   str31ray = array of str31;

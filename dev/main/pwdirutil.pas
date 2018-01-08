@@ -46,9 +46,9 @@ type
     Dirs: AstrArray;
     Count: integer;
   end;
-                                
+
   TFileNames = record
-    Files: AstrArray;
+    Files: StringArray;
     Count: integer;
   end;
 
@@ -81,12 +81,16 @@ procedure GetSubDirs(dir: astr; const wildcard: astr; var res: TDirNames; initre
 procedure GetSubDirs(dir: astr; const wildcard: astr; var res: TDirNames); overload;
 procedure GetSubDirs(dir: astr; var res: TDirNames; initrec: boo); overload;
 procedure GetSubDirs(dir: astr; var res: TDirNames); overload;
-procedure GetFiles(dir: astr; const wildcard: astr; var res: TFileNames; initrec: boo); overload;
-procedure GetFiles(dir: astr; const wildcard: astr; var res: TFileNames); overload;
-procedure GetFiles(dir: astr; var res: TFileNames; initrec: boo); overload;
-procedure GetFiles(dir: astr; var res: TFileNames); overload;
+
+procedure GetFiles(dir: string; const wildcard: string; var res: TFileNames; initrec: boo); overload;
+procedure GetFiles(dir: string; const wildcard: string; var res: TFileNames); overload;
+procedure GetFiles(dir: string; var res: TFileNames; initrec: boo); overload;
+procedure GetFiles(dir: string; var res: TFileNames); overload;
+
+
 procedure GetSubdirFiles(const dir, mask: astr; var res: TPaths; initrec: boo); overload;
 procedure GetSubdirFiles(const dir, mask: astr; var res: TPaths); overload;
+
 function GetSubdirFiles(const parentdir, mask: astr): TPaths; overload;
 function GetCurDir: astr;
 
@@ -288,7 +292,7 @@ function GetSubdirFiles(const parentdir, mask: astr): TPaths;
 begin GetSubdirFiles(parentdir, mask, result);
 end;
 
-{ gets trailing directory name from a string containing /path/to/trailing/ 
+{ gets trailing directory name from a string containing /path/to/trailing/
   works with windows or unix slashes }
 function GetTrailDir(const s: astr): astr;
 var i, slen, slashpos: integer;
@@ -296,6 +300,8 @@ var i, slen, slashpos: integer;
 begin
   result:= ''; slen:= length(s); slashpos:= 0; trailingslash:= false;
   if slen < 1 then exit;
+  // NOTE: THIS STYLE PARSING WILL LIKELY CAUSE ISSUES WITH UNICODE/UTF8 IN
+  // Freepascal
   for i:= slen downto 1 do begin
     if s[i] in SLASHES then begin
       if i = slen then begin
@@ -307,6 +313,7 @@ begin
     end;
   end;
 
+  // UNICODE ISSUES MAY ARISE HERE TOO
   for i:= slashpos+1 to slen do begin
     if (i = slen) and (trailingslash) then continue;
     result:= result + s[i];
@@ -314,17 +321,17 @@ begin
 end;
 
 procedure UpdateDirNameCount(var dn: TDirNames);
-begin dn.Count:= length(dn.dirs); 
+begin dn.Count:= length(dn.dirs);
 end;
 
 procedure UpdateFileNameCount(var fn: TFileNames);
-begin fn.Count:= length(fn.files); 
+begin fn.Count:= length(fn.files);
 end;
 
-{ Gets files from a directory using wild card match 
+{ Gets files from a directory using wild card match
 
-  Note: result var is cleared first only if InitRec is true }
-procedure GetFiles(dir: astr; const wildcard: astr; var res: TFileNames; initrec: boo); overload;
+  Note: result var is cleared first only if InitRec is }
+procedure GetFiles(dir: string; const wildcard: string; var res: TFileNames; initrec: boo); overload;
 var Info : TSearchRec;
 begin
   // must have trailing slash
@@ -337,7 +344,7 @@ begin
       if (info.Attr and faDirectory) <> faDirectory then begin
         inc(res.Count);
         SetLength(res.files, res.Count);
-        res.files[res.Count - 1]:= info.Name; 
+        res.files[res.Count - 1]:= info.Name;
       end;
     until FindNext(info) <> 0;
   end;
@@ -347,18 +354,18 @@ end;
 { find all files in a given directory, with wildcard match
   Appends to VAR result, if it has existing data
   READ-ONLY FILES are skipped }
-procedure GetFiles(dir: astr; const wildcard: astr; var res: TFileNames);
-begin GetFiles(dir, wildcard, res, DEFAULT_INIT); 
+procedure GetFiles(dir: string; const wildcard: string; var res: TFileNames);
+begin GetFiles(dir, wildcard, res, DEFAULT_INIT);
 end;
 
 {  Note: result var is cleared first only if InitRec is true }
-procedure GetFiles(dir: astr; var res: TFileNames; initrec: boo);
+procedure GetFiles(dir: string; var res: TFileNames; initrec: boo);
 begin GetFiles(dir, res, initrec);
 end;
 
 { find all files in a given directory
   READ-ONLY FILES are skipped }
-procedure GetFiles(dir: astr; var res: TFileNames);
+procedure GetFiles(dir: string; var res: TFileNames);
 begin GetFiles(dir, '*', res);
 end;
 
@@ -368,9 +375,9 @@ end;
 function DelFiles(dir: astr; const wildcard: astr): boo;
 var fn: TFileNames;
     i, problem: integer;
-    removed: boo; 
+    removed: boo;
 begin
-  result:= false; removed:= false; problem:= 0;
+  result:= false; removed:= fa+lse; problem:= 0;
   dir:= IncludeTrailingPathDelimiter(dir);
   GetFiles(Dir, wildcard, fn);
   if fn.count < 1 then begin result:= true; exit; end;
@@ -384,10 +391,11 @@ end;
 { copies many files from src directory to dest, using wildcard match  }
 function CloneFiles(src, dest: astr; const wildcard: astr): boo;
 var fn: TFileNames;
-    i, 
+    i,
     problem,               // if issues occur during copying
     copyres: integer;      // result of each copy
 begin
+  result := false;
   copyres:= -1; problem:= 0;
   src:= includetrailingpathdelimiter(src);
   dest:= includetrailingpathdelimiter(dest);
@@ -403,7 +411,7 @@ end;
 { TODO overloaded
 function CloneFiles(list: TPaths; dest: astr): boo;
 begin
-  
+
 end;
 }
 
