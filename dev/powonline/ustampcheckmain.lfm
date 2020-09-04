@@ -1,0 +1,79 @@
+object frmMain: TfrmMain
+  Left = 256
+  Height = 435
+  Top = 145
+  Width = 573
+  Caption = 'frmMain'
+  ClientHeight = 0
+  ClientWidth = 0
+  LCLVersion = '2.0.10.0'
+  object mStatus: TMemo
+    Left = 24
+    Height = 248
+    Top = 8
+    Width = 334
+    Lines.Strings = (
+      'Status:'
+    )
+    TabOrder = 0
+  end
+  object bCheckTimeStamps: TButton
+    Left = 272
+    Height = 25
+    Top = 384
+    Width = 128
+    Caption = 'Check Time Stamps'
+    OnClick = bCheckTimeStampsClick
+    TabOrder = 1
+  end
+  object bAddFileToProject: TButton
+    Left = 280
+    Height = 25
+    Top = 294
+    Width = 120
+    Caption = 'Add File To Project'
+    OnClick = bAddFileToProjectClick
+    TabOrder = 2
+  end
+  object bChangeFile: TButton
+    Left = 280
+    Height = 25
+    Top = 320
+    Width = 120
+    Caption = 'Change File'
+    OnClick = bChangeFileClick
+    TabOrder = 3
+  end
+  object edFname: TEdit
+    Left = 80
+    Height = 23
+    Top = 296
+    Width = 192
+    TabOrder = 4
+    Text = 'example.pas'
+  end
+  object Label1: TLabel
+    Left = 16
+    Height = 15
+    Top = 296
+    Width = 53
+    Caption = 'File Name'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 16
+    Height = 15
+    Top = 275
+    Width = 55
+    Caption = 'Project Dir'
+    ParentColor = False
+  end
+  object edProjectDir: TEdit
+    Left = 80
+    Height = 23
+    Top = 272
+    Width = 80
+    TabOrder = 5
+    Text = 'projectspace'
+  end
+end
