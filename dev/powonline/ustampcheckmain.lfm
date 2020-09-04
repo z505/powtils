@@ -4,8 +4,8 @@ object frmMain: TfrmMain
   Top = 145
   Width = 573
   Caption = 'frmMain'
-  ClientHeight = 0
-  ClientWidth = 0
+  ClientHeight = 435
+  ClientWidth = 573
   LCLVersion = '2.0.10.0'
   object mStatus: TMemo
     Left = 24

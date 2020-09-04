@@ -49,7 +49,6 @@ var
   paths1, paths2, paths3, paths4, paths5: TPaths;
   AllPaths: TPaths;
   i, j: integer;
-  SL: TStringList;
 begin
   FilesChanged := true;
   GetSubdirFiles(ExtractFileDir(Application.ExeName), '*.pas', paths1);
@@ -57,14 +56,7 @@ begin
   GetSubdirFiles(ExtractFileDir(Application.ExeName), '*.dpr', paths3);
   GetSubdirFiles(ExtractFileDir(Application.ExeName), '*.lpr', paths4);
   GetSubdirFiles(ExtractFileDir(Application.ExeName), '*.inc', paths5);
-  AddPaths([paths1,paths2,paths3,paths4,paths5], AllPaths, SL);
-
-  for i:= 0 to SL.count-1 do
-  begin
-    status('SL count: ' + inttostr(SL.count));
-    status('Checking..' +SL.strings[i]);
-    status('Changed');
-  end;
+  AddPaths([paths1,paths2,paths3,paths4,paths5], AllPaths);
 
   for j:= 0 to AllPaths.count-1 do
   begin

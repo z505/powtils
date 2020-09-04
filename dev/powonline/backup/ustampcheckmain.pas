@@ -59,13 +59,6 @@ begin
   GetSubdirFiles(ExtractFileDir(Application.ExeName), '*.inc', paths5);
   AddPaths([paths1,paths2,paths3,paths4,paths5], AllPaths, SL);
 
-  for i:= 0 to SL.count-1 do
-  begin
-    status('SL count: ' + inttostr(SL.count));
-    status('Checking..' +SL.items[i]);
-    status('Changed');
-  end;
-
   for j:= 0 to AllPaths.count-1 do
   begin
     status('count: ' + inttostr(AllPaths.count));

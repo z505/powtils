@@ -25,14 +25,13 @@ unit pwdirutil;
 
 interface
 uses
-  classes, // DEBUG ONLY, remove
   pwtypes,
  {$ifdef fpc}
   pwstrutil,
  {$else}
   strutils,
  {$endif}
-  sysutils; // future: compactsysutils
+  sysutils;
 
 const DEFAULT_INIT = true;
 
@@ -101,7 +100,7 @@ procedure Clear(var fn: TFileNames); overload;
 
 procedure Add(var list: TPaths; path, fname: ansistring);
 
-procedure AddPaths(paths: array of TPaths; var rslt: TPaths; var SL: TStringList);
+procedure AddPaths(paths: array of TPaths; var rslt: TPaths);
 
 function DelFiles(dir: ansistring; const wildcard: ansistring): boolean;
 
@@ -259,18 +258,16 @@ begin
   list.count:= newlen;
 end;
 
-procedure AddPaths(paths: array of TPaths; var rslt: TPaths; var SL: TStringList);
+procedure AddPaths(paths: array of TPaths; var rslt: TPaths);
 var
   i, j: integer;
 begin
-  SL := TStringList.create;
   Init(rslt);
   if length(paths) < 1 then exit;
   for i := 0 to length(paths)-1 do begin
     if length(paths[i].items) > 0 then begin
       for j := 0 to length(paths[i].items)-1 do begin
          Add(rslt, paths[i].items[j].path, paths[i].items[j].fname);
-         SL.add(paths[i].items[j].path + PathDelim + paths[i].items[j].fname);
       end;
     end;
   end;
