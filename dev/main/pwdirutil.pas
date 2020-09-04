@@ -17,13 +17,15 @@
 
 unit pwdirutil;
 
-{$ifdef fpc}{$mode objfpc}{$H+}
+{$ifdef fpc}
+  {$mode objfpc}{$H+}
 {$endif}
 
 {$R+}
 
 interface
 uses
+  classes, // DEBUG ONLY, remove
   pwtypes,
  {$ifdef fpc}
   pwstrutil,
@@ -54,7 +56,7 @@ type
 
   TPath = record
     path,
-    fname: astr;
+    fname: ansistring;
   end;
 
   TPaths = record
@@ -67,45 +69,47 @@ procedure Init(var rec: TFileNames); overload;
 procedure Init(var rec: TDirNames); overload;
 procedure Init(var rec: TDirContents); overload;
 
-function ForceDir(const path: astr): boo;
-function GetTrailDir(const s: astr): astr;
-procedure GetDirContent(dir: astr; const wildcard: astr; var res: TDirContents; initrec: boo); overload;
-procedure GetDirContent(dir: astr; const wildcard: astr; var res: TDirContents); overload;
-procedure GetDirContent(dir: astr; var res: TDirContents; initrec: boo); overload;
-procedure GetDirContent(dir: astr; var res: TDirContents); overload;
-procedure GetDirContent_nodots(dir: astr; const wildcard: astr; var res: TDirContents; initrec: boo); overload;
-procedure GetDirContent_nodots(dir: astr; const wildcard: astr; var res: TDirContents); overload;
-procedure GetDirContent_nodots(dir: astr; var res: TDirContents; initrec: boo); overload;
-procedure GetDirContent_nodots(dir: astr; var res: TDirContents); overload;
-procedure GetSubDirs(dir: astr; const wildcard: astr; var res: TDirNames; initrec: boo); overload;
-procedure GetSubDirs(dir: astr; const wildcard: astr; var res: TDirNames); overload;
-procedure GetSubDirs(dir: astr; var res: TDirNames; initrec: boo); overload;
-procedure GetSubDirs(dir: astr; var res: TDirNames); overload;
+function ForceDir(const path: ansistring): boolean;
+function GetTrailDir(const s: ansistring): ansistring;
+procedure GetDirContent(dir: ansistring; const wildcard: ansistring; var res: TDirContents; initrec: boolean); overload;
+procedure GetDirContent(dir: ansistring; const wildcard: ansistring; var res: TDirContents); overload;
+procedure GetDirContent(dir: ansistring; var res: TDirContents; initrec: boolean); overload;
+procedure GetDirContent(dir: ansistring; var res: TDirContents); overload;
+procedure GetDirContent_nodots(dir: ansistring; const wildcard: ansistring; var res: TDirContents; initrec: boolean); overload;
+procedure GetDirContent_nodots(dir: ansistring; const wildcard: ansistring; var res: TDirContents); overload;
+procedure GetDirContent_nodots(dir: ansistring; var res: TDirContents; initrec: boolean); overload;
+procedure GetDirContent_nodots(dir: ansistring; var res: TDirContents); overload;
+procedure GetSubDirs(dir: ansistring; const wildcard: ansistring; var res: TDirNames; initrec: boolean); overload;
+procedure GetSubDirs(dir: ansistring; const wildcard: ansistring; var res: TDirNames); overload;
+procedure GetSubDirs(dir: ansistring; var res: TDirNames; initrec: boolean); overload;
+procedure GetSubDirs(dir: ansistring; var res: TDirNames); overload;
 
-procedure GetFiles(dir: string; const wildcard: string; var res: TFileNames; initrec: boo); overload;
+procedure GetFiles(dir: string; const wildcard: string; var res: TFileNames; initrec: boolean); overload;
 procedure GetFiles(dir: string; const wildcard: string; var res: TFileNames); overload;
-procedure GetFiles(dir: string; var res: TFileNames; initrec: boo); overload;
+procedure GetFiles(dir: string; var res: TFileNames; initrec: boolean); overload;
 procedure GetFiles(dir: string; var res: TFileNames); overload;
 
 
-procedure GetSubdirFiles(const dir, mask: astr; var res: TPaths; initrec: boo); overload;
-procedure GetSubdirFiles(const dir, mask: astr; var res: TPaths); overload;
+procedure GetSubdirFiles(const dir, mask: ansistring; var res: TPaths; initrec: boolean); overload;
+procedure GetSubdirFiles(const dir, mask: ansistring; var res: TPaths); overload;
 
-function GetSubdirFiles(const parentdir, mask: astr): TPaths; overload;
-function GetCurDir: astr;
+function GetSubdirFiles(const parentdir, mask: ansistring): TPaths; overload;
+function GetCurDir: ansistring;
 
 procedure Clear(var list: TPaths); overload;
 procedure Clear(var fn: TFileNames); overload;
 
-procedure Add(var list: TPaths; path, fname: astr);
+procedure Add(var list: TPaths; path, fname: ansistring);
 
-function DelFiles(dir: astr; const wildcard: astr): boo;
+procedure AddPaths(paths: array of TPaths; var rslt: TPaths; var SL: TStringList);
+
+function DelFiles(dir: ansistring; const wildcard: ansistring): boolean;
 
 // Todo:
-//   function DelFiles(list: TPaths): boo;
-//   function CloneFiles(fromlist: TPaths; todir: astr): boo; overload;
+//   function DelFiles(list: TPaths): boolean;
+//   function CloneFiles(fromlist: TPaths; todir: ansistring): boolean; overload;
 
-function CloneFiles(src, dest: astr; const wildcard: astr): boo;
+function CloneFiles(src, dest: ansistring; const wildcard: ansistring): boolean;
 
 procedure RunTests;
 
@@ -199,11 +203,11 @@ begin Init(fn);
 end;
 
 { forces to create a directory }
-function ForceDir(const path: astr): boo;
+function ForceDir(const path: ansistring): boolean;
 
-  function MakeForcedDir(const dir: astr): boo;
+  function MakeForcedDir(const dir: ansistring): boolean;
 
-    function ForceDirs(const s: astr): boo; var newpath: astr;
+    function ForceDirs(const s: ansistring): boolean; var newpath: ansistring;
     begin
       result:= true;
       newpath:= ExcludeTrailingPathDelimiter(s);
@@ -214,7 +218,7 @@ function ForceDir(const path: astr): boo;
       end;
     end;
 
-  var drive : astr;
+  var drive : ansistring;
   begin
     result:= false;
     drive:= ExtractFileDrive(dir);
@@ -223,7 +227,7 @@ function ForceDir(const path: astr): boo;
     result:= ForceDirs(dir);
   end;
 
-var newpath: astr; len: integer;
+var newpath: ansistring; len: integer;
 begin
   len:= length(path);
   // trim trailing slash
@@ -238,19 +242,38 @@ begin
 end;
 
 { return working directory }
-function GetCurDir: astr;
+function GetCurDir: ansistring;
 begin getdir(0,  result);
 end;
 
-procedure Add(var list: TPaths; path, fname: astr);
+procedure Add(var list: TPaths; path, fname: ansistring);
 var oldlen, newlen: integer;
 begin
-  if path = '' then exit; if fname = '' then exit; oldlen:= list.count;
+  if path = '' then exit;
+  if fname = '' then exit;
+  oldlen:= list.count;
   newlen:= oldlen + 1;
   setlength(list.items, newlen);
   list.items[oldlen].path:= path;
   list.items[oldlen].fname:= fname;
   list.count:= newlen;
+end;
+
+procedure AddPaths(paths: array of TPaths; var rslt: TPaths; var SL: TStringList);
+var
+  i, j: integer;
+begin
+  SL := TStringList.create;
+  Init(rslt);
+  if length(paths) < 1 then exit;
+  for i := 0 to length(paths)-1 do begin
+    if length(paths[i].items) > 0 then begin
+      for j := 0 to length(paths[i].items)-1 do begin
+         Add(rslt, paths[i].items[j].path, paths[i].items[j].fname);
+         SL.add(paths[i].items[j].path + PathDelim + paths[i].items[j].fname);
+      end;
+    end;
+  end;
 end;
 
 
@@ -264,8 +287,11 @@ end;
 
   This would get all *.txt files from "dir/", "other/", and "place/"
  
-  Note: result var is cleared first only if InitRec is true }
-procedure GetSubdirFiles(const dir, mask: astr; var res: TPaths; initrec: boo);
+  Note: result var is cleared first only if InitRec is true
+
+  Mask:
+  }
+procedure GetSubdirFiles(const dir, mask: ansistring; var res: TPaths; initrec: boolean);
 var dn: TDirNames;
     fn: TFileNames;
     i, i2: integer;
@@ -283,20 +309,20 @@ begin
 end;
 
 { same as above but record inited by default }
-procedure GetSubdirFiles(const dir, mask: astr; var res: TPaths);
+procedure GetSubdirFiles(const dir, mask: ansistring; var res: TPaths);
 begin GetSubdirFiles(dir, mask, res, DEFAULT_INIT);
 end;
 
 { same as above but returns as a function result }
-function GetSubdirFiles(const parentdir, mask: astr): TPaths;
+function GetSubdirFiles(const parentdir, mask: ansistring): TPaths;
 begin GetSubdirFiles(parentdir, mask, result);
 end;
 
 { gets trailing directory name from a string containing /path/to/trailing/
   works with windows or unix slashes }
-function GetTrailDir(const s: astr): astr;
+function GetTrailDir(const s: ansistring): ansistring;
 var i, slen, slashpos: integer;
-    trailingslash: boo;
+    trailingslash: boolean;
 begin
   result:= ''; slen:= length(s); slashpos:= 0; trailingslash:= false;
   if slen < 1 then exit;
@@ -330,8 +356,10 @@ end;
 
 { Gets files from a directory using wild card match
 
+  Wildcard:
+
   Note: result var is cleared first only if InitRec is }
-procedure GetFiles(dir: string; const wildcard: string; var res: TFileNames; initrec: boo); overload;
+procedure GetFiles(dir: string; const wildcard: string; var res: TFileNames; initrec: boolean); overload;
 var Info : TSearchRec;
 begin
   // must have trailing slash
@@ -359,7 +387,7 @@ begin GetFiles(dir, wildcard, res, DEFAULT_INIT);
 end;
 
 {  Note: result var is cleared first only if InitRec is true }
-procedure GetFiles(dir: string; var res: TFileNames; initrec: boo);
+procedure GetFiles(dir: string; var res: TFileNames; initrec: boolean);
 begin GetFiles(dir, res, initrec);
 end;
 
@@ -372,12 +400,12 @@ end;
 { delete files in given dir, return false if at least 1 delete from gotten
   files didn't occur, return true if all deletes okay or if no deletes were
   required due to no files being found}
-function DelFiles(dir: astr; const wildcard: astr): boo;
+function DelFiles(dir: ansistring; const wildcard: ansistring): boolean;
 var fn: TFileNames;
     i, problem: integer;
-    removed: boo;
+    removed: boolean;
 begin
-  result:= false; removed:= fa+lse; problem:= 0;
+  result:= false; removed:= false; problem:= 0;
   dir:= IncludeTrailingPathDelimiter(dir);
   GetFiles(Dir, wildcard, fn);
   if fn.count < 1 then begin result:= true; exit; end;
@@ -389,7 +417,7 @@ begin
 end;
 
 { copies many files from src directory to dest, using wildcard match  }
-function CloneFiles(src, dest: astr; const wildcard: astr): boo;
+function CloneFiles(src, dest: ansistring; const wildcard: ansistring): boolean;
 var fn: TFileNames;
     i,
     problem,               // if issues occur during copying
@@ -409,13 +437,13 @@ begin
 end;
 
 { TODO overloaded
-function CloneFiles(list: TPaths; dest: astr): boo;
+function CloneFiles(list: TPaths; dest: ansistring): boolean;
 begin
 
 end;
 }
 
-procedure GetSubDirs(dir: astr; const wildcard: astr; var res: TDirNames);
+procedure GetSubDirs(dir: ansistring; const wildcard: ansistring; var res: TDirNames);
 begin GetSubDirs(dir, wildcard, res, DEFAULT_INIT);
 end;
 
@@ -423,9 +451,10 @@ end;
   Appends if VAR result has existing contents
   READ-ONLY DIRECTORIES are skipped, dotted directories skipped 
   Note: result var is cleared first only if InitRec is true } 
-procedure GetSubDirs(Dir: astr; const wildcard: astr; var res: TDirNames; initrec: boo);
+procedure GetSubDirs(Dir: ansistring; const wildcard: ansistring; var res: TDirNames; initrec: boolean);
 var Info : TSearchRec;
 begin
+  if length(dir) = 0 then dir:= dir + SLASH;
   // must have trailing slash
   if dir[length(dir)] <> SLASH then dir:= dir + SLASH;
   //initialize count, appends if result has existing array contents
@@ -448,13 +477,13 @@ begin
 end;
 
 {  Note: result var is cleared first only if InitRec is true }
-procedure GetSubDirs(dir: astr; var res: TDirNames; initrec: boo);
+procedure GetSubDirs(dir: ansistring; var res: TDirNames; initrec: boolean);
 begin GetSubDirs(Dir, '*', res, initrec);
 end;
 
 { find all subdirectory names in a given directory
    READ-ONLY DIRECTORIES are skipped }
-procedure GetSubDirs(dir: astr; var res: TDirNames);
+procedure GetSubDirs(dir: ansistring; var res: TDirNames);
 begin GetSubDirs(Dir, '*', res);
 end;
 
@@ -464,14 +493,14 @@ begin
   dc.fileCount:= length(dc.files);       
 end;
 
-procedure GetDirContent_nodots(dir: astr; const wildcard: astr; var res: TDirContents);
+procedure GetDirContent_nodots(dir: ansistring; const wildcard: ansistring; var res: TDirContents);
 begin GetDirContent_nodots(dir, wildcard, res, DEFAULT_INIT);  
 end;
 
 { Find contents of any directory with wildcard, but skip dots ../ ./
   READ-ONLY FILES are skipped 
   Note: result var is cleared first only if InitRec is true }   
-procedure GetDirContent_nodots(dir: astr; const wildcard: astr; var res: TDirContents; initrec: boo);
+procedure GetDirContent_nodots(dir: ansistring; const wildcard: ansistring; var res: TDirContents; initrec: boolean);
 var Info : TSearchRec;
 begin
   // must have trailing slash
@@ -501,23 +530,23 @@ end;
 
 { find contents of any directory but skip dots like ../ ./
   READ ONLY FILES are skipped }
-procedure GetDirContent_nodots(dir: astr; var res: TDirContents);
+procedure GetDirContent_nodots(dir: ansistring; var res: TDirContents);
 begin GetDirContent_nodots(dir, '*', res);
 end;
 
 { Note: result var is cleared first only if InitRec is true }
-procedure GetDirContent_nodots(dir: astr; var res: TDirContents; initrec: boo);
+procedure GetDirContent_nodots(dir: ansistring; var res: TDirContents; initrec: boolean);
 begin GetDirContent_nodots(dir, '*', res, initrec);
 end;
 
-procedure GetDirContent(dir: astr; const wildcard: astr; var res: TDirContents);
+procedure GetDirContent(dir: ansistring; const wildcard: ansistring; var res: TDirContents);
 begin GetDirContent(dir, wildcard, res, DEFAULT_INIT);
 end;
 
 { find contents of any directory with a wildcard filter
   READ ONLY FILES are skipped 
   Note: result var is cleared first only if InitRec is true }  
-procedure GetDirContent(dir: astr; const wildcard: astr; var res: TDirContents; initrec: boo); overload;
+procedure GetDirContent(dir: ansistring; const wildcard: ansistring; var res: TDirContents; initrec: boolean); overload;
 var Info : TSearchRec;                              
 begin
   // must have trailing slash
@@ -544,13 +573,13 @@ begin
 end;
 
 { Note: result var is cleared first only if InitRec is true }
-procedure GetDirContent(dir: astr; var res: TDirContents; initrec: boo); overload;
+procedure GetDirContent(dir: ansistring; var res: TDirContents; initrec: boolean); overload;
 begin GetDirContent(dir, '*.*', res, initrec);
 end;
 
 { find contents of any directory
   READ ONLY FILES are skipped }
-procedure GetDirContent(dir: astr; var res: TDirContents); overload;
+procedure GetDirContent(dir: ansistring; var res: TDirContents); overload;
 begin GetDirContent(Dir, '*.*', res, DEFAULT_INIT);
 end;
 
