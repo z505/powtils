@@ -84,7 +84,7 @@ begin
   // visible for HELP command
   SetVisibleGroups(names);
   // get all .DPR files to compile
-  GetDirFiles('./', '*.dpr', Paths);
+  GetSubdirFiles('./', '*.dpr', Paths);
   if Paths.count < 0 then HaltErr('Path problem getting example *.DPR files');
   BuildExamples(Paths);
 end.
